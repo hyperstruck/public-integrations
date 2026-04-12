@@ -1,91 +1,108 @@
 # Public integrations
 
-This folder holds **customer-facing** integration material (Claude Code skills, small helpers, and usage notes). It is written so the contents can be copied into a **separate public repository** without leaking internal intellectual property, proprietary product names beyond what you intentionally export, real endpoints beyond placeholders, customer data, or secrets.
+This folder holds **customer-facing** integration material for Hyperstruck. It is written so the contents can be copied into a **separate public repository** without leaking internal IP, proprietary implementation details, real endpoints beyond the documented default, customer data, or secrets.
 
 ## Warnings
 
-- **Do not commit API keys**, tenant IDs, agent IDs from production, internal hostnames, or private documentation into this tree.
-- **Review every change** before publishing: assume downstream users will share snippets in public forums.
-- Skills are **instructions for an AI agent**; they do not perform authentication by themselves. The human still supplies credentials through environment variables or explicit context.
+> **This folder will be published publicly.** Review every change carefully.
 
-## Layout
+- **Do not commit** API keys, tenant IDs, production agent IDs, internal hostnames, or private documentation into this tree.
+- **Do not reference** internal code paths, private repos, or proprietary architecture.
+- Skills are **instructions for an AI coding agent** — they guide HTTP calls but do not ship secrets or libraries.
+- Assume downstream users will share snippets in public forums.
+
+---
+
+## What's here
 
 | Path | Purpose |
 |------|---------|
-| `claude_skills/` | Skill folders (`SKILL.md` per skill). Install by copying or symlinking into your project's `.claude/skills/` (or your tool's equivalent). |
-| `scripts/` | Optional, dependency-light helpers (stdlib only) to call the HTTP API with consistent auth and run polling. |
+| `claude_skills/platform-agent-run/` | Skill for dispatching a Hyperstruck hosted agent goal from Claude Code, with OpenAPI discovery, agent listing, rich context assembly, run polling, and HITL resume. |
+| `claude_skills/platform-learnings/` | Skill for manually managing learnings — store, search, get, and reinforce — without going through a full agent run. |
+
+There are no scripts or library dependencies. The skills instruct the AI agent to make HTTP calls directly using whatever HTTP capability the host tool provides (Claude Code's `fetch`, `curl` in a shell, etc.). No `jq`, no specific Python version, no pip packages required.
+
+---
+
+## Installation
+
+Copy or symlink each skill folder into your project's skill directory:
+
+```bash
+# Claude Code
+cp -r public_integrations/claude_skills/platform-agent-run .claude/skills/
+cp -r public_integrations/claude_skills/platform-learnings .claude/skills/
+
+# Cursor (if using .cursor/skills)
+cp -r public_integrations/claude_skills/platform-agent-run .cursor/skills/
+cp -r public_integrations/claude_skills/platform-learnings .cursor/skills/
+```
+
+---
 
 ## Configuration
 
-### Base URL and agent
+### API key
 
-Set the API host and target agent explicitly (values are yours; do not hardcode secrets here):
+Both skills resolve the API key in this order (first match wins):
 
-- `HYPER_BASE_URL` — e.g. `https://api.example.com` (no trailing slash required)
-- `HYPER_AGENT_ID` — UUID of the agent to run goals and learnings against
+1. **Explicit** — key provided in the conversation (the skill will never echo it back).
+2. **Environment variable** — `HYPER_API_KEY`.
+3. **Dotenv file** — `.env` in the project root, or a path from `PUBLIC_INTEGRATIONS_ENV_FILE`. Expected format: `HYPER_API_KEY=<value>`.
 
-### API key resolution order
+If none found, the skill stops and asks the user to configure one.
 
-Integrations use this order unless a skill says otherwise:
+Send the key as: `Authorization: Bearer <key>`.
 
-1. **Explicit** — API key passed in the user message or tool invocation (avoid logging it).
-2. **Environment** — `HYPER_API_KEY` (recommended for local dev).
-3. **Dotenv file** — `.env` in the current working directory, or a path from `PUBLIC_INTEGRATIONS_ENV_FILE`. Expected line format: `HYPER_API_KEY=...` (and optionally `HYPER_BASE_URL`, `HYPER_AGENT_ID`).
-4. If still missing, **stop** and ask the human to set one of the above.
+### Base URL
 
-Send the key as: `Authorization: Bearer <full-key>`.
+Default: **`https://api.core.hyperstruck.com`**
 
-### Optional: Python helper
+Override with (first match wins):
+1. Explicit user instruction in the conversation.
+2. `HYPER_BASE_URL` environment variable.
+3. `.env` file: `HYPER_BASE_URL=https://your-custom-host`.
 
-From the repository root (or any path; adjust `PYTHONPATH` if you vendor the script):
+### Agent ID (for learnings skill)
 
-```bash
-export HYPER_BASE_URL="https://your-api-host"
-export HYPER_AGENT_ID="your-agent-uuid"
-export HYPER_API_KEY="your-key"   # or use .env
+The learnings skill needs an agent ID to scope operations. It resolves via:
+1. Explicit user-provided value.
+2. `HYPER_AGENT_ID` env var or `.env` entry.
+3. Falls back to listing agents via the API and asking the user to choose.
 
-# Dispatch a goal and poll until terminal (default interval 2s, max 120s)
-python public_integrations/scripts/platform_api_client.py goal-run \
-  --goal "Your objective text" \
-  --context "Optional structured context"
+---
 
-# Poll an existing run
-python public_integrations/scripts/platform_api_client.py poll-run --run-id "<run-uuid>"
+## Skill details
 
-# Search learnings (URL-encode queries with spaces as + or %20)
-python public_integrations/scripts/platform_api_client.py learnings-search --query "retry strategy"
+### platform-agent-run
 
-# Queue a learning (HTTP 202 — wait before expecting search to find it)
-python public_integrations/scripts/platform_api_client.py learnings-store \
-  --content "Short actionable learning text" \
-  --learning-type pitfall
-```
+**When to use:** Your current Claude Code task would benefit from deeper reasoning, multi-step planning, or cross-domain analysis by a hosted agent. The skill will **not** invoke itself for simple edits or lookups.
 
-Use `python public_integrations/scripts/platform_api_client.py --help` for subcommands.
+**What it does:**
 
-**Stdout safety:** the script prints full JSON response bodies. Treat terminal output as potentially sensitive (user content, internal errors). Redirect to a file or pipe through a redactor if you share logs.
+1. Optionally fetches `GET /openapi.json` to discover or confirm endpoints.
+2. Lists your agents (`GET /agents`) and checks if any match the current task by name/description. **Exits early** if no suitable agent exists.
+3. Builds a **rich context block** from the current session: task background, work done so far, data from integrations, discovered pitfalls, open questions, constraints.
+4. Dispatches `POST /agents/{agent_id}/goals` with the structured goal and context.
+5. Polls `GET /runs/{run_id}` with progressive backoff (3s → 5s → 10s, max 10 min).
+6. Handles `suspended` status by presenting the HITL gate to the user and sending `POST /runs/{run_id}/resume`.
+7. Returns the run output for you to integrate into the current task.
 
-## Claude skills (per-integration usage)
+### platform-learnings
 
-Install skills so your coding agent can load them (example: copy each `claude_skills/<name>/` folder into `.claude/skills/`).
+**When to use:** You want to store insights from local work, recall relevant knowledge before a task, or give feedback on past learnings — all without dispatching a full agent run.
 
-| Skill folder | When to use |
-|--------------|-------------|
-| `platform-context-handoff` | **First** — shapes what context the agent must collect (goal summary, prior learnings, tools, constraints) before calling the platform. |
-| `platform-agent-run` | Dispatch **POST** `/agents/{id}/goals`, poll **GET** `/runs/{id}`, handle **suspended** / **POST** `/runs/{id}/resume`, optional continuation on same session. |
-| `platform-agent-run-curl` | Same outcomes as above using **curl** only (no Python). |
-| `platform-learnings` | **POST** learnings (async 202), **search**, **get**, **reinforce**; reminds about indexing delay. |
-| `platform-learnings-recall` | Read-heavy path: search + get before work; reinforce after. |
-| `platform-cognitive-loop` | End-to-end: handoff → recall learnings → platform goal run → store new learnings. |
+**What it does:**
 
-Each `SKILL.md` includes endpoint paths aligned with public flow docs: session lifecycle (goals, runs, resume, sessions) and learnings lifecycle (store, search, get, reinforce).
+- **Search** (`GET .../learnings/search?q=...`) — find relevant existing learnings.
+- **Get** (`GET .../learnings/{id}`) — full record for a search hit.
+- **Store** (`POST .../learnings`) — persist a new learning (async 202; wait before searching).
+- **Reinforce** (`POST .../learnings/{id}/reinforce`) — mark helpful/unhelpful to tune confidence and trust.
 
-## Relationship to platform docs
+---
 
-Your deployment may ship detailed curl flows (for example under `docs/flows/` in a private repo). This folder stays **generic**: it references standard REST paths and behavior (polling, 202 on learning store, 409 on conflicting session runs) without copying proprietary internals.
+## Contributing
 
-## Contributing here
-
-- Prefer placeholders over real URLs.
-- Redact examples in commit messages and tickets.
-- Keep scripts stdlib-only unless there is a strong reason to add dependencies.
+- Prefer placeholders (`https://your-api-host`, `<your-agent-id>`) over real values in examples.
+- Keep skills self-contained — each `SKILL.md` must work without the other.
+- No external dependencies: the skills use only the host agent's built-in HTTP and JSON capabilities.
