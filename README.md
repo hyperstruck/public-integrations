@@ -17,10 +17,10 @@ This folder holds **customer-facing** integration material for Hyperstruck. It i
 
 | Path | Purpose |
 |------|---------|
-| `claude_skills/platform-agent-run/` | Skill for dispatching a Hyperstruck hosted agent goal from Claude Code, with OpenAPI discovery, agent listing, rich context assembly, run polling, and HITL resume. |
-| `claude_skills/platform-learnings/` | Skill for manually managing learnings — store, search, get, and reinforce — without going through a full agent run. |
+| `claude_skills/platform-agent-run/` | Skill for dispatching a Hyperstruck hosted agent goal from Claude Code — with OpenAPI discovery, agent listing, rich context assembly, run polling, and HITL resume. |
+| `claude_skills/platform-learnings/` | Skill for manually managing learnings — store, search, get, and reinforce — without a full agent run. |
 
-There are no scripts or library dependencies. The skills instruct the AI agent to make HTTP calls directly using whatever HTTP capability the host tool provides (Claude Code's `fetch`, `curl` in a shell, etc.). No `jq`, no specific Python version, no pip packages required.
+No scripts, no library dependencies. The skills instruct the AI agent to make HTTP calls directly using whatever capability the host tool provides (`curl`, `WebFetch`, etc.).
 
 ---
 
@@ -38,6 +38,10 @@ cp -r public_integrations/claude_skills/platform-agent-run .cursor/skills/
 cp -r public_integrations/claude_skills/platform-learnings .cursor/skills/
 ```
 
+Each skill folder includes:
+- `SKILL.md` — main instructions with frontmatter configuration.
+- `reference.md` — full API endpoint schemas loaded on demand (keeps `SKILL.md` lean).
+
 ---
 
 ## Configuration
@@ -48,7 +52,7 @@ Both skills resolve the API key in this order (first match wins):
 
 1. **Explicit** — key provided in the conversation (the skill will never echo it back).
 2. **Environment variable** — `HYPER_API_KEY`.
-3. **Dotenv file** — `.env` in the project root, or a path from `PUBLIC_INTEGRATIONS_ENV_FILE`. Expected format: `HYPER_API_KEY=<value>`.
+3. **Dotenv file** — `.env` in the project root, or a path from `PUBLIC_INTEGRATIONS_ENV_FILE`.
 
 If none found, the skill stops and asks the user to configure one.
 
@@ -63,7 +67,7 @@ Override with (first match wins):
 2. `HYPER_BASE_URL` environment variable.
 3. `.env` file: `HYPER_BASE_URL=https://your-custom-host`.
 
-### Agent ID (for learnings skill)
+### Agent ID (for learnings)
 
 The learnings skill needs an agent ID to scope operations. It resolves via:
 1. Explicit user-provided value.
@@ -72,32 +76,74 @@ The learnings skill needs an agent ID to scope operations. It resolves via:
 
 ---
 
+## Claude Code-specific features
+
+These skills leverage several Claude Code capabilities for a better experience:
+
+### Dynamic context injection (`!` `` syntax)
+
+Both skills auto-resolve `HYPER_BASE_URL`, `HYPER_AGENT_ID`, and `HYPER_API_KEY` presence **at skill load time** using inline shell commands. The agent sees the resolved values immediately — no guessing needed.
+
+### Argument support
+
+Invoke skills with arguments:
+
+```
+/platform-agent-run Analyze the performance bottleneck in the payment flow
+/platform-learnings retry backoff strategies
+/platform-learnings store
+/platform-learnings reinforce <learning-id>
+```
+
+The `argument-hint` frontmatter shows expected args in the `/` menu.
+
+### Pre-approved tools (`allowed-tools`)
+
+Both skills pre-approve `Bash(curl *)` and `WebFetch` so the agent can make API calls and poll runs without prompting for permission on each request.
+
+### Effort level
+
+`platform-agent-run` sets `effort: high` because it involves multi-step reasoning: agent selection, context assembly, goal dispatch, and iterative polling.
+
+### One-time API key validation (hooks)
+
+`platform-agent-run` includes a `PreToolUse` hook with `once: true` that validates the API key against the Hyperstruck API on first use. If the key is invalid, the hook denies the tool call with a clear error instead of letting the agent hit auth failures mid-flow.
+
+### Supporting files
+
+Each skill separates concerns:
+- `SKILL.md` — concise instructions (what the agent reads on every invocation).
+- `reference.md` — full endpoint schemas, error codes, response shapes (loaded on demand via `[reference.md](reference.md)` link when the agent needs details).
+
+This keeps context usage low on typical invocations while providing deep reference when needed.
+
+---
+
 ## Skill details
 
 ### platform-agent-run
 
-**When to use:** Your current Claude Code task would benefit from deeper reasoning, multi-step planning, or cross-domain analysis by a hosted agent. The skill will **not** invoke itself for simple edits or lookups.
+**When to use:** The current task would benefit from deeper reasoning, multi-step planning, or cross-domain analysis by a hosted agent. The skill explicitly guards against invocation for simple tasks.
 
-**What it does:**
-
-1. Optionally fetches `GET /openapi.json` to discover or confirm endpoints.
-2. Lists your agents (`GET /agents`) and checks if any match the current task by name/description. **Exits early** if no suitable agent exists.
-3. Builds a **rich context block** from the current session: task background, work done so far, data from integrations, discovered pitfalls, open questions, constraints.
-4. Dispatches `POST /agents/{agent_id}/goals` with the structured goal and context.
-5. Polls `GET /runs/{run_id}` with progressive backoff (3s → 5s → 10s, max 10 min).
-6. Handles `suspended` status by presenting the HITL gate to the user and sending `POST /runs/{run_id}/resume`.
-7. Returns the run output for you to integrate into the current task.
+**Flow:**
+1. Resolves config (env vars auto-detected at load time).
+2. Fetches `GET /openapi.json` to discover/confirm endpoints.
+3. Lists agents and matches by name/description — **exits early** if none fit.
+4. Builds **rich context** from the current session (background, integration data, pitfalls, open questions, constraints).
+5. Dispatches `POST /agents/{id}/goals` with structured goal + context.
+6. Polls `GET /runs/{id}` with progressive backoff (3s → 5s → 10s, max 10 min).
+7. Handles `suspended` / HITL resume via `POST /runs/{id}/resume`.
+8. Returns output for integration into the current task.
 
 ### platform-learnings
 
-**When to use:** You want to store insights from local work, recall relevant knowledge before a task, or give feedback on past learnings — all without dispatching a full agent run.
+**When to use:** Store insights from local work, recall relevant knowledge before a task, or give feedback on past learnings — all without dispatching a full agent run.
 
-**What it does:**
-
+**Operations:**
 - **Search** (`GET .../learnings/search?q=...`) — find relevant existing learnings.
 - **Get** (`GET .../learnings/{id}`) — full record for a search hit.
 - **Store** (`POST .../learnings`) — persist a new learning (async 202; wait before searching).
-- **Reinforce** (`POST .../learnings/{id}/reinforce`) — mark helpful/unhelpful to tune confidence and trust.
+- **Reinforce** (`POST .../learnings/{id}/reinforce`) — mark helpful/unhelpful.
 
 ---
 
@@ -105,4 +151,5 @@ The learnings skill needs an agent ID to scope operations. It resolves via:
 
 - Prefer placeholders (`https://your-api-host`, `<your-agent-id>`) over real values in examples.
 - Keep skills self-contained — each `SKILL.md` must work without the other.
-- No external dependencies: the skills use only the host agent's built-in HTTP and JSON capabilities.
+- No external dependencies: the skills use the host agent's built-in HTTP and JSON capabilities.
+- Test changes by installing into a `.claude/skills/` directory and invoking from a live Claude Code session.

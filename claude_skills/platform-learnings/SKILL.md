@@ -1,86 +1,68 @@
 ---
 name: platform-learnings
 description: >-
-  Manually manage Hyperstruck learnings: store reusable insights, search existing
-  knowledge, retrieve by ID, and reinforce with feedback. Use when you want to
-  persist or recall experience without going through a full agent run.
+  Manage Hyperstruck learnings: store reusable insights, search existing knowledge,
+  retrieve by ID, and reinforce with feedback — without going through a full agent
+  run. Use when capturing or recalling experience during local work.
+argument-hint: "[search query or 'store' or 'reinforce']"
+allowed-tools:
+  - Bash(curl *)
+  - WebFetch
 ---
 
 # Hyperstruck learnings management
 
-Use this skill to **directly** store, search, and reinforce learnings on the Hyperstruck platform — independent of running a hosted agent goal. Useful for:
+Store, search, and reinforce learnings on the Hyperstruck platform — independent of a hosted agent run. Use this to:
 
-- Capturing insights discovered during local work so future agent runs (or your own sessions) benefit.
-- Searching for relevant knowledge before starting a complex task.
-- Giving feedback on past learnings to improve their ranking.
+- **Recall** relevant knowledge before starting complex work.
+- **Capture** insights discovered during local coding.
+- **Reinforce** past learnings to improve their ranking for future use.
+
+## Current environment
+
+```!
+echo "HYPER_BASE_URL=${HYPER_BASE_URL:-https://api.core.hyperstruck.com}"
+echo "HYPER_AGENT_ID=${HYPER_AGENT_ID:-<not set>}"
+echo "HYPER_API_KEY_SET=$([ -n \"$HYPER_API_KEY\" ] && echo yes || echo no)"
+if [ -f .env ]; then echo "dotenv=found (.env)"; else echo "dotenv=not found"; fi
+```
+
+If `HYPER_API_KEY_SET=no` above, check `.env` for a `HYPER_API_KEY=` line. If still missing, **stop and ask the user** to set `HYPER_API_KEY`.
 
 ---
 
-## 1. Resolve configuration
+## Configuration
 
-### API key
-
-Try each source in order; stop at the first hit. **Never echo the key.**
-
-1. A value the user explicitly provided in the current conversation.
-2. The environment variable `HYPER_API_KEY`.
-3. A `.env` file in the project root (or the path in `PUBLIC_INTEGRATIONS_ENV_FILE`).
-   Look for a line `HYPER_API_KEY=<value>`.
-
-If none found → **stop and ask the user to set one of the above.**
-
-### Base URL
-
-Default: `https://api.core.hyperstruck.com`
-
-Override via (in order): explicit user instruction → `HYPER_BASE_URL` env var → `.env` file (`HYPER_BASE_URL=...`).
-
-### Agent ID
-
-Learnings are scoped to an agent. Resolve agent ID via:
-
-1. Explicit user-provided value.
-2. `HYPER_AGENT_ID` env var or `.env` (`HYPER_AGENT_ID=...`).
-3. If not set, call `GET {BASE_URL}/agents?limit=50` and ask the user to pick an agent.
-
-### Headers for every request
-
-```
-Authorization: Bearer <API_KEY>
-Content-Type: application/json
-Accept: application/json
-```
+- **Base URL**: `HYPER_BASE_URL` from above, defaulting to `https://api.core.hyperstruck.com`.
+- **API key**: Resolved above. **Never echo it.**
+- **Agent ID**: `HYPER_AGENT_ID` from above. If `<not set>`, call `GET {BASE_URL}/agents?limit=50` and ask the user to pick an agent (learnings are scoped per agent).
+- **Headers**:
+  ```
+  Authorization: Bearer <API_KEY>
+  Content-Type: application/json
+  Accept: application/json
+  ```
 
 ---
 
-## 2. Discover the API (optional, on first use)
+## How to interpret `$ARGUMENTS`
 
-```
-GET {BASE_URL}/openapi.json
-```
+The user may invoke this skill as:
 
-Confirm the learnings paths exist:
-- `POST /agents/{agent_id}/learnings`
-- `GET  /agents/{agent_id}/learnings/search`
-- `GET  /agents/{agent_id}/learnings/{learning_id}`
-- `POST /agents/{agent_id}/learnings/{learning_id}/reinforce`
-
-If the fetch fails, fall back to the paths hardcoded below.
+- `/platform-learnings retry backoff strategies` → treat as a **search** query.
+- `/platform-learnings store` → the user wants to **store** a new learning (ask for content or derive from chat).
+- `/platform-learnings reinforce <learning_id>` → reinforce a specific learning.
+- `/platform-learnings` (no arguments) → ask what they want to do, or default to **search** for the current task context.
 
 ---
 
-## 3. Search existing learnings (recall before acting)
-
-Before starting complex work, check what the platform already knows:
+## Search learnings
 
 ```
 GET {BASE_URL}/agents/{agent_id}/learnings/search?q=<keywords>&limit=10
 ```
 
-Optional query params:
-- `min_confidence` (0.0–1.0)
-- `learning_type` (e.g. `pitfall`, `approach`, `tool_usage`)
-- `scope` (`agent` or `org` — org may require enterprise entitlement; expect 403 if unavailable)
+Optional query params: `min_confidence` (0.0–1.0), `learning_type`, `scope` (`agent` or `org` — org may require enterprise; expect 403).
 
 Response:
 
@@ -93,8 +75,7 @@ Response:
         "content": "...",
         "learning_type": "pitfall",
         "confidence": 0.7,
-        "trust_level": "unverified",
-        ...
+        "trust_level": "unverified"
       },
       "score": 0.82
     }
@@ -103,32 +84,20 @@ Response:
 }
 ```
 
-Use the results to inform your plan. Cite `learning_id` for traceability (it is not a secret).
-
-### Get a learning by ID
-
-```
-GET {BASE_URL}/agents/{agent_id}/learnings/{learning_id}
-```
-
-Use when you need full fields from a search hit.
+Cite `learning_id` for traceability (not a secret). To get full fields: `GET {BASE_URL}/agents/{agent_id}/learnings/{learning_id}`.
 
 ---
 
-## 4. Store a learning
-
-When you discover something reusable — a pitfall, a working approach, a tool quirk — persist it:
+## Store a learning
 
 ```
 POST {BASE_URL}/agents/{agent_id}/learnings
 ```
 
-Body:
-
 ```json
 {
-  "content": "<actionable, specific text — 1 to 5000 chars>",
-  "learning_type": "<see types below>",
+  "content": "<actionable, specific — 1 to 5000 chars>",
+  "learning_type": "<type>",
   "confidence": 0.6,
   "source_goal": "<what task produced this insight>",
   "applicable_goals": ["keyword1", "keyword2"],
@@ -150,34 +119,30 @@ Body:
 | `conflict_insight` | How conflicts were resolved |
 | `debate_outcome` | What debates concluded and why |
 
-### Important: store is asynchronous
+### Async store
 
-The API returns **202 Accepted** with a `request_id`. The learning is processed in the background (deduplication, conflict detection, indexing). **Wait a few seconds** before searching for it.
+Returns **202 Accepted** with `request_id`. Indexing is asynchronous (deduplication, conflict detection). **Wait a few seconds** before searching for the new learning.
 
 ### Writing good learnings
 
-- Be **specific and actionable**: "When querying the analytics API, always include a date range filter — without it responses exceed 30 seconds" is better than "Be careful with the API."
+- Be **specific and actionable**: "Always include a date range filter when querying the analytics API — without it, responses exceed 30 seconds" beats "Be careful with the API."
 - Prefer **multiple small learnings** over one large paragraph.
 - Strip secrets, PII, and internal hostnames from `content`.
 - Set `applicable_goals` and `applicable_tools` so the learning surfaces when relevant.
 
 ---
 
-## 5. Reinforce a learning
-
-After applying a learning in real work, report whether it helped:
+## Reinforce a learning
 
 ```
 POST {BASE_URL}/agents/{agent_id}/learnings/{learning_id}/reinforce
 ```
 
-Body:
-
 ```json
 { "is_helpful": true }
 ```
 
-or `false`. This updates confidence and advances the trust lifecycle (`unverified` → `agent_verified` → `source_verified` → `corroborated` after consecutive positive reinforcements).
+Or `false`. Updates confidence and advances trust lifecycle (`unverified` → `agent_verified` → `source_verified` → `corroborated`).
 
 Always reinforce when you can — it improves future search ranking.
 
@@ -187,28 +152,28 @@ Always reinforce when you can — it improves future search ranking.
 
 ### Recall-then-act
 
-1. **Search** for learnings relevant to the current task (step 3).
+1. **Search** for learnings relevant to the current task.
 2. Incorporate findings into your plan.
-3. After the task, **reinforce** any learnings that helped (or mark unhelpful).
-4. If you discovered new insights, **store** them (step 4).
+3. After the task, **reinforce** learnings that helped (or mark unhelpful).
+4. **Store** any new insights discovered.
 
-### Capture during work
+### Quick capture
 
-1. While coding, notice a pitfall or effective pattern.
-2. **Store** it immediately so it is indexed before you forget.
-3. Continue working.
+1. Notice a pitfall or effective pattern while coding.
+2. **Store** it immediately. Continue working.
 
 ### Batch review
 
-1. **Search** broadly (e.g. `q=api+best+practices&limit=50`).
-2. Review returned learnings for accuracy.
-3. **Reinforce** each (helpful or unhelpful) to tune the corpus.
+1. **Search** broadly (`q=api+best+practices&limit=50`).
+2. Review for accuracy. **Reinforce** each (helpful/unhelpful).
 
 ---
 
 ## Error handling
 
-- **401/403**: invalid key or lacking scopes. Ask the user to check credentials.
-- **404**: agent or learning not found. Verify the ID.
-- **403 on `scope=org`**: org-scope requires enterprise entitlement.
-- **Network errors**: retry once after 3 seconds; if still failing, report and stop.
+- **401/403**: invalid key or lacking scopes → ask user to check `HYPER_API_KEY`.
+- **404**: agent or learning not found → verify ID.
+- **403 on `scope=org`**: requires enterprise entitlement.
+- **Network errors**: retry once after 3 s; if still failing, report and stop.
+
+For full endpoint schemas, see [reference.md](reference.md).
