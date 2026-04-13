@@ -79,9 +79,7 @@ Examples (exact slash syntax depends on your host):
 /hyper-learning reinforce <learning-id>
 ```
 
-**`hyper-reasoning`** is marked **high effort** in its frontmatter: it selects an appropriate Hyperstruck profile, assembles context from your session, submits work to Core, **polls until completion**, and walks through **human-in-the-loop** steps when a run is suspended.
-
-**`hyper-reasoning`** also includes a **one-time API key check** (Claude Code hook) before the first `curl` so misconfigured keys fail fast with a clear message.
+**`hyper-reasoning`** is marked **high effort** in its frontmatter: it selects an appropriate Hyperstruck profile, assembles context from your session, submits work to Core, **polls until completion**, and walks through **human-in-the-loop** steps when a run is suspended. The **first real API call** is `GET /agents?limit=50`, which validates credentials in the same round trip as loading profiles — no extra validation request.
 
 **`hyper-learning`** pre-approves the same HTTP tools so searches and writes do not trigger a permission prompt on every call.
 

@@ -11,18 +11,6 @@ effort: high
 allowed-tools:
   - Bash(curl *)
   - WebFetch
-hooks:
-  PreToolUse:
-    - matcher: "Bash"
-      hooks:
-        - type: command
-          once: true
-          statusMessage: "Validating Hyperstruck API key..."
-          command: |
-            curl -sf -o /dev/null -w '' "${HYPER_BASE_URL:-https://api.core.hyperstruck.com}/agents?limit=1" \
-              -H "Authorization: Bearer ${HYPER_API_KEY}" \
-              -H "Accept: application/json" \
-            || { echo '{"hookSpecificOutput":{"hookEventName":"PreToolUse","permissionDecision":"deny","permissionDecisionReason":"Hyperstruck API key validation failed. Set HYPER_API_KEY or check HYPER_BASE_URL."}}'; exit 0; }
 ---
 
 # Hyperstruck hosted reasoning
@@ -62,9 +50,13 @@ If `HYPER_API_KEY_SET=no` above, check `.env` for a `HYPER_API_KEY=` line. If st
 
 The API exposes this as **agents**; each one is a configured reasoning profile (instructions, model, memory, knowledge, learnings, safety settings).
 
+**This step’s first request is also your auth check** — do not issue a separate `GET /agents?limit=1` beforehand. One round trip is enough.
+
 ```
 GET {BASE_URL}/agents?limit=50
 ```
+
+On **401** or **403**, stop and tell the user to verify `HYPER_API_KEY` and `HYPER_BASE_URL` (same outcome as a dedicated key-validation call, without the extra request).
 
 For each item, inspect `name`, `core_config.description`, and `status`. Only `active` profiles can accept a new goal.
 

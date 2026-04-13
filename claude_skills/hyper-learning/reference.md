@@ -20,7 +20,7 @@ POST /agents/{agent_id}/learnings
 | `source_goal` | no | Goal/task that produced this insight |
 | `applicable_goals` | no | Keyword tags for search relevance |
 | `applicable_tools` | no | Tool names for search relevance |
-| `privacy` | no | `"shareable"` or `"private"` |
+| `privacy` | no | `shareable`, `agent_specific`, `sensitive` |
 | `scope` | no | `"agent"` (default) or `"org"` (enterprise) |
 
 Response `202`:
