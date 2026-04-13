@@ -1,6 +1,6 @@
 # Hyperstruck API reference (learnings)
 
-Load this file when you need full request/response schemas or error-code details beyond what SKILL.md covers. The OpenAPI spec at `{BASE_URL}/openapi.json` is the canonical source; this file is a stable fallback.
+Load this file when you need full request/response schemas or error-code details beyond what SKILL.md covers. Prefer this file during normal runs to save context. Fetch `{BASE_URL}/openapi.json` only when API errors suggest schema or path drift and this file is not enough.
 
 ---
 

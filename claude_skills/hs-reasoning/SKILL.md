@@ -1,10 +1,11 @@
 ---
-name: platform-agent-run
+name: hs-reasoning
 description: >-
-  Dispatch a goal to a Hyperstruck hosted agent for deeper cognitive reasoning,
-  then poll for results. Use only when local work would benefit from remote
-  planning, multi-step analysis, or cross-domain reasoning — NOT for simple edits
-  or lookups you can handle directly.
+  Use Hyperstruck Core hosted reasoning for structured plans, milestones, and
+  steps when local work needs deeper analysis. The platform applies memory,
+  knowledge, and accumulated learnings so outcomes improve over time. Do not use
+  for simple edits or lookups you can handle directly — poll until the
+  reasoning session completes (including human-in-the-loop when required).
 argument-hint: "[optional goal text]"
 effort: high
 allowed-tools:
@@ -24,9 +25,11 @@ hooks:
             || { echo '{"hookSpecificOutput":{"hookEventName":"PreToolUse","permissionDecision":"deny","permissionDecisionReason":"Hyperstruck API key validation failed. Set HYPER_API_KEY or check HYPER_BASE_URL."}}'; exit 0; }
 ---
 
-# Hyperstruck agent run
+# Hyperstruck hosted reasoning
 
-Use this skill when the current task needs **deeper reasoning, multi-step planning, or cross-domain analysis** that would benefit from a hosted Hyperstruck agent. Do **not** invoke for straightforward edits, lookups, or tasks you can complete directly.
+Use this skill when the current task needs **structured reasoning**: richer plans, milestones, trade-off analysis, or cross-domain thinking that benefits from Hyperstruck Core — where reasoning is **grounded, auditable**, and informed by **memory, knowledge, and learnings** so results get **more valuable over time**. The underlying service runs as a hosted workflow; what matters for you is **better planning and evidence-backed output**, not the transport details.
+
+Do **not** invoke for straightforward edits, lookups, or tasks you can complete locally.
 
 ## Current environment
 
@@ -51,39 +54,28 @@ If `HYPER_API_KEY_SET=no` above, check `.env` for a `HYPER_API_KEY=` line. If st
   Content-Type: application/json
   Accept: application/json
   ```
+- **Paths and JSON shapes**: Follow [reference.md](reference.md). **Do not** fetch `GET {BASE_URL}/openapi.json` up front — the document is large and wastes context. Rely on `reference.md` unless you hit errors that suggest API drift (see **Error handling**).
 
 ---
 
-## Step 2 — Discover the API (first use only)
+## Step 2 — Choose the Hyperstruck profile for this task
 
-Fetch the OpenAPI spec to confirm endpoints and adapt to schema changes:
-
-```
-GET {BASE_URL}/openapi.json
-```
-
-Look for these paths: `/agents`, `/agents/{agent_id}/goals`, `/runs/{run_id}`, `/runs/{run_id}/resume`, `/sessions/{session_id}/messages`. Note any new fields or endpoints.
-
-If this fails, fall back to the paths hardcoded in [reference.md](reference.md).
-
----
-
-## Step 3 — List agents and match to the task
+The API exposes this as **agents**; each one is a configured reasoning profile (instructions, model, memory, knowledge, learnings, safety settings).
 
 ```
 GET {BASE_URL}/agents?limit=50
 ```
 
-For each agent, inspect `name`, `core_config.description`, and `status`. Only `active` agents can run goals.
+For each item, inspect `name`, `core_config.description`, and `status`. Only `active` profiles can accept a new goal.
 
-**If no agent's description fits the current task → stop early.** Tell the user:
-> "None of your Hyperstruck agents match this task. Create one at your dashboard, or I'll continue without remote reasoning."
+**If no profile fits the current task → stop early.** Tell the user:
+> "None of your Hyperstruck setups match this task. Configure one in your Hyperstruck dashboard, or I'll continue without hosted reasoning."
 
-If one agent clearly matches, use it. If several match, list them briefly and ask the user to pick (or choose the best fit by description). Store the chosen `agent_id`.
+If one profile clearly matches, use it. If several match, list them briefly and ask the user to pick (or choose the best fit by description). Store the chosen `agent_id` for API calls.
 
 ---
 
-## Step 4 — Build rich context (critical)
+## Step 3 — Build rich context (critical)
 
 The user is already mid-session. A bare one-line goal is nearly useless. Assemble a **structured context block** before dispatching.
 
@@ -97,15 +89,15 @@ Build a markdown block with these sections:
 
 1. **Task background** — What the user is working on: repo, branch, project, deployment targets, environment constraints.
 2. **Work done so far** — Summarize files read/written, commands run, data fetched from integrations (MCP tools, web searches, DB queries, etc.). Include key **findings and data**, not just tool names — the hosted agent cannot call your local tools.
-3. **Learnings & pitfalls** — Anything discovered in this session: error patterns, API quirks, performance constraints, edge cases found.
+3. **Learnings & pitfalls** — Anything discovered in this session: error patterns, API quirks, performance constraints, edge cases found (this feeds the same learning ecosystem the platform uses long term).
 4. **Open questions** — What needs deeper analysis, trade-off evaluation, or planning that you cannot resolve locally.
 5. **Constraints** — Deadlines, compliance, tech-stack limits, performance budgets, cost concerns.
 
-> **Tip:** Paste summarized MCP/integration results. The remote agent has no access to your local tools, Jira, Linear, Slack, or databases.
+> **Tip:** Paste summarized MCP/integration results. The hosted reasoning runtime has no access to your local tools, Jira, Linear, Slack, or databases.
 
 ---
 
-## Step 5 — Dispatch the goal
+## Step 4 — Submit the goal for hosted reasoning
 
 ```
 POST {BASE_URL}/agents/{agent_id}/goals
@@ -126,11 +118,11 @@ Optional fields:
 - `session_id` — set only to continue a previous Hyperstruck session whose last run is **terminal** (completed/failed). Omit to auto-create.
 - `worker_profile` — `"default"` unless you need `"large"`.
 
-Parse the response for `run.id` and `run.session_id`.
+Parse the response for `run.id` and `run.session_id` (the API names this a “run”; it is the lifecycle handle for the reasoning job).
 
 ---
 
-## Step 6 — Poll until terminal
+## Step 5 — Poll until the reasoning job is finished
 
 ```
 GET {BASE_URL}/runs/{run_id}
@@ -145,7 +137,7 @@ GET {BASE_URL}/runs/{run_id}
 
 ### On `completed`
 
-Report the run output to the user. Look at `metadata.result` for structured output — present actionable next steps.
+Report the reasoning output to the user. Look at `metadata.result` for structured output — present actionable plans, milestones, and next steps.
 
 ### On `failed`
 
@@ -177,11 +169,11 @@ After resume, poll the **child run id** from the response.
 
 ---
 
-## Step 7 — Use the results
+## Step 6 — Use the results
 
 1. Optionally fetch the full reasoning trace: `GET {BASE_URL}/sessions/{session_id}/messages?limit=50`
-2. Integrate findings into the current task.
-3. If you discovered reusable insights, invoke `/platform-learnings` to store them.
+2. Integrate plans and findings into the current task.
+3. If you discovered reusable insights, invoke `/hs-learning` so the learning layer can improve future reasoning.
 
 ---
 
@@ -189,8 +181,8 @@ After resume, poll the **child run id** from the response.
 
 - Simple file edits, renames, or lookups.
 - You already have all the information you need.
-- No Hyperstruck agents match the task (step 3).
-- The user explicitly says to skip remote reasoning.
+- No Hyperstruck profile matches the task (step 2).
+- The user explicitly says to skip hosted reasoning.
 
 ## Error handling
 
@@ -201,3 +193,13 @@ See [reference.md](reference.md) for full endpoint schemas and error codes. Summ
 - **404**: stale agent or run ID. Re-list agents or confirm the run ID.
 - **409**: session has a non-terminal run. Poll it first or omit `session_id`.
 - **5xx**: retry once after 5 s; if still failing, report and continue.
+
+### When to fetch `openapi.json` (troubleshooting only)
+
+After a failed or confusing API call, if fixing IDs/payloads using [reference.md](reference.md) does not help, fetch once:
+
+```
+GET {BASE_URL}/openapi.json
+```
+
+Use it only to reconcile paths, methods, or fields — **do not** paste the whole spec into the user thread. Extract the minimum fragment needed, then continue. If `openapi.json` is unreachable, stay with `reference.md` and ask the user to confirm `HYPER_BASE_URL` and API version.

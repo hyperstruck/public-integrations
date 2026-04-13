@@ -1,9 +1,10 @@
 ---
-name: platform-learnings
+name: hs-learning
 description: >-
   Manage Hyperstruck learnings: store reusable insights, search existing knowledge,
-  retrieve by ID, and reinforce with feedback — without going through a full agent
-  run. Use when capturing or recalling experience during local work.
+  retrieve by ID, and reinforce with feedback. Use to capture or recall experience
+  during local work and to feed the platform learning layer that improves reasoning
+  over time.
 argument-hint: "[search query or 'store' or 'reinforce']"
 allowed-tools:
   - Bash(curl *)
@@ -12,7 +13,7 @@ allowed-tools:
 
 # Hyperstruck learnings management
 
-Store, search, and reinforce learnings on the Hyperstruck platform — independent of a hosted agent run. Use this to:
+Store, search, and reinforce learnings on the Hyperstruck platform — the practical learning layer that accumulates knowledge to support structured reasoning. Use this to:
 
 - **Recall** relevant knowledge before starting complex work.
 - **Capture** insights discovered during local coding.
@@ -49,10 +50,10 @@ If `HYPER_API_KEY_SET=no` above, check `.env` for a `HYPER_API_KEY=` line. If st
 
 The user may invoke this skill as:
 
-- `/platform-learnings retry backoff strategies` → treat as a **search** query.
-- `/platform-learnings store` → the user wants to **store** a new learning (ask for content or derive from chat).
-- `/platform-learnings reinforce <learning_id>` → reinforce a specific learning.
-- `/platform-learnings` (no arguments) → ask what they want to do, or default to **search** for the current task context.
+- `/hs-learning retry backoff strategies` → treat as a **search** query.
+- `/hs-learning store` → the user wants to **store** a new learning (ask for content or derive from chat).
+- `/hs-learning reinforce <learning_id>` → reinforce a specific learning.
+- `/hs-learning` (no arguments) → ask what they want to do, or default to **search** for the current task context.
 
 ---
 

@@ -1,155 +1,97 @@
-# Public integrations
+# Hyperstruck Core integrations
 
-This folder holds **customer-facing** integration material for Hyperstruck. It is written so the contents can be copied into a **separate public repository** without leaking internal IP, proprietary implementation details, real endpoints beyond the documented default, customer data, or secrets.
+Use **[Hyperstruck Core](https://hyperstruck.com)** from the AI tools you already use. This repository brings together **lightweight ways to adopt the platform** without shipping a heavy SDK: starting points you can copy into your project or publish internally.
 
-## Warnings
+Putting domain expertise, knowledge, and memory to work is what turns AI into **real business outcomes**. Core delivers **advanced reasoning** — structured plans, milestones, and steps that steer work toward clear goals. The approach is **grounded in evidence**, designed to be **safe, auditable, and secure**, and paired with **cognitive learning** so you get **quality over quantity**: less noise, more trust, and time back for your team.
 
-> **This folder will be published publicly.** Review every change carefully.
-
-- **Do not commit** API keys, tenant IDs, production agent IDs, internal hostnames, or private documentation into this tree.
-- **Do not reference** internal code paths, private repos, or proprietary architecture.
-- Skills are **instructions for an AI coding agent** — they guide HTTP calls but do not ship secrets or libraries.
-- Assume downstream users will share snippets in public forums.
+**Practical learning** accumulates what works: from your organization, from operators, and from knowledge you provide. That learning **feeds the reasoning layer** — including resolving conflicting facts, applying lessons to future plans, and **improving over time**. You can **manage learnings yourself** (for example from an IDE) or rely on **automated** flows inside the platform.
 
 ---
 
-## What's here
+## What is in this repository
 
-| Path | Purpose |
-|------|---------|
-| `claude_skills/platform-agent-run/` | Skill for dispatching a Hyperstruck hosted agent goal from Claude Code — with OpenAPI discovery, agent listing, rich context assembly, run polling, and HITL resume. |
-| `claude_skills/platform-learnings/` | Skill for manually managing learnings — store, search, get, and reinforce — without a full agent run. |
+| Path | What it is for |
+|------|----------------|
+| [`claude_skills/hs-reasoning/`](claude_skills/hs-reasoning/) | **Hosted reasoning** from Claude Code or Cursor: send rich context, receive structured plans and analysis, handle review checkpoints when policies require it. |
+| [`claude_skills/hs-learning/`](claude_skills/hs-learning/) | **Learnings API** from your agent: search before hard tasks, store insights after, reinforce what helped — so the platform remembers and ranks knowledge appropriately. |
 
-No scripts, no library dependencies. The skills instruct the AI agent to make HTTP calls directly using whatever capability the host tool provides (`curl`, `WebFetch`, etc.).
+Together, these skills mirror how Core is meant to be used: **reason** when problems are deep or cross-cutting, **learn** continuously so the next session starts smarter.
+
+Skill names use the **`hs-` prefix** so they do not clash with third-party skills in a shared skills directory. See [`claude_skills/README.md`](claude_skills/README.md) for a short directory overview.
+
+There are **no extra scripts or package dependencies**. Instructions tell your AI assistant how to call the **Hyperstruck HTTP API** using built-in capabilities (for example `curl` or `WebFetch`).
 
 ---
 
-## Installation
+## Getting started
 
-Copy or symlink each skill folder into your project's skill directory:
+### 1. Install the skills
+
+Copy or symlink each skill folder into your environment’s skill directory:
 
 ```bash
 # Claude Code
-cp -r public_integrations/claude_skills/platform-agent-run .claude/skills/
-cp -r public_integrations/claude_skills/platform-learnings .claude/skills/
+cp -r claude_skills/hs-reasoning .claude/skills/
+cp -r claude_skills/hs-learning .claude/skills/
 
-# Cursor (if using .cursor/skills)
-cp -r public_integrations/claude_skills/platform-agent-run .cursor/skills/
-cp -r public_integrations/claude_skills/platform-learnings .cursor/skills/
+# Cursor (optional)
+cp -r claude_skills/hs-reasoning .cursor/skills/
+cp -r claude_skills/hs-learning .cursor/skills/
 ```
 
-Each skill folder includes:
-- `SKILL.md` — main instructions with frontmatter configuration.
-- `reference.md` — full API endpoint schemas loaded on demand (keeps `SKILL.md` lean).
+> **Browsing inside the Hyperstruck Core Platform monorepo?** These paths live under `public_integrations/` (for example `public_integrations/claude_skills/hs-reasoning`).
 
----
+Each skill includes:
 
-## Configuration
+- **`SKILL.md`** — what the assistant reads on each invocation (including frontmatter where supported).
+- **`reference.md`** — detailed request and response shapes when something more than the summary is needed.
 
-### API key
+### 2. Configure access
 
-Both skills resolve the API key in this order (first match wins):
+You need a **Hyperstruck API key** and (for learnings) usually an **agent id** that scopes stored knowledge.
 
-1. **Explicit** — key provided in the conversation (the skill will never echo it back).
-2. **Environment variable** — `HYPER_API_KEY`.
-3. **Dotenv file** — `.env` in the project root, or a path from `PUBLIC_INTEGRATIONS_ENV_FILE`.
+**API key** (first match wins):
 
-If none found, the skill stops and asks the user to configure one.
+1. A key you paste in chat (never echoed back by the skill).
+2. Environment variable **`HYPER_API_KEY`**.
+3. A **`.env`** file in the project root, or a path pointed to by **`PUBLIC_INTEGRATIONS_ENV_FILE`**.
 
-Send the key as: `Authorization: Bearer <key>`.
+Send it on every request as:
 
-### Base URL
+`Authorization: Bearer <your key>`
 
-Default: **`https://api.core.hyperstruck.com`**
+**API base URL** — default **`https://api.core.hyperstruck.com`**. Override via conversation, **`HYPER_BASE_URL`**, or `.env`.
 
-Override with (first match wins):
-1. Explicit user instruction in the conversation.
-2. `HYPER_BASE_URL` environment variable.
-3. `.env` file: `HYPER_BASE_URL=https://your-custom-host`.
+**Agent id** (for `hs-learning`):
 
-### Agent ID (for learnings)
+1. You specify it explicitly, or
+2. **`HYPER_AGENT_ID`** / `.env`, or
+3. The skill lists available agents and asks you to choose.
 
-The learnings skill needs an agent ID to scope operations. It resolves via:
-1. Explicit user-provided value.
-2. `HYPER_AGENT_ID` env var or `.env` entry.
-3. Falls back to listing agents via the API and asking the user to choose.
+### 3. Invoke from your assistant
 
----
-
-## Claude Code-specific features
-
-These skills leverage several Claude Code capabilities for a better experience:
-
-### Dynamic context injection (`!` `` syntax)
-
-Both skills auto-resolve `HYPER_BASE_URL`, `HYPER_AGENT_ID`, and `HYPER_API_KEY` presence **at skill load time** using inline shell commands. The agent sees the resolved values immediately — no guessing needed.
-
-### Argument support
-
-Invoke skills with arguments:
+Examples (exact slash syntax depends on your host):
 
 ```
-/platform-agent-run Analyze the performance bottleneck in the payment flow
-/platform-learnings retry backoff strategies
-/platform-learnings store
-/platform-learnings reinforce <learning-id>
+/hs-reasoning Map out a migration plan with milestones and risks
+/hs-learning search retry backoff
+/hs-learning store
+/hs-learning reinforce <learning-id>
 ```
 
-The `argument-hint` frontmatter shows expected args in the `/` menu.
+**`hs-reasoning`** is marked **high effort** in its frontmatter: it selects an appropriate Hyperstruck profile, assembles context from your session, submits work to Core, **polls until completion**, and walks through **human-in-the-loop** steps when a run is suspended.
 
-### Pre-approved tools (`allowed-tools`)
+**`hs-reasoning`** also includes a **one-time API key check** (Claude Code hook) before the first `curl` so misconfigured keys fail fast with a clear message.
 
-Both skills pre-approve `Bash(curl *)` and `WebFetch` so the agent can make API calls and poll runs without prompting for permission on each request.
+**`hs-learning`** pre-approves the same HTTP tools so searches and writes do not trigger a permission prompt on every call.
 
-### Effort level
-
-`platform-agent-run` sets `effort: high` because it involves multi-step reasoning: agent selection, context assembly, goal dispatch, and iterative polling.
-
-### One-time API key validation (hooks)
-
-`platform-agent-run` includes a `PreToolUse` hook with `once: true` that validates the API key against the Hyperstruck API on first use. If the key is invalid, the hook denies the tool call with a clear error instead of letting the agent hit auth failures mid-flow.
-
-### Supporting files
-
-Each skill separates concerns:
-- `SKILL.md` — concise instructions (what the agent reads on every invocation).
-- `reference.md` — full endpoint schemas, error codes, response shapes (loaded on demand via `[reference.md](reference.md)` link when the agent needs details).
-
-This keeps context usage low on typical invocations while providing deep reference when needed.
+Both skills can inject **current environment hints** at load time (for example whether `HYPER_API_KEY` is set) where the host supports inline shell in the skill body.
 
 ---
 
-## Skill details
+## Learn more
 
-### platform-agent-run
+- **Product and platform:** [hyperstruck.com](https://hyperstruck.com)
+- **Skill index:** [`claude_skills/README.md`](claude_skills/README.md)
 
-**When to use:** The current task would benefit from deeper reasoning, multi-step planning, or cross-domain analysis by a hosted agent. The skill explicitly guards against invocation for simple tasks.
-
-**Flow:**
-1. Resolves config (env vars auto-detected at load time).
-2. Fetches `GET /openapi.json` to discover/confirm endpoints.
-3. Lists agents and matches by name/description — **exits early** if none fit.
-4. Builds **rich context** from the current session (background, integration data, pitfalls, open questions, constraints).
-5. Dispatches `POST /agents/{id}/goals` with structured goal + context.
-6. Polls `GET /runs/{id}` with progressive backoff (3s → 5s → 10s, max 10 min).
-7. Handles `suspended` / HITL resume via `POST /runs/{id}/resume`.
-8. Returns output for integration into the current task.
-
-### platform-learnings
-
-**When to use:** Store insights from local work, recall relevant knowledge before a task, or give feedback on past learnings — all without dispatching a full agent run.
-
-**Operations:**
-- **Search** (`GET .../learnings/search?q=...`) — find relevant existing learnings.
-- **Get** (`GET .../learnings/{id}`) — full record for a search hit.
-- **Store** (`POST .../learnings`) — persist a new learning (async 202; wait before searching).
-- **Reinforce** (`POST .../learnings/{id}/reinforce`) — mark helpful/unhelpful.
-
----
-
-## Contributing
-
-- Prefer placeholders (`https://your-api-host`, `<your-agent-id>`) over real values in examples.
-- Keep skills self-contained — each `SKILL.md` must work without the other.
-- No external dependencies: the skills use the host agent's built-in HTTP and JSON capabilities.
-- Test changes by installing into a `.claude/skills/` directory and invoking from a live Claude Code session.
+If you are extending or publishing this material from Hyperstruck’s private engineering repository, see the internal maintainer note in the platform repo: `docs/public-integrations-maintainers.md`.
