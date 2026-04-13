@@ -1,5 +1,5 @@
 ---
-name: hs-reasoning
+name: hyper-reasoning
 description: >-
   Use Hyperstruck Core hosted reasoning for structured plans, milestones, and
   steps when local work needs deeper analysis. The platform applies memory,
@@ -173,7 +173,7 @@ After resume, poll the **child run id** from the response.
 
 1. Optionally fetch the full reasoning trace: `GET {BASE_URL}/sessions/{session_id}/messages?limit=50`
 2. Integrate plans and findings into the current task.
-3. If you discovered reusable insights, invoke `/hs-learning` so the learning layer can improve future reasoning.
+3. If you discovered reusable insights, invoke `/hyper-learning` so the learning layer can improve future reasoning.
 
 ---
 

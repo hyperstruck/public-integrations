@@ -12,12 +12,12 @@ Putting domain expertise, knowledge, and memory to work is what turns AI into **
 
 | Path | What it is for |
 |------|----------------|
-| [`claude_skills/hs-reasoning/`](claude_skills/hs-reasoning/) | **Hosted reasoning** from Claude Code or Cursor: send rich context, receive structured plans and analysis, handle review checkpoints when policies require it. |
-| [`claude_skills/hs-learning/`](claude_skills/hs-learning/) | **Learnings API** from your agent: search before hard tasks, store insights after, reinforce what helped — so the platform remembers and ranks knowledge appropriately. |
+| [`claude_skills/hyper-reasoning/`](claude_skills/hyper-reasoning/) | **Hosted reasoning** from Claude Code or Cursor: send rich context, receive structured plans and analysis, handle review checkpoints when policies require it. |
+| [`claude_skills/hyper-learning/`](claude_skills/hyper-learning/) | **Learnings API** from your agent: search before hard tasks, store insights after, reinforce what helped — so the platform remembers and ranks knowledge appropriately. |
 
 Together, these skills mirror how Core is meant to be used: **reason** when problems are deep or cross-cutting, **learn** continuously so the next session starts smarter.
 
-Skill names use the **`hs-` prefix** so they do not clash with third-party skills in a shared skills directory. See [`claude_skills/README.md`](claude_skills/README.md) for a short directory overview.
+Skill names use the **`hyper-` prefix** so they do not clash with third-party skills in a shared skills directory. See [`claude_skills/README.md`](claude_skills/README.md) for a short directory overview.
 
 There are **no extra scripts or package dependencies**. Instructions tell your AI assistant how to call the **Hyperstruck HTTP API** using built-in capabilities (for example `curl` or `WebFetch`).
 
@@ -31,15 +31,15 @@ Copy or symlink each skill folder into your environment’s skill directory:
 
 ```bash
 # Claude Code
-cp -r claude_skills/hs-reasoning .claude/skills/
-cp -r claude_skills/hs-learning .claude/skills/
+cp -r claude_skills/hyper-reasoning .claude/skills/
+cp -r claude_skills/hyper-learning .claude/skills/
 
 # Cursor (optional)
-cp -r claude_skills/hs-reasoning .cursor/skills/
-cp -r claude_skills/hs-learning .cursor/skills/
+cp -r claude_skills/hyper-reasoning .cursor/skills/
+cp -r claude_skills/hyper-learning .cursor/skills/
 ```
 
-> **Browsing inside the Hyperstruck Core Platform monorepo?** These paths live under `public_integrations/` (for example `public_integrations/claude_skills/hs-reasoning`).
+> **Browsing inside the Hyperstruck Core Platform monorepo?** These paths live under `public_integrations/` (for example `public_integrations/claude_skills/hyper-reasoning`).
 
 Each skill includes:
 
@@ -62,7 +62,7 @@ Send it on every request as:
 
 **API base URL** — default **`https://api.core.hyperstruck.com`**. Override via conversation, **`HYPER_BASE_URL`**, or `.env`.
 
-**Agent id** (for `hs-learning`):
+**Agent id** (for `hyper-learning`):
 
 1. You specify it explicitly, or
 2. **`HYPER_AGENT_ID`** / `.env`, or
@@ -73,17 +73,17 @@ Send it on every request as:
 Examples (exact slash syntax depends on your host):
 
 ```
-/hs-reasoning Map out a migration plan with milestones and risks
-/hs-learning search retry backoff
-/hs-learning store
-/hs-learning reinforce <learning-id>
+/hyper-reasoning Map out a migration plan with milestones and risks
+/hyper-learning search retry backoff
+/hyper-learning store
+/hyper-learning reinforce <learning-id>
 ```
 
-**`hs-reasoning`** is marked **high effort** in its frontmatter: it selects an appropriate Hyperstruck profile, assembles context from your session, submits work to Core, **polls until completion**, and walks through **human-in-the-loop** steps when a run is suspended.
+**`hyper-reasoning`** is marked **high effort** in its frontmatter: it selects an appropriate Hyperstruck profile, assembles context from your session, submits work to Core, **polls until completion**, and walks through **human-in-the-loop** steps when a run is suspended.
 
-**`hs-reasoning`** also includes a **one-time API key check** (Claude Code hook) before the first `curl` so misconfigured keys fail fast with a clear message.
+**`hyper-reasoning`** also includes a **one-time API key check** (Claude Code hook) before the first `curl` so misconfigured keys fail fast with a clear message.
 
-**`hs-learning`** pre-approves the same HTTP tools so searches and writes do not trigger a permission prompt on every call.
+**`hyper-learning`** pre-approves the same HTTP tools so searches and writes do not trigger a permission prompt on every call.
 
 Both skills can inject **current environment hints** at load time (for example whether `HYPER_API_KEY` is set) where the host supports inline shell in the skill body.
 

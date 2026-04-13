@@ -1,5 +1,5 @@
 ---
-name: hs-learning
+name: hyper-learning
 description: >-
   Manage Hyperstruck learnings: store reusable insights, search existing knowledge,
   retrieve by ID, and reinforce with feedback. Use to capture or recall experience
@@ -50,10 +50,10 @@ If `HYPER_API_KEY_SET=no` above, check `.env` for a `HYPER_API_KEY=` line. If st
 
 The user may invoke this skill as:
 
-- `/hs-learning retry backoff strategies` → treat as a **search** query.
-- `/hs-learning store` → the user wants to **store** a new learning (ask for content or derive from chat).
-- `/hs-learning reinforce <learning_id>` → reinforce a specific learning.
-- `/hs-learning` (no arguments) → ask what they want to do, or default to **search** for the current task context.
+- `/hyper-learning retry backoff strategies` → treat as a **search** query.
+- `/hyper-learning store` → the user wants to **store** a new learning (ask for content or derive from chat).
+- `/hyper-learning reinforce <learning_id>` → reinforce a specific learning.
+- `/hyper-learning` (no arguments) → ask what they want to do, or default to **search** for the current task context.
 
 ---
 
