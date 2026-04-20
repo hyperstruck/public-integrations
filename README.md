@@ -14,6 +14,7 @@ Putting domain expertise, knowledge, and memory to work is what turns AI into **
 |------|----------------|
 | [`claude_skills/hyper-reasoning/`](claude_skills/hyper-reasoning/) | **Hosted reasoning** from Claude Code or Cursor: send rich context, receive structured plans and analysis, handle review checkpoints when policies require it. |
 | [`claude_skills/hyper-learning/`](claude_skills/hyper-learning/) | **Learnings API** from your agent: search before hard tasks, store insights after, reinforce what helped — so the platform remembers and ranks knowledge appropriately. |
+| [`claude_skills/hyper-plans/`](claude_skills/hyper-plans/) | **Plans API** from your agent: search similar plans, inspect a full plan, and render mermaid visualizations of milestones and steps. |
 
 Together, these skills mirror how Core is meant to be used: **reason** when problems are deep or cross-cutting, **learn** continuously so the next session starts smarter.
 
@@ -33,10 +34,12 @@ Copy or symlink each skill folder into your environment’s skill directory:
 # Claude Code
 cp -r claude_skills/hyper-reasoning .claude/skills/
 cp -r claude_skills/hyper-learning .claude/skills/
+cp -r claude_skills/hyper-plans .claude/skills/
 
 # Cursor (optional)
 cp -r claude_skills/hyper-reasoning .cursor/skills/
 cp -r claude_skills/hyper-learning .cursor/skills/
+cp -r claude_skills/hyper-plans .cursor/skills/
 ```
 
 > **Browsing inside the Hyperstruck Core Platform monorepo?** These paths live under `public_integrations/` (for example `public_integrations/claude_skills/hyper-reasoning`).
@@ -75,6 +78,7 @@ Examples (exact slash syntax depends on your host):
 ```
 /hyper-reasoning Map out a migration plan with milestones and risks
 /hyper-learning search retry backoff
+/hyper-plans search onboarding workflow
 /hyper-learning store
 /hyper-learning reinforce <learning-id>
 ```
