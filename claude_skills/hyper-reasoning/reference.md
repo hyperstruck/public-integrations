@@ -83,22 +83,7 @@ Response `202`:
     "compute_seconds": "0",
     "estimated_compute_cost_usd": "0",
     "error": null,
-    "metadata": {
-      "reasoning": {
-        "effective": {
-          "tier": "full",
-          "max_iterations": 10,
-          "max_plan_revisions": 2,
-          "max_plan_steps": 10,
-          "is_reflection_enabled": true,
-          "is_plan_validation_enabled": true,
-          "is_milestones_enabled": true,
-          "is_milestone_reflection_enabled": true,
-          "trace_level": "full",
-          "is_execution_classification_enabled": true
-        }
-      }
-    },
+    "metadata": {},
     "created_at": "..."
   },
   "worker_payload_version": "run-worker-payload.v1"

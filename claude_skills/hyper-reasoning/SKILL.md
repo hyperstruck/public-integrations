@@ -108,13 +108,15 @@ POST {BASE_URL}/agents/{agent_id}/goals
 
 Optional fields:
 - `session_id` — set only to continue a previous Hyperstruck session whose last run is **terminal** (completed/failed). Omit to auto-create.
-- `worker_profile` — `"default"` unless you need `"large"`.
+- `worker_profile` — infrastructure sizing only: `"default"` unless you need `"large"`.
 
 ### Tier guidance
 
 - `full` — deepest planning/reflection path; use for complex research or multi-step reasoning.
 - `balanced` — middle ground for most hosted reasoning tasks.
 - `fast` — lowest-latency path for trivial tasks; learning still remains enabled.
+
+Reasoning profiles live on the agent (`reasoning_profile` = `full` / `balanced` / `fast`). `worker_profile` is not a reasoning profile.
 
 Choose an agent whose configured `reasoning_profile` matches the task instead of changing reasoning behavior per run.
 
