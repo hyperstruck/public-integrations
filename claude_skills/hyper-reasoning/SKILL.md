@@ -99,9 +99,6 @@ POST {BASE_URL}/agents/{agent_id}/goals
 {
   "goal": "<structured goal from step 4>",
   "context": "<full context block from step 4>",
-  "reasoning_overrides": {
-    "tier": "balanced"
-  },
   "metadata": {
     "source": "claude-code-skill",
     "task_summary": "<one-line description>"
@@ -112,13 +109,14 @@ POST {BASE_URL}/agents/{agent_id}/goals
 Optional fields:
 - `session_id` — set only to continue a previous Hyperstruck session whose last run is **terminal** (completed/failed). Omit to auto-create.
 - `worker_profile` — `"default"` unless you need `"large"`.
-- `reasoning_overrides` — optional typed overrides. Prefer setting just `tier` unless you need a specific cap or toggle. Supported fields: `tier`, `max_iterations`, `max_plan_revisions`, `max_plan_steps`, `is_reflection_enabled`, `is_plan_validation_enabled`, `is_milestones_enabled`, `is_milestone_reflection_enabled`, `trace_level`.
 
 ### Tier guidance
 
 - `full` — deepest planning/reflection path; use for complex research or multi-step reasoning.
-- `balanced` — default middle ground for most hosted reasoning tasks.
+- `balanced` — middle ground for most hosted reasoning tasks.
 - `fast` — lowest-latency path for trivial tasks; learning still remains enabled.
+
+Choose an agent whose configured `reasoning_profile` matches the task instead of changing reasoning behavior per run.
 
 Parse the response for `run.id` and `run.session_id` (the API names this a “run”; it is the lifecycle handle for the reasoning job).
 

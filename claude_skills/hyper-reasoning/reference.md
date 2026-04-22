@@ -24,7 +24,6 @@ Response `200`:
       "model_provider": "anthropic",
       "model_name": "claude-sonnet-4-20250514",
       "reasoning_profile": "full",
-      "reasoning_overrides": null,
       "memory_profile": "default",
       "knowledge_scope": "agent",
       "core_config": {
@@ -64,7 +63,6 @@ Request body:
 | `context` | no | Additional context for the reasoning runtime |
 | `session_id` | no | Omit to auto-create; set to continue an existing session (must have no non-terminal runs) |
 | `worker_profile` | no | `"default"` or `"large"` |
-| `reasoning_overrides` | no | Typed hosted reasoning overrides such as `tier`, `max_iterations`, `max_plan_revisions`, `max_plan_steps`, `is_reflection_enabled`, `is_plan_validation_enabled`, `is_milestones_enabled`, `is_milestone_reflection_enabled`, and `trace_level` |
 | `metadata` | no | Arbitrary dict persisted on the run |
 
 Response `202`:
@@ -87,24 +85,23 @@ Response `202`:
     "error": null,
     "metadata": {
       "reasoning": {
-        "requested": {},
         "effective": {
           "tier": "full",
-          "max_iterations": 20,
+          "max_iterations": 10,
           "max_plan_revisions": 2,
           "max_plan_steps": 10,
           "is_reflection_enabled": true,
           "is_plan_validation_enabled": true,
           "is_milestones_enabled": true,
           "is_milestone_reflection_enabled": true,
-          "trace_level": "FULL",
+          "trace_level": "full",
           "is_execution_classification_enabled": true
         }
       }
     },
     "created_at": "..."
   },
-  "worker_payload_version": "run-worker-payload.v2"
+  "worker_payload_version": "run-worker-payload.v1"
 }
 ```
 
