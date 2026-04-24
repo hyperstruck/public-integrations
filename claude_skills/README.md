@@ -8,7 +8,7 @@ These skills use the **`hyper-` prefix** on folder names and `name:` frontmatter
 |---------------------|---------|
 | `hyper-reasoning` | Invoke **Hyperstruck Core hosted reasoning** for stronger plans and analysis; wait for results and handle human-in-the-loop when required. |
 | `hyper-learning` | **Search, store, retrieve, and reinforce learnings** so knowledge accumulates and future reasoning improves. |
-| `hyper-plans` | **Search similar plans, inspect a plan, and render a mermaid flowchart** for reuse and investigation. |
+| `hyper-plans` | **Search similar plans and review candidate learnings** for reuse and investigation. |
 
 Each skill directory contains `SKILL.md` (main instructions) and `reference.md` (API shapes and error codes).
 

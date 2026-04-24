@@ -14,7 +14,7 @@ Putting domain expertise, knowledge, and memory to work is what turns AI into **
 |------|----------------|
 | [`claude_skills/hyper-reasoning/`](claude_skills/hyper-reasoning/) | **Hosted reasoning** from Claude Code or Cursor: send rich context, receive structured plans and analysis, handle review checkpoints when policies require it. |
 | [`claude_skills/hyper-learning/`](claude_skills/hyper-learning/) | **Learnings API** from your agent: search before hard tasks, store insights after, reinforce what helped — so the platform remembers and ranks knowledge appropriately. |
-| [`claude_skills/hyper-plans/`](claude_skills/hyper-plans/) | **Plans API** from your agent: search similar plans, inspect a full plan, and render mermaid visualizations of milestones and steps. |
+| [`claude_skills/hyper-plans/`](claude_skills/hyper-plans/) | **Plans API** from your agent: search similar plans and review candidate learnings surfaced with those results. |
 
 Together, these skills mirror how Core is meant to be used: **reason** when problems are deep or cross-cutting, **learn** continuously so the next session starts smarter.
 
