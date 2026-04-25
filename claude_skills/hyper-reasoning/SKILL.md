@@ -19,6 +19,14 @@ Use this skill when the current task needs **structured reasoning**: richer plan
 
 Do **not** invoke for straightforward edits, lookups, or tasks you can complete locally.
 
+## How this skill fits the caller workflow
+
+- **The skill is HTTP orchestration:** env -> `GET /agents` -> `POST /agents/{id}/goals` with **`goal`** + **`context`** -> poll **`GET /runs/{run_id}`** -> return **`metadata.result.output`** to the user.
+- **Choose enough reasoning depth:** `fast` is only for compact results that can be planned and executed in one or two steps. If the answer may need several synthesis steps, richer milestones, validation, reflection, or trade-off analysis, pick **`balanced`** or **`full`** so the engine has enough iterations to execute the plan and emit final `output`.
+- **Compressed `context`:** put session facts, goal-relevant caller capabilities, tool findings, constraints, and success criteria here. Hosted reasoning has **no** access to Claude Code, Cursor, the repo, local subagents, MCP, or external integrations unless you summarize them in **`goal`** and **`context`**.
+- **Tool-aware output:** the hosted reasoning result should tell the caller what to do next using the caller's own relevant skills, subagents, tools, and integrations. The reasoning service cannot run those capabilities itself.
+- **Caller-usable result:** treat **`metadata.result.output`** as the only final answer to pass back. Do not expose raw run metadata to the user as a substitute for a missing final answer.
+
 ## Current environment
 
 ```!
@@ -73,7 +81,15 @@ The user is already mid-session. A bare one-line goal is nearly useless. Assembl
 
 ### Goal
 
-If the user passed `$ARGUMENTS`, use that as the starting point. Otherwise, synthesize a clear, self-contained goal paragraph from the conversation so far. Include success criteria.
+If the user passed `$ARGUMENTS`, use that as the starting point. Otherwise, synthesize a clear, self-contained goal paragraph from the conversation so far.
+
+Before dispatching, make sure the goal describes something the caller can **act on** with the reasoning result. Include:
+
+- The desired outcome.
+- Success criteria or acceptance criteria.
+- The decision, plan, implementation order, or next action the caller needs from hosted reasoning.
+
+If the actionable goal is unclear, **stop and ask the user for the goal** instead of sending a vague prompt.
 
 ### Context (passed as the `context` JSON field)
 
@@ -81,11 +97,13 @@ Build a markdown block with these sections:
 
 1. **Task background** — What the user is working on: repo, branch, project, deployment targets, environment constraints.
 2. **Work done so far** — Summarize files read/written, commands run, data fetched from integrations (MCP tools, web searches, DB queries, etc.). Include key **findings and data**, not just tool names — the hosted agent cannot call your local tools.
-3. **Learnings & pitfalls** — Anything discovered in this session: error patterns, API quirks, performance constraints, edge cases found (this feeds the same learning ecosystem the platform uses long term).
-4. **Open questions** — What needs deeper analysis, trade-off evaluation, or planning that you cannot resolve locally.
-5. **Constraints** — Deadlines, compliance, tech-stack limits, performance budgets, cost concerns.
+3. **Relevant caller capabilities** — List only the skills, subagents, tools, MCP servers, CLIs, integrations, databases, browsers, test runners, deployment targets, and permissions that could realistically affect this goal. Do not include a full tool inventory. Also list relevant unavailable capabilities or permissions when they constrain the plan.
+4. **Requested output shape** — Ask the hosted agent to produce a complete caller-executable final answer that maps each meaningful step to the appropriate relevant caller-run skill, subagent, tool, or integration. If no tool is needed for a step, say so.
+5. **Learnings & pitfalls** — Anything discovered in this session: error patterns, API quirks, performance constraints, edge cases found (this feeds the same learning ecosystem the platform uses long term).
+6. **Open questions** — What needs deeper analysis, trade-off evaluation, or planning that you cannot resolve locally.
+7. **Constraints** — Deadlines, compliance, tech-stack limits, performance budgets, cost concerns.
 
-> **Tip:** Paste summarized MCP/integration results. The hosted reasoning runtime has no access to your local tools, Jira, Linear, Slack, or databases.
+> **Tip:** Paste summarized MCP/integration results. The hosted reasoning runtime has no access to your local tools, Jira, Linear, Slack, databases, browser session, local filesystem, or subagents.
 
 ---
 
@@ -97,8 +115,8 @@ POST {BASE_URL}/agents/{agent_id}/goals
 
 ```json
 {
-  "goal": "<structured goal from step 4>",
-  "context": "<full context block from step 4>",
+  "goal": "<structured goal from step 3>",
+  "context": "<full context block from step 3>",
   "metadata": {
     "source": "claude-code-skill",
     "task_summary": "<one-line description>"
@@ -110,15 +128,14 @@ Optional fields:
 - `session_id` — set only to continue a previous Hyperstruck session whose last run is **terminal** (completed/failed). Omit to auto-create.
 - `worker_profile` — infrastructure sizing only: `"default"` unless you need `"large"`.
 
-### Tier guidance
-
-- `full` — deepest planning/reflection path; use for complex research or multi-step reasoning.
-- `balanced` — middle ground for most hosted reasoning tasks.
-- `fast` — lowest-latency path for trivial tasks; learning still remains enabled.
+Tier guidance:
+- `full` — maximal hosted reasoning depth.
+- `balanced` — middle tier for most hosted reasoning tasks.
+- `fast` — lower-latency path for narrow, caller-usable answers. It intentionally caps plan size; a fast run still needs enough iterations for planning, each generated step, and the final completion pass that emits `metadata.result.output`. If the hosted planner may create more than 1-2 steps, use `balanced` or `full`.
 
 Reasoning profiles live on the agent (`reasoning_profile` = `full` / `balanced` / `fast`). `worker_profile` is not a reasoning profile.
 
-Choose an agent whose configured `reasoning_profile` matches the task instead of changing reasoning behavior per run.
+Choose an agent whose configured `reasoning_profile` matches the task instead of trying to change reasoning behavior per run.
 
 Parse the response for `run.id` and `run.session_id` (the API names this a “run”; it is the lifecycle handle for the reasoning job).
 
@@ -132,14 +149,15 @@ GET {BASE_URL}/runs/{run_id}
 
 ### Polling strategy
 
-- **3 s** intervals for the first 30 s.
-- **5 s** intervals from 30 s to 2 min.
-- **10 s** intervals after 2 min.
+- Poll every **10 s**. Do not poll more frequently unless you are debugging a transient API problem.
 - **Stop after 10 min** and report last known status.
 
 ### On `completed`
 
-Report the reasoning output to the user. Look at `metadata.result` for structured output — present actionable plans, milestones, and next steps.
+Read `metadata.result.output`.
+
+- If `output` is present, report it to the user as the hosted reasoning result. Present actionable plans, milestones, and next steps.
+- If `output` is missing or `null`, do **not** show raw run metadata. Tell the user hosted reasoning completed without a caller-usable final answer, then ask whether to retry with a clearer goal, richer context, or a deeper reasoning profile.
 
 ### On `failed`
 
@@ -173,7 +191,7 @@ After resume, poll the **child run id** from the response.
 
 ## Step 6 — Use the results
 
-1. Optionally fetch the full reasoning trace: `GET {BASE_URL}/sessions/{session_id}/messages?limit=50`
+1. Optionally fetch persisted session messages: `GET {BASE_URL}/sessions/{session_id}/messages?limit=50`
 2. Integrate plans and findings into the current task.
 3. If you discovered reusable insights, invoke `/hyper-learning` so the learning layer can improve future reasoning.
 

@@ -100,6 +100,15 @@ Response `200` — same `RunResponse` shape as above (inside `run` or at top lev
 
 Status values: `queued`, `running`, `completed`, `failed`, `suspended`.
 
+### Completed run — `metadata.result`
+
+On success, expect at least:
+
+- `output` — final user-facing string (or structured object) from the reasoning engine; **this is what orchestrators should surface** to the caller.
+- `success`, `iterations`, `token_usage`, `error`, and `duration_seconds` when applicable.
+
+If `output` is missing or `null`, the run did not return caller-usable guidance. Do not treat other metadata fields as a final answer.
+
 When `status == "suspended"`, look for:
 
 ```json
@@ -108,8 +117,7 @@ When `status == "suspended"`, look for:
     "result": {
       "suspension": {
         "id": "..."
-      },
-      "engine_session_id": "..."
+      }
     }
   }
 }
