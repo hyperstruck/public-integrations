@@ -1,0 +1,35 @@
+{
+  "name": "@hyperstruck/sdk",
+  "version": "0.1.0",
+  "description": "TypeScript client SDK for the Hyperstruck Core API",
+  "author": "Hyperstruck",
+  "keywords": [
+    "hyperstruck",
+    "sdk",
+    "api-client",
+    "typescript",
+    "fetch"
+  ],
+  "license": "UNLICENSED",
+  "main": "./dist/index.js",
+  "typings": "./dist/index.d.ts",
+  "scripts": {
+    "build": "tsc --outDir dist/",
+    "prepublishOnly": "npm run build"
+  },
+  "dependencies": {
+    "isomorphic-fetch": "^3.0.0"
+  },
+  "devDependencies": {
+    "@types/node": "^20.0.0",
+    "typescript": "^5.0.0"
+  },
+  "files": [
+    "README.md",
+    "index.ts",
+    "api.ts",
+    "configuration.ts",
+    "custom.d.ts",
+    "dist/**/*"
+  ]
+}
