@@ -19,7 +19,7 @@ POST /agents/{agent_id}/learnings
 | `confidence` | no | 0.0–1.0, default 0.5 |
 | `source_goal` | no | Goal/task that produced this insight. For local or external runs, summarize the original task that generated the compacted evidence. |
 | `applicable_goals` | no | Keyword tags for search relevance. Use this to align learnings with the selected agent's purpose and task domain. |
-| `applicable_tools` | no | Tool names for search relevance. Use this for learnings distilled from compacted Cursor, MCP, CLI, browser, CI, or other external tool transcripts. |
+| `applicable_tools` | no | Tool names for search relevance. Use this for learnings distilled from compacted Claude, Cursor, MCP, CLI, browser, CI, or other external tool transcripts. |
 | `privacy` | no | `shareable`, `agent_specific`, `sensitive` |
 | `scope` | no | `"agent"` (default) or `"org"` (enterprise) |
 
