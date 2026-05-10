@@ -123,7 +123,7 @@ POST {BASE_URL}/agents/{agent_id}/learnings
 
 ### Async store
 
-Returns **202 Accepted** with `request_id`. Indexing is asynchronous (deduplication, conflict detection). **Wait a few seconds** before searching for the new learning.
+Returns **202 Accepted** with `request_id`. Indexing is asynchronous (non-LLM deduplication and storage). **Wait a few seconds** before searching for the new learning.
 
 ### Writing good learnings
 
