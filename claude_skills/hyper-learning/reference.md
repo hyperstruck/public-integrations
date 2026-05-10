@@ -17,9 +17,9 @@ POST /agents/{agent_id}/learnings
 | `content` | yes | 1–5000 chars, actionable text |
 | `learning_type` | yes | `tool_usage`, `approach`, `pitfall`, `prerequisite`, `coordination_pattern`, `agent_capability`, `conflict_insight`, `debate_outcome` |
 | `confidence` | no | 0.0–1.0, default 0.5 |
-| `source_goal` | no | Goal/task that produced this insight |
-| `applicable_goals` | no | Keyword tags for search relevance |
-| `applicable_tools` | no | Tool names for search relevance |
+| `source_goal` | no | Goal/task that produced this insight. For local or external runs, summarize the original task that generated the compacted evidence. |
+| `applicable_goals` | no | Keyword tags for search relevance. Use this to align learnings with the selected agent's purpose and task domain. |
+| `applicable_tools` | no | Tool names for search relevance. Use this for learnings distilled from compacted Cursor, MCP, CLI, browser, CI, or other external tool transcripts. |
 | `privacy` | no | `shareable`, `agent_specific`, `sensitive` |
 | `scope` | no | `"agent"` (default) or `"org"` (enterprise) |
 
@@ -33,6 +33,8 @@ Response `202`:
 ```
 
 Processing is **asynchronous**: deduplication, conflict detection, quota enforcement, and indexing happen in a background worker. The `request_id` is a correlation handle for logs. Wait a few seconds before searching.
+
+For work completed outside hosted reasoning, store distilled insights from agent-purpose-aligned evidence rather than raw logs. Evidence may include local knowledge, repo facts, candidate learnings, errors, decisions, constraints, review feedback, and tool results. Include relevant task terms in `applicable_goals`, tool names in `applicable_tools`, and keep secrets, PII, hostnames, and unnecessary transcript details out of `content`.
 
 ### Search learnings
 

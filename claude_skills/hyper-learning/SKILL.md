@@ -17,6 +17,7 @@ Store, search, and reinforce learnings on the Hyperstruck platform — the pract
 
 - **Recall** relevant knowledge before starting complex work.
 - **Capture** insights discovered during local coding.
+- **Ingest compacted local-run evidence** when useful knowledge appears outside the platform.
 - **Reinforce** past learnings to improve their ranking for future use.
 
 ## Current environment
@@ -131,6 +132,16 @@ Returns **202 Accepted** with `request_id`. Indexing is asynchronous (deduplicat
 - Strip secrets, PII, and internal hostnames from `content`.
 - Set `applicable_goals` and `applicable_tools` so the learning surfaces when relevant.
 
+### Capturing from local runs
+
+When useful knowledge appears during local work, compact the run before storing learnings. Include only what helps future agents:
+
+- The task, outcome, and whether the approach worked.
+- Important errors, fixes, constraints, review feedback, repo facts, or tool behavior.
+- The precise rule or pattern future agents should apply.
+
+Store only distilled learnings, not raw logs. If the insight is ambiguous, ask the user whether they want to store it with `/hyper-learning`. If they need deeper analysis first, briefly mention hosted reasoning as a separate option.
+
 ---
 
 ## Reinforce a learning
@@ -145,7 +156,7 @@ POST {BASE_URL}/agents/{agent_id}/learnings/{learning_id}/reinforce
 
 Or `false`. Updates confidence and advances trust lifecycle (`unverified` → `agent_verified` → `source_verified` → `corroborated`).
 
-Always reinforce when you can — it improves future search ranking.
+When a learning gets used, reinforce it after the outcome is known. Mark it helpful if it improved the run, or unhelpful if it misled the agent.
 
 ---
 
@@ -155,8 +166,14 @@ Always reinforce when you can — it improves future search ranking.
 
 1. **Search** for learnings relevant to the current task.
 2. Incorporate findings into your plan.
-3. After the task, **reinforce** learnings that helped (or mark unhelpful).
+3. After the task, **reinforce** every learning that was actually used as helpful or unhelpful.
 4. **Store** any new insights discovered.
+
+### Local-run capture
+
+1. Compact the local run into a short evidence summary.
+2. Ask whether to store the distilled learning.
+3. Store approved learnings, then reinforce them when future use shows whether they helped or misled.
 
 ### Quick capture
 

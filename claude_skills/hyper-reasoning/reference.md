@@ -60,7 +60,7 @@ Request body:
 | Field | Required | Description |
 |-------|----------|-------------|
 | `goal` | yes | Non-empty string |
-| `context` | no | Additional context for the reasoning runtime |
+| `context` | no | Additional context for the reasoning runtime. Include agent-purpose-aligned local knowledge, candidate learnings, compacted external-run evidence, files changed, tool inputs/results, errors, tests, review feedback, decisions, constraints, and final outcome when work happened outside hosted reasoning. |
 | `session_id` | no | Omit to auto-create; set to continue an existing session (must have no non-terminal runs) |
 | `worker_profile` | no | `"default"` or `"large"` |
 | `metadata` | no | Arbitrary dict persisted on the run |

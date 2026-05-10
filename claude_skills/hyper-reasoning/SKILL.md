@@ -24,6 +24,8 @@ Do **not** invoke for straightforward edits, lookups, or tasks you can complete 
 - **The skill is HTTP orchestration:** env -> `GET /agents` -> `POST /agents/{id}/goals` with **`goal`** + **`context`** -> poll **`GET /runs/{run_id}`** -> return **`metadata.result.output`** to the user.
 - **Choose enough reasoning depth:** `fast` is only for compact results that can be planned and executed in one or two steps. If the answer may need several synthesis steps, richer milestones, validation, reflection, or trade-off analysis, pick **`balanced`** or **`full`** so the engine has enough iterations to execute the plan and emit final `output`.
 - **Compressed `context`:** put session facts, goal-relevant caller capabilities, tool findings, constraints, and success criteria here. Hosted reasoning has **no** access to Claude Code, Cursor, the repo, local subagents, MCP, or external integrations unless you summarize them in **`goal`** and **`context`**.
+- **Local/tool evidence for learning:** if meaningful work already happened outside Hyperstruck (for example Cursor edits, MCP calls, shell output, browser testing, CI failures, review comments, or external tool results), compact those results into **`context`**. The hosted run can only reason over and learn from tool evidence that is included in the run context or produced by tools available to the hosted agent.
+- **Agent-purpose context:** after choosing an agent, use its `name`, `core_config.description`, and `core_config.instructions` to infer what information it is meant to use. Include relevant local knowledge, candidate learnings from Cursor's run, errors, decisions, constraints, domain facts, repo facts, and review outcomes that match that purpose. Do not include unrelated session noise just because it exists.
 - **Tool-aware output:** the hosted reasoning result should tell the caller what to do next using the caller's own relevant skills, subagents, tools, and integrations. The reasoning service cannot run those capabilities itself.
 - **Caller-usable result:** treat **`metadata.result.output`** as the only final answer to pass back. Do not expose raw run metadata to the user as a substitute for a missing final answer.
 
@@ -66,12 +68,12 @@ GET {BASE_URL}/agents?limit=50
 
 On **401** or **403**, stop and tell the user to verify `HYPER_API_KEY` and `HYPER_BASE_URL` (same outcome as a dedicated key-validation call, without the extra request).
 
-For each item, inspect `name`, `core_config.description`, and `status`. Only `active` profiles can accept a new goal.
+For each item, inspect `name`, `core_config.description`, `core_config.instructions`, and `status`. Only `active` profiles can accept a new goal.
 
 **If no profile fits the current task → stop early.** Tell the user:
 > "None of your Hyperstruck setups match this task. Configure one in your Hyperstruck dashboard, or I'll continue without hosted reasoning."
 
-If one profile clearly matches, use it. If several match, list them briefly and ask the user to pick (or choose the best fit by description). Store the chosen `agent_id` for API calls.
+If one profile clearly matches, use it. If several match, list them briefly and ask the user to pick (or choose the best fit by description). Store the chosen `agent_id` for API calls. Keep the selected agent's apparent purpose in mind when building `context`: include information that helps that agent do its job, and omit unrelated facts.
 
 ---
 
@@ -96,14 +98,16 @@ If the actionable goal is unclear, **stop and ask the user for the goal** instea
 Build a markdown block with these sections:
 
 1. **Task background** — What the user is working on: repo, branch, project, deployment targets, environment constraints.
-2. **Work done so far** — Summarize files read/written, commands run, data fetched from integrations (MCP tools, web searches, DB queries, etc.). Include key **findings and data**, not just tool names — the hosted agent cannot call your local tools.
-3. **Relevant caller capabilities** — List only the skills, subagents, tools, MCP servers, CLIs, integrations, databases, browsers, test runners, deployment targets, and permissions that could realistically affect this goal. Do not include a full tool inventory. Also list relevant unavailable capabilities or permissions when they constrain the plan.
-4. **Requested output shape** — Ask the hosted agent to produce a complete caller-executable final answer that maps each meaningful step to the appropriate relevant caller-run skill, subagent, tool, or integration. If no tool is needed for a step, say so.
-5. **Learnings & pitfalls** — Anything discovered in this session: error patterns, API quirks, performance constraints, edge cases found (this feeds the same learning ecosystem the platform uses long term).
-6. **Open questions** — What needs deeper analysis, trade-off evaluation, or planning that you cannot resolve locally.
-7. **Constraints** — Deadlines, compliance, tech-stack limits, performance budgets, cost concerns.
+2. **Selected agent purpose** — Briefly state which agent was chosen and what its name/description/instructions imply it should care about. Use this as the filter for the rest of the context.
+3. **Work done so far** — Summarize files read/written, commands run, data fetched from integrations (MCP tools, web searches, DB queries, etc.). Include key **findings and data**, not just tool names — the hosted agent cannot call your local tools.
+4. **Relevant knowledge and learnings** — Include local domain facts, repo facts, accepted patterns, prior Cursor-run insights, candidate learnings, known pitfalls, user preferences, and review feedback that are relevant to the selected agent's purpose. Distinguish proven facts from hypotheses.
+5. **Relevant caller capabilities** — List only the skills, subagents, tools, MCP servers, CLIs, integrations, databases, browsers, test runners, deployment targets, and permissions that could realistically affect this goal. Do not include a full tool inventory. Also list relevant unavailable capabilities or permissions when they constrain the plan.
+6. **Compacted external-run evidence** — When local execution happened before this hosted run, include concise evidence: tool name, inputs or parameters that matter, observed outputs or errors, files changed, tests run, CI/browser results, review feedback, retry/fix sequence, and final outcome. Omit secrets and noisy logs. This gives hosted reasoning enough evidence to extract approach, pitfall, prerequisite, and tool-usage learnings from work it did not execute directly.
+7. **Requested output shape** — Ask the hosted agent to produce a complete caller-executable final answer that maps each meaningful step to the appropriate relevant caller-run skill, subagent, tool, or integration. If no tool is needed for a step, say so.
+8. **Open questions** — What needs deeper analysis, trade-off evaluation, or planning that you cannot resolve locally.
+9. **Constraints** — Deadlines, compliance, tech-stack limits, performance budgets, cost concerns.
 
-> **Tip:** Paste summarized MCP/integration results. The hosted reasoning runtime has no access to your local tools, Jira, Linear, Slack, databases, browser session, local filesystem, or subagents.
+> **Tip:** Paste summarized MCP/integration results, compacted local tool transcripts, relevant knowledge, and candidate learnings from Cursor runs. The hosted reasoning runtime has no access to your local tools, Jira, Linear, Slack, databases, browser session, local filesystem, or subagents unless you pass their relevant results in `context`.
 
 ---
 
