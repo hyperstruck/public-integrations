@@ -82,6 +82,8 @@ Response `202`:
     "ended_at": null,
     "compute_seconds": "0",
     "estimated_compute_cost_usd": "0",
+    "estimated_llm_cost_usd": "0",
+    "estimated_total_cost_usd": "0",
     "error": null,
     "metadata": {},
     "created_at": "..."
@@ -96,7 +98,41 @@ Response `202`:
 GET /runs/{run_id}
 ```
 
-Response `200` — same `RunResponse` shape as above (inside `run` or at top level depending on wrapper).
+Response `200` — a top-level `RunResponse` object. Unlike `POST /agents/{agent_id}/goals` and `POST /runs/{run_id}/resume`, this endpoint is **not** wrapped in a `run` property.
+
+```json
+{
+  "id": "<uuid>",
+  "agent_id": "<uuid>",
+  "session_id": "<uuid>",
+  "parent_run_id": null,
+  "run_type": "goal",
+  "status": "completed",
+  "goal": "...",
+  "worker_profile": "default",
+  "started_at": "...",
+  "ended_at": "...",
+  "compute_seconds": "12.345",
+  "estimated_compute_cost_usd": "0.001234",
+  "estimated_llm_cost_usd": "0.012345",
+  "estimated_total_cost_usd": "0.013579",
+  "error": null,
+  "metadata": {
+    "result": {
+      "success": true,
+      "output": "...",
+      "iterations": 3,
+      "token_usage": {},
+      "trace_id": "...",
+      "error": null,
+      "halted": false,
+      "extraction_outcome": null,
+      "engine_session_id": "..."
+    }
+  },
+  "created_at": "..."
+}
+```
 
 Status values: `queued`, `running`, `completed`, `failed`, `suspended`.
 
@@ -105,7 +141,9 @@ Status values: `queued`, `running`, `completed`, `failed`, `suspended`.
 On success, expect at least:
 
 - `output` — final user-facing string (or structured object) from the reasoning engine; **this is what orchestrators should surface** to the caller.
-- `success`, `iterations`, `token_usage`, `error`, and `duration_seconds` when applicable.
+- `success`, `iterations`, `token_usage`, `trace_id`, `error`, `halted`, `extraction_outcome`, and `engine_session_id` when applicable.
+
+Do **not** look for `duration_seconds` inside `metadata.result`. Worker duration is surfaced through top-level `compute_seconds` and cost fields. Internal scratchpad details are redacted from `GET /runs/{run_id}` responses.
 
 If `output` is missing or `null`, the run did not return caller-usable guidance. Do not treat other metadata fields as a final answer.
 
