@@ -104,18 +104,29 @@ POST {BASE_URL}/agents/{agent_id}/learnings
   "source_goal": "<what task produced this insight>",
   "applicable_goals": ["keyword1", "keyword2"],
   "applicable_tools": ["tool_name"],
-  "privacy": "shareable"
+  "privacy": "shareable",
+  "instances": [
+    {
+      "entity_values": {"entity": "value"},
+      "outcome": {"result": "value"},
+      "source_context": "claude-skill"
+    }
+  ]
 }
 ```
+
+Omit `instances` unless you have concrete structured evidence. Use it when a learning describes an observed input-to-outcome pattern, a tool result, a test case, or a compacted external run with clear entities and outcome. Keep values short strings and remove secrets, PII, internal hostnames, and raw logs.
 
 ### Learning types
 
 | Type | When to use |
 |------|-------------|
-| `tool_usage` | How to use a specific tool effectively |
+| `tool_behaviour` | How a tool works: parameters, formats, errors |
+| `outcome_pattern` | Input-to-outcome correlation supported by instances |
 | `approach` | A strategy or pattern that worked |
 | `pitfall` | Something to avoid (common failure mode) |
 | `prerequisite` | Something that must be true before an approach works |
+| `coverage` | Milestones or phases a plan must include |
 | `coordination_pattern` | Effective coordination strategies |
 | `agent_capability` | What agents are good or bad at |
 | `conflict_insight` | How conflicts were resolved |
@@ -131,6 +142,7 @@ Returns **202 Accepted** with `request_id`. Indexing is asynchronous (non-LLM de
 - Prefer **multiple small learnings** over one large paragraph.
 - Strip secrets, PII, and internal hostnames from `content`.
 - Set `applicable_goals` and `applicable_tools` so the learning surfaces when relevant.
+- Add `instances` when evidence is available, especially for `outcome_pattern` and `tool_behaviour` learnings. Each instance should capture the minimal `entity_values` that explain when the pattern applies and the observed `outcome`.
 
 ### Capturing from local runs
 
@@ -139,6 +151,7 @@ When useful knowledge appears during local work, compact the run before storing 
 - The task, outcome, and whether the approach worked.
 - Important errors, fixes, constraints, review feedback, repo facts, or tool behavior.
 - The precise rule or pattern future agents should apply.
+- Optional structured instances: entity values, observed outcome, and `source_context` such as `claude-skill`, `cursor`, `ci`, `browser`, or `api`.
 
 Store only distilled learnings, not raw logs. If the insight is ambiguous, ask the user whether they want to store it with `/hyper-learning`. If they need deeper analysis first, briefly mention hosted reasoning as a separate option.
 

@@ -34,7 +34,8 @@ class StoreLearningRequest(object):
         'source_goal': 'object',
         'applicable_goals': 'object',
         'applicable_tools': 'object',
-        'privacy': 'PrivacyClassification'
+        'privacy': 'PrivacyClassification',
+        'instances': 'list[LearningInstanceEvidenceRequest]'
     }
 
     attribute_map = {
@@ -44,10 +45,11 @@ class StoreLearningRequest(object):
         'source_goal': 'source_goal',
         'applicable_goals': 'applicable_goals',
         'applicable_tools': 'applicable_tools',
-        'privacy': 'privacy'
+        'privacy': 'privacy',
+        'instances': 'instances'
     }
 
-    def __init__(self, content=None, learning_type=None, confidence=None, source_goal=None, applicable_goals=None, applicable_tools=None, privacy=None):  # noqa: E501
+    def __init__(self, content=None, learning_type=None, confidence=None, source_goal=None, applicable_goals=None, applicable_tools=None, privacy=None, instances=None):  # noqa: E501
         """StoreLearningRequest - a model defined in Swagger"""  # noqa: E501
         self._content = None
         self._learning_type = None
@@ -56,6 +58,7 @@ class StoreLearningRequest(object):
         self._applicable_goals = None
         self._applicable_tools = None
         self._privacy = None
+        self._instances = None
         self.discriminator = None
         self.content = content
         self.learning_type = learning_type
@@ -69,6 +72,8 @@ class StoreLearningRequest(object):
             self.applicable_tools = applicable_tools
         if privacy is not None:
             self.privacy = privacy
+        if instances is not None:
+            self.instances = instances
 
     @property
     def content(self):
@@ -77,7 +82,7 @@ class StoreLearningRequest(object):
         The learning content to store.  # noqa: E501
 
         :return: The content of this StoreLearningRequest.  # noqa: E501
-        :rtype: object
+        :rtype: list[LearningInstanceEvidenceRequest]
         """
         return self._content
 
@@ -88,7 +93,7 @@ class StoreLearningRequest(object):
         The learning content to store.  # noqa: E501
 
         :param content: The content of this StoreLearningRequest.  # noqa: E501
-        :type: object
+        :type: list[LearningInstanceEvidenceRequest]
         """
         if content is None:
             raise ValueError("Invalid value for `content`, must not be `None`")  # noqa: E501
@@ -234,6 +239,29 @@ class StoreLearningRequest(object):
         """
 
         self._privacy = privacy
+
+    @property
+    def instances(self):
+        """Gets the instances of this StoreLearningRequest.  # noqa: E501
+
+        Structured evidence instances supporting this learning.  # noqa: E501
+
+        :return: The instances of this StoreLearningRequest.  # noqa: E501
+        :rtype: object
+        """
+        return self._instances
+
+    @instances.setter
+    def instances(self, instances):
+        """Sets the instances of this StoreLearningRequest.
+
+        Structured evidence instances supporting this learning.  # noqa: E501
+
+        :param instances: The instances of this StoreLearningRequest.  # noqa: E501
+        :type: object
+        """
+
+        self._instances = instances
 
     def to_dict(self):
         """Returns the model properties as a dict"""

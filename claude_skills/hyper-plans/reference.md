@@ -51,6 +51,8 @@ Response `200`:
 }
 ```
 
+Candidate learnings stay compact in plan-search responses. To inspect structured instance evidence for a candidate, call `GET /agents/{agent_id}/learnings/{learning_id}` from the Learnings API.
+
 ### Search similar plans across multiple agents
 
 ```
@@ -76,7 +78,7 @@ Response `200`: same shape as single-agent search, but `partial_failures` may co
 
 | HTTP | Meaning | Action |
 |------|---------|--------|
-| 400 | Validation error | Fix params/body |
+| 422 | Validation error | Fix params/body |
 | 401 | Unauthorized | Check API key |
 | 403 | Forbidden | Missing `agents:read` or unauthorized agent ids |
 | 503 | Runtime unavailable | Memory runtime or retrieval dependency missing |

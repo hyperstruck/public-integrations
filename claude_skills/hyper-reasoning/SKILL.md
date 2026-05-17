@@ -21,13 +21,13 @@ Do **not** invoke for straightforward edits, lookups, or tasks you can complete 
 
 ## How this skill fits the caller workflow
 
-- **The skill is HTTP orchestration:** env -> `GET /agents` -> `POST /agents/{id}/goals` with **`goal`** + **`context`** -> poll **`GET /runs/{run_id}`** -> return **`metadata.result.output`** to the user.
+- **The skill is HTTP orchestration:** env -> `GET /agents` -> `POST /agents/{id}/goals` with **`goal`** + **`context`** -> poll **`GET /runs/{run_id}`** -> use **`metadata.result.output`** to inform the caller's next actions.
 - **Choose enough reasoning depth:** `fast` is only for compact results that can be planned and executed in one or two steps. If the answer may need several synthesis steps, richer milestones, validation, reflection, or trade-off analysis, pick **`balanced`** or **`full`** so the engine has enough iterations to execute the plan and emit final `output`.
 - **Compressed `context`:** put session facts, goal-relevant caller capabilities, tool findings, constraints, and success criteria here. Hosted reasoning has **no** access to Claude Code, Cursor, the repo, local subagents, MCP, or external integrations unless you summarize them in **`goal`** and **`context`**.
 - **Local/tool evidence for learning:** if meaningful work already happened outside Hyperstruck (for example Claude or Cursor edits, MCP calls, shell output, browser testing, CI failures, review comments, or external tool results), compact those results into **`context`**. The hosted run can only reason over and learn from tool evidence that is included in the run context or produced by tools available to the hosted agent.
 - **Agent-purpose context:** after choosing an agent, use its `name`, `core_config.description`, and `core_config.instructions` to infer what information it is meant to use. Include relevant local knowledge, candidate learnings from the caller's run, errors, decisions, constraints, domain facts, repo facts, and review outcomes that match that purpose. Do not include unrelated session noise just because it exists.
-- **Tool-aware output:** the hosted reasoning result should tell the caller what to do next using the caller's own relevant skills, subagents, tools, and integrations. The reasoning service cannot run those capabilities itself.
-- **Caller-usable result:** treat **`metadata.result.output`** as the only final answer to pass back. Do not expose raw run metadata to the user as a substitute for a missing final answer.
+- **Tool-aware use:** the hosted reasoning result can mention relevant caller-side skills, subagents, tools, and integrations, but the reasoning service cannot run those capabilities itself.
+- **Caller-usable result:** treat **`metadata.result.output`** as the only caller-facing result. Use it to decide the next local actions; do not expose raw run metadata to the user as a substitute for a missing final answer.
 
 ## Current environment
 
@@ -103,7 +103,7 @@ Build a markdown block with these sections:
 4. **Relevant knowledge and learnings** — Include local domain facts, repo facts, accepted patterns, prior caller-run insights, candidate learnings, known pitfalls, user preferences, and review feedback that are relevant to the selected agent's purpose. Distinguish proven facts from hypotheses.
 5. **Relevant caller capabilities** — List only the skills, subagents, tools, MCP servers, CLIs, integrations, databases, browsers, test runners, deployment targets, and permissions that could realistically affect this goal. Do not include a full tool inventory. Also list relevant unavailable capabilities or permissions when they constrain the plan.
 6. **Compacted external-run evidence** — When local execution happened before this hosted run, include concise evidence: tool name, inputs or parameters that matter, observed outputs or errors, files changed, tests run, CI/browser results, review feedback, retry/fix sequence, and final outcome. Omit secrets and noisy logs. This gives hosted reasoning enough evidence to extract approach, pitfall, prerequisite, and tool-usage learnings from work it did not execute directly.
-7. **Requested output shape** — Ask the hosted agent to produce a complete caller-executable final answer that maps each meaningful step to the appropriate relevant caller-run skill, subagent, tool, or integration. If no tool is needed for a step, say so.
+7. **Result-use guidance** — Do not request a response schema, machine-readable structure, or any specific format. The API response is the response; interpret `metadata.result.output` as returned.
 8. **Open questions** — What needs deeper analysis, trade-off evaluation, or planning that you cannot resolve locally.
 9. **Constraints** — Deadlines, compliance, tech-stack limits, performance budgets, cost concerns.
 
@@ -160,7 +160,7 @@ GET {BASE_URL}/runs/{run_id}
 
 Read `metadata.result.output`.
 
-- If `output` is present, report it to the user as the hosted reasoning result. Present actionable plans, milestones, and next steps.
+- If `output` is present, interpret it as returned, use it to inform the next local actions, and share the relevant conclusion, plan, or next steps with the user.
 - If `output` is missing or `null`, do **not** show raw run metadata. Tell the user hosted reasoning completed without a caller-usable final answer, then ask whether to retry with a clearer goal, richer context, or a deeper reasoning profile.
 
 ### On `failed`
@@ -197,7 +197,7 @@ After resume, poll the **child run id** from the response.
 
 1. Optionally fetch persisted session messages: `GET {BASE_URL}/sessions/{session_id}/messages?limit=50`
 2. Integrate plans and findings into the current task.
-3. If you discovered reusable insights, invoke `/hyper-learning` so the learning layer can improve future reasoning.
+3. If you discovered reusable insights, invoke `/hyper-learning` so the learning layer can improve future reasoning. When the run or local caller evidence includes concrete entity/outcome examples, preserve them as learning `instances` instead of only storing a prose summary.
 
 ---
 

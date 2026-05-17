@@ -76,6 +76,7 @@ Summarize each hit with:
 - `plan.summary` when present
 - `similarity_score`
 - top candidate learnings with `trust_level`
+- if a candidate learning looks evidence-backed and the user needs details, fetch it with `GET /agents/{agent_id}/learnings/{learning_id}` to inspect full `instances`
 
 Also mention `partial_failures` when present.
 

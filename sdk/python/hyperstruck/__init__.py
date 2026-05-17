@@ -44,6 +44,8 @@ from hyperstruck.models.guardrails_config_input import GuardrailsConfigInput
 from hyperstruck.models.guardrails_config_output import GuardrailsConfigOutput
 from hyperstruck.models.http_validation_error import HTTPValidationError
 from hyperstruck.models.hitl_policy_preset import HitlPolicyPreset
+from hyperstruck.models.learning_instance_evidence_request import LearningInstanceEvidenceRequest
+from hyperstruck.models.learning_instance_evidence_response import LearningInstanceEvidenceResponse
 from hyperstruck.models.learning_response import LearningResponse
 from hyperstruck.models.learning_scope import LearningScope
 from hyperstruck.models.learning_search_hit import LearningSearchHit

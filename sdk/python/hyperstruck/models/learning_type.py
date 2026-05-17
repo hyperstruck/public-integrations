@@ -24,10 +24,12 @@ class LearningType(object):
     """
     allowed enum values
     """
-    TOOL_USAGE = "tool_usage"
+    TOOL_BEHAVIOUR = "tool_behaviour"
+    OUTCOME_PATTERN = "outcome_pattern"
     APPROACH = "approach"
     PITFALL = "pitfall"
     PREREQUISITE = "prerequisite"
+    COVERAGE = "coverage"
     COORDINATION_PATTERN = "coordination_pattern"
     AGENT_CAPABILITY = "agent_capability"
     CONFLICT_INSIGHT = "conflict_insight"

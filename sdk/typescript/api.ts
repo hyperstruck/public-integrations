@@ -922,10 +922,12 @@ export interface LearningSearchResponse {
  * @enum {string}
  */
 export enum LearningType {
-    ToolUsage = <any> 'tool_usage',
+    ToolBehaviour = <any> 'tool_behaviour',
+    OutcomePattern = <any> 'outcome_pattern',
     Approach = <any> 'approach',
     Pitfall = <any> 'pitfall',
     Prerequisite = <any> 'prerequisite',
+    Coverage = <any> 'coverage',
     CoordinationPattern = <any> 'coordination_pattern',
     AgentCapability = <any> 'agent_capability',
     ConflictInsight = <any> 'conflict_insight',

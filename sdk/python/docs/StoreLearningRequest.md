@@ -10,6 +10,7 @@ Name | Type | Description | Notes
 **applicable_goals** | **object** | Keywords or patterns this learning applies to. | [optional] 
 **applicable_tools** | **object** | Tools this learning relates to. | [optional] 
 **privacy** | [**PrivacyClassification**](PrivacyClassification.md) | Privacy classification for cross-agent sharing eligibility. | [optional] 
+**instances** | [**list[LearningInstanceEvidenceRequest]**](LearningInstanceEvidenceRequest.md) | Structured evidence instances supporting this learning. Each item includes `entity_values`, `outcome`, and optional `source_context`. | [optional] 
 
 [[Back to Model list]](../README.md#documentation-for-models) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to README]](../README.md)
 

@@ -16,6 +16,7 @@ Name | Type | Description | Notes
 **is_archived** | **object** |  | 
 **privacy** | [**PrivacyClassification**](PrivacyClassification.md) |  | 
 **scope** | [**LearningScope**](LearningScope.md) |  | [optional] 
+**instances** | [**list[LearningInstanceEvidenceResponse]**](LearningInstanceEvidenceResponse.md) | Structured evidence instances supporting this learning. | [optional] 
 **created_at** | **object** |  | 
 **updated_at** | **object** |  | 
 

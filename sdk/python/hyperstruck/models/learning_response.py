@@ -41,6 +41,7 @@ class LearningResponse(object):
         'is_archived': 'object',
         'privacy': 'PrivacyClassification',
         'scope': 'LearningScope',
+        'instances': 'list[LearningInstanceEvidenceResponse]',
         'created_at': 'object',
         'updated_at': 'object'
     }
@@ -59,11 +60,12 @@ class LearningResponse(object):
         'is_archived': 'is_archived',
         'privacy': 'privacy',
         'scope': 'scope',
+        'instances': 'instances',
         'created_at': 'created_at',
         'updated_at': 'updated_at'
     }
 
-    def __init__(self, learning_id=None, content=None, learning_type=None, confidence=None, trust_level=None, source_goal=None, applicable_goals=None, applicable_tools=None, times_applied=None, times_helpful=None, is_archived=None, privacy=None, scope=None, created_at=None, updated_at=None):  # noqa: E501
+    def __init__(self, learning_id=None, content=None, learning_type=None, confidence=None, trust_level=None, source_goal=None, applicable_goals=None, applicable_tools=None, times_applied=None, times_helpful=None, is_archived=None, privacy=None, scope=None, instances=None, created_at=None, updated_at=None):  # noqa: E501
         """LearningResponse - a model defined in Swagger"""  # noqa: E501
         self._learning_id = None
         self._content = None
@@ -78,6 +80,7 @@ class LearningResponse(object):
         self._is_archived = None
         self._privacy = None
         self._scope = None
+        self._instances = None
         self._created_at = None
         self._updated_at = None
         self.discriminator = None
@@ -95,6 +98,8 @@ class LearningResponse(object):
         self.privacy = privacy
         if scope is not None:
             self.scope = scope
+        if instances is not None:
+            self.instances = instances
         self.created_at = created_at
         self.updated_at = updated_at
 
@@ -104,7 +109,7 @@ class LearningResponse(object):
 
 
         :return: The learning_id of this LearningResponse.  # noqa: E501
-        :rtype: object
+        :rtype: list[LearningInstanceEvidenceResponse]
         """
         return self._learning_id
 
@@ -114,7 +119,7 @@ class LearningResponse(object):
 
 
         :param learning_id: The learning_id of this LearningResponse.  # noqa: E501
-        :type: object
+        :type: list[LearningInstanceEvidenceResponse]
         """
         if learning_id is None:
             raise ValueError("Invalid value for `learning_id`, must not be `None`")  # noqa: E501
@@ -394,6 +399,29 @@ class LearningResponse(object):
         """
 
         self._scope = scope
+
+    @property
+    def instances(self):
+        """Gets the instances of this LearningResponse.  # noqa: E501
+
+        Structured evidence instances supporting this learning.  # noqa: E501
+
+        :return: The instances of this LearningResponse.  # noqa: E501
+        :rtype: object
+        """
+        return self._instances
+
+    @instances.setter
+    def instances(self, instances):
+        """Sets the instances of this LearningResponse.
+
+        Structured evidence instances supporting this learning.  # noqa: E501
+
+        :param instances: The instances of this LearningResponse.  # noqa: E501
+        :type: object
+        """
+
+        self._instances = instances
 
     @property
     def created_at(self):

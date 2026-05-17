@@ -147,6 +147,8 @@ Do **not** look for `duration_seconds` inside `metadata.result`. Worker duration
 
 If `output` is missing or `null`, the run did not return caller-usable guidance. Do not treat other metadata fields as a final answer.
 
+Run response shape is unchanged by learning instance evidence. If a completed run or local caller context reveals reusable entity/outcome examples, store them later through the Learnings API `instances` field rather than expecting them on `RunResponse`.
+
 When `status == "suspended"`, look for:
 
 ```json

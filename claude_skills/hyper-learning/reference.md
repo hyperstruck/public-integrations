@@ -15,13 +15,38 @@ POST /agents/{agent_id}/learnings
 | Field | Required | Description |
 |-------|----------|-------------|
 | `content` | yes | 1–5000 chars, actionable text |
-| `learning_type` | yes | `tool_usage`, `approach`, `pitfall`, `prerequisite`, `coordination_pattern`, `agent_capability`, `conflict_insight`, `debate_outcome` |
+| `learning_type` | yes | `tool_behaviour`, `outcome_pattern`, `approach`, `pitfall`, `prerequisite`, `coverage`, `coordination_pattern`, `agent_capability`, `conflict_insight`, `debate_outcome` |
 | `confidence` | no | 0.0–1.0, default 0.5 |
 | `source_goal` | no | Goal/task that produced this insight. For local or external runs, summarize the original task that generated the compacted evidence. |
 | `applicable_goals` | no | Keyword tags for search relevance. Use this to align learnings with the selected agent's purpose and task domain. |
 | `applicable_tools` | no | Tool names for search relevance. Use this for learnings distilled from compacted Claude, Cursor, MCP, CLI, browser, CI, or other external tool transcripts. |
 | `privacy` | no | `shareable`, `agent_specific`, `sensitive` |
-| `scope` | no | `"agent"` (default) or `"org"` (enterprise) |
+| `instances` | no | Structured evidence examples. Each item requires `entity_values` and `outcome` string maps, with optional `source_context`. |
+
+Learning types: `tool_behaviour`, `outcome_pattern`, `approach`, `pitfall`, `prerequisite`, `coverage`, `coordination_pattern`, `agent_capability`, `conflict_insight`, `debate_outcome`.
+
+Instance evidence example:
+
+```json
+{
+  "content": "qualify_lead returns cold for cybersecurity companies",
+  "learning_type": "outcome_pattern",
+  "applicable_tools": ["qualify_lead"],
+  "instances": [
+    {
+      "entity_values": {
+        "company": "CrowdShield",
+        "industry": "cybersecurity"
+      },
+      "outcome": {
+        "tier": "cold",
+        "score": "0.12"
+      },
+      "source_context": "claude-skill"
+    }
+  ]
+}
+```
 
 Response `202`:
 
@@ -70,6 +95,15 @@ Response `200`:
         "is_archived": false,
         "privacy": "shareable",
         "scope": "agent",
+        "instances": [
+          {
+            "id": "content:...",
+            "entity_values": {"company": "CrowdShield"},
+            "outcome": {"tier": "cold"},
+            "source_context": "claude-skill",
+            "created_at": "..."
+          }
+        ],
         "created_at": "...",
         "updated_at": "..."
       },
