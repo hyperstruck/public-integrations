@@ -604,6 +604,19 @@ export enum DecisionType {
     PartialApprove = <any> 'partial_approve'
 }
 /**
+ * Response after deleting all learnings for an agent.
+ * @export
+ * @interface DeleteLearningsResponse
+ */
+export interface DeleteLearningsResponse {
+    /**
+     * Number of learning memories deleted for the agent.
+     * @type {any}
+     * @memberof DeleteLearningsResponse
+     */
+    deletedCount: any;
+}
+/**
  * Accepted response for an asynchronously dispatched goal run.
  * @export
  * @interface GoalRunAcceptedResponse
@@ -773,6 +786,68 @@ export enum HitlPolicyPreset {
     MilestoneOnly = <any> 'milestone_only'
 }
 /**
+ * Specific evidence instance that supports a stored learning.
+ * @export
+ * @interface LearningInstanceEvidenceRequest
+ */
+export interface LearningInstanceEvidenceRequest {
+    /**
+     * Entity field values observed for this evidence instance.
+     * @type {any}
+     * @memberof LearningInstanceEvidenceRequest
+     */
+    entityValues: any;
+    /**
+     * Structured outcome observed for this evidence instance.
+     * @type {any}
+     * @memberof LearningInstanceEvidenceRequest
+     */
+    outcome: any;
+    /**
+     * Short context label for where the evidence came from.
+     * @type {any}
+     * @memberof LearningInstanceEvidenceRequest
+     */
+    sourceContext?: any;
+}
+/**
+ * Specific evidence instance returned with a learning.
+ * @export
+ * @interface LearningInstanceEvidenceResponse
+ */
+export interface LearningInstanceEvidenceResponse {
+    /**
+     * 
+     * @type {any}
+     * @memberof LearningInstanceEvidenceResponse
+     */
+    id: any;
+    /**
+     * 
+     * @type {any}
+     * @memberof LearningInstanceEvidenceResponse
+     */
+    entityValues: any;
+    /**
+     * 
+     * @type {any}
+     * @memberof LearningInstanceEvidenceResponse
+     */
+    outcome: any;
+    /**
+     * 
+     * @type {any}
+     * @memberof LearningInstanceEvidenceResponse
+     */
+    sourceContext?: any;
+    /**
+     * 
+     * @type {any}
+     * @memberof LearningInstanceEvidenceResponse
+     */
+    createdAt: any;
+}
+/**
  * Full representation of a single learning.
  * @export
  * @interface LearningResponse
@@ -856,6 +931,12 @@ export interface LearningResponse {
      * @memberof LearningResponse
      */
     scope?: LearningScope;
+    /**
+     * 
+     * @type {any}
+     * @memberof LearningResponse
+     */
+    instances?: any;
     /**
      * 
      * @type {any}
@@ -1081,7 +1162,9 @@ export enum ModelProvider {
     Ollama = <any> 'ollama',
     Openai = <any> 'openai',
     Anthropic = <any> 'anthropic',
-    Groq = <any> 'groq'
+    Groq = <any> 'groq',
+    Google = <any> 'google',
+    Xai = <any> 'xai'
 }
 /**
  * Cross-agent similar-plan search request.
@@ -2007,6 +2090,12 @@ export interface StoreLearningRequest {
      * @memberof StoreLearningRequest
      */
     privacy?: PrivacyClassification;
+    /**
+     * Specific evidence instances that support the learning. API-sourced instances are content-addressed for deduplication by entity values and outcome.
+     * @type {any}
+     * @memberof StoreLearningRequest
+     */
+    instances?: any;
 }
 /**
  * Rollups from ``usage_daily.learning_count`` over UTC dates.
@@ -2015,11 +2104,269 @@ export interface StoreLearningRequest {
  */
 export interface UsageLearningAggregates {
     /**
-     * Sum of learning_count for UTC calendar days overlapping the window.
+     * Net learning_count for UTC calendar days overlapping the window. Stores increment the count; delete-all operations decrement the deleted learnings' usage-date rows when available.
      * @type {any}
      * @memberof UsageLearningAggregates
      */
     totalLearningOperations: any;
+}
+/**
+ * Admin-only per-call LLM cost breakdown for a tenant over a preset window.  Surfaces the raw provider-cost ledger (``llm_usage``), not the billed aggregate. Carries grand totals plus independent by-model and by-component rollups so a single request answers total spend and both attribution questions.
+ * @export
+ * @interface UsageLlmBreakdownResponse
+ */
+export interface UsageLlmBreakdownResponse {
+    /**
+     * 
+     * @type {any}
+     * @memberof UsageLlmBreakdownResponse
+     */
+    tenantId: any;
+    /**
+     * 
+     * @type {UsageTimeWindow}
+     * @memberof UsageLlmBreakdownResponse
+     */
+    window: UsageTimeWindow;
+    /**
+     * Inclusive UTC boundary.
+     * @type {any}
+     * @memberof UsageLlmBreakdownResponse
+     */
+    periodStart: any;
+    /**
+     * Exclusive UTC boundary.
+     * @type {any}
+     * @memberof UsageLlmBreakdownResponse
+     */
+    periodEndExclusive: any;
+    /**
+     * 
+     * @type {UsageLlmTotals}
+     * @memberof UsageLlmBreakdownResponse
+     */
+    totals: UsageLlmTotals;
+    /**
+     * 
+     * @type {any}
+     * @memberof UsageLlmBreakdownResponse
+     */
+    byModel: any;
+    /**
+     * 
+     * @type {any}
+     * @memberof UsageLlmBreakdownResponse
+     */
+    byComponent: any;
+}
+/**
+ * A single billable LLM call from the raw provider-cost ledger.
+ * @export
+ * @interface UsageLlmCallItem
+ */
+export interface UsageLlmCallItem {
+    /**
+     * 
+     * @type {any}
+     * @memberof UsageLlmCallItem
+     */
+    id: any;
+    /**
+     * 
+     * @type {any}
+     * @memberof UsageLlmCallItem
+     */
+    modelId: any;
+    /**
+     * 
+     * @type {any}
+     * @memberof UsageLlmCallItem
+     */
+    component: any;
+    /**
+     * 
+     * @type {any}
+     * @memberof UsageLlmCallItem
+     */
+    promptTokens: any;
+    /**
+     * 
+     * @type {any}
+     * @memberof UsageLlmCallItem
+     */
+    completionTokens: any;
+    /**
+     * 
+     * @type {any}
+     * @memberof UsageLlmCallItem
+     */
+    totalTokens: any;
+    /**
+     * Raw provider cost for this call; null when not recorded.
+     * @type {any}
+     * @memberof UsageLlmCallItem
+     */
+    costUsd?: any;
+    /**
+     * 
+     * @type {any}
+     * @memberof UsageLlmCallItem
+     */
+    recordedAt: any;
+}
+/**
+ * Cursor page of a run's LLM calls in chronological (execution) order.
+ * @export
+ * @interface UsageLlmCallListResponse
+ */
+export interface UsageLlmCallListResponse {
+    /**
+     * 
+     * @type {any}
+     * @memberof UsageLlmCallListResponse
+     */
+    tenantId: any;
+    /**
+     * 
+     * @type {any}
+     * @memberof UsageLlmCallListResponse
+     */
+    runId: any;
+    /**
+     * 
+     * @type {any}
+     * @memberof UsageLlmCallListResponse
+     */
+    items: any;
+    /**
+     * Opaque cursor; pass as `cursor` for the next page.
+     * @type {any}
+     * @memberof UsageLlmCallListResponse
+     */
+    nextCursor?: any;
+}
+/**
+ * Raw-provider LLM usage rolled up for a single model.
+ * @export
+ * @interface UsageLlmModelAggregate
+ */
+export interface UsageLlmModelAggregate {
+    /**
+     * Model identifier; 'unknown' when the call did not record one.
+     * @type {any}
+     * @memberof UsageLlmModelAggregate
+     */
+    modelId: any;
+    /**
+     * 
+     * @type {any}
+     * @memberof UsageLlmModelAggregate
+     */
+    callCount: any;
+    /**
+     * 
+     * @type {any}
+     * @memberof UsageLlmModelAggregate
+     */
+    promptTokens: any;
+    /**
+     * 
+     * @type {any}
+     * @memberof UsageLlmModelAggregate
+     */
+    completionTokens: any;
+    /**
+     * 
+     * @type {any}
+     * @memberof UsageLlmModelAggregate
+     */
+    totalTokens: any;
+    /**
+     * Sum of raw provider cost_usd.
+     * @type {any}
+     * @memberof UsageLlmModelAggregate
+     */
+    costUsd: any;
+}
+/**
+ * Raw-provider LLM usage rolled up for a single reasoning component.
+ * @export
+ * @interface UsageLlmComponentAggregate
+ */
+export interface UsageLlmComponentAggregate {
+    /**
+     * Reasoning component, e.g. planner, executor, final_reflector.
+     * @type {any}
+     * @memberof UsageLlmComponentAggregate
+     */
+    component: any;
+    /**
+     * 
+     * @type {any}
+     * @memberof UsageLlmComponentAggregate
+     */
+    callCount: any;
+    /**
+     * 
+     * @type {any}
+     * @memberof UsageLlmComponentAggregate
+     */
+    promptTokens: any;
+    /**
+     * 
+     * @type {any}
+     * @memberof UsageLlmComponentAggregate
+     */
+    completionTokens: any;
+    /**
+     * 
+     * @type {any}
+     * @memberof UsageLlmComponentAggregate
+     */
+    totalTokens: any;
+    /**
+     * Sum of raw provider cost_usd.
+     * @type {any}
+     * @memberof UsageLlmComponentAggregate
+     */
+    costUsd: any;
+}
+/**
+ * Aggregate raw-provider LLM usage across a set of calls (operator-only).
+ * @export
+ * @interface UsageLlmTotals
+ */
+export interface UsageLlmTotals {
+    /**
+     * Number of billable LLM calls.
+     * @type {any}
+     * @memberof UsageLlmTotals
+     */
+    callCount: any;
+    /**
+     * Sum of prompt tokens.
+     * @type {any}
+     * @memberof UsageLlmTotals
+     */
+    promptTokens: any;
+    /**
+     * Sum of completion tokens.
+     * @type {any}
+     * @memberof UsageLlmTotals
+     */
+    completionTokens: any;
+    /**
+     * Sum of total tokens.
+     * @type {any}
+     * @memberof UsageLlmTotals
+     */
+    totalTokens: any;
+    /**
+     * Sum of raw provider cost_usd (pre-markup). Distinct from the billed estimated_llm_cost_usd; operator-only.
+     * @type {any}
+     * @memberof UsageLlmTotals
+     */
+    costUsd: any;
 }
 /**
  * Rollups for ``agent_runs`` in the window (keyed on ``created_at``).
@@ -2905,6 +3252,35 @@ export class AgentsApi extends BaseAPI {
 export const LearningsApiFetchParamCreator = function (configuration?: Configuration) {
     return {
         /**
+         * Delete every learning memory scoped to the agent. This is a destructive operation and does not affect other memory categories.
+         * @summary Delete all learnings for an agent
+         * @param {any} agentId 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        deleteAgentLearningsEndpointAgentsAgentIdLearningsDelete(agentId: any, options: any = {}): FetchArgs {
+            // verify required parameter 'agentId' is not null or undefined
+            if (agentId === null || agentId === undefined) {
+                throw new RequiredError('agentId','Required parameter agentId was null or undefined when calling deleteAgentLearningsEndpointAgentsAgentIdLearningsDelete.');
+            }
+            const localVarPath = `/agents/{agent_id}/learnings`
+                .replace(`{${"agent_id"}}`, encodeURIComponent(String(agentId)));
+            const localVarUrlObj = url.parse(localVarPath, true);
+            const localVarRequestOptions = Object.assign({ method: 'DELETE' }, options);
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            localVarUrlObj.query = Object.assign({}, localVarUrlObj.query, localVarQueryParameter, options.query);
+            // fix override query string Detail: https://stackoverflow.com/a/7517673/1077943
+            localVarUrlObj.search = null;
+            localVarRequestOptions.headers = Object.assign({}, localVarHeaderParameter, options.headers);
+
+            return {
+                url: url.format(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
          * Retrieve a single learning by its ID.
          * @summary Get a learning
          * @param {any} agentId 
@@ -3089,6 +3465,25 @@ export const LearningsApiFetchParamCreator = function (configuration?: Configura
 export const LearningsApiFp = function(configuration?: Configuration) {
     return {
         /**
+         * Delete every learning memory scoped to the agent. This is a destructive operation and does not affect other memory categories.
+         * @summary Delete all learnings for an agent
+         * @param {any} agentId 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        deleteAgentLearningsEndpointAgentsAgentIdLearningsDelete(agentId: any, options?: any): (fetch?: FetchAPI, basePath?: string) => Promise<DeleteLearningsResponse> {
+            const localVarFetchArgs = LearningsApiFetchParamCreator(configuration).deleteAgentLearningsEndpointAgentsAgentIdLearningsDelete(agentId, options);
+            return (fetch: FetchAPI = isomorphicFetch, basePath: string = BASE_PATH) => {
+                return fetch(basePath + localVarFetchArgs.url, localVarFetchArgs.options).then((response) => {
+                    if (response.status >= 200 && response.status < 300) {
+                        return response.json();
+                    } else {
+                        throw response;
+                    }
+                });
+            };
+        },
+        /**
          * Retrieve a single learning by its ID.
          * @summary Get a learning
          * @param {any} agentId 
@@ -3183,6 +3578,16 @@ export const LearningsApiFp = function(configuration?: Configuration) {
 export const LearningsApiFactory = function (configuration?: Configuration, fetch?: FetchAPI, basePath?: string) {
     return {
         /**
+         * Delete every learning memory scoped to the agent. This is a destructive operation and does not affect other memory categories.
+         * @summary Delete all learnings for an agent
+         * @param {any} agentId 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        deleteAgentLearningsEndpointAgentsAgentIdLearningsDelete(agentId: any, options?: any) {
+            return LearningsApiFp(configuration).deleteAgentLearningsEndpointAgentsAgentIdLearningsDelete(agentId, options)(fetch, basePath);
+        },
+        /**
          * Retrieve a single learning by its ID.
          * @summary Get a learning
          * @param {any} agentId 
@@ -3241,6 +3646,18 @@ export const LearningsApiFactory = function (configuration?: Configuration, fetc
  * @extends {BaseAPI}
  */
 export class LearningsApi extends BaseAPI {
+    /**
+     * Delete every learning memory scoped to the agent. This is a destructive operation and does not affect other memory categories.
+     * @summary Delete all learnings for an agent
+     * @param {any} agentId 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof LearningsApi
+     */
+    public deleteAgentLearningsEndpointAgentsAgentIdLearningsDelete(agentId: any, options?: any) {
+        return LearningsApiFp(this.configuration).deleteAgentLearningsEndpointAgentsAgentIdLearningsDelete(agentId, options)(this.fetch, this.basePath);
+    }
+
     /**
      * Retrieve a single learning by its ID.
      * @summary Get a learning
@@ -4609,6 +5026,45 @@ export const UsageApiFetchParamCreator = function (configuration?: Configuration
         },
         /**
          * 
+         * @summary Get Tenant Llm Usage Breakdown Admin
+         * @param {any} tenantId 
+         * @param {UsageTimeWindow} [window] Preset reporting window (custom date range not supported in this API version).
+         * @param {any} [asOf] Optional UTC timestamp used to anchor the reporting window so summary and paginated run pages stay aligned across requests.
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        getTenantLlmUsageBreakdownAdminUsageTenantsTenantIdLlmBreakdownGet(tenantId: any, window?: UsageTimeWindow, asOf?: any, options: any = {}): FetchArgs {
+            // verify required parameter 'tenantId' is not null or undefined
+            if (tenantId === null || tenantId === undefined) {
+                throw new RequiredError('tenantId','Required parameter tenantId was null or undefined when calling getTenantLlmUsageBreakdownAdminUsageTenantsTenantIdLlmBreakdownGet.');
+            }
+            const localVarPath = `/usage/tenants/{tenant_id}/llm/breakdown`
+                .replace(`{${"tenant_id"}}`, encodeURIComponent(String(tenantId)));
+            const localVarUrlObj = url.parse(localVarPath, true);
+            const localVarRequestOptions = Object.assign({ method: 'GET' }, options);
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            if (window !== undefined) {
+                localVarQueryParameter['window'] = window;
+            }
+
+            if (asOf !== undefined) {
+                localVarQueryParameter['as_of'] = asOf;
+            }
+
+            localVarUrlObj.query = Object.assign({}, localVarUrlObj.query, localVarQueryParameter, options.query);
+            // fix override query string Detail: https://stackoverflow.com/a/7517673/1077943
+            localVarUrlObj.search = null;
+            localVarRequestOptions.headers = Object.assign({}, localVarHeaderParameter, options.headers);
+
+            return {
+                url: url.format(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * 
          * @summary Get Tenant Usage Summary Admin
          * @param {any} tenantId 
          * @param {UsageTimeWindow} [window] Preset reporting window (custom date range not supported in this API version).
@@ -4670,6 +5126,51 @@ export const UsageApiFetchParamCreator = function (configuration?: Configuration
             if (asOf !== undefined) {
                 localVarQueryParameter['as_of'] = asOf;
             }
+
+            if (limit !== undefined) {
+                localVarQueryParameter['limit'] = limit;
+            }
+
+            if (cursor !== undefined) {
+                localVarQueryParameter['cursor'] = cursor;
+            }
+
+            localVarUrlObj.query = Object.assign({}, localVarUrlObj.query, localVarQueryParameter, options.query);
+            // fix override query string Detail: https://stackoverflow.com/a/7517673/1077943
+            localVarUrlObj.search = null;
+            localVarRequestOptions.headers = Object.assign({}, localVarHeaderParameter, options.headers);
+
+            return {
+                url: url.format(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * 
+         * @summary List Tenant Run Llm Calls Admin
+         * @param {any} tenantId 
+         * @param {any} runId 
+         * @param {any} [limit] Page size.
+         * @param {any} [cursor] Opaque string from the previous page&#x27;s &#x60;next_cursor&#x60;.
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        listTenantRunLlmCallsAdminUsageTenantsTenantIdRunsRunIdCallsGet(tenantId: any, runId: any, limit?: any, cursor?: any, options: any = {}): FetchArgs {
+            // verify required parameter 'tenantId' is not null or undefined
+            if (tenantId === null || tenantId === undefined) {
+                throw new RequiredError('tenantId','Required parameter tenantId was null or undefined when calling listTenantRunLlmCallsAdminUsageTenantsTenantIdRunsRunIdCallsGet.');
+            }
+            // verify required parameter 'runId' is not null or undefined
+            if (runId === null || runId === undefined) {
+                throw new RequiredError('runId','Required parameter runId was null or undefined when calling listTenantRunLlmCallsAdminUsageTenantsTenantIdRunsRunIdCallsGet.');
+            }
+            const localVarPath = `/usage/tenants/{tenant_id}/runs/{run_id}/calls`
+                .replace(`{${"tenant_id"}}`, encodeURIComponent(String(tenantId)))
+                .replace(`{${"run_id"}}`, encodeURIComponent(String(runId)));
+            const localVarUrlObj = url.parse(localVarPath, true);
+            const localVarRequestOptions = Object.assign({ method: 'GET' }, options);
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
 
             if (limit !== undefined) {
                 localVarQueryParameter['limit'] = limit;
@@ -4769,6 +5270,27 @@ export const UsageApiFp = function(configuration?: Configuration) {
         },
         /**
          * 
+         * @summary Get Tenant Llm Usage Breakdown Admin
+         * @param {any} tenantId 
+         * @param {UsageTimeWindow} [window] Preset reporting window (custom date range not supported in this API version).
+         * @param {any} [asOf] Optional UTC timestamp used to anchor the reporting window so summary and paginated run pages stay aligned across requests.
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        getTenantLlmUsageBreakdownAdminUsageTenantsTenantIdLlmBreakdownGet(tenantId: any, window?: UsageTimeWindow, asOf?: any, options?: any): (fetch?: FetchAPI, basePath?: string) => Promise<UsageLlmBreakdownResponse> {
+            const localVarFetchArgs = UsageApiFetchParamCreator(configuration).getTenantLlmUsageBreakdownAdminUsageTenantsTenantIdLlmBreakdownGet(tenantId, window, asOf, options);
+            return (fetch: FetchAPI = isomorphicFetch, basePath: string = BASE_PATH) => {
+                return fetch(basePath + localVarFetchArgs.url, localVarFetchArgs.options).then((response) => {
+                    if (response.status >= 200 && response.status < 300) {
+                        return response.json();
+                    } else {
+                        throw response;
+                    }
+                });
+            };
+        },
+        /**
+         * 
          * @summary Get Tenant Usage Summary Admin
          * @param {any} tenantId 
          * @param {UsageTimeWindow} [window] Preset reporting window (custom date range not supported in this API version).
@@ -4800,6 +5322,28 @@ export const UsageApiFp = function(configuration?: Configuration) {
          */
         listOwnUsageRunsUsageRunsGet(window?: UsageTimeWindow, asOf?: any, limit?: any, cursor?: any, options?: any): (fetch?: FetchAPI, basePath?: string) => Promise<UsageRunListResponse> {
             const localVarFetchArgs = UsageApiFetchParamCreator(configuration).listOwnUsageRunsUsageRunsGet(window, asOf, limit, cursor, options);
+            return (fetch: FetchAPI = isomorphicFetch, basePath: string = BASE_PATH) => {
+                return fetch(basePath + localVarFetchArgs.url, localVarFetchArgs.options).then((response) => {
+                    if (response.status >= 200 && response.status < 300) {
+                        return response.json();
+                    } else {
+                        throw response;
+                    }
+                });
+            };
+        },
+        /**
+         * 
+         * @summary List Tenant Run Llm Calls Admin
+         * @param {any} tenantId 
+         * @param {any} runId 
+         * @param {any} [limit] Page size.
+         * @param {any} [cursor] Opaque string from the previous page&#x27;s &#x60;next_cursor&#x60;.
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        listTenantRunLlmCallsAdminUsageTenantsTenantIdRunsRunIdCallsGet(tenantId: any, runId: any, limit?: any, cursor?: any, options?: any): (fetch?: FetchAPI, basePath?: string) => Promise<UsageLlmCallListResponse> {
+            const localVarFetchArgs = UsageApiFetchParamCreator(configuration).listTenantRunLlmCallsAdminUsageTenantsTenantIdRunsRunIdCallsGet(tenantId, runId, limit, cursor, options);
             return (fetch: FetchAPI = isomorphicFetch, basePath: string = BASE_PATH) => {
                 return fetch(basePath + localVarFetchArgs.url, localVarFetchArgs.options).then((response) => {
                     if (response.status >= 200 && response.status < 300) {
@@ -4855,6 +5399,18 @@ export const UsageApiFactory = function (configuration?: Configuration, fetch?: 
         },
         /**
          * 
+         * @summary Get Tenant Llm Usage Breakdown Admin
+         * @param {any} tenantId 
+         * @param {UsageTimeWindow} [window] Preset reporting window (custom date range not supported in this API version).
+         * @param {any} [asOf] Optional UTC timestamp used to anchor the reporting window so summary and paginated run pages stay aligned across requests.
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        getTenantLlmUsageBreakdownAdminUsageTenantsTenantIdLlmBreakdownGet(tenantId: any, window?: UsageTimeWindow, asOf?: any, options?: any) {
+            return UsageApiFp(configuration).getTenantLlmUsageBreakdownAdminUsageTenantsTenantIdLlmBreakdownGet(tenantId, window, asOf, options)(fetch, basePath);
+        },
+        /**
+         * 
          * @summary Get Tenant Usage Summary Admin
          * @param {any} tenantId 
          * @param {UsageTimeWindow} [window] Preset reporting window (custom date range not supported in this API version).
@@ -4877,6 +5433,19 @@ export const UsageApiFactory = function (configuration?: Configuration, fetch?: 
          */
         listOwnUsageRunsUsageRunsGet(window?: UsageTimeWindow, asOf?: any, limit?: any, cursor?: any, options?: any) {
             return UsageApiFp(configuration).listOwnUsageRunsUsageRunsGet(window, asOf, limit, cursor, options)(fetch, basePath);
+        },
+        /**
+         * 
+         * @summary List Tenant Run Llm Calls Admin
+         * @param {any} tenantId 
+         * @param {any} runId 
+         * @param {any} [limit] Page size.
+         * @param {any} [cursor] Opaque string from the previous page&#x27;s &#x60;next_cursor&#x60;.
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        listTenantRunLlmCallsAdminUsageTenantsTenantIdRunsRunIdCallsGet(tenantId: any, runId: any, limit?: any, cursor?: any, options?: any) {
+            return UsageApiFp(configuration).listTenantRunLlmCallsAdminUsageTenantsTenantIdRunsRunIdCallsGet(tenantId, runId, limit, cursor, options)(fetch, basePath);
         },
         /**
          * 
@@ -4917,6 +5486,20 @@ export class UsageApi extends BaseAPI {
 
     /**
      * 
+     * @summary Get Tenant Llm Usage Breakdown Admin
+     * @param {any} tenantId 
+     * @param {UsageTimeWindow} [window] Preset reporting window (custom date range not supported in this API version).
+     * @param {any} [asOf] Optional UTC timestamp used to anchor the reporting window so summary and paginated run pages stay aligned across requests.
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof UsageApi
+     */
+    public getTenantLlmUsageBreakdownAdminUsageTenantsTenantIdLlmBreakdownGet(tenantId: any, window?: UsageTimeWindow, asOf?: any, options?: any) {
+        return UsageApiFp(this.configuration).getTenantLlmUsageBreakdownAdminUsageTenantsTenantIdLlmBreakdownGet(tenantId, window, asOf, options)(this.fetch, this.basePath);
+    }
+
+    /**
+     * 
      * @summary Get Tenant Usage Summary Admin
      * @param {any} tenantId 
      * @param {UsageTimeWindow} [window] Preset reporting window (custom date range not supported in this API version).
@@ -4942,6 +5525,21 @@ export class UsageApi extends BaseAPI {
      */
     public listOwnUsageRunsUsageRunsGet(window?: UsageTimeWindow, asOf?: any, limit?: any, cursor?: any, options?: any) {
         return UsageApiFp(this.configuration).listOwnUsageRunsUsageRunsGet(window, asOf, limit, cursor, options)(this.fetch, this.basePath);
+    }
+
+    /**
+     * 
+     * @summary List Tenant Run Llm Calls Admin
+     * @param {any} tenantId 
+     * @param {any} runId 
+     * @param {any} [limit] Page size.
+     * @param {any} [cursor] Opaque string from the previous page&#x27;s &#x60;next_cursor&#x60;.
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof UsageApi
+     */
+    public listTenantRunLlmCallsAdminUsageTenantsTenantIdRunsRunIdCallsGet(tenantId: any, runId: any, limit?: any, cursor?: any, options?: any) {
+        return UsageApiFp(this.configuration).listTenantRunLlmCallsAdminUsageTenantsTenantIdRunsRunIdCallsGet(tenantId, runId, limit, cursor, options)(this.fetch, this.basePath);
     }
 
     /**

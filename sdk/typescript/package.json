@@ -26,10 +26,10 @@
   },
   "files": [
     "README.md",
-    "index.ts",
     "api.ts",
     "configuration.ts",
     "custom.d.ts",
+    "index.ts",
     "dist/**/*"
   ]
 }

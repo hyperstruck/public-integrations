@@ -35,7 +35,7 @@ class StoreLearningRequest(object):
         'applicable_goals': 'object',
         'applicable_tools': 'object',
         'privacy': 'PrivacyClassification',
-        'instances': 'list[LearningInstanceEvidenceRequest]'
+        'instances': 'object'
     }
 
     attribute_map = {
@@ -82,7 +82,7 @@ class StoreLearningRequest(object):
         The learning content to store.  # noqa: E501
 
         :return: The content of this StoreLearningRequest.  # noqa: E501
-        :rtype: list[LearningInstanceEvidenceRequest]
+        :rtype: object
         """
         return self._content
 
@@ -93,7 +93,7 @@ class StoreLearningRequest(object):
         The learning content to store.  # noqa: E501
 
         :param content: The content of this StoreLearningRequest.  # noqa: E501
-        :type: list[LearningInstanceEvidenceRequest]
+        :type: object
         """
         if content is None:
             raise ValueError("Invalid value for `content`, must not be `None`")  # noqa: E501
@@ -244,7 +244,7 @@ class StoreLearningRequest(object):
     def instances(self):
         """Gets the instances of this StoreLearningRequest.  # noqa: E501
 
-        Structured evidence instances supporting this learning.  # noqa: E501
+        Specific evidence instances that support the learning. API-sourced instances are content-addressed for deduplication by entity values and outcome.  # noqa: E501
 
         :return: The instances of this StoreLearningRequest.  # noqa: E501
         :rtype: object
@@ -255,7 +255,7 @@ class StoreLearningRequest(object):
     def instances(self, instances):
         """Sets the instances of this StoreLearningRequest.
 
-        Structured evidence instances supporting this learning.  # noqa: E501
+        Specific evidence instances that support the learning. API-sourced instances are content-addressed for deduplication by entity values and outcome.  # noqa: E501
 
         :param instances: The instances of this StoreLearningRequest.  # noqa: E501
         :type: object

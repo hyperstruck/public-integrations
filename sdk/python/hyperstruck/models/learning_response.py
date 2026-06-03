@@ -41,7 +41,7 @@ class LearningResponse(object):
         'is_archived': 'object',
         'privacy': 'PrivacyClassification',
         'scope': 'LearningScope',
-        'instances': 'list[LearningInstanceEvidenceResponse]',
+        'instances': 'object',
         'created_at': 'object',
         'updated_at': 'object'
     }
@@ -109,7 +109,7 @@ class LearningResponse(object):
 
 
         :return: The learning_id of this LearningResponse.  # noqa: E501
-        :rtype: list[LearningInstanceEvidenceResponse]
+        :rtype: object
         """
         return self._learning_id
 
@@ -119,7 +119,7 @@ class LearningResponse(object):
 
 
         :param learning_id: The learning_id of this LearningResponse.  # noqa: E501
-        :type: list[LearningInstanceEvidenceResponse]
+        :type: object
         """
         if learning_id is None:
             raise ValueError("Invalid value for `learning_id`, must not be `None`")  # noqa: E501
@@ -404,7 +404,6 @@ class LearningResponse(object):
     def instances(self):
         """Gets the instances of this LearningResponse.  # noqa: E501
 
-        Structured evidence instances supporting this learning.  # noqa: E501
 
         :return: The instances of this LearningResponse.  # noqa: E501
         :rtype: object
@@ -415,7 +414,6 @@ class LearningResponse(object):
     def instances(self, instances):
         """Sets the instances of this LearningResponse.
 
-        Structured evidence instances supporting this learning.  # noqa: E501
 
         :param instances: The instances of this LearningResponse.  # noqa: E501
         :type: object

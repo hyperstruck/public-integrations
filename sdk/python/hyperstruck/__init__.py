@@ -36,6 +36,7 @@ from hyperstruck.models.agent_response import AgentResponse
 from hyperstruck.models.agent_update_request import AgentUpdateRequest
 from hyperstruck.models.candidate_learning_response import CandidateLearningResponse
 from hyperstruck.models.decision_type import DecisionType
+from hyperstruck.models.delete_learnings_response import DeleteLearningsResponse
 from hyperstruck.models.goal_run_accepted_response import GoalRunAcceptedResponse
 from hyperstruck.models.goal_run_request import GoalRunRequest
 from hyperstruck.models.guardrail_action import GuardrailAction
@@ -85,6 +86,12 @@ from hyperstruck.models.similar_plans_response import SimilarPlansResponse
 from hyperstruck.models.store_learning_accepted_response import StoreLearningAcceptedResponse
 from hyperstruck.models.store_learning_request import StoreLearningRequest
 from hyperstruck.models.usage_learning_aggregates import UsageLearningAggregates
+from hyperstruck.models.usage_llm_breakdown_response import UsageLlmBreakdownResponse
+from hyperstruck.models.usage_llm_call_item import UsageLlmCallItem
+from hyperstruck.models.usage_llm_call_list_response import UsageLlmCallListResponse
+from hyperstruck.models.usage_llm_component_aggregate import UsageLlmComponentAggregate
+from hyperstruck.models.usage_llm_model_aggregate import UsageLlmModelAggregate
+from hyperstruck.models.usage_llm_totals import UsageLlmTotals
 from hyperstruck.models.usage_run_aggregates import UsageRunAggregates
 from hyperstruck.models.usage_run_item import UsageRunItem
 from hyperstruck.models.usage_run_list_response import UsageRunListResponse

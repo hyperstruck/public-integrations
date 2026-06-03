@@ -28,8 +28,8 @@ class LearningInstanceEvidenceRequest(object):
                             and the value is json key in definition.
     """
     swagger_types = {
-        'entity_values': 'dict(str, str)',
-        'outcome': 'dict(str, str)',
+        'entity_values': 'object',
+        'outcome': 'object',
         'source_context': 'object'
     }
 
@@ -57,7 +57,7 @@ class LearningInstanceEvidenceRequest(object):
         Entity field values observed for this evidence instance.  # noqa: E501
 
         :return: The entity_values of this LearningInstanceEvidenceRequest.  # noqa: E501
-        :rtype: dict(str, str)
+        :rtype: object
         """
         return self._entity_values
 
@@ -68,7 +68,7 @@ class LearningInstanceEvidenceRequest(object):
         Entity field values observed for this evidence instance.  # noqa: E501
 
         :param entity_values: The entity_values of this LearningInstanceEvidenceRequest.  # noqa: E501
-        :type: dict(str, str)
+        :type: object
         """
         if entity_values is None:
             raise ValueError("Invalid value for `entity_values`, must not be `None`")  # noqa: E501
@@ -82,7 +82,7 @@ class LearningInstanceEvidenceRequest(object):
         Structured outcome observed for this evidence instance.  # noqa: E501
 
         :return: The outcome of this LearningInstanceEvidenceRequest.  # noqa: E501
-        :rtype: dict(str, str)
+        :rtype: object
         """
         return self._outcome
 
@@ -93,7 +93,7 @@ class LearningInstanceEvidenceRequest(object):
         Structured outcome observed for this evidence instance.  # noqa: E501
 
         :param outcome: The outcome of this LearningInstanceEvidenceRequest.  # noqa: E501
-        :type: dict(str, str)
+        :type: object
         """
         if outcome is None:
             raise ValueError("Invalid value for `outcome`, must not be `None`")  # noqa: E501

@@ -29,8 +29,8 @@ class LearningInstanceEvidenceResponse(object):
     """
     swagger_types = {
         'id': 'object',
-        'entity_values': 'dict(str, str)',
-        'outcome': 'dict(str, str)',
+        'entity_values': 'object',
+        'outcome': 'object',
         'source_context': 'object',
         'created_at': 'object'
     }
@@ -62,6 +62,7 @@ class LearningInstanceEvidenceResponse(object):
     def id(self):
         """Gets the id of this LearningInstanceEvidenceResponse.  # noqa: E501
 
+
         :return: The id of this LearningInstanceEvidenceResponse.  # noqa: E501
         :rtype: object
         """
@@ -70,6 +71,7 @@ class LearningInstanceEvidenceResponse(object):
     @id.setter
     def id(self, id):
         """Sets the id of this LearningInstanceEvidenceResponse.
+
 
         :param id: The id of this LearningInstanceEvidenceResponse.  # noqa: E501
         :type: object
@@ -83,10 +85,9 @@ class LearningInstanceEvidenceResponse(object):
     def entity_values(self):
         """Gets the entity_values of this LearningInstanceEvidenceResponse.  # noqa: E501
 
-        Entity field values observed for this evidence instance.  # noqa: E501
 
         :return: The entity_values of this LearningInstanceEvidenceResponse.  # noqa: E501
-        :rtype: dict(str, str)
+        :rtype: object
         """
         return self._entity_values
 
@@ -94,10 +95,9 @@ class LearningInstanceEvidenceResponse(object):
     def entity_values(self, entity_values):
         """Sets the entity_values of this LearningInstanceEvidenceResponse.
 
-        Entity field values observed for this evidence instance.  # noqa: E501
 
         :param entity_values: The entity_values of this LearningInstanceEvidenceResponse.  # noqa: E501
-        :type: dict(str, str)
+        :type: object
         """
         if entity_values is None:
             raise ValueError("Invalid value for `entity_values`, must not be `None`")  # noqa: E501
@@ -108,10 +108,9 @@ class LearningInstanceEvidenceResponse(object):
     def outcome(self):
         """Gets the outcome of this LearningInstanceEvidenceResponse.  # noqa: E501
 
-        Structured outcome observed for this evidence instance.  # noqa: E501
 
         :return: The outcome of this LearningInstanceEvidenceResponse.  # noqa: E501
-        :rtype: dict(str, str)
+        :rtype: object
         """
         return self._outcome
 
@@ -119,10 +118,9 @@ class LearningInstanceEvidenceResponse(object):
     def outcome(self, outcome):
         """Sets the outcome of this LearningInstanceEvidenceResponse.
 
-        Structured outcome observed for this evidence instance.  # noqa: E501
 
         :param outcome: The outcome of this LearningInstanceEvidenceResponse.  # noqa: E501
-        :type: dict(str, str)
+        :type: object
         """
         if outcome is None:
             raise ValueError("Invalid value for `outcome`, must not be `None`")  # noqa: E501
@@ -133,7 +131,6 @@ class LearningInstanceEvidenceResponse(object):
     def source_context(self):
         """Gets the source_context of this LearningInstanceEvidenceResponse.  # noqa: E501
 
-        Short context label for where the evidence came from.  # noqa: E501
 
         :return: The source_context of this LearningInstanceEvidenceResponse.  # noqa: E501
         :rtype: object
@@ -144,7 +141,6 @@ class LearningInstanceEvidenceResponse(object):
     def source_context(self, source_context):
         """Sets the source_context of this LearningInstanceEvidenceResponse.
 
-        Short context label for where the evidence came from.  # noqa: E501
 
         :param source_context: The source_context of this LearningInstanceEvidenceResponse.  # noqa: E501
         :type: object
@@ -156,6 +152,7 @@ class LearningInstanceEvidenceResponse(object):
     def created_at(self):
         """Gets the created_at of this LearningInstanceEvidenceResponse.  # noqa: E501
 
+
         :return: The created_at of this LearningInstanceEvidenceResponse.  # noqa: E501
         :rtype: object
         """
@@ -164,6 +161,7 @@ class LearningInstanceEvidenceResponse(object):
     @created_at.setter
     def created_at(self, created_at):
         """Sets the created_at of this LearningInstanceEvidenceResponse.
+
 
         :param created_at: The created_at of this LearningInstanceEvidenceResponse.  # noqa: E501
         :type: object

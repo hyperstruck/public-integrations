@@ -64,6 +64,10 @@ describe("LearningsApi", () => {
     instance = new api.LearningsApi(config)
   });
 
+  test("deleteAgentLearningsEndpointAgentsAgentIdLearningsDelete", () => {
+    const agentId: any = undefined
+    return expect(instance.deleteAgentLearningsEndpointAgentsAgentIdLearningsDelete(agentId, {})).resolves.toBe(null)
+  })
   test("getLearningEndpointAgentsAgentIdLearningsLearningIdGet", () => {
     const agentId: any = undefined
     const learningId: any = undefined
@@ -206,6 +210,12 @@ describe("UsageApi", () => {
     const asOf: any = undefined
     return expect(instance.getOwnUsageSummaryUsageSummaryGet(window, asOf, {})).resolves.toBe(null)
   })
+  test("getTenantLlmUsageBreakdownAdminUsageTenantsTenantIdLlmBreakdownGet", () => {
+    const tenantId: any = undefined
+    const window: UsageTimeWindow = undefined
+    const asOf: any = undefined
+    return expect(instance.getTenantLlmUsageBreakdownAdminUsageTenantsTenantIdLlmBreakdownGet(tenantId, window, asOf, {})).resolves.toBe(null)
+  })
   test("getTenantUsageSummaryAdminUsageTenantsTenantIdSummaryGet", () => {
     const tenantId: any = undefined
     const window: UsageTimeWindow = undefined
@@ -218,6 +228,13 @@ describe("UsageApi", () => {
     const limit: any = undefined
     const cursor: any = undefined
     return expect(instance.listOwnUsageRunsUsageRunsGet(window, asOf, limit, cursor, {})).resolves.toBe(null)
+  })
+  test("listTenantRunLlmCallsAdminUsageTenantsTenantIdRunsRunIdCallsGet", () => {
+    const tenantId: any = undefined
+    const runId: any = undefined
+    const limit: any = undefined
+    const cursor: any = undefined
+    return expect(instance.listTenantRunLlmCallsAdminUsageTenantsTenantIdRunsRunIdCallsGet(tenantId, runId, limit, cursor, {})).resolves.toBe(null)
   })
   test("listTenantUsageRunsAdminUsageTenantsTenantIdRunsGet", () => {
     const tenantId: any = undefined

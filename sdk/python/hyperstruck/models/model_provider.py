@@ -28,6 +28,8 @@ class ModelProvider(object):
     OPENAI = "openai"
     ANTHROPIC = "anthropic"
     GROQ = "groq"
+    GOOGLE = "google"
+    XAI = "xai"
     """
     Attributes:
       swagger_types (dict): The key is attribute name
