@@ -17,7 +17,7 @@ compare strategies across agents, and review candidate learnings surfaced with s
 ## Current environment
 
 ```!
-echo "HYPER_BASE_URL=${HYPER_BASE_URL:-https://api.core.hyperstruck.com}"
+echo "HYPER_BASE_URL=${HYPER_BASE_URL:-https://api.hyperstruck.com}"
 echo "HYPER_AGENT_ID=${HYPER_AGENT_ID:-<not set>}"
 echo "HYPER_API_KEY_SET=$([ -n \"$HYPER_API_KEY\" ] && echo yes || echo no)"
 if [ -f .env ]; then echo "dotenv=found (.env)"; else echo "dotenv=not found"; fi
@@ -29,7 +29,7 @@ If `HYPER_API_KEY_SET=no` above, check `.env` for a `HYPER_API_KEY=` line. If st
 
 ## Configuration
 
-- Base URL: `HYPER_BASE_URL` from above, default `https://api.core.hyperstruck.com`
+- Base URL: `HYPER_BASE_URL` from above, default `https://api.hyperstruck.com`
 - API key: resolved above; never echo it
 - Agent ID: use `HYPER_AGENT_ID` unless the user supplies `--agents`
 

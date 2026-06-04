@@ -32,7 +32,7 @@ Do **not** invoke for straightforward edits, lookups, or tasks you can complete 
 ## Current environment
 
 ```!
-echo "HYPER_BASE_URL=${HYPER_BASE_URL:-https://api.core.hyperstruck.com}"
+echo "HYPER_BASE_URL=${HYPER_BASE_URL:-https://api.hyperstruck.com}"
 echo "HYPER_AGENT_ID=${HYPER_AGENT_ID:-<not set>}"
 echo "HYPER_API_KEY_SET=$([ -n \"$HYPER_API_KEY\" ] && echo yes || echo no)"
 if [ -f .env ]; then echo "dotenv=found (.env)"; else echo "dotenv=not found"; fi
@@ -44,7 +44,7 @@ If `HYPER_API_KEY_SET=no` above, check `.env` for a `HYPER_API_KEY=` line. If st
 
 ## Step 1 — Resolve configuration
 
-- **Base URL**: Use `HYPER_BASE_URL` from the environment block above, defaulting to `https://api.core.hyperstruck.com`.
+- **Base URL**: Use `HYPER_BASE_URL` from the environment block above, defaulting to `https://api.hyperstruck.com`.
 - **API key**: Already resolved above. **Never echo it.**
 - **Headers** for every HTTP request:
   ```

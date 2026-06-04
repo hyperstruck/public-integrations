@@ -23,7 +23,7 @@ Store, search, and reinforce learnings on the Hyperstruck platform — the pract
 ## Current environment
 
 ```!
-echo "HYPER_BASE_URL=${HYPER_BASE_URL:-https://api.core.hyperstruck.com}"
+echo "HYPER_BASE_URL=${HYPER_BASE_URL:-https://api.hyperstruck.com}"
 echo "HYPER_AGENT_ID=${HYPER_AGENT_ID:-<not set>}"
 echo "HYPER_API_KEY_SET=$([ -n \"$HYPER_API_KEY\" ] && echo yes || echo no)"
 if [ -f .env ]; then echo "dotenv=found (.env)"; else echo "dotenv=not found"; fi
@@ -35,7 +35,7 @@ If `HYPER_API_KEY_SET=no` above, check `.env` for a `HYPER_API_KEY=` line. If st
 
 ## Configuration
 
-- **Base URL**: `HYPER_BASE_URL` from above, defaulting to `https://api.core.hyperstruck.com`.
+- **Base URL**: `HYPER_BASE_URL` from above, defaulting to `https://api.hyperstruck.com`.
 - **API key**: Resolved above. **Never echo it.**
 - **Agent ID**: `HYPER_AGENT_ID` from above. If `<not set>`, call `GET {BASE_URL}/agents?limit=50` and ask the user to pick an agent (learnings are scoped per agent).
 - **Headers**:

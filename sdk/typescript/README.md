@@ -22,7 +22,7 @@ if (!apiKey) {
 }
 
 const configuration = new Configuration({
-  basePath: "https://api.core.hyperstruck.com",
+  basePath: "https://api.hyperstruck.com",
 });
 
 const agentsApi = new AgentsApi(configuration);
@@ -60,7 +60,7 @@ Pass the options object as the final argument to generated API methods.
 The recommended production API base URL is:
 
 ```text
-https://api.core.hyperstruck.com
+https://api.hyperstruck.com
 ```
 
 For local development, point the generated client at your local API:

@@ -21,7 +21,7 @@ from hyperstruck.rest import ApiException
 api_key = os.environ["HYPER_API_KEY"]
 
 configuration = hyperstruck.Configuration()
-configuration.host = "https://api.core.hyperstruck.com"
+configuration.host = "https://api.hyperstruck.com"
 
 api_client = hyperstruck.ApiClient(configuration)
 api_client.set_default_header("Authorization", f"Bearer {api_key}")
@@ -52,7 +52,7 @@ api_client.set_default_header("Authorization", f"Bearer {api_key}")
 The recommended production API base URL is:
 
 ```text
-https://api.core.hyperstruck.com
+https://api.hyperstruck.com
 ```
 
 For local development, point the generated client at your local API:
