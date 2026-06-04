@@ -39,7 +39,6 @@ from hyperstruck.models.learning_response import LearningResponse
 from hyperstruck.models.learning_scope import LearningScope
 from hyperstruck.models.learning_search_hit import LearningSearchHit
 from hyperstruck.models.learning_search_response import LearningSearchResponse
-from hyperstruck.models.learning_type import LearningType
 from hyperstruck.models.llm_credential_source import LlmCredentialSource
 from hyperstruck.models.mcp_auth_config import MCPAuthConfig
 from hyperstruck.models.mcp_connection_config import MCPConnectionConfig

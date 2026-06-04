@@ -161,7 +161,7 @@ No authorization required
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 
 # **search_learnings_endpoint_agents_agent_id_learnings_search_get**
-> LearningSearchResponse search_learnings_endpoint_agents_agent_id_learnings_search_get(agent_id, q, limit=limit, min_confidence=min_confidence, learning_type=learning_type, scope=scope)
+> LearningSearchResponse search_learnings_endpoint_agents_agent_id_learnings_search_get(agent_id, q, limit=limit, min_confidence=min_confidence, scope=scope)
 
 Search learnings
 
@@ -181,12 +181,11 @@ agent_id = NULL # object |
 q = NULL # object | Search query text.
 limit = 10 # object | Maximum number of results to return. (optional) (default to 10)
 min_confidence = NULL # object | Minimum confidence threshold for results. (optional)
-learning_type = NULL # object | Filter results to a specific learning type. (optional)
 scope = hyperstruck.LearningScope() # LearningScope | Search scope. 'agent' searches the agent's private learnings. 'org' searches shared learnings across agents (Enterprise only). (optional) (default to agent)
 
 try:
     # Search learnings
-    api_response = api_instance.search_learnings_endpoint_agents_agent_id_learnings_search_get(agent_id, q, limit=limit, min_confidence=min_confidence, learning_type=learning_type, scope=scope)
+    api_response = api_instance.search_learnings_endpoint_agents_agent_id_learnings_search_get(agent_id, q, limit=limit, min_confidence=min_confidence, scope=scope)
     pprint(api_response)
 except ApiException as e:
     print("Exception when calling LearningsApi->search_learnings_endpoint_agents_agent_id_learnings_search_get: %s\n" % e)
@@ -200,7 +199,6 @@ Name | Type | Description  | Notes
  **q** | [**object**](.md)| Search query text. | 
  **limit** | [**object**](.md)| Maximum number of results to return. | [optional] [default to 10]
  **min_confidence** | [**object**](.md)| Minimum confidence threshold for results. | [optional] 
- **learning_type** | [**object**](.md)| Filter results to a specific learning type. | [optional] 
  **scope** | [**LearningScope**](.md)| Search scope. &#x27;agent&#x27; searches the agent&#x27;s private learnings. &#x27;org&#x27; searches shared learnings across agents (Enterprise only). | [optional] [default to agent]
 
 ### Return type

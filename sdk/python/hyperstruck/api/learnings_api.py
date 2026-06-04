@@ -359,7 +359,6 @@ class LearningsApi(object):
         :param object q: Search query text. (required)
         :param object limit: Maximum number of results to return.
         :param object min_confidence: Minimum confidence threshold for results.
-        :param object learning_type: Filter results to a specific learning type.
         :param LearningScope scope: Search scope. 'agent' searches the agent's private learnings. 'org' searches shared learnings across agents (Enterprise only).
         :return: LearningSearchResponse
                  If the method is called asynchronously,
@@ -386,14 +385,13 @@ class LearningsApi(object):
         :param object q: Search query text. (required)
         :param object limit: Maximum number of results to return.
         :param object min_confidence: Minimum confidence threshold for results.
-        :param object learning_type: Filter results to a specific learning type.
         :param LearningScope scope: Search scope. 'agent' searches the agent's private learnings. 'org' searches shared learnings across agents (Enterprise only).
         :return: LearningSearchResponse
                  If the method is called asynchronously,
                  returns the request thread.
         """
 
-        all_params = ['agent_id', 'q', 'limit', 'min_confidence', 'learning_type', 'scope']  # noqa: E501
+        all_params = ['agent_id', 'q', 'limit', 'min_confidence', 'scope']  # noqa: E501
         all_params.append('async_req')
         all_params.append('_return_http_data_only')
         all_params.append('_preload_content')
@@ -430,8 +428,6 @@ class LearningsApi(object):
             query_params.append(('limit', params['limit']))  # noqa: E501
         if 'min_confidence' in params:
             query_params.append(('min_confidence', params['min_confidence']))  # noqa: E501
-        if 'learning_type' in params:
-            query_params.append(('learning_type', params['learning_type']))  # noqa: E501
         if 'scope' in params:
             query_params.append(('scope', params['scope']))  # noqa: E501
 

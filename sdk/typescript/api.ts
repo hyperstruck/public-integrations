@@ -866,13 +866,7 @@ export interface LearningResponse {
      */
     content: any;
     /**
-     * 
-     * @type {LearningType}
-     * @memberof LearningResponse
-     */
-    learningType: LearningType;
-    /**
-     * 
+     *
      * @type {any}
      * @memberof LearningResponse
      */
@@ -996,23 +990,6 @@ export interface LearningSearchResponse {
      * @memberof LearningSearchResponse
      */
     total: any;
-}
-/**
- * Categories of learnings.
- * @export
- * @enum {string}
- */
-export enum LearningType {
-    ToolBehaviour = <any> 'tool_behaviour',
-    OutcomePattern = <any> 'outcome_pattern',
-    Approach = <any> 'approach',
-    Pitfall = <any> 'pitfall',
-    Prerequisite = <any> 'prerequisite',
-    Coverage = <any> 'coverage',
-    CoordinationPattern = <any> 'coordination_pattern',
-    AgentCapability = <any> 'agent_capability',
-    ConflictInsight = <any> 'conflict_insight',
-    DebateOutcome = <any> 'debate_outcome'
 }
 /**
  * 
@@ -2054,12 +2031,6 @@ export interface StoreLearningRequest {
      * @memberof StoreLearningRequest
      */
     content: any;
-    /**
-     * Category of the learning.
-     * @type {LearningType}
-     * @memberof StoreLearningRequest
-     */
-    learningType: LearningType;
     /**
      * Initial confidence level (0.0–1.0).
      * @type {any}
@@ -3366,12 +3337,11 @@ export const LearningsApiFetchParamCreator = function (configuration?: Configura
          * @param {any} q Search query text.
          * @param {any} [limit] Maximum number of results to return.
          * @param {any} [minConfidence] Minimum confidence threshold for results.
-         * @param {any} [learningType] Filter results to a specific learning type.
          * @param {LearningScope} [scope] Search scope. &#x27;agent&#x27; searches the agent&#x27;s private learnings. &#x27;org&#x27; searches shared learnings across agents (Enterprise only).
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        searchLearningsEndpointAgentsAgentIdLearningsSearchGet(agentId: any, q: any, limit?: any, minConfidence?: any, learningType?: any, scope?: LearningScope, options: any = {}): FetchArgs {
+        searchLearningsEndpointAgentsAgentIdLearningsSearchGet(agentId: any, q: any, limit?: any, minConfidence?: any, scope?: LearningScope, options: any = {}): FetchArgs {
             // verify required parameter 'agentId' is not null or undefined
             if (agentId === null || agentId === undefined) {
                 throw new RequiredError('agentId','Required parameter agentId was null or undefined when calling searchLearningsEndpointAgentsAgentIdLearningsSearchGet.');
@@ -3397,10 +3367,6 @@ export const LearningsApiFetchParamCreator = function (configuration?: Configura
 
             if (minConfidence !== undefined) {
                 localVarQueryParameter['min_confidence'] = minConfidence;
-            }
-
-            if (learningType !== undefined) {
-                localVarQueryParameter['learning_type'] = learningType;
             }
 
             if (scope !== undefined) {
@@ -3531,13 +3497,12 @@ export const LearningsApiFp = function(configuration?: Configuration) {
          * @param {any} q Search query text.
          * @param {any} [limit] Maximum number of results to return.
          * @param {any} [minConfidence] Minimum confidence threshold for results.
-         * @param {any} [learningType] Filter results to a specific learning type.
          * @param {LearningScope} [scope] Search scope. &#x27;agent&#x27; searches the agent&#x27;s private learnings. &#x27;org&#x27; searches shared learnings across agents (Enterprise only).
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        searchLearningsEndpointAgentsAgentIdLearningsSearchGet(agentId: any, q: any, limit?: any, minConfidence?: any, learningType?: any, scope?: LearningScope, options?: any): (fetch?: FetchAPI, basePath?: string) => Promise<LearningSearchResponse> {
-            const localVarFetchArgs = LearningsApiFetchParamCreator(configuration).searchLearningsEndpointAgentsAgentIdLearningsSearchGet(agentId, q, limit, minConfidence, learningType, scope, options);
+        searchLearningsEndpointAgentsAgentIdLearningsSearchGet(agentId: any, q: any, limit?: any, minConfidence?: any, scope?: LearningScope, options?: any): (fetch?: FetchAPI, basePath?: string) => Promise<LearningSearchResponse> {
+            const localVarFetchArgs = LearningsApiFetchParamCreator(configuration).searchLearningsEndpointAgentsAgentIdLearningsSearchGet(agentId, q, limit, minConfidence, scope, options);
             return (fetch: FetchAPI = isomorphicFetch, basePath: string = BASE_PATH) => {
                 return fetch(basePath + localVarFetchArgs.url, localVarFetchArgs.options).then((response) => {
                     if (response.status >= 200 && response.status < 300) {
@@ -3617,13 +3582,12 @@ export const LearningsApiFactory = function (configuration?: Configuration, fetc
          * @param {any} q Search query text.
          * @param {any} [limit] Maximum number of results to return.
          * @param {any} [minConfidence] Minimum confidence threshold for results.
-         * @param {any} [learningType] Filter results to a specific learning type.
          * @param {LearningScope} [scope] Search scope. &#x27;agent&#x27; searches the agent&#x27;s private learnings. &#x27;org&#x27; searches shared learnings across agents (Enterprise only).
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        searchLearningsEndpointAgentsAgentIdLearningsSearchGet(agentId: any, q: any, limit?: any, minConfidence?: any, learningType?: any, scope?: LearningScope, options?: any) {
-            return LearningsApiFp(configuration).searchLearningsEndpointAgentsAgentIdLearningsSearchGet(agentId, q, limit, minConfidence, learningType, scope, options)(fetch, basePath);
+        searchLearningsEndpointAgentsAgentIdLearningsSearchGet(agentId: any, q: any, limit?: any, minConfidence?: any, scope?: LearningScope, options?: any) {
+            return LearningsApiFp(configuration).searchLearningsEndpointAgentsAgentIdLearningsSearchGet(agentId, q, limit, minConfidence, scope, options)(fetch, basePath);
         },
         /**
          * Store a new learning for the agent. The learning is processed through the platform's deduplication and conflict prevention pipeline on a background worker so the request returns immediately.
@@ -3692,14 +3656,13 @@ export class LearningsApi extends BaseAPI {
      * @param {any} q Search query text.
      * @param {any} [limit] Maximum number of results to return.
      * @param {any} [minConfidence] Minimum confidence threshold for results.
-     * @param {any} [learningType] Filter results to a specific learning type.
      * @param {LearningScope} [scope] Search scope. &#x27;agent&#x27; searches the agent&#x27;s private learnings. &#x27;org&#x27; searches shared learnings across agents (Enterprise only).
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      * @memberof LearningsApi
      */
-    public searchLearningsEndpointAgentsAgentIdLearningsSearchGet(agentId: any, q: any, limit?: any, minConfidence?: any, learningType?: any, scope?: LearningScope, options?: any) {
-        return LearningsApiFp(this.configuration).searchLearningsEndpointAgentsAgentIdLearningsSearchGet(agentId, q, limit, minConfidence, learningType, scope, options)(this.fetch, this.basePath);
+    public searchLearningsEndpointAgentsAgentIdLearningsSearchGet(agentId: any, q: any, limit?: any, minConfidence?: any, scope?: LearningScope, options?: any) {
+        return LearningsApiFp(this.configuration).searchLearningsEndpointAgentsAgentIdLearningsSearchGet(agentId, q, limit, minConfidence, scope, options)(this.fetch, this.basePath);
     }
 
     /**

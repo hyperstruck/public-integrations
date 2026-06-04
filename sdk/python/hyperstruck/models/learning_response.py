@@ -30,7 +30,6 @@ class LearningResponse(object):
     swagger_types = {
         'learning_id': 'object',
         'content': 'object',
-        'learning_type': 'LearningType',
         'confidence': 'object',
         'trust_level': 'object',
         'source_goal': 'object',
@@ -49,7 +48,6 @@ class LearningResponse(object):
     attribute_map = {
         'learning_id': 'learning_id',
         'content': 'content',
-        'learning_type': 'learning_type',
         'confidence': 'confidence',
         'trust_level': 'trust_level',
         'source_goal': 'source_goal',
@@ -65,11 +63,10 @@ class LearningResponse(object):
         'updated_at': 'updated_at'
     }
 
-    def __init__(self, learning_id=None, content=None, learning_type=None, confidence=None, trust_level=None, source_goal=None, applicable_goals=None, applicable_tools=None, times_applied=None, times_helpful=None, is_archived=None, privacy=None, scope=None, instances=None, created_at=None, updated_at=None):  # noqa: E501
+    def __init__(self, learning_id=None, content=None, confidence=None, trust_level=None, source_goal=None, applicable_goals=None, applicable_tools=None, times_applied=None, times_helpful=None, is_archived=None, privacy=None, scope=None, instances=None, created_at=None, updated_at=None):  # noqa: E501
         """LearningResponse - a model defined in Swagger"""  # noqa: E501
         self._learning_id = None
         self._content = None
-        self._learning_type = None
         self._confidence = None
         self._trust_level = None
         self._source_goal = None
@@ -86,7 +83,6 @@ class LearningResponse(object):
         self.discriminator = None
         self.learning_id = learning_id
         self.content = content
-        self.learning_type = learning_type
         self.confidence = confidence
         self.trust_level = trust_level
         self.source_goal = source_goal
@@ -148,29 +144,6 @@ class LearningResponse(object):
             raise ValueError("Invalid value for `content`, must not be `None`")  # noqa: E501
 
         self._content = content
-
-    @property
-    def learning_type(self):
-        """Gets the learning_type of this LearningResponse.  # noqa: E501
-
-
-        :return: The learning_type of this LearningResponse.  # noqa: E501
-        :rtype: LearningType
-        """
-        return self._learning_type
-
-    @learning_type.setter
-    def learning_type(self, learning_type):
-        """Sets the learning_type of this LearningResponse.
-
-
-        :param learning_type: The learning_type of this LearningResponse.  # noqa: E501
-        :type: LearningType
-        """
-        if learning_type is None:
-            raise ValueError("Invalid value for `learning_type`, must not be `None`")  # noqa: E501
-
-        self._learning_type = learning_type
 
     @property
     def confidence(self):

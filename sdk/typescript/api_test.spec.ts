@@ -84,9 +84,8 @@ describe("LearningsApi", () => {
     const q: any = undefined
     const limit: any = undefined
     const minConfidence: any = undefined
-    const learningType: any = undefined
     const scope: LearningScope = undefined
-    return expect(instance.searchLearningsEndpointAgentsAgentIdLearningsSearchGet(agentId, q, limit, minConfidence, learningType, scope, {})).resolves.toBe(null)
+    return expect(instance.searchLearningsEndpointAgentsAgentIdLearningsSearchGet(agentId, q, limit, minConfidence, scope, {})).resolves.toBe(null)
   })
   test("storeLearningEndpointAgentsAgentIdLearningsPost", () => {
     const body: api.StoreLearningRequest = undefined

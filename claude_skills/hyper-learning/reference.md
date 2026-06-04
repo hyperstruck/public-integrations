@@ -15,7 +15,6 @@ POST /agents/{agent_id}/learnings
 | Field | Required | Description |
 |-------|----------|-------------|
 | `content` | yes | 1–5000 chars, actionable text |
-| `learning_type` | yes | `tool_behaviour`, `outcome_pattern`, `approach`, `pitfall`, `prerequisite`, `coverage`, `coordination_pattern`, `agent_capability`, `conflict_insight`, `debate_outcome` |
 | `confidence` | no | 0.0–1.0, default 0.5 |
 | `source_goal` | no | Goal/task that produced this insight. For local or external runs, summarize the original task that generated the compacted evidence. |
 | `applicable_goals` | no | Keyword tags for search relevance. Use this to align learnings with the selected agent's purpose and task domain. |
@@ -23,14 +22,11 @@ POST /agents/{agent_id}/learnings
 | `privacy` | no | `shareable`, `agent_specific`, `sensitive` |
 | `instances` | no | Structured evidence examples. Each item requires `entity_values` and `outcome` string maps, with optional `source_context`. |
 
-Learning types: `tool_behaviour`, `outcome_pattern`, `approach`, `pitfall`, `prerequisite`, `coverage`, `coordination_pattern`, `agent_capability`, `conflict_insight`, `debate_outcome`.
-
 Instance evidence example:
 
 ```json
 {
   "content": "qualify_lead returns cold for cybersecurity companies",
-  "learning_type": "outcome_pattern",
   "applicable_tools": ["qualify_lead"],
   "instances": [
     {
@@ -72,7 +68,6 @@ GET /agents/{agent_id}/learnings/search?q=<query>&limit=10
 | `q` | yes | 1–2000 chars, natural-language query |
 | `limit` | no | 1–50, default 10 |
 | `min_confidence` | no | 0.0–1.0 |
-| `learning_type` | no | Filter by type |
 | `scope` | no | `agent` or `org` (enterprise) |
 
 Response `200`:
@@ -84,7 +79,6 @@ Response `200`:
       "learning": {
         "learning_id": "<uuid>",
         "content": "...",
-        "learning_type": "pitfall",
         "confidence": 0.7,
         "trust_level": "unverified",
         "source_goal": "...",

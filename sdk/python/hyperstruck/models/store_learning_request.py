@@ -29,7 +29,6 @@ class StoreLearningRequest(object):
     """
     swagger_types = {
         'content': 'object',
-        'learning_type': 'LearningType',
         'confidence': 'object',
         'source_goal': 'object',
         'applicable_goals': 'object',
@@ -40,7 +39,6 @@ class StoreLearningRequest(object):
 
     attribute_map = {
         'content': 'content',
-        'learning_type': 'learning_type',
         'confidence': 'confidence',
         'source_goal': 'source_goal',
         'applicable_goals': 'applicable_goals',
@@ -49,10 +47,9 @@ class StoreLearningRequest(object):
         'instances': 'instances'
     }
 
-    def __init__(self, content=None, learning_type=None, confidence=None, source_goal=None, applicable_goals=None, applicable_tools=None, privacy=None, instances=None):  # noqa: E501
+    def __init__(self, content=None, confidence=None, source_goal=None, applicable_goals=None, applicable_tools=None, privacy=None, instances=None):  # noqa: E501
         """StoreLearningRequest - a model defined in Swagger"""  # noqa: E501
         self._content = None
-        self._learning_type = None
         self._confidence = None
         self._source_goal = None
         self._applicable_goals = None
@@ -61,7 +58,6 @@ class StoreLearningRequest(object):
         self._instances = None
         self.discriminator = None
         self.content = content
-        self.learning_type = learning_type
         if confidence is not None:
             self.confidence = confidence
         if source_goal is not None:
@@ -99,31 +95,6 @@ class StoreLearningRequest(object):
             raise ValueError("Invalid value for `content`, must not be `None`")  # noqa: E501
 
         self._content = content
-
-    @property
-    def learning_type(self):
-        """Gets the learning_type of this StoreLearningRequest.  # noqa: E501
-
-        Category of the learning.  # noqa: E501
-
-        :return: The learning_type of this StoreLearningRequest.  # noqa: E501
-        :rtype: LearningType
-        """
-        return self._learning_type
-
-    @learning_type.setter
-    def learning_type(self, learning_type):
-        """Sets the learning_type of this StoreLearningRequest.
-
-        Category of the learning.  # noqa: E501
-
-        :param learning_type: The learning_type of this StoreLearningRequest.  # noqa: E501
-        :type: LearningType
-        """
-        if learning_type is None:
-            raise ValueError("Invalid value for `learning_type`, must not be `None`")  # noqa: E501
-
-        self._learning_type = learning_type
 
     @property
     def confidence(self):

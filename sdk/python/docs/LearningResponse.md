@@ -5,7 +5,6 @@ Name | Type | Description | Notes
 ------------ | ------------- | ------------- | -------------
 **learning_id** | **object** |  | 
 **content** | **object** |  | 
-**learning_type** | [**LearningType**](LearningType.md) |  | 
 **confidence** | **object** |  | 
 **trust_level** | **object** |  | 
 **source_goal** | **object** |  | 

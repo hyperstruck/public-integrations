@@ -64,7 +64,7 @@ The user may invoke this skill as:
 GET {BASE_URL}/agents/{agent_id}/learnings/search?q=<keywords>&limit=10
 ```
 
-Optional query params: `min_confidence` (0.0–1.0), `learning_type`, `scope` (`agent` or `org` — org may require enterprise; expect 403).
+Optional query params: `min_confidence` (0.0–1.0), `scope` (`agent` or `org` — org may require enterprise; expect 403).
 
 Response:
 
@@ -75,7 +75,6 @@ Response:
       "learning": {
         "learning_id": "...",
         "content": "...",
-        "learning_type": "pitfall",
         "confidence": 0.7,
         "trust_level": "unverified"
       },
@@ -99,7 +98,6 @@ POST {BASE_URL}/agents/{agent_id}/learnings
 ```json
 {
   "content": "<actionable, specific — 1 to 5000 chars>",
-  "learning_type": "<type>",
   "confidence": 0.6,
   "source_goal": "<what task produced this insight>",
   "applicable_goals": ["keyword1", "keyword2"],
@@ -117,21 +115,6 @@ POST {BASE_URL}/agents/{agent_id}/learnings
 
 Omit `instances` unless you have concrete structured evidence. Use it when a learning describes an observed input-to-outcome pattern, a tool result, a test case, or a compacted external run with clear entities and outcome. Keep values short strings and remove secrets, PII, internal hostnames, and raw logs.
 
-### Learning types
-
-| Type | When to use |
-|------|-------------|
-| `tool_behaviour` | How a tool works: parameters, formats, errors |
-| `outcome_pattern` | Input-to-outcome correlation supported by instances |
-| `approach` | A strategy or pattern that worked |
-| `pitfall` | Something to avoid (common failure mode) |
-| `prerequisite` | Something that must be true before an approach works |
-| `coverage` | Milestones or phases a plan must include |
-| `coordination_pattern` | Effective coordination strategies |
-| `agent_capability` | What agents are good or bad at |
-| `conflict_insight` | How conflicts were resolved |
-| `debate_outcome` | What debates concluded and why |
-
 ### Async store
 
 Returns **202 Accepted** with `request_id`. Indexing is asynchronous (non-LLM deduplication and storage). **Wait a few seconds** before searching for the new learning.
@@ -142,7 +125,7 @@ Returns **202 Accepted** with `request_id`. Indexing is asynchronous (non-LLM de
 - Prefer **multiple small learnings** over one large paragraph.
 - Strip secrets, PII, and internal hostnames from `content`.
 - Set `applicable_goals` and `applicable_tools` so the learning surfaces when relevant.
-- Add `instances` when evidence is available, especially for `outcome_pattern` and `tool_behaviour` learnings. Each instance should capture the minimal `entity_values` that explain when the pattern applies and the observed `outcome`.
+- Add `instances` when evidence is available, especially for learnings that describe an observed input-to-outcome pattern or a tool's behaviour. Each instance should capture the minimal `entity_values` that explain when the pattern applies and the observed `outcome`.
 
 ### Capturing from local runs
 

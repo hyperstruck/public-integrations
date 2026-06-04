@@ -4,7 +4,6 @@
 Name | Type | Description | Notes
 ------------ | ------------- | ------------- | -------------
 **content** | **object** | The learning content to store. | 
-**learning_type** | [**LearningType**](LearningType.md) | Category of the learning. | 
 **confidence** | **object** | Initial confidence level (0.0–1.0). | [optional] 
 **source_goal** | **object** | Goal or context this learning originated from. | [optional] 
 **applicable_goals** | **object** | Keywords or patterns this learning applies to. | [optional] 
