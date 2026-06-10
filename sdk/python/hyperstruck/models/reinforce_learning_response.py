@@ -29,7 +29,7 @@ class ReinforceLearningResponse(object):
     """
     swagger_types = {
         'learning_id': 'object',
-        'confidence': 'object',
+        'standing': 'LearningStanding',
         'trust_level': 'object',
         'times_applied': 'object',
         'times_helpful': 'object'
@@ -37,22 +37,22 @@ class ReinforceLearningResponse(object):
 
     attribute_map = {
         'learning_id': 'learning_id',
-        'confidence': 'confidence',
+        'standing': 'standing',
         'trust_level': 'trust_level',
         'times_applied': 'times_applied',
         'times_helpful': 'times_helpful'
     }
 
-    def __init__(self, learning_id=None, confidence=None, trust_level=None, times_applied=None, times_helpful=None):  # noqa: E501
+    def __init__(self, learning_id=None, standing=None, trust_level=None, times_applied=None, times_helpful=None):  # noqa: E501
         """ReinforceLearningResponse - a model defined in Swagger"""  # noqa: E501
         self._learning_id = None
-        self._confidence = None
+        self._standing = None
         self._trust_level = None
         self._times_applied = None
         self._times_helpful = None
         self.discriminator = None
         self.learning_id = learning_id
-        self.confidence = confidence
+        self.standing = standing
         self.trust_level = trust_level
         self.times_applied = times_applied
         self.times_helpful = times_helpful
@@ -81,29 +81,29 @@ class ReinforceLearningResponse(object):
         self._learning_id = learning_id
 
     @property
-    def confidence(self):
-        """Gets the confidence of this ReinforceLearningResponse.  # noqa: E501
+    def standing(self):
+        """Gets the standing of this ReinforceLearningResponse.  # noqa: E501
 
-        Updated confidence after reinforcement.  # noqa: E501
+        Updated two-axis standing after reinforcement.  # noqa: E501
 
-        :return: The confidence of this ReinforceLearningResponse.  # noqa: E501
-        :rtype: object
+        :return: The standing of this ReinforceLearningResponse.  # noqa: E501
+        :rtype: LearningStanding
         """
-        return self._confidence
+        return self._standing
 
-    @confidence.setter
-    def confidence(self, confidence):
-        """Sets the confidence of this ReinforceLearningResponse.
+    @standing.setter
+    def standing(self, standing):
+        """Sets the standing of this ReinforceLearningResponse.
 
-        Updated confidence after reinforcement.  # noqa: E501
+        Updated two-axis standing after reinforcement.  # noqa: E501
 
-        :param confidence: The confidence of this ReinforceLearningResponse.  # noqa: E501
-        :type: object
+        :param standing: The standing of this ReinforceLearningResponse.  # noqa: E501
+        :type: LearningStanding
         """
-        if confidence is None:
-            raise ValueError("Invalid value for `confidence`, must not be `None`")  # noqa: E501
+        if standing is None:
+            raise ValueError("Invalid value for `standing`, must not be `None`")  # noqa: E501
 
-        self._confidence = confidence
+        self._standing = standing
 
     @property
     def trust_level(self):

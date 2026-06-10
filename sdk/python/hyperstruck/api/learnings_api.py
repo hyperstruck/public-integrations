@@ -233,7 +233,7 @@ class LearningsApi(object):
     def reinforce_learning_endpoint_agents_agent_id_learnings_learning_id_reinforce_post(self, body, agent_id, learning_id, **kwargs):  # noqa: E501
         """Reinforce a learning  # noqa: E501
 
-        Provide feedback on whether a learning was helpful. Updates the learning's confidence and trust level based on the feedback signal.  # noqa: E501
+        Provide feedback on whether a learning was helpful. Updates the learning's standing (utility and reliability) and trust level based on the feedback signal.  # noqa: E501
         This method makes a synchronous HTTP request by default. To make an
         asynchronous HTTP request, please pass async_req=True
         >>> thread = api.reinforce_learning_endpoint_agents_agent_id_learnings_learning_id_reinforce_post(body, agent_id, learning_id, async_req=True)
@@ -257,7 +257,7 @@ class LearningsApi(object):
     def reinforce_learning_endpoint_agents_agent_id_learnings_learning_id_reinforce_post_with_http_info(self, body, agent_id, learning_id, **kwargs):  # noqa: E501
         """Reinforce a learning  # noqa: E501
 
-        Provide feedback on whether a learning was helpful. Updates the learning's confidence and trust level based on the feedback signal.  # noqa: E501
+        Provide feedback on whether a learning was helpful. Updates the learning's standing (utility and reliability) and trust level based on the feedback signal.  # noqa: E501
         This method makes a synchronous HTTP request by default. To make an
         asynchronous HTTP request, please pass async_req=True
         >>> thread = api.reinforce_learning_endpoint_agents_agent_id_learnings_learning_id_reinforce_post_with_http_info(body, agent_id, learning_id, async_req=True)
@@ -358,7 +358,7 @@ class LearningsApi(object):
         :param object agent_id: (required)
         :param object q: Search query text. (required)
         :param object limit: Maximum number of results to return.
-        :param object min_confidence: Minimum confidence threshold for results.
+        :param object min_utility: Minimum utility threshold for results.
         :param LearningScope scope: Search scope. 'agent' searches the agent's private learnings. 'org' searches shared learnings across agents (Enterprise only).
         :return: LearningSearchResponse
                  If the method is called asynchronously,
@@ -384,14 +384,14 @@ class LearningsApi(object):
         :param object agent_id: (required)
         :param object q: Search query text. (required)
         :param object limit: Maximum number of results to return.
-        :param object min_confidence: Minimum confidence threshold for results.
+        :param object min_utility: Minimum utility threshold for results.
         :param LearningScope scope: Search scope. 'agent' searches the agent's private learnings. 'org' searches shared learnings across agents (Enterprise only).
         :return: LearningSearchResponse
                  If the method is called asynchronously,
                  returns the request thread.
         """
 
-        all_params = ['agent_id', 'q', 'limit', 'min_confidence', 'scope']  # noqa: E501
+        all_params = ['agent_id', 'q', 'limit', 'min_utility', 'scope']  # noqa: E501
         all_params.append('async_req')
         all_params.append('_return_http_data_only')
         all_params.append('_preload_content')
@@ -426,8 +426,8 @@ class LearningsApi(object):
             query_params.append(('q', params['q']))  # noqa: E501
         if 'limit' in params:
             query_params.append(('limit', params['limit']))  # noqa: E501
-        if 'min_confidence' in params:
-            query_params.append(('min_confidence', params['min_confidence']))  # noqa: E501
+        if 'min_utility' in params:
+            query_params.append(('min_utility', params['min_utility']))  # noqa: E501
         if 'scope' in params:
             query_params.append(('scope', params['scope']))  # noqa: E501
 

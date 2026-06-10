@@ -5,7 +5,7 @@ Name | Type | Description | Notes
 ------------ | ------------- | ------------- | -------------
 **learning_id** | **object** |  | 
 **content** | **object** |  | 
-**confidence** | **object** |  | 
+**standing** | [**LearningStanding**](LearningStanding.md) |  | 
 **trust_level** | **object** |  | 
 **source_goal** | **object** |  | 
 **applicable_goals** | **object** |  | 

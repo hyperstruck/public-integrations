@@ -6,6 +6,7 @@ Name | Type | Description | Notes
 **id** | **object** |  | 
 **model_id** | **object** |  | 
 **component** | **object** |  | 
+**provider** | **object** | Serving provider (e.g. groq, openai); null on older rows or the non-routed path. | [optional] 
 **prompt_tokens** | **object** |  | 
 **completion_tokens** | **object** |  | 
 **total_tokens** | **object** |  | 

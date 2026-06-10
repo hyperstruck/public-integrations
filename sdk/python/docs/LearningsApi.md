@@ -113,7 +113,7 @@ No authorization required
 
 Reinforce a learning
 
-Provide feedback on whether a learning was helpful. Updates the learning's confidence and trust level based on the feedback signal.
+Provide feedback on whether a learning was helpful. Updates the learning's standing (utility and reliability) and trust level based on the feedback signal.
 
 ### Example
 ```python
@@ -161,7 +161,7 @@ No authorization required
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 
 # **search_learnings_endpoint_agents_agent_id_learnings_search_get**
-> LearningSearchResponse search_learnings_endpoint_agents_agent_id_learnings_search_get(agent_id, q, limit=limit, min_confidence=min_confidence, scope=scope)
+> LearningSearchResponse search_learnings_endpoint_agents_agent_id_learnings_search_get(agent_id, q, limit=limit, min_utility=min_utility, scope=scope)
 
 Search learnings
 
@@ -180,12 +180,12 @@ api_instance = hyperstruck.LearningsApi()
 agent_id = NULL # object | 
 q = NULL # object | Search query text.
 limit = 10 # object | Maximum number of results to return. (optional) (default to 10)
-min_confidence = NULL # object | Minimum confidence threshold for results. (optional)
+min_utility = NULL # object | Minimum utility threshold for results. (optional)
 scope = hyperstruck.LearningScope() # LearningScope | Search scope. 'agent' searches the agent's private learnings. 'org' searches shared learnings across agents (Enterprise only). (optional) (default to agent)
 
 try:
     # Search learnings
-    api_response = api_instance.search_learnings_endpoint_agents_agent_id_learnings_search_get(agent_id, q, limit=limit, min_confidence=min_confidence, scope=scope)
+    api_response = api_instance.search_learnings_endpoint_agents_agent_id_learnings_search_get(agent_id, q, limit=limit, min_utility=min_utility, scope=scope)
     pprint(api_response)
 except ApiException as e:
     print("Exception when calling LearningsApi->search_learnings_endpoint_agents_agent_id_learnings_search_get: %s\n" % e)
@@ -198,7 +198,7 @@ Name | Type | Description  | Notes
  **agent_id** | [**object**](.md)|  | 
  **q** | [**object**](.md)| Search query text. | 
  **limit** | [**object**](.md)| Maximum number of results to return. | [optional] [default to 10]
- **min_confidence** | [**object**](.md)| Minimum confidence threshold for results. | [optional] 
+ **min_utility** | [**object**](.md)| Minimum utility threshold for results. | [optional] 
  **scope** | [**LearningScope**](.md)| Search scope. &#x27;agent&#x27; searches the agent&#x27;s private learnings. &#x27;org&#x27; searches shared learnings across agents (Enterprise only). | [optional] [default to agent]
 
 ### Return type

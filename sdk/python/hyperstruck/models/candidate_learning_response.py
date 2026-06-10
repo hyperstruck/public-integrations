@@ -104,7 +104,7 @@ class CandidateLearningResponse(object):
     def score(self):
         """Gets the score of this CandidateLearningResponse.  # noqa: E501
 
-        Relevance/confidence score when supplied by the memory layer.  # noqa: E501
+        Relevance/utility score when supplied by the memory layer.  # noqa: E501
 
         :return: The score of this CandidateLearningResponse.  # noqa: E501
         :rtype: object
@@ -115,7 +115,7 @@ class CandidateLearningResponse(object):
     def score(self, score):
         """Sets the score of this CandidateLearningResponse.
 
-        Relevance/confidence score when supplied by the memory layer.  # noqa: E501
+        Relevance/utility score when supplied by the memory layer.  # noqa: E501
 
         :param score: The score of this CandidateLearningResponse.  # noqa: E501
         :type: object

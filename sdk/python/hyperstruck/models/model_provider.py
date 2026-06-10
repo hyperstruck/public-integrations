@@ -29,6 +29,7 @@ class ModelProvider(object):
     ANTHROPIC = "anthropic"
     GROQ = "groq"
     GOOGLE = "google"
+    MISTRAL = "mistral"
     XAI = "xai"
     """
     Attributes:

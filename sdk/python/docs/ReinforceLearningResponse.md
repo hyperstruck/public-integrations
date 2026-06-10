@@ -4,7 +4,7 @@
 Name | Type | Description | Notes
 ------------ | ------------- | ------------- | -------------
 **learning_id** | **object** |  | 
-**confidence** | **object** | Updated confidence after reinforcement. | 
+**standing** | [**LearningStanding**](LearningStanding.md) | Updated two-axis standing after reinforcement. | 
 **trust_level** | **object** | Current trust level after reinforcement. | 
 **times_applied** | **object** |  | 
 **times_helpful** | **object** |  | 

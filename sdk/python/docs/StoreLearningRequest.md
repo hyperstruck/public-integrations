@@ -4,7 +4,7 @@
 Name | Type | Description | Notes
 ------------ | ------------- | ------------- | -------------
 **content** | **object** | The learning content to store. | 
-**confidence** | **object** | Initial confidence level (0.0–1.0). | [optional] 
+**utility** | **object** | Initial utility, the curator&#x27;s belief in how useful this learning is when applied (0.0–1.0). Establishedness is earned through corroboration, not set here. | [optional] 
 **source_goal** | **object** | Goal or context this learning originated from. | [optional] 
 **applicable_goals** | **object** | Keywords or patterns this learning applies to. | [optional] 
 **applicable_tools** | **object** | Tools this learning relates to. | [optional] 

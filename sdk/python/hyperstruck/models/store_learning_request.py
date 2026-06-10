@@ -29,7 +29,7 @@ class StoreLearningRequest(object):
     """
     swagger_types = {
         'content': 'object',
-        'confidence': 'object',
+        'utility': 'object',
         'source_goal': 'object',
         'applicable_goals': 'object',
         'applicable_tools': 'object',
@@ -39,7 +39,7 @@ class StoreLearningRequest(object):
 
     attribute_map = {
         'content': 'content',
-        'confidence': 'confidence',
+        'utility': 'utility',
         'source_goal': 'source_goal',
         'applicable_goals': 'applicable_goals',
         'applicable_tools': 'applicable_tools',
@@ -47,10 +47,10 @@ class StoreLearningRequest(object):
         'instances': 'instances'
     }
 
-    def __init__(self, content=None, confidence=None, source_goal=None, applicable_goals=None, applicable_tools=None, privacy=None, instances=None):  # noqa: E501
+    def __init__(self, content=None, utility=None, source_goal=None, applicable_goals=None, applicable_tools=None, privacy=None, instances=None):  # noqa: E501
         """StoreLearningRequest - a model defined in Swagger"""  # noqa: E501
         self._content = None
-        self._confidence = None
+        self._utility = None
         self._source_goal = None
         self._applicable_goals = None
         self._applicable_tools = None
@@ -58,8 +58,8 @@ class StoreLearningRequest(object):
         self._instances = None
         self.discriminator = None
         self.content = content
-        if confidence is not None:
-            self.confidence = confidence
+        if utility is not None:
+            self.utility = utility
         if source_goal is not None:
             self.source_goal = source_goal
         if applicable_goals is not None:
@@ -97,27 +97,27 @@ class StoreLearningRequest(object):
         self._content = content
 
     @property
-    def confidence(self):
-        """Gets the confidence of this StoreLearningRequest.  # noqa: E501
+    def utility(self):
+        """Gets the utility of this StoreLearningRequest.  # noqa: E501
 
-        Initial confidence level (0.0–1.0).  # noqa: E501
+        Initial utility, the curator's belief in how useful this learning is when applied (0.0–1.0). Establishedness is earned through corroboration, not set here.  # noqa: E501
 
-        :return: The confidence of this StoreLearningRequest.  # noqa: E501
+        :return: The utility of this StoreLearningRequest.  # noqa: E501
         :rtype: object
         """
-        return self._confidence
+        return self._utility
 
-    @confidence.setter
-    def confidence(self, confidence):
-        """Sets the confidence of this StoreLearningRequest.
+    @utility.setter
+    def utility(self, utility):
+        """Sets the utility of this StoreLearningRequest.
 
-        Initial confidence level (0.0–1.0).  # noqa: E501
+        Initial utility, the curator's belief in how useful this learning is when applied (0.0–1.0). Establishedness is earned through corroboration, not set here.  # noqa: E501
 
-        :param confidence: The confidence of this StoreLearningRequest.  # noqa: E501
+        :param utility: The utility of this StoreLearningRequest.  # noqa: E501
         :type: object
         """
 
-        self._confidence = confidence
+        self._utility = utility
 
     @property
     def source_goal(self):

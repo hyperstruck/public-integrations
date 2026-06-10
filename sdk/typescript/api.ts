@@ -578,7 +578,7 @@ export interface CandidateLearningResponse {
      */
     content: any;
     /**
-     * Relevance/confidence score when supplied by the memory layer.
+     * Relevance/utility score when supplied by the memory layer.
      * @type {any}
      * @memberof CandidateLearningResponse
      */
@@ -866,11 +866,11 @@ export interface LearningResponse {
      */
     content: any;
     /**
-     *
-     * @type {any}
+     * 
+     * @type {LearningStanding}
      * @memberof LearningResponse
      */
-    confidence: any;
+    standing: LearningStanding;
     /**
      * 
      * @type {any}
@@ -990,6 +990,31 @@ export interface LearningSearchResponse {
      * @memberof LearningSearchResponse
      */
     total: any;
+}
+/**
+ * The two-axis standing of a learning: how useful, and how established.  These are orthogonal. ``utility`` is the value the learning delivered when applied (an application-outcome signal); ``reliability`` is how corroborated it is across independent observations (a Wilson lower bound). A high-utility rule may be barely corroborated (a promising new insight), and a heavily corroborated rule may be low utility (an established platitude), so both are surfaced rather than blended into one number.
+ * @export
+ * @interface LearningStanding
+ */
+export interface LearningStanding {
+    /**
+     * Value when applied, 0.0–1.0 (application-outcome EMA).
+     * @type {any}
+     * @memberof LearningStanding
+     */
+    utility: any;
+    /**
+     * How established, 0.0–1.0 (Wilson lower bound over independent corroborations).
+     * @type {any}
+     * @memberof LearningStanding
+     */
+    reliability: any;
+    /**
+     * Number of independent sources that corroborated this learning.
+     * @type {any}
+     * @memberof LearningStanding
+     */
+    corroborationCount: any;
 }
 /**
  * 
@@ -1141,6 +1166,7 @@ export enum ModelProvider {
     Anthropic = <any> 'anthropic',
     Groq = <any> 'groq',
     Google = <any> 'google',
+    Mistral = <any> 'mistral',
     Xai = <any> 'xai'
 }
 /**
@@ -1579,11 +1605,11 @@ export interface ReinforceLearningResponse {
      */
     learningId: any;
     /**
-     * Updated confidence after reinforcement.
-     * @type {any}
+     * Updated two-axis standing after reinforcement.
+     * @type {LearningStanding}
      * @memberof ReinforceLearningResponse
      */
-    confidence: any;
+    standing: LearningStanding;
     /**
      * Current trust level after reinforcement.
      * @type {any}
@@ -2032,11 +2058,11 @@ export interface StoreLearningRequest {
      */
     content: any;
     /**
-     * Initial confidence level (0.0–1.0).
+     * Initial utility, the curator's belief in how useful this learning is when applied (0.0–1.0). Establishedness is earned through corroboration, not set here.
      * @type {any}
      * @memberof StoreLearningRequest
      */
-    confidence?: any;
+    utility?: any;
     /**
      * Goal or context this learning originated from.
      * @type {any}
@@ -2155,6 +2181,12 @@ export interface UsageLlmCallItem {
      */
     component: any;
     /**
+     * Serving provider (e.g. groq, openai); null on older rows or the non-routed path.
+     * @type {any}
+     * @memberof UsageLlmCallItem
+     */
+    provider?: any;
+    /**
      * 
      * @type {any}
      * @memberof UsageLlmCallItem
@@ -2217,49 +2249,6 @@ export interface UsageLlmCallListResponse {
     nextCursor?: any;
 }
 /**
- * Raw-provider LLM usage rolled up for a single model.
- * @export
- * @interface UsageLlmModelAggregate
- */
-export interface UsageLlmModelAggregate {
-    /**
-     * Model identifier; 'unknown' when the call did not record one.
-     * @type {any}
-     * @memberof UsageLlmModelAggregate
-     */
-    modelId: any;
-    /**
-     * 
-     * @type {any}
-     * @memberof UsageLlmModelAggregate
-     */
-    callCount: any;
-    /**
-     * 
-     * @type {any}
-     * @memberof UsageLlmModelAggregate
-     */
-    promptTokens: any;
-    /**
-     * 
-     * @type {any}
-     * @memberof UsageLlmModelAggregate
-     */
-    completionTokens: any;
-    /**
-     * 
-     * @type {any}
-     * @memberof UsageLlmModelAggregate
-     */
-    totalTokens: any;
-    /**
-     * Sum of raw provider cost_usd.
-     * @type {any}
-     * @memberof UsageLlmModelAggregate
-     */
-    costUsd: any;
-}
-/**
  * Raw-provider LLM usage rolled up for a single reasoning component.
  * @export
  * @interface UsageLlmComponentAggregate
@@ -2299,6 +2288,49 @@ export interface UsageLlmComponentAggregate {
      * Sum of raw provider cost_usd.
      * @type {any}
      * @memberof UsageLlmComponentAggregate
+     */
+    costUsd: any;
+}
+/**
+ * Raw-provider LLM usage rolled up for a single model.
+ * @export
+ * @interface UsageLlmModelAggregate
+ */
+export interface UsageLlmModelAggregate {
+    /**
+     * Model identifier; 'unknown' when the call did not record one.
+     * @type {any}
+     * @memberof UsageLlmModelAggregate
+     */
+    modelId: any;
+    /**
+     * 
+     * @type {any}
+     * @memberof UsageLlmModelAggregate
+     */
+    callCount: any;
+    /**
+     * 
+     * @type {any}
+     * @memberof UsageLlmModelAggregate
+     */
+    promptTokens: any;
+    /**
+     * 
+     * @type {any}
+     * @memberof UsageLlmModelAggregate
+     */
+    completionTokens: any;
+    /**
+     * 
+     * @type {any}
+     * @memberof UsageLlmModelAggregate
+     */
+    totalTokens: any;
+    /**
+     * Sum of raw provider cost_usd.
+     * @type {any}
+     * @memberof UsageLlmModelAggregate
      */
     costUsd: any;
 }
@@ -3287,7 +3319,7 @@ export const LearningsApiFetchParamCreator = function (configuration?: Configura
             };
         },
         /**
-         * Provide feedback on whether a learning was helpful. Updates the learning's confidence and trust level based on the feedback signal.
+         * Provide feedback on whether a learning was helpful. Updates the learning's standing (utility and reliability) and trust level based on the feedback signal.
          * @summary Reinforce a learning
          * @param {ReinforceLearningRequest} body 
          * @param {any} agentId 
@@ -3336,12 +3368,12 @@ export const LearningsApiFetchParamCreator = function (configuration?: Configura
          * @param {any} agentId 
          * @param {any} q Search query text.
          * @param {any} [limit] Maximum number of results to return.
-         * @param {any} [minConfidence] Minimum confidence threshold for results.
+         * @param {any} [minUtility] Minimum utility threshold for results.
          * @param {LearningScope} [scope] Search scope. &#x27;agent&#x27; searches the agent&#x27;s private learnings. &#x27;org&#x27; searches shared learnings across agents (Enterprise only).
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        searchLearningsEndpointAgentsAgentIdLearningsSearchGet(agentId: any, q: any, limit?: any, minConfidence?: any, scope?: LearningScope, options: any = {}): FetchArgs {
+        searchLearningsEndpointAgentsAgentIdLearningsSearchGet(agentId: any, q: any, limit?: any, minUtility?: any, scope?: LearningScope, options: any = {}): FetchArgs {
             // verify required parameter 'agentId' is not null or undefined
             if (agentId === null || agentId === undefined) {
                 throw new RequiredError('agentId','Required parameter agentId was null or undefined when calling searchLearningsEndpointAgentsAgentIdLearningsSearchGet.');
@@ -3365,8 +3397,8 @@ export const LearningsApiFetchParamCreator = function (configuration?: Configura
                 localVarQueryParameter['limit'] = limit;
             }
 
-            if (minConfidence !== undefined) {
-                localVarQueryParameter['min_confidence'] = minConfidence;
+            if (minUtility !== undefined) {
+                localVarQueryParameter['min_utility'] = minUtility;
             }
 
             if (scope !== undefined) {
@@ -3470,7 +3502,7 @@ export const LearningsApiFp = function(configuration?: Configuration) {
             };
         },
         /**
-         * Provide feedback on whether a learning was helpful. Updates the learning's confidence and trust level based on the feedback signal.
+         * Provide feedback on whether a learning was helpful. Updates the learning's standing (utility and reliability) and trust level based on the feedback signal.
          * @summary Reinforce a learning
          * @param {ReinforceLearningRequest} body 
          * @param {any} agentId 
@@ -3496,13 +3528,13 @@ export const LearningsApiFp = function(configuration?: Configuration) {
          * @param {any} agentId 
          * @param {any} q Search query text.
          * @param {any} [limit] Maximum number of results to return.
-         * @param {any} [minConfidence] Minimum confidence threshold for results.
+         * @param {any} [minUtility] Minimum utility threshold for results.
          * @param {LearningScope} [scope] Search scope. &#x27;agent&#x27; searches the agent&#x27;s private learnings. &#x27;org&#x27; searches shared learnings across agents (Enterprise only).
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        searchLearningsEndpointAgentsAgentIdLearningsSearchGet(agentId: any, q: any, limit?: any, minConfidence?: any, scope?: LearningScope, options?: any): (fetch?: FetchAPI, basePath?: string) => Promise<LearningSearchResponse> {
-            const localVarFetchArgs = LearningsApiFetchParamCreator(configuration).searchLearningsEndpointAgentsAgentIdLearningsSearchGet(agentId, q, limit, minConfidence, scope, options);
+        searchLearningsEndpointAgentsAgentIdLearningsSearchGet(agentId: any, q: any, limit?: any, minUtility?: any, scope?: LearningScope, options?: any): (fetch?: FetchAPI, basePath?: string) => Promise<LearningSearchResponse> {
+            const localVarFetchArgs = LearningsApiFetchParamCreator(configuration).searchLearningsEndpointAgentsAgentIdLearningsSearchGet(agentId, q, limit, minUtility, scope, options);
             return (fetch: FetchAPI = isomorphicFetch, basePath: string = BASE_PATH) => {
                 return fetch(basePath + localVarFetchArgs.url, localVarFetchArgs.options).then((response) => {
                     if (response.status >= 200 && response.status < 300) {
@@ -3564,7 +3596,7 @@ export const LearningsApiFactory = function (configuration?: Configuration, fetc
             return LearningsApiFp(configuration).getLearningEndpointAgentsAgentIdLearningsLearningIdGet(agentId, learningId, options)(fetch, basePath);
         },
         /**
-         * Provide feedback on whether a learning was helpful. Updates the learning's confidence and trust level based on the feedback signal.
+         * Provide feedback on whether a learning was helpful. Updates the learning's standing (utility and reliability) and trust level based on the feedback signal.
          * @summary Reinforce a learning
          * @param {ReinforceLearningRequest} body 
          * @param {any} agentId 
@@ -3581,13 +3613,13 @@ export const LearningsApiFactory = function (configuration?: Configuration, fetc
          * @param {any} agentId 
          * @param {any} q Search query text.
          * @param {any} [limit] Maximum number of results to return.
-         * @param {any} [minConfidence] Minimum confidence threshold for results.
+         * @param {any} [minUtility] Minimum utility threshold for results.
          * @param {LearningScope} [scope] Search scope. &#x27;agent&#x27; searches the agent&#x27;s private learnings. &#x27;org&#x27; searches shared learnings across agents (Enterprise only).
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        searchLearningsEndpointAgentsAgentIdLearningsSearchGet(agentId: any, q: any, limit?: any, minConfidence?: any, scope?: LearningScope, options?: any) {
-            return LearningsApiFp(configuration).searchLearningsEndpointAgentsAgentIdLearningsSearchGet(agentId, q, limit, minConfidence, scope, options)(fetch, basePath);
+        searchLearningsEndpointAgentsAgentIdLearningsSearchGet(agentId: any, q: any, limit?: any, minUtility?: any, scope?: LearningScope, options?: any) {
+            return LearningsApiFp(configuration).searchLearningsEndpointAgentsAgentIdLearningsSearchGet(agentId, q, limit, minUtility, scope, options)(fetch, basePath);
         },
         /**
          * Store a new learning for the agent. The learning is processed through the platform's deduplication and conflict prevention pipeline on a background worker so the request returns immediately.
@@ -3636,7 +3668,7 @@ export class LearningsApi extends BaseAPI {
     }
 
     /**
-     * Provide feedback on whether a learning was helpful. Updates the learning's confidence and trust level based on the feedback signal.
+     * Provide feedback on whether a learning was helpful. Updates the learning's standing (utility and reliability) and trust level based on the feedback signal.
      * @summary Reinforce a learning
      * @param {ReinforceLearningRequest} body 
      * @param {any} agentId 
@@ -3655,14 +3687,14 @@ export class LearningsApi extends BaseAPI {
      * @param {any} agentId 
      * @param {any} q Search query text.
      * @param {any} [limit] Maximum number of results to return.
-     * @param {any} [minConfidence] Minimum confidence threshold for results.
+     * @param {any} [minUtility] Minimum utility threshold for results.
      * @param {LearningScope} [scope] Search scope. &#x27;agent&#x27; searches the agent&#x27;s private learnings. &#x27;org&#x27; searches shared learnings across agents (Enterprise only).
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      * @memberof LearningsApi
      */
-    public searchLearningsEndpointAgentsAgentIdLearningsSearchGet(agentId: any, q: any, limit?: any, minConfidence?: any, scope?: LearningScope, options?: any) {
-        return LearningsApiFp(this.configuration).searchLearningsEndpointAgentsAgentIdLearningsSearchGet(agentId, q, limit, minConfidence, scope, options)(this.fetch, this.basePath);
+    public searchLearningsEndpointAgentsAgentIdLearningsSearchGet(agentId: any, q: any, limit?: any, minUtility?: any, scope?: LearningScope, options?: any) {
+        return LearningsApiFp(this.configuration).searchLearningsEndpointAgentsAgentIdLearningsSearchGet(agentId, q, limit, minUtility, scope, options)(this.fetch, this.basePath);
     }
 
     /**

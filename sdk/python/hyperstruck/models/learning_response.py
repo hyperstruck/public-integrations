@@ -30,7 +30,7 @@ class LearningResponse(object):
     swagger_types = {
         'learning_id': 'object',
         'content': 'object',
-        'confidence': 'object',
+        'standing': 'LearningStanding',
         'trust_level': 'object',
         'source_goal': 'object',
         'applicable_goals': 'object',
@@ -48,7 +48,7 @@ class LearningResponse(object):
     attribute_map = {
         'learning_id': 'learning_id',
         'content': 'content',
-        'confidence': 'confidence',
+        'standing': 'standing',
         'trust_level': 'trust_level',
         'source_goal': 'source_goal',
         'applicable_goals': 'applicable_goals',
@@ -63,11 +63,11 @@ class LearningResponse(object):
         'updated_at': 'updated_at'
     }
 
-    def __init__(self, learning_id=None, content=None, confidence=None, trust_level=None, source_goal=None, applicable_goals=None, applicable_tools=None, times_applied=None, times_helpful=None, is_archived=None, privacy=None, scope=None, instances=None, created_at=None, updated_at=None):  # noqa: E501
+    def __init__(self, learning_id=None, content=None, standing=None, trust_level=None, source_goal=None, applicable_goals=None, applicable_tools=None, times_applied=None, times_helpful=None, is_archived=None, privacy=None, scope=None, instances=None, created_at=None, updated_at=None):  # noqa: E501
         """LearningResponse - a model defined in Swagger"""  # noqa: E501
         self._learning_id = None
         self._content = None
-        self._confidence = None
+        self._standing = None
         self._trust_level = None
         self._source_goal = None
         self._applicable_goals = None
@@ -83,7 +83,7 @@ class LearningResponse(object):
         self.discriminator = None
         self.learning_id = learning_id
         self.content = content
-        self.confidence = confidence
+        self.standing = standing
         self.trust_level = trust_level
         self.source_goal = source_goal
         self.applicable_goals = applicable_goals
@@ -146,27 +146,27 @@ class LearningResponse(object):
         self._content = content
 
     @property
-    def confidence(self):
-        """Gets the confidence of this LearningResponse.  # noqa: E501
+    def standing(self):
+        """Gets the standing of this LearningResponse.  # noqa: E501
 
 
-        :return: The confidence of this LearningResponse.  # noqa: E501
-        :rtype: object
+        :return: The standing of this LearningResponse.  # noqa: E501
+        :rtype: LearningStanding
         """
-        return self._confidence
+        return self._standing
 
-    @confidence.setter
-    def confidence(self, confidence):
-        """Sets the confidence of this LearningResponse.
+    @standing.setter
+    def standing(self, standing):
+        """Sets the standing of this LearningResponse.
 
 
-        :param confidence: The confidence of this LearningResponse.  # noqa: E501
-        :type: object
+        :param standing: The standing of this LearningResponse.  # noqa: E501
+        :type: LearningStanding
         """
-        if confidence is None:
-            raise ValueError("Invalid value for `confidence`, must not be `None`")  # noqa: E501
+        if standing is None:
+            raise ValueError("Invalid value for `standing`, must not be `None`")  # noqa: E501
 
-        self._confidence = confidence
+        self._standing = standing
 
     @property
     def trust_level(self):

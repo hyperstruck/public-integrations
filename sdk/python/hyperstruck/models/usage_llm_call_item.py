@@ -31,6 +31,7 @@ class UsageLlmCallItem(object):
         'id': 'object',
         'model_id': 'object',
         'component': 'object',
+        'provider': 'object',
         'prompt_tokens': 'object',
         'completion_tokens': 'object',
         'total_tokens': 'object',
@@ -42,6 +43,7 @@ class UsageLlmCallItem(object):
         'id': 'id',
         'model_id': 'model_id',
         'component': 'component',
+        'provider': 'provider',
         'prompt_tokens': 'prompt_tokens',
         'completion_tokens': 'completion_tokens',
         'total_tokens': 'total_tokens',
@@ -49,11 +51,12 @@ class UsageLlmCallItem(object):
         'recorded_at': 'recorded_at'
     }
 
-    def __init__(self, id=None, model_id=None, component=None, prompt_tokens=None, completion_tokens=None, total_tokens=None, cost_usd=None, recorded_at=None):  # noqa: E501
+    def __init__(self, id=None, model_id=None, component=None, provider=None, prompt_tokens=None, completion_tokens=None, total_tokens=None, cost_usd=None, recorded_at=None):  # noqa: E501
         """UsageLlmCallItem - a model defined in Swagger"""  # noqa: E501
         self._id = None
         self._model_id = None
         self._component = None
+        self._provider = None
         self._prompt_tokens = None
         self._completion_tokens = None
         self._total_tokens = None
@@ -63,6 +66,8 @@ class UsageLlmCallItem(object):
         self.id = id
         self.model_id = model_id
         self.component = component
+        if provider is not None:
+            self.provider = provider
         self.prompt_tokens = prompt_tokens
         self.completion_tokens = completion_tokens
         self.total_tokens = total_tokens
@@ -138,6 +143,29 @@ class UsageLlmCallItem(object):
             raise ValueError("Invalid value for `component`, must not be `None`")  # noqa: E501
 
         self._component = component
+
+    @property
+    def provider(self):
+        """Gets the provider of this UsageLlmCallItem.  # noqa: E501
+
+        Serving provider (e.g. groq, openai); null on older rows or the non-routed path.  # noqa: E501
+
+        :return: The provider of this UsageLlmCallItem.  # noqa: E501
+        :rtype: object
+        """
+        return self._provider
+
+    @provider.setter
+    def provider(self, provider):
+        """Sets the provider of this UsageLlmCallItem.
+
+        Serving provider (e.g. groq, openai); null on older rows or the non-routed path.  # noqa: E501
+
+        :param provider: The provider of this UsageLlmCallItem.  # noqa: E501
+        :type: object
+        """
+
+        self._provider = provider
 
     @property
     def prompt_tokens(self):
