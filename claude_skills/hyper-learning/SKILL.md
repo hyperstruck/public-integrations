@@ -64,7 +64,7 @@ The user may invoke this skill as:
 GET {BASE_URL}/agents/{agent_id}/learnings/search?q=<keywords>&limit=10
 ```
 
-Optional query params: `min_confidence` (0.0–1.0), `scope` (`agent` or `org` — org may require enterprise; expect 403).
+Optional query params: `min_utility` (0.0–1.0), `scope` (`agent` or `org` — org may require enterprise; expect 403).
 
 Response:
 
@@ -75,7 +75,7 @@ Response:
       "learning": {
         "learning_id": "...",
         "content": "...",
-        "confidence": 0.7,
+        "standing": {"utility": 0.7, "reliability": 0.4, "corroboration_count": 2},
         "trust_level": "unverified"
       },
       "score": 0.82
@@ -98,7 +98,7 @@ POST {BASE_URL}/agents/{agent_id}/learnings
 ```json
 {
   "content": "<actionable, specific — 1 to 5000 chars>",
-  "confidence": 0.6,
+  "utility": 0.6,
   "source_goal": "<what task produced this insight>",
   "applicable_goals": ["keyword1", "keyword2"],
   "applicable_tools": ["tool_name"],
@@ -150,7 +150,7 @@ POST {BASE_URL}/agents/{agent_id}/learnings/{learning_id}/reinforce
 { "is_helpful": true }
 ```
 
-Or `false`. Updates confidence and advances trust lifecycle (`unverified` → `agent_verified` → `source_verified` → `corroborated`).
+Or `false`. Updates the learning's standing (utility and reliability) and advances the trust lifecycle (`unverified` → `agent_verified` → `source_verified` → `corroborated`).
 
 When a learning gets used, reinforce it after the outcome is known. Mark it helpful if it improved the run, or unhelpful if it misled the agent.
 

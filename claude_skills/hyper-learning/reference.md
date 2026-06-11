@@ -15,7 +15,7 @@ POST /agents/{agent_id}/learnings
 | Field | Required | Description |
 |-------|----------|-------------|
 | `content` | yes | 1–5000 chars, actionable text |
-| `confidence` | no | 0.0–1.0, default 0.5 |
+| `utility` | no | 0.0–1.0, default 0.5. Initial belief in how useful the learning is when applied. Establishedness (reliability) is earned through corroboration, not set here. |
 | `source_goal` | no | Goal/task that produced this insight. For local or external runs, summarize the original task that generated the compacted evidence. |
 | `applicable_goals` | no | Keyword tags for search relevance. Use this to align learnings with the selected agent's purpose and task domain. |
 | `applicable_tools` | no | Tool names for search relevance. Use this for learnings distilled from compacted Claude, Cursor, MCP, CLI, browser, CI, or other external tool transcripts. |
@@ -67,7 +67,7 @@ GET /agents/{agent_id}/learnings/search?q=<query>&limit=10
 |-------|----------|-------------|
 | `q` | yes | 1–2000 chars, natural-language query |
 | `limit` | no | 1–50, default 10 |
-| `min_confidence` | no | 0.0–1.0 |
+| `min_utility` | no | 0.0–1.0 |
 | `scope` | no | `agent` or `org` (enterprise) |
 
 Response `200`:
@@ -79,7 +79,7 @@ Response `200`:
       "learning": {
         "learning_id": "<uuid>",
         "content": "...",
-        "confidence": 0.7,
+        "standing": {"utility": 0.7, "reliability": 0.4, "corroboration_count": 2},
         "trust_level": "unverified",
         "source_goal": "...",
         "applicable_goals": [],
@@ -131,7 +131,7 @@ Response `200`:
 ```json
 {
   "learning_id": "...",
-  "confidence": 0.79,
+  "standing": {"utility": 0.79, "reliability": 0.55, "corroboration_count": 3},
   "trust_level": "unverified",
   "times_applied": 1,
   "times_helpful": 1
