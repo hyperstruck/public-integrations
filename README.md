@@ -16,6 +16,8 @@ Putting domain expertise, knowledge, and memory to work is what turns AI into **
 | [claude_skills/hyper-reasoning/](claude_skills/hyper-reasoning/) | **Hosted reasoning** from Claude Code or Cursor: send rich context, receive structured plans and analysis, handle review checkpoints when policies require it.          |
 | [claude_skills/hyper-learning/](claude_skills/hyper-learning/)   | **Learnings API** from your agent: search before hard tasks, store insights after, reinforce what helped — so the platform remembers and ranks knowledge appropriately. |
 | [claude_skills/hyper-plans/](claude_skills/hyper-plans/)         | **Plans API** from your agent: search similar plans and review candidate learnings surfaced with those results.                                                         |
+| [hyperstruck-py/](hyperstruck-py/)                              | The hand-written **`hyperstruck`** Python package: a thin HTTP client plus an optional LangGraph middleware (the `langgraph` extra). The ergonomic learning surface, install with `pip install hyperstruck[langgraph]` and your agent learns run over run. |
+| [sdk/](sdk/)                                                    | Generated low-level API clients (Python and TypeScript) produced from the platform's OpenAPI schema. Raw, fully-typed access to every endpoint; prefer `hyperstruck-py` for the ergonomic learning surface, reach for these when you need an endpoint the package does not wrap. |
 
 
 Together, these skills mirror how Core is meant to be used: **reason** when problems are deep or cross-cutting, **learn** continuously so the next session starts smarter.
