@@ -29,10 +29,17 @@ Documentation = "https://docs.hyperstruck.com"
 
 [tool.hatch.build.targets.wheel]
 packages = ["src/hyperstruck"]
+# Tests live alongside the modules they cover; keep them out of the published wheel.
+exclude = ["*_test.py"]
 
 [tool.ruff]
 line-length = 88
 
 [tool.pytest.ini_options]
 asyncio_mode = "auto"
-testpaths = ["tests"]
+# Tests sit next to the source they cover (e.g. redaction_test.py beside redaction.py).
+testpaths = ["src"]
+# Resolve `import hyperstruck...` by file location so the src-layout tests import
+# the package whether or not it is installed editable.
+pythonpath = ["src"]
+consider_namespace_packages = true

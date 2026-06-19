@@ -35,17 +35,19 @@ pip install hyperstruck[langgraph]
 from langchain.agents import create_agent
 from hyperstruck.langgraph import HyperstruckLearningMiddleware
 
-agent = create_agent(
-    model,
-    tools=tools,
-    middleware=[
-        HyperstruckLearningMiddleware(api_key="hsk_...", agent_id="support-bot"),
-    ],
-)
+async with HyperstruckLearningMiddleware(api_key="hsk_...", agent_id="support-bot") as learning:
+    agent = create_agent(model, tools=tools, middleware=[learning])
 
-# Use the agent as normal. Over successive runs it gets sharper.
-result = await agent.ainvoke({"messages": [("user", "refund order 1234")]})
+    # Use the agent as normal. Over successive runs it gets sharper.
+    result = await agent.ainvoke({"messages": [("user", "refund order 1234")]})
 ```
+
+The observe and reinforce writes run in the background so your `invoke()` is
+never blocked. In a long-lived server they complete on their own; in a
+short-lived process (a script, a one-shot task, a serverless handler) use the
+middleware as an `async with` context (or `await learning.aclose()` before exit)
+so the writes are drained before the process ends. Skip the drain and the first
+run's learning is cancelled at exit before it reaches the platform.
 
 The `agent_id` is your own string. The platform creates a named agent for it on
 first use and scopes the learning corpus to it. Set the key from the environment
@@ -96,7 +98,9 @@ To serve many tenants from one registered middleware, set a per-invoke
 Traces leave your environment, so redaction happens here, before anything is
 sent. Declare which tool arguments are sensitive and their values are stripped
 to a marker, then scrubbed everywhere in the outbound payload (including model
-text that echoed them):
+text that echoed them). The scrub matches each value only as a whole token and
+skips very short values, so a short or common declared value cannot corrupt
+unrelated content; it errs towards over-redaction rather than leaking:
 
 ```python
 HyperstruckLearningMiddleware(
@@ -111,7 +115,14 @@ HyperstruckLearningMiddleware(
 - Resolve is deadline-bounded and fails open: a degraded platform costs you one
   run without its learnings, never a stalled agent.
 - Writes are asynchronous with bounded retry, and safe at-least-once because the
-  platform dedupes by run id. There is no local disk state, so the package
-  deploys unchanged in serverless, read-only, and multi-replica environments.
+  platform claims each run atomically by run id, so a retried observe or reinforce
+  is a single-charge server-side no-op. There is no local disk state, so the
+  package deploys unchanged in serverless, read-only, and multi-replica
+  environments. Drain the writes before a short-lived process exits (see the quick
+  start); `writes_delivered` and `writes_failed` on the middleware report the real
+  delivery outcome once drained.
 - A run that is cancelled or killed mid-flight is never observed (an incomplete
   run has no terminal outcome); the skip is surfaced on the middleware stats.
+- Stacking middleware? Keep this one innermost (last in the list) so an outer
+  middleware cannot strip the injected learnings before the model sees them. Call
+  `assert_innermost(middleware_list, learning)` to enforce it.

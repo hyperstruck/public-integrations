@@ -7,8 +7,15 @@ side. Two layers:
    replaced with a redaction marker, so their values never reach the platform.
 2. **Known-value scrub.** Because the declared values are known exactly, every
    one is scrubbed from the entire outbound payload (including tool results and
-   any model/AI text that echoed a literal secret), with a plain string replace.
-   This catches the common echo case cheaply and with near-zero false positives.
+   any model/AI text that echoed a literal secret), at any nesting depth. The
+   scrub matches each value only as a whole token (non-word lookarounds), and
+   skips values shorter than ``MIN_SCRUB_LENGTH``, so a short or common declared
+   value does not corrupt unrelated content. The tradeoff of whole-token matching
+   is in the catch-the-echo direction: a declared value the *declared argument
+   already strips* is also caught wherever it appears as a standalone token, but
+   an echo that concatenates the value to other word characters (e.g. the secret
+   glued inside a larger identifier) is left intact rather than corrupting it. The
+   declared argument itself is always stripped regardless.
 
 What is and is not redacted here, for integrators: only *declared* sensitive
 argument values are stripped, and only those exact values are scrubbed elsewhere.
@@ -27,6 +34,11 @@ from typing import Any
 
 REDACTION_MARKER = "[REDACTED]"
 
+# Minimum length for a declared value to be scrubbed across the whole payload. A
+# one-character value (``"1"``, ``"a"``) scrubbed everywhere corrupts unrelated
+# content, so values shorter than this are still stripped from their own declared
+# argument but never scrubbed elsewhere. Mirrors Core's server-side floor.
+MIN_SCRUB_LENGTH = 2
 
 def _labelled_marker(label: str) -> str:
     label = (label or "").strip()
@@ -34,7 +46,12 @@ def _labelled_marker(label: str) -> str:
 
 
 def _collect_declared_values(steps: list[dict[str, Any]]) -> set[str]:
-    """Gather the original values of every declared-sensitive argument."""
+    """Gather declared-sensitive argument values long enough to scrub elsewhere.
+
+    Values shorter than :data:`MIN_SCRUB_LENGTH` are excluded: they are still
+    stripped from their own declared argument, but scrubbing a one-character value
+    across the whole payload would corrupt unrelated content.
+    """
     values: set[str] = set()
     for step in steps:
         declared = (step.get("declared_sensitivity") or {}).get("args") or {}
@@ -42,7 +59,7 @@ def _collect_declared_values(steps: list[dict[str, Any]]) -> set[str]:
         for arg_name in declared:
             if arg_name in args and args[arg_name] is not None:
                 rendered = str(args[arg_name])
-                if rendered:
+                if len(rendered) >= MIN_SCRUB_LENGTH:
                     values.add(rendered)
     return values
 
@@ -60,18 +77,42 @@ def _strip_declared_args(steps: list[dict[str, Any]]) -> None:
 
 
 def _scrub_value(value: Any, pattern: re.Pattern[str]) -> Any:
-    """Recursively replace every known secret with the marker in any string.
+    """Replace every known secret with the marker in any string, at any depth.
 
     Uses a single precompiled alternation so each string is scanned once,
-    regardless of how many distinct secrets there are.
+    regardless of how many distinct secrets there are. The traversal is iterative
+    (an explicit work stack), not recursive, so an arbitrarily deep payload is
+    fully scrubbed without a depth cap and cannot raise ``RecursionError`` into the
+    host's ``invoke()``. Tuples become lists, matching JSON serialisation.
     """
     if isinstance(value, str):
         return pattern.sub(REDACTION_MARKER, value)
-    if isinstance(value, dict):
-        return {key: _scrub_value(item, pattern) for key, item in value.items()}
-    if isinstance(value, (list, tuple)):
-        return [_scrub_value(item, pattern) for item in value]
-    return value
+    if not isinstance(value, (dict, list, tuple)):
+        return value
+
+    def _scrub_scalar(item: Any) -> Any:
+        return pattern.sub(REDACTION_MARKER, item) if isinstance(item, str) else item
+
+    root: Any = {} if isinstance(value, dict) else []
+    # Each work item rebuilds one container into its pre-created shell.
+    stack: list[tuple[Any, Any]] = [(value, root)]
+    while stack:
+        source, target = stack.pop()
+        pairs = source.items() if isinstance(source, dict) else enumerate(source)
+        for key, item in pairs:
+            if isinstance(item, dict):
+                child: Any = {}
+                stack.append((item, child))
+            elif isinstance(item, (list, tuple)):
+                child = []
+                stack.append((item, child))
+            else:
+                child = _scrub_scalar(item)
+            if isinstance(target, list):
+                target.append(child)
+            else:
+                target[key] = child
+    return root
 
 
 def redact_episode_payload(payload: dict[str, Any]) -> dict[str, Any]:
@@ -96,6 +137,9 @@ def redact_episode_payload(payload: dict[str, Any]) -> dict[str, Any]:
     redacted["steps"] = steps_copy
     if secrets:
         # Longest-first alternation so a longer secret wins over a shorter prefix.
-        pattern = re.compile("|".join(re.escape(secret) for secret in secrets))
+        # Each secret is fenced by non-word lookarounds so it matches only as a
+        # whole token: a value like "25" does not corrupt "1250".
+        alternation = "|".join(re.escape(secret) for secret in secrets)
+        pattern = re.compile(rf"(?<!\w)(?:{alternation})(?!\w)")
         redacted = _scrub_value(redacted, pattern)
     return redacted

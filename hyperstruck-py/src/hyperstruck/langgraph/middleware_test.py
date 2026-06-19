@@ -9,7 +9,10 @@ from hyperstruck._wire import Episode, ResolvedContext
 from hyperstruck.identity import AgentIdentity
 from hyperstruck.langgraph import middleware as mw_module
 from hyperstruck.langgraph.ledger import LEDGERS, RUN_ID_STATE_KEY
-from hyperstruck.langgraph.middleware import HyperstruckLearningMiddleware
+from hyperstruck.langgraph.middleware import (
+    HyperstruckLearningMiddleware,
+    assert_innermost,
+)
 
 
 class FakeLearningClient:
@@ -145,6 +148,58 @@ async def test_tool_aware_resolve_passes_registered_tools() -> None:
 
 async def _noop(req):
     return "ok"
+
+
+class DrainableClient(FakeLearningClient):
+    """A fake client that records whether the middleware drained/closed it."""
+
+    def __init__(self) -> None:
+        super().__init__()
+        self.drained = 0
+        self.closed = 0
+
+    async def drain(self, timeout: float = 30.0) -> None:
+        self.drained += 1
+
+    async def aclose(self) -> None:
+        self.closed += 1
+
+
+async def test_aclose_drains_the_client() -> None:
+    fake = DrainableClient()
+    mw = HyperstruckLearningMiddleware(agent_id="bot", client=fake)
+    await mw.aclose()
+    assert fake.closed == 1
+
+
+async def test_async_context_drains_on_exit() -> None:
+    fake = DrainableClient()
+    async with HyperstruckLearningMiddleware(agent_id="bot", client=fake) as mw:
+        assert isinstance(mw, HyperstruckLearningMiddleware)
+    assert fake.closed == 1
+
+
+async def test_drain_is_noop_when_client_has_no_drain() -> None:
+    # A custom client without drain/aclose must not raise.
+    fake = FakeLearningClient()
+    mw = HyperstruckLearningMiddleware(agent_id="bot", client=fake)
+    await mw.drain()
+    await mw.aclose()
+
+
+def test_assert_innermost_passes_when_last() -> None:
+    fake = FakeLearningClient()
+    mw = HyperstruckLearningMiddleware(agent_id="bot", client=fake)
+    other = object()
+    assert_innermost([other, mw], mw)  # innermost (last): no raise
+
+
+def test_assert_innermost_raises_when_not_last() -> None:
+    fake = FakeLearningClient()
+    mw = HyperstruckLearningMiddleware(agent_id="bot", client=fake)
+    other = object()
+    with pytest.raises(ValueError, match="innermost"):
+        assert_innermost([mw, other], mw)
 
 
 async def test_per_invoke_identity_override(monkeypatch: pytest.MonkeyPatch) -> None:

@@ -17,6 +17,13 @@ Each ``invoke()`` runs the loop:
   (``reinforce``), both asynchronously so the host's ``invoke()`` is never
   blocked. The platform extracts, derives eligibility, and attributes server-side.
 
+Because the write path is non-blocking, the background deliveries outlive the
+``invoke()`` that scheduled them. In a long-lived server the event loop keeps
+running and they complete on their own. In a short-lived process (a script, a
+one-shot task, a serverless handler) the process can exit before they land, so
+the host must drain them: ``await middleware.aclose()`` (or use the middleware as
+an ``async with`` context). The quickstart shows the pattern.
+
 Design notes mirror the boundary's contract: identity is mandatory at
 registration with a per-invoke override; learning-pipeline failures never break
 the host run; a run that terminates abnormally is never observed (an incomplete
@@ -67,6 +74,12 @@ class MiddlewareStats:
     flight) surfaces cancelled or killed streams: LangGraph fires no end hook on
     cancellation, so such a run is correctly never observed, and the gap between
     ``runs_started`` and ``runs_observed`` makes the skip visible.
+
+    ``runs_observed`` counts runs whose observe and reinforce were *scheduled*
+    without error at invoke end, not deliveries confirmed by the platform. The
+    actual delivery outcome lives on the client (``writes_delivered`` /
+    ``writes_failed``, surfaced on the middleware), since the writes complete in
+    the background after the run returns.
     """
 
     tool_calls: int = 0
@@ -213,6 +226,44 @@ class HyperstruckLearningMiddleware(AgentMiddleware):
             logger.warning("HyperstruckLearningMiddleware: learning capture failed for run %s: %s", ledger.run_id, exc, exc_info=True)
             self.stats.errors += 1
         return None
+
+    # -- lifecycle ---------------------------------------------------------
+
+    @property
+    def writes_delivered(self) -> int | None:
+        """Background writes the client confirmed delivered, if it tracks them."""
+        return getattr(self._client, "writes_delivered", None)
+
+    @property
+    def writes_failed(self) -> int | None:
+        """Background writes the client dropped after retries, if it tracks them."""
+        return getattr(self._client, "writes_failed", None)
+
+    async def drain(self, timeout: float = 30.0) -> None:
+        """Await all in-flight background writes.
+
+        Call before a short-lived process exits, or its scheduled observe and
+        reinforce writes are cancelled at loop teardown and never reach the
+        platform. A long-lived server need not call this; the writes complete as
+        its loop keeps running.
+        """
+        drain = getattr(self._client, "drain", None)
+        if drain is not None:
+            await drain(timeout=timeout)
+
+    async def aclose(self) -> None:
+        """Drain in-flight writes and release the client's resources."""
+        aclose = getattr(self._client, "aclose", None)
+        if aclose is not None:
+            await aclose()
+            return
+        await self.drain()
+
+    async def __aenter__(self) -> HyperstruckLearningMiddleware:
+        return self
+
+    async def __aexit__(self, *exc_info: object) -> None:
+        await self.aclose()
 
     # -- internals ---------------------------------------------------------
 

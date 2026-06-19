@@ -71,6 +71,20 @@ class LearningClient(Protocol):
         """Credit the learnings the run used. Non-blocking."""
         ...
 
+    async def drain(self, timeout: float = 30.0) -> None:
+        """Await any in-flight background writes.
+
+        Part of the contract because the write path is non-blocking: a client that
+        buffers observe/reinforce (like the hosted one) MUST flush here so a
+        short-lived host can drain before exit. A client that writes synchronously
+        has nothing to flush and implements this as a no-op.
+        """
+        ...
+
+    async def aclose(self) -> None:
+        """Drain in-flight writes and release any resources the client holds."""
+        ...
+
 
 class HostedLearningClient:
     """HTTP implementation of :class:`LearningClient` against the platform.
