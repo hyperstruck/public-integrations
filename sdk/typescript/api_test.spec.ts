@@ -15,6 +15,33 @@ import { Configuration } from "./configuration"
 
 const config: Configuration = {}
 
+describe("AdminIdentityApi", () => {
+  let instance: api.AdminIdentityApi
+  beforeEach(function() {
+    instance = new api.AdminIdentityApi(config)
+  });
+
+  test("createIdentityProviderAdminTenantsTenantIdIdentityProviderPost", () => {
+    const body: api.WorkOSOrganizationLinkRequest = undefined
+    const tenantId: any = undefined
+    return expect(instance.createIdentityProviderAdminTenantsTenantIdIdentityProviderPost(body, tenantId, {})).resolves.toBe(null)
+  })
+  test("createMemberAdminTenantsTenantIdMembersPost", () => {
+    const body: api.AdminMembershipRequest = undefined
+    const tenantId: any = undefined
+    return expect(instance.createMemberAdminTenantsTenantIdMembersPost(body, tenantId, {})).resolves.toBe(null)
+  })
+  test("createPortalLinkAdminTenantsTenantIdIdentityProviderPortalLinksPost", () => {
+    const body: api.WorkOSPortalLinkRequest = undefined
+    const tenantId: any = undefined
+    return expect(instance.createPortalLinkAdminTenantsTenantIdIdentityProviderPortalLinksPost(body, tenantId, {})).resolves.toBe(null)
+  })
+  test("workosWebhookWebhooksWorkosPost", () => {
+    const workOSSignature: any = undefined
+    return expect(instance.workosWebhookWebhooksWorkosPost(workOSSignature, {})).resolves.toBe(null)
+  })
+})
+
 describe("AgentsApi", () => {
   let instance: api.AgentsApi
   beforeEach(function() {
@@ -55,6 +82,51 @@ describe("AgentsApi", () => {
     const body: api.AgentUpdateRequest = undefined
     const agentId: any = undefined
     return expect(instance.updateAgentEndpointAgentsAgentIdPatch(body, agentId, {})).resolves.toBe(null)
+  })
+})
+
+describe("AuthApi", () => {
+  let instance: api.AuthApi
+  beforeEach(function() {
+    instance = new api.AuthApi(config)
+  });
+
+  test("logoutAuthLogoutPost", () => {
+    return expect(instance.logoutAuthLogoutPost({})).resolves.toBe(null)
+  })
+  test("meMeGet", () => {
+    return expect(instance.meMeGet({})).resolves.toBe(null)
+  })
+  test("workosCallbackAuthSsoCallbackGet", () => {
+    const code: any = undefined
+    const state: any = undefined
+    return expect(instance.workosCallbackAuthSsoCallbackGet(code, state, {})).resolves.toBe(null)
+  })
+  test("workosLoginAuthSsoLoginGet", () => {
+    const email: any = undefined
+    const tenantHint: any = undefined
+    const returnTo: any = undefined
+    return expect(instance.workosLoginAuthSsoLoginGet(email, tenantHint, returnTo, {})).resolves.toBe(null)
+  })
+})
+
+describe("LearningBoundaryApi", () => {
+  let instance: api.LearningBoundaryApi
+  beforeEach(function() {
+    instance = new api.LearningBoundaryApi(config)
+  });
+
+  test("observeEndpointV1ObservePost", () => {
+    const body: api.ObserveRequest = undefined
+    return expect(instance.observeEndpointV1ObservePost(body, {})).resolves.toBe(null)
+  })
+  test("reinforceEndpointV1ReinforcePost", () => {
+    const body: api.ReinforceRequest = undefined
+    return expect(instance.reinforceEndpointV1ReinforcePost(body, {})).resolves.toBe(null)
+  })
+  test("resolveEndpointV1ResolvePost", () => {
+    const body: api.ResolveRequest = undefined
+    return expect(instance.resolveEndpointV1ResolvePost(body, {})).resolves.toBe(null)
   })
 })
 

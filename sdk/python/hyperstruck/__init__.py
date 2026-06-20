@@ -15,7 +15,10 @@
 from __future__ import absolute_import
 
 # import apis into sdk package
+from hyperstruck.api.admin_identity_api import AdminIdentityApi
 from hyperstruck.api.agents_api import AgentsApi
+from hyperstruck.api.auth_api import AuthApi
+from hyperstruck.api.learning_boundary_api import LearningBoundaryApi
 from hyperstruck.api.learnings_api import LearningsApi
 from hyperstruck.api.plans_api import PlansApi
 from hyperstruck.api.provider_credentials_api import ProviderCredentialsApi
@@ -26,6 +29,8 @@ from hyperstruck.api.usage_api import UsageApi
 from hyperstruck.api_client import ApiClient
 from hyperstruck.configuration import Configuration
 # import models into sdk package
+from hyperstruck.models.admin_membership_request import AdminMembershipRequest
+from hyperstruck.models.admin_membership_response import AdminMembershipResponse
 from hyperstruck.models.agent_core_config_input import AgentCoreConfigInput
 from hyperstruck.models.agent_core_config_output import AgentCoreConfigOutput
 from hyperstruck.models.agent_core_config_patch import AgentCoreConfigPatch
@@ -34,9 +39,11 @@ from hyperstruck.models.agent_list_response import AgentListResponse
 from hyperstruck.models.agent_llm_credential_summary import AgentLlmCredentialSummary
 from hyperstruck.models.agent_response import AgentResponse
 from hyperstruck.models.agent_update_request import AgentUpdateRequest
+from hyperstruck.models.boundary_accepted_response import BoundaryAcceptedResponse
 from hyperstruck.models.candidate_learning_response import CandidateLearningResponse
 from hyperstruck.models.decision_type import DecisionType
 from hyperstruck.models.delete_learnings_response import DeleteLearningsResponse
+from hyperstruck.models.episode_model import EpisodeModel
 from hyperstruck.models.goal_run_accepted_response import GoalRunAcceptedResponse
 from hyperstruck.models.goal_run_request import GoalRunRequest
 from hyperstruck.models.guardrail_action import GuardrailAction
@@ -45,6 +52,7 @@ from hyperstruck.models.guardrails_config_input import GuardrailsConfigInput
 from hyperstruck.models.guardrails_config_output import GuardrailsConfigOutput
 from hyperstruck.models.http_validation_error import HTTPValidationError
 from hyperstruck.models.hitl_policy_preset import HitlPolicyPreset
+from hyperstruck.models.identity_user_model import IdentityUserModel
 from hyperstruck.models.learning_instance_evidence_request import LearningInstanceEvidenceRequest
 from hyperstruck.models.learning_instance_evidence_response import LearningInstanceEvidenceResponse
 from hyperstruck.models.learning_response import LearningResponse
@@ -56,8 +64,12 @@ from hyperstruck.models.llm_credential_source import LlmCredentialSource
 from hyperstruck.models.mcp_auth_config import MCPAuthConfig
 from hyperstruck.models.mcp_connection_config import MCPConnectionConfig
 from hyperstruck.models.mcp_server_config import MCPServerConfig
+from hyperstruck.models.me_response import MeResponse
+from hyperstruck.models.membership_model import MembershipModel
 from hyperstruck.models.model_provider import ModelProvider
 from hyperstruck.models.multi_agent_plan_search_request import MultiAgentPlanSearchRequest
+from hyperstruck.models.observe_request import ObserveRequest
+from hyperstruck.models.outcome_model import OutcomeModel
 from hyperstruck.models.plan_milestone_response import PlanMilestoneResponse
 from hyperstruck.models.plan_response import PlanResponse
 from hyperstruck.models.plan_step_response import PlanStepResponse
@@ -71,6 +83,9 @@ from hyperstruck.models.provider_credential_update_request import ProviderCreden
 from hyperstruck.models.reasoning_tier import ReasoningTier
 from hyperstruck.models.reinforce_learning_request import ReinforceLearningRequest
 from hyperstruck.models.reinforce_learning_response import ReinforceLearningResponse
+from hyperstruck.models.reinforce_request import ReinforceRequest
+from hyperstruck.models.resolve_request import ResolveRequest
+from hyperstruck.models.resolve_response import ResolveResponse
 from hyperstruck.models.resume_run_request import ResumeRunRequest
 from hyperstruck.models.run_list_response import RunListResponse
 from hyperstruck.models.run_response import RunResponse
@@ -83,8 +98,11 @@ from hyperstruck.models.session_response import SessionResponse
 from hyperstruck.models.similar_plan_failure_response import SimilarPlanFailureResponse
 from hyperstruck.models.similar_plan_hit_response import SimilarPlanHitResponse
 from hyperstruck.models.similar_plans_response import SimilarPlansResponse
+from hyperstruck.models.step_model import StepModel
 from hyperstruck.models.store_learning_accepted_response import StoreLearningAcceptedResponse
 from hyperstruck.models.store_learning_request import StoreLearningRequest
+from hyperstruck.models.tenant_model import TenantModel
+from hyperstruck.models.tool_spec_model import ToolSpecModel
 from hyperstruck.models.usage_learning_aggregates import UsageLearningAggregates
 from hyperstruck.models.usage_llm_breakdown_response import UsageLlmBreakdownResponse
 from hyperstruck.models.usage_llm_call_item import UsageLlmCallItem
@@ -98,3 +116,7 @@ from hyperstruck.models.usage_run_list_response import UsageRunListResponse
 from hyperstruck.models.usage_summary_response import UsageSummaryResponse
 from hyperstruck.models.usage_time_window import UsageTimeWindow
 from hyperstruck.models.validation_error import ValidationError
+from hyperstruck.models.work_os_organization_link_request import WorkOSOrganizationLinkRequest
+from hyperstruck.models.work_os_organization_link_response import WorkOSOrganizationLinkResponse
+from hyperstruck.models.work_os_portal_link_request import WorkOSPortalLinkRequest
+from hyperstruck.models.work_os_portal_link_response import WorkOSPortalLinkResponse

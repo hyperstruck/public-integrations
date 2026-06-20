@@ -78,6 +78,68 @@ export class RequiredError extends Error {
 }
 
 /**
+ * 
+ * @export
+ * @interface AdminMembershipRequest
+ */
+export interface AdminMembershipRequest {
+    /**
+     * 
+     * @type {any}
+     * @memberof AdminMembershipRequest
+     */
+    email: any;
+    /**
+     * 
+     * @type {any}
+     * @memberof AdminMembershipRequest
+     */
+    role: any;
+    /**
+     * 
+     * @type {any}
+     * @memberof AdminMembershipRequest
+     */
+    displayName?: any;
+    /**
+     * 
+     * @type {any}
+     * @memberof AdminMembershipRequest
+     */
+    status?: any;
+}
+/**
+ * 
+ * @export
+ * @interface AdminMembershipResponse
+ */
+export interface AdminMembershipResponse {
+    /**
+     * 
+     * @type {any}
+     * @memberof AdminMembershipResponse
+     */
+    tenantId: any;
+    /**
+     * 
+     * @type {any}
+     * @memberof AdminMembershipResponse
+     */
+    identityUserId: any;
+    /**
+     * 
+     * @type {any}
+     * @memberof AdminMembershipResponse
+     */
+    role: any;
+    /**
+     * 
+     * @type {any}
+     * @memberof AdminMembershipResponse
+     */
+    status: any;
+}
+/**
  * Fields persisted in `agents.config_jsonb`, aligned with `AgentConfig`.
  * @export
  * @interface AgentCoreConfigInput
@@ -560,6 +622,25 @@ export interface AgentUpdateRequest {
     coreConfig?: any;
 }
 /**
+ * Acknowledgement that a write was accepted for background processing.
+ * @export
+ * @interface BoundaryAcceptedResponse
+ */
+export interface BoundaryAcceptedResponse {
+    /**
+     * 
+     * @type {any}
+     * @memberof BoundaryAcceptedResponse
+     */
+    status?: any;
+    /**
+     * 
+     * @type {any}
+     * @memberof BoundaryAcceptedResponse
+     */
+    runId: any;
+}
+/**
  * Learning candidate attached to a plan retrieval result.
  * @export
  * @interface CandidateLearningResponse
@@ -615,6 +696,49 @@ export interface DeleteLearningsResponse {
      * @memberof DeleteLearningsResponse
      */
     deletedCount: any;
+}
+/**
+ * A finished foreign run, the unit of the write path.
+ * @export
+ * @interface EpisodeModel
+ */
+export interface EpisodeModel {
+    /**
+     * 
+     * @type {any}
+     * @memberof EpisodeModel
+     */
+    runId: any;
+    /**
+     * 
+     * @type {any}
+     * @memberof EpisodeModel
+     */
+    goal: any;
+    /**
+     * 
+     * @type {any}
+     * @memberof EpisodeModel
+     */
+    steps?: any;
+    /**
+     * 
+     * @type {OutcomeModel}
+     * @memberof EpisodeModel
+     */
+    outcome: OutcomeModel;
+    /**
+     * 
+     * @type {any}
+     * @memberof EpisodeModel
+     */
+    sourceFramework?: any;
+    /**
+     * 
+     * @type {any}
+     * @memberof EpisodeModel
+     */
+    threadId?: any;
 }
 /**
  * Accepted response for an asynchronously dispatched goal run.
@@ -784,6 +908,31 @@ export interface HTTPValidationError {
 export enum HitlPolicyPreset {
     Autonomy = <any> 'autonomy',
     MilestoneOnly = <any> 'milestone_only'
+}
+/**
+ * 
+ * @export
+ * @interface IdentityUserModel
+ */
+export interface IdentityUserModel {
+    /**
+     * 
+     * @type {any}
+     * @memberof IdentityUserModel
+     */
+    id: any;
+    /**
+     * 
+     * @type {any}
+     * @memberof IdentityUserModel
+     */
+    email: any;
+    /**
+     * 
+     * @type {any}
+     * @memberof IdentityUserModel
+     */
+    displayName?: any;
 }
 /**
  * Specific evidence instance that supports a stored learning.
@@ -998,13 +1147,13 @@ export interface LearningSearchResponse {
  */
 export interface LearningStanding {
     /**
-     * Value when applied, 0.0–1.0 (application-outcome EMA).
+     * Value when applied, 0.0-1.0 (application-outcome EMA).
      * @type {any}
      * @memberof LearningStanding
      */
     utility: any;
     /**
-     * How established, 0.0–1.0 (Wilson lower bound over independent corroborations).
+     * How established, 0.0-1.0 (Wilson lower bound over independent corroborations).
      * @type {any}
      * @memberof LearningStanding
      */
@@ -1156,6 +1305,80 @@ export interface MCPServerConfig {
     authTokenEnv?: any;
 }
 /**
+ * 
+ * @export
+ * @interface MeResponse
+ */
+export interface MeResponse {
+    /**
+     * 
+     * @type {any}
+     * @memberof MeResponse
+     */
+    user?: any;
+    /**
+     * 
+     * @type {any}
+     * @memberof MeResponse
+     */
+    activeTenant?: any;
+    /**
+     * 
+     * @type {any}
+     * @memberof MeResponse
+     */
+    memberships?: any;
+    /**
+     * 
+     * @type {any}
+     * @memberof MeResponse
+     */
+    role?: any;
+    /**
+     * 
+     * @type {any}
+     * @memberof MeResponse
+     */
+    scopes?: any;
+    /**
+     * 
+     * @type {any}
+     * @memberof MeResponse
+     */
+    authMethod: any;
+}
+/**
+ * 
+ * @export
+ * @interface MembershipModel
+ */
+export interface MembershipModel {
+    /**
+     * 
+     * @type {any}
+     * @memberof MembershipModel
+     */
+    tenantId: any;
+    /**
+     * 
+     * @type {any}
+     * @memberof MembershipModel
+     */
+    tenantName: any;
+    /**
+     * 
+     * @type {any}
+     * @memberof MembershipModel
+     */
+    role: any;
+    /**
+     * 
+     * @type {any}
+     * @memberof MembershipModel
+     */
+    status: any;
+}
+/**
  * Supported LLM providers.  Shared type used by both factory and config to ensure consistency. When adding a new provider, add it here and update create_model().
  * @export
  * @enum {string}
@@ -1193,6 +1416,62 @@ export interface MultiAgentPlanSearchRequest {
      * @memberof MultiAgentPlanSearchRequest
      */
     limit?: any;
+}
+/**
+ * Submit a finished episode for server-side extraction.
+ * @export
+ * @interface ObserveRequest
+ */
+export interface ObserveRequest {
+    /**
+     * 
+     * @type {any}
+     * @memberof ObserveRequest
+     */
+    agentId: any;
+    /**
+     * 
+     * @type {any}
+     * @memberof ObserveRequest
+     */
+    orgId?: any;
+    /**
+     * 
+     * @type {EpisodeModel}
+     * @memberof ObserveRequest
+     */
+    episode: EpisodeModel;
+}
+/**
+ * The run's terminal result.
+ * @export
+ * @interface OutcomeModel
+ */
+export interface OutcomeModel {
+    /**
+     * 
+     * @type {any}
+     * @memberof OutcomeModel
+     */
+    isSuccess: any;
+    /**
+     * 
+     * @type {any}
+     * @memberof OutcomeModel
+     */
+    totalSteps?: any;
+    /**
+     * 
+     * @type {any}
+     * @memberof OutcomeModel
+     */
+    completedSteps?: any;
+    /**
+     * 
+     * @type {any}
+     * @memberof OutcomeModel
+     */
+    failedSteps?: any;
 }
 /**
  * Milestone in a hydrated plan.
@@ -1630,6 +1909,105 @@ export interface ReinforceLearningResponse {
     timesHelpful: any;
 }
 /**
+ * Credit the learnings a run used.
+ * @export
+ * @interface ReinforceRequest
+ */
+export interface ReinforceRequest {
+    /**
+     * 
+     * @type {any}
+     * @memberof ReinforceRequest
+     */
+    agentId: any;
+    /**
+     * 
+     * @type {any}
+     * @memberof ReinforceRequest
+     */
+    orgId?: any;
+    /**
+     * 
+     * @type {EpisodeModel}
+     * @memberof ReinforceRequest
+     */
+    episode: EpisodeModel;
+    /**
+     * 
+     * @type {any}
+     * @memberof ReinforceRequest
+     */
+    isOrgPromotionAllowed?: any;
+}
+/**
+ * Ask for the learnings bound to a goal at run start.
+ * @export
+ * @interface ResolveRequest
+ */
+export interface ResolveRequest {
+    /**
+     * The customer's agent identifier (a string).
+     * @type {any}
+     * @memberof ResolveRequest
+     */
+    agentId: any;
+    /**
+     * 
+     * @type {any}
+     * @memberof ResolveRequest
+     */
+    orgId?: any;
+    /**
+     * 
+     * @type {any}
+     * @memberof ResolveRequest
+     */
+    runId: any;
+    /**
+     * 
+     * @type {any}
+     * @memberof ResolveRequest
+     */
+    goal: any;
+    /**
+     * 
+     * @type {any}
+     * @memberof ResolveRequest
+     */
+    availableTools?: any;
+    /**
+     * 
+     * @type {any}
+     * @memberof ResolveRequest
+     */
+    maxLearnings?: any;
+    /**
+     * 
+     * @type {any}
+     * @memberof ResolveRequest
+     */
+    modelContextWindow?: any;
+}
+/**
+ * The bound learnings: the rendered block plus the offered IDs.
+ * @export
+ * @interface ResolveResponse
+ */
+export interface ResolveResponse {
+    /**
+     * 
+     * @type {any}
+     * @memberof ResolveResponse
+     */
+    injectedText?: any;
+    /**
+     * 
+     * @type {any}
+     * @memberof ResolveResponse
+     */
+    offeredLearningIds?: any;
+}
+/**
  * Request body for POST /runs/{run_id}/resume (HITL suspension resume).
  * @export
  * @interface ResumeRunRequest
@@ -2027,6 +2405,55 @@ export interface SimilarPlansResponse {
     partialFailures?: any;
 }
 /**
+ * One executed step: a decision joined to its outcome.
+ * @export
+ * @interface StepModel
+ */
+export interface StepModel {
+    /**
+     * 
+     * @type {any}
+     * @memberof StepModel
+     */
+    id: any;
+    /**
+     * 
+     * @type {any}
+     * @memberof StepModel
+     */
+    name: any;
+    /**
+     * 
+     * @type {any}
+     * @memberof StepModel
+     */
+    args?: any;
+    /**
+     * 
+     * @type {any}
+     * @memberof StepModel
+     */
+    status?: any;
+    /**
+     * 
+     * @type {any}
+     * @memberof StepModel
+     */
+    result?: any;
+    /**
+     * 
+     * @type {any}
+     * @memberof StepModel
+     */
+    error?: any;
+    /**
+     * 
+     * @type {any}
+     * @memberof StepModel
+     */
+    declaredSensitivity?: any;
+}
+/**
  * Accepted response for asynchronous learning storage.
  * @export
  * @interface StoreLearningAcceptedResponse
@@ -2058,7 +2485,7 @@ export interface StoreLearningRequest {
      */
     content: any;
     /**
-     * Initial utility, the curator's belief in how useful this learning is when applied (0.0–1.0). Establishedness is earned through corroboration, not set here.
+     * Initial utility, the curator's belief in how useful this learning is when applied (0.0-1.0). Establishedness is earned through corroboration, not set here.
      * @type {any}
      * @memberof StoreLearningRequest
      */
@@ -2093,6 +2520,44 @@ export interface StoreLearningRequest {
      * @memberof StoreLearningRequest
      */
     instances?: any;
+}
+/**
+ * 
+ * @export
+ * @interface TenantModel
+ */
+export interface TenantModel {
+    /**
+     * 
+     * @type {any}
+     * @memberof TenantModel
+     */
+    id: any;
+    /**
+     * 
+     * @type {any}
+     * @memberof TenantModel
+     */
+    name: any;
+}
+/**
+ * A tool the agent had available, for tool-aware retrieval.
+ * @export
+ * @interface ToolSpecModel
+ */
+export interface ToolSpecModel {
+    /**
+     * 
+     * @type {any}
+     * @memberof ToolSpecModel
+     */
+    name: any;
+    /**
+     * 
+     * @type {any}
+     * @memberof ToolSpecModel
+     */
+    description?: any;
 }
 /**
  * Rollups from ``usage_daily.learning_count`` over UTC dates.
@@ -2656,6 +3121,438 @@ export interface ValidationError {
      * @memberof ValidationError
      */
     ctx?: any;
+}
+/**
+ * 
+ * @export
+ * @interface WorkOSOrganizationLinkRequest
+ */
+export interface WorkOSOrganizationLinkRequest {
+    /**
+     * 
+     * @type {any}
+     * @memberof WorkOSOrganizationLinkRequest
+     */
+    customerName: any;
+    /**
+     * 
+     * @type {any}
+     * @memberof WorkOSOrganizationLinkRequest
+     */
+    domains?: any;
+    /**
+     * 
+     * @type {any}
+     * @memberof WorkOSOrganizationLinkRequest
+     */
+    jitProvisioningEnabled?: any;
+}
+/**
+ * 
+ * @export
+ * @interface WorkOSOrganizationLinkResponse
+ */
+export interface WorkOSOrganizationLinkResponse {
+    /**
+     * 
+     * @type {any}
+     * @memberof WorkOSOrganizationLinkResponse
+     */
+    tenantId: any;
+    /**
+     * 
+     * @type {any}
+     * @memberof WorkOSOrganizationLinkResponse
+     */
+    providerOrganizationId: any;
+    /**
+     * 
+     * @type {any}
+     * @memberof WorkOSOrganizationLinkResponse
+     */
+    status: any;
+}
+/**
+ * 
+ * @export
+ * @interface WorkOSPortalLinkRequest
+ */
+export interface WorkOSPortalLinkRequest {
+    /**
+     * 
+     * @type {any}
+     * @memberof WorkOSPortalLinkRequest
+     */
+    intent: any;
+    /**
+     * 
+     * @type {any}
+     * @memberof WorkOSPortalLinkRequest
+     */
+    returnUrl?: any;
+}
+/**
+ * 
+ * @export
+ * @interface WorkOSPortalLinkResponse
+ */
+export interface WorkOSPortalLinkResponse {
+    /**
+     * 
+     * @type {any}
+     * @memberof WorkOSPortalLinkResponse
+     */
+    link: any;
+}
+/**
+ * AdminIdentityApi - fetch parameter creator
+ * @export
+ */
+export const AdminIdentityApiFetchParamCreator = function (configuration?: Configuration) {
+    return {
+        /**
+         * Create a WorkOS Organization for the tenant and map it.  Requires the `identity:admin:write` scope. Creates a WorkOS Organization with `external_id = tenant_id`, then stores the mapping (status `pending_setup`) through admin impersonation. Creates real WorkOS state.
+         * @summary Create Identity Provider
+         * @param {WorkOSOrganizationLinkRequest} body 
+         * @param {any} tenantId 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        createIdentityProviderAdminTenantsTenantIdIdentityProviderPost(body: WorkOSOrganizationLinkRequest, tenantId: any, options: any = {}): FetchArgs {
+            // verify required parameter 'body' is not null or undefined
+            if (body === null || body === undefined) {
+                throw new RequiredError('body','Required parameter body was null or undefined when calling createIdentityProviderAdminTenantsTenantIdIdentityProviderPost.');
+            }
+            // verify required parameter 'tenantId' is not null or undefined
+            if (tenantId === null || tenantId === undefined) {
+                throw new RequiredError('tenantId','Required parameter tenantId was null or undefined when calling createIdentityProviderAdminTenantsTenantIdIdentityProviderPost.');
+            }
+            const localVarPath = `/admin/tenants/{tenant_id}/identity-provider`
+                .replace(`{${"tenant_id"}}`, encodeURIComponent(String(tenantId)));
+            const localVarUrlObj = url.parse(localVarPath, true);
+            const localVarRequestOptions = Object.assign({ method: 'POST' }, options);
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            localVarHeaderParameter['Content-Type'] = 'application/json';
+
+            localVarUrlObj.query = Object.assign({}, localVarUrlObj.query, localVarQueryParameter, options.query);
+            // fix override query string Detail: https://stackoverflow.com/a/7517673/1077943
+            localVarUrlObj.search = null;
+            localVarRequestOptions.headers = Object.assign({}, localVarHeaderParameter, options.headers);
+            const needsSerialization = (<any>"WorkOSOrganizationLinkRequest" !== "string") || localVarRequestOptions.headers['Content-Type'] === 'application/json';
+            localVarRequestOptions.body =  needsSerialization ? JSON.stringify(body || {}) : (body || "");
+
+            return {
+                url: url.format(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * Manually assign a tenant membership (admin-provisioned).  Requires the `identity:admin:write` scope. Creates the identity user by email if needed and upserts the membership (`provisioning_source = 'hyperstruck_admin'`) through admin impersonation. Used to seed the first owner before SSO, or whenever JIT is disabled.
+         * @summary Create Member
+         * @param {AdminMembershipRequest} body 
+         * @param {any} tenantId 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        createMemberAdminTenantsTenantIdMembersPost(body: AdminMembershipRequest, tenantId: any, options: any = {}): FetchArgs {
+            // verify required parameter 'body' is not null or undefined
+            if (body === null || body === undefined) {
+                throw new RequiredError('body','Required parameter body was null or undefined when calling createMemberAdminTenantsTenantIdMembersPost.');
+            }
+            // verify required parameter 'tenantId' is not null or undefined
+            if (tenantId === null || tenantId === undefined) {
+                throw new RequiredError('tenantId','Required parameter tenantId was null or undefined when calling createMemberAdminTenantsTenantIdMembersPost.');
+            }
+            const localVarPath = `/admin/tenants/{tenant_id}/members`
+                .replace(`{${"tenant_id"}}`, encodeURIComponent(String(tenantId)));
+            const localVarUrlObj = url.parse(localVarPath, true);
+            const localVarRequestOptions = Object.assign({ method: 'POST' }, options);
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            localVarHeaderParameter['Content-Type'] = 'application/json';
+
+            localVarUrlObj.query = Object.assign({}, localVarUrlObj.query, localVarQueryParameter, options.query);
+            // fix override query string Detail: https://stackoverflow.com/a/7517673/1077943
+            localVarUrlObj.search = null;
+            localVarRequestOptions.headers = Object.assign({}, localVarHeaderParameter, options.headers);
+            const needsSerialization = (<any>"AdminMembershipRequest" !== "string") || localVarRequestOptions.headers['Content-Type'] === 'application/json';
+            localVarRequestOptions.body =  needsSerialization ? JSON.stringify(body || {}) : (body || "");
+
+            return {
+                url: url.format(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * Generate a WorkOS Admin Portal link for the tenant's organization.  Requires the `identity:admin:write` scope. Returns a link to hand customer IT for domain verification / SSO setup (`intent` = `sso` or `domain_verification`). Responds 404 if the tenant has no WorkOS organization mapping yet.
+         * @summary Create Portal Link
+         * @param {WorkOSPortalLinkRequest} body 
+         * @param {any} tenantId 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        createPortalLinkAdminTenantsTenantIdIdentityProviderPortalLinksPost(body: WorkOSPortalLinkRequest, tenantId: any, options: any = {}): FetchArgs {
+            // verify required parameter 'body' is not null or undefined
+            if (body === null || body === undefined) {
+                throw new RequiredError('body','Required parameter body was null or undefined when calling createPortalLinkAdminTenantsTenantIdIdentityProviderPortalLinksPost.');
+            }
+            // verify required parameter 'tenantId' is not null or undefined
+            if (tenantId === null || tenantId === undefined) {
+                throw new RequiredError('tenantId','Required parameter tenantId was null or undefined when calling createPortalLinkAdminTenantsTenantIdIdentityProviderPortalLinksPost.');
+            }
+            const localVarPath = `/admin/tenants/{tenant_id}/identity-provider/portal-links`
+                .replace(`{${"tenant_id"}}`, encodeURIComponent(String(tenantId)));
+            const localVarUrlObj = url.parse(localVarPath, true);
+            const localVarRequestOptions = Object.assign({ method: 'POST' }, options);
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            localVarHeaderParameter['Content-Type'] = 'application/json';
+
+            localVarUrlObj.query = Object.assign({}, localVarUrlObj.query, localVarQueryParameter, options.query);
+            // fix override query string Detail: https://stackoverflow.com/a/7517673/1077943
+            localVarUrlObj.search = null;
+            localVarRequestOptions.headers = Object.assign({}, localVarHeaderParameter, options.headers);
+            const needsSerialization = (<any>"WorkOSPortalLinkRequest" !== "string") || localVarRequestOptions.headers['Content-Type'] === 'application/json';
+            localVarRequestOptions.body =  needsSerialization ? JSON.stringify(body || {}) : (body || "");
+
+            return {
+                url: url.format(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * Receive and verify WorkOS webhook events.  Public but signature-verified via the `WorkOS-Signature` header against `HYPER_WORKOS__WEBHOOK_SECRET`. Reconciles provider connection status for an already-mapped organization only; never grants tenant access on its own.
+         * @summary Workos Webhook
+         * @param {any} [workOSSignature] 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        workosWebhookWebhooksWorkosPost(workOSSignature?: any, options: any = {}): FetchArgs {
+            const localVarPath = `/webhooks/workos`;
+            const localVarUrlObj = url.parse(localVarPath, true);
+            const localVarRequestOptions = Object.assign({ method: 'POST' }, options);
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            if (workOSSignature !== undefined && workOSSignature !== null) {
+                localVarHeaderParameter['WorkOS-Signature'] = String(workOSSignature);
+            }
+
+            localVarUrlObj.query = Object.assign({}, localVarUrlObj.query, localVarQueryParameter, options.query);
+            // fix override query string Detail: https://stackoverflow.com/a/7517673/1077943
+            localVarUrlObj.search = null;
+            localVarRequestOptions.headers = Object.assign({}, localVarHeaderParameter, options.headers);
+
+            return {
+                url: url.format(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+    }
+};
+
+/**
+ * AdminIdentityApi - functional programming interface
+ * @export
+ */
+export const AdminIdentityApiFp = function(configuration?: Configuration) {
+    return {
+        /**
+         * Create a WorkOS Organization for the tenant and map it.  Requires the `identity:admin:write` scope. Creates a WorkOS Organization with `external_id = tenant_id`, then stores the mapping (status `pending_setup`) through admin impersonation. Creates real WorkOS state.
+         * @summary Create Identity Provider
+         * @param {WorkOSOrganizationLinkRequest} body 
+         * @param {any} tenantId 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        createIdentityProviderAdminTenantsTenantIdIdentityProviderPost(body: WorkOSOrganizationLinkRequest, tenantId: any, options?: any): (fetch?: FetchAPI, basePath?: string) => Promise<WorkOSOrganizationLinkResponse> {
+            const localVarFetchArgs = AdminIdentityApiFetchParamCreator(configuration).createIdentityProviderAdminTenantsTenantIdIdentityProviderPost(body, tenantId, options);
+            return (fetch: FetchAPI = isomorphicFetch, basePath: string = BASE_PATH) => {
+                return fetch(basePath + localVarFetchArgs.url, localVarFetchArgs.options).then((response) => {
+                    if (response.status >= 200 && response.status < 300) {
+                        return response.json();
+                    } else {
+                        throw response;
+                    }
+                });
+            };
+        },
+        /**
+         * Manually assign a tenant membership (admin-provisioned).  Requires the `identity:admin:write` scope. Creates the identity user by email if needed and upserts the membership (`provisioning_source = 'hyperstruck_admin'`) through admin impersonation. Used to seed the first owner before SSO, or whenever JIT is disabled.
+         * @summary Create Member
+         * @param {AdminMembershipRequest} body 
+         * @param {any} tenantId 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        createMemberAdminTenantsTenantIdMembersPost(body: AdminMembershipRequest, tenantId: any, options?: any): (fetch?: FetchAPI, basePath?: string) => Promise<AdminMembershipResponse> {
+            const localVarFetchArgs = AdminIdentityApiFetchParamCreator(configuration).createMemberAdminTenantsTenantIdMembersPost(body, tenantId, options);
+            return (fetch: FetchAPI = isomorphicFetch, basePath: string = BASE_PATH) => {
+                return fetch(basePath + localVarFetchArgs.url, localVarFetchArgs.options).then((response) => {
+                    if (response.status >= 200 && response.status < 300) {
+                        return response.json();
+                    } else {
+                        throw response;
+                    }
+                });
+            };
+        },
+        /**
+         * Generate a WorkOS Admin Portal link for the tenant's organization.  Requires the `identity:admin:write` scope. Returns a link to hand customer IT for domain verification / SSO setup (`intent` = `sso` or `domain_verification`). Responds 404 if the tenant has no WorkOS organization mapping yet.
+         * @summary Create Portal Link
+         * @param {WorkOSPortalLinkRequest} body 
+         * @param {any} tenantId 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        createPortalLinkAdminTenantsTenantIdIdentityProviderPortalLinksPost(body: WorkOSPortalLinkRequest, tenantId: any, options?: any): (fetch?: FetchAPI, basePath?: string) => Promise<WorkOSPortalLinkResponse> {
+            const localVarFetchArgs = AdminIdentityApiFetchParamCreator(configuration).createPortalLinkAdminTenantsTenantIdIdentityProviderPortalLinksPost(body, tenantId, options);
+            return (fetch: FetchAPI = isomorphicFetch, basePath: string = BASE_PATH) => {
+                return fetch(basePath + localVarFetchArgs.url, localVarFetchArgs.options).then((response) => {
+                    if (response.status >= 200 && response.status < 300) {
+                        return response.json();
+                    } else {
+                        throw response;
+                    }
+                });
+            };
+        },
+        /**
+         * Receive and verify WorkOS webhook events.  Public but signature-verified via the `WorkOS-Signature` header against `HYPER_WORKOS__WEBHOOK_SECRET`. Reconciles provider connection status for an already-mapped organization only; never grants tenant access on its own.
+         * @summary Workos Webhook
+         * @param {any} [workOSSignature] 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        workosWebhookWebhooksWorkosPost(workOSSignature?: any, options?: any): (fetch?: FetchAPI, basePath?: string) => Promise<any> {
+            const localVarFetchArgs = AdminIdentityApiFetchParamCreator(configuration).workosWebhookWebhooksWorkosPost(workOSSignature, options);
+            return (fetch: FetchAPI = isomorphicFetch, basePath: string = BASE_PATH) => {
+                return fetch(basePath + localVarFetchArgs.url, localVarFetchArgs.options).then((response) => {
+                    if (response.status >= 200 && response.status < 300) {
+                        return response.json();
+                    } else {
+                        throw response;
+                    }
+                });
+            };
+        },
+    }
+};
+
+/**
+ * AdminIdentityApi - factory interface
+ * @export
+ */
+export const AdminIdentityApiFactory = function (configuration?: Configuration, fetch?: FetchAPI, basePath?: string) {
+    return {
+        /**
+         * Create a WorkOS Organization for the tenant and map it.  Requires the `identity:admin:write` scope. Creates a WorkOS Organization with `external_id = tenant_id`, then stores the mapping (status `pending_setup`) through admin impersonation. Creates real WorkOS state.
+         * @summary Create Identity Provider
+         * @param {WorkOSOrganizationLinkRequest} body 
+         * @param {any} tenantId 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        createIdentityProviderAdminTenantsTenantIdIdentityProviderPost(body: WorkOSOrganizationLinkRequest, tenantId: any, options?: any) {
+            return AdminIdentityApiFp(configuration).createIdentityProviderAdminTenantsTenantIdIdentityProviderPost(body, tenantId, options)(fetch, basePath);
+        },
+        /**
+         * Manually assign a tenant membership (admin-provisioned).  Requires the `identity:admin:write` scope. Creates the identity user by email if needed and upserts the membership (`provisioning_source = 'hyperstruck_admin'`) through admin impersonation. Used to seed the first owner before SSO, or whenever JIT is disabled.
+         * @summary Create Member
+         * @param {AdminMembershipRequest} body 
+         * @param {any} tenantId 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        createMemberAdminTenantsTenantIdMembersPost(body: AdminMembershipRequest, tenantId: any, options?: any) {
+            return AdminIdentityApiFp(configuration).createMemberAdminTenantsTenantIdMembersPost(body, tenantId, options)(fetch, basePath);
+        },
+        /**
+         * Generate a WorkOS Admin Portal link for the tenant's organization.  Requires the `identity:admin:write` scope. Returns a link to hand customer IT for domain verification / SSO setup (`intent` = `sso` or `domain_verification`). Responds 404 if the tenant has no WorkOS organization mapping yet.
+         * @summary Create Portal Link
+         * @param {WorkOSPortalLinkRequest} body 
+         * @param {any} tenantId 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        createPortalLinkAdminTenantsTenantIdIdentityProviderPortalLinksPost(body: WorkOSPortalLinkRequest, tenantId: any, options?: any) {
+            return AdminIdentityApiFp(configuration).createPortalLinkAdminTenantsTenantIdIdentityProviderPortalLinksPost(body, tenantId, options)(fetch, basePath);
+        },
+        /**
+         * Receive and verify WorkOS webhook events.  Public but signature-verified via the `WorkOS-Signature` header against `HYPER_WORKOS__WEBHOOK_SECRET`. Reconciles provider connection status for an already-mapped organization only; never grants tenant access on its own.
+         * @summary Workos Webhook
+         * @param {any} [workOSSignature] 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        workosWebhookWebhooksWorkosPost(workOSSignature?: any, options?: any) {
+            return AdminIdentityApiFp(configuration).workosWebhookWebhooksWorkosPost(workOSSignature, options)(fetch, basePath);
+        },
+    };
+};
+
+/**
+ * AdminIdentityApi - object-oriented interface
+ * @export
+ * @class AdminIdentityApi
+ * @extends {BaseAPI}
+ */
+export class AdminIdentityApi extends BaseAPI {
+    /**
+     * Create a WorkOS Organization for the tenant and map it.  Requires the `identity:admin:write` scope. Creates a WorkOS Organization with `external_id = tenant_id`, then stores the mapping (status `pending_setup`) through admin impersonation. Creates real WorkOS state.
+     * @summary Create Identity Provider
+     * @param {WorkOSOrganizationLinkRequest} body 
+     * @param {any} tenantId 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof AdminIdentityApi
+     */
+    public createIdentityProviderAdminTenantsTenantIdIdentityProviderPost(body: WorkOSOrganizationLinkRequest, tenantId: any, options?: any) {
+        return AdminIdentityApiFp(this.configuration).createIdentityProviderAdminTenantsTenantIdIdentityProviderPost(body, tenantId, options)(this.fetch, this.basePath);
+    }
+
+    /**
+     * Manually assign a tenant membership (admin-provisioned).  Requires the `identity:admin:write` scope. Creates the identity user by email if needed and upserts the membership (`provisioning_source = 'hyperstruck_admin'`) through admin impersonation. Used to seed the first owner before SSO, or whenever JIT is disabled.
+     * @summary Create Member
+     * @param {AdminMembershipRequest} body 
+     * @param {any} tenantId 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof AdminIdentityApi
+     */
+    public createMemberAdminTenantsTenantIdMembersPost(body: AdminMembershipRequest, tenantId: any, options?: any) {
+        return AdminIdentityApiFp(this.configuration).createMemberAdminTenantsTenantIdMembersPost(body, tenantId, options)(this.fetch, this.basePath);
+    }
+
+    /**
+     * Generate a WorkOS Admin Portal link for the tenant's organization.  Requires the `identity:admin:write` scope. Returns a link to hand customer IT for domain verification / SSO setup (`intent` = `sso` or `domain_verification`). Responds 404 if the tenant has no WorkOS organization mapping yet.
+     * @summary Create Portal Link
+     * @param {WorkOSPortalLinkRequest} body 
+     * @param {any} tenantId 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof AdminIdentityApi
+     */
+    public createPortalLinkAdminTenantsTenantIdIdentityProviderPortalLinksPost(body: WorkOSPortalLinkRequest, tenantId: any, options?: any) {
+        return AdminIdentityApiFp(this.configuration).createPortalLinkAdminTenantsTenantIdIdentityProviderPortalLinksPost(body, tenantId, options)(this.fetch, this.basePath);
+    }
+
+    /**
+     * Receive and verify WorkOS webhook events.  Public but signature-verified via the `WorkOS-Signature` header against `HYPER_WORKOS__WEBHOOK_SECRET`. Reconciles provider connection status for an already-mapped organization only; never grants tenant access on its own.
+     * @summary Workos Webhook
+     * @param {any} [workOSSignature] 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof AdminIdentityApi
+     */
+    public workosWebhookWebhooksWorkosPost(workOSSignature?: any, options?: any) {
+        return AdminIdentityApiFp(this.configuration).workosWebhookWebhooksWorkosPost(workOSSignature, options)(this.fetch, this.basePath);
+    }
+
 }
 /**
  * AgentsApi - fetch parameter creator
@@ -3245,6 +4142,579 @@ export class AgentsApi extends BaseAPI {
      */
     public updateAgentEndpointAgentsAgentIdPatch(body: AgentUpdateRequest, agentId: any, options?: any) {
         return AgentsApiFp(this.configuration).updateAgentEndpointAgentsAgentIdPatch(body, agentId, options)(this.fetch, this.basePath);
+    }
+
+}
+/**
+ * AuthApi - fetch parameter creator
+ * @export
+ */
+export const AuthApiFetchParamCreator = function (configuration?: Configuration) {
+    return {
+        /**
+         * Clear the session cookie and return the WorkOS logout URL to revoke the session.  Clearing only the cookie leaves the WorkOS session valid until expiry, so a stolen sealed session would still work. We compute the WorkOS logout URL from the current session and return it; the frontend redirects there to actually end the WorkOS session. Safe to call when already signed out (logout_url null).
+         * @summary Logout
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        logoutAuthLogoutPost(options: any = {}): FetchArgs {
+            const localVarPath = `/auth/logout`;
+            const localVarUrlObj = url.parse(localVarPath, true);
+            const localVarRequestOptions = Object.assign({ method: 'POST' }, options);
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            localVarUrlObj.query = Object.assign({}, localVarUrlObj.query, localVarQueryParameter, options.query);
+            // fix override query string Detail: https://stackoverflow.com/a/7517673/1077943
+            localVarUrlObj.search = null;
+            localVarRequestOptions.headers = Object.assign({}, localVarHeaderParameter, options.headers);
+
+            return {
+                url: url.format(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * Return the current portal session: user, active tenant, memberships, scopes.  Portal-session only. API-key callers have no portal identity and are rejected with 403 — they should use the resource APIs directly, not `/me`. A valid session without an active membership surfaces as 403 from the middleware.
+         * @summary Me
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        meMeGet(options: any = {}): FetchArgs {
+            const localVarPath = `/me`;
+            const localVarUrlObj = url.parse(localVarPath, true);
+            const localVarRequestOptions = Object.assign({ method: 'GET' }, options);
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            localVarUrlObj.query = Object.assign({}, localVarUrlObj.query, localVarQueryParameter, options.query);
+            // fix override query string Detail: https://stackoverflow.com/a/7517673/1077943
+            localVarUrlObj.search = null;
+            localVarRequestOptions.headers = Object.assign({}, localVarHeaderParameter, options.headers);
+
+            return {
+                url: url.format(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * Complete login: exchange the WorkOS code and issue the session cookie.  The backend owns the code exchange (the WorkOS secret never reaches the browser). The `state` is HMAC-signed and carries a CSRF nonce + landing path; the signature must verify AND the nonce must match the host-only pre-login cookie (double-submit) or the callback is rejected. On authorized or pending-admin-assignment it sets the HTTP-only sealed-session cookie and 303-redirects to the frontend; the frontend's `/me` call then decides app vs. pending UI. Every response clears the one-shot state cookie.
+         * @summary Workos Callback
+         * @param {any} [code] 
+         * @param {any} [state] 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        workosCallbackAuthSsoCallbackGet(code?: any, state?: any, options: any = {}): FetchArgs {
+            const localVarPath = `/auth/sso/callback`;
+            const localVarUrlObj = url.parse(localVarPath, true);
+            const localVarRequestOptions = Object.assign({ method: 'GET' }, options);
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            if (code !== undefined) {
+                localVarQueryParameter['code'] = code;
+            }
+
+            if (state !== undefined) {
+                localVarQueryParameter['state'] = state;
+            }
+
+            localVarUrlObj.query = Object.assign({}, localVarUrlObj.query, localVarQueryParameter, options.query);
+            // fix override query string Detail: https://stackoverflow.com/a/7517673/1077943
+            localVarUrlObj.search = null;
+            localVarRequestOptions.headers = Object.assign({}, localVarHeaderParameter, options.headers);
+
+            return {
+                url: url.format(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * Start the WorkOS AuthKit login hand-off.  Resolves the target WorkOS organization from `tenant_hint` when present and 303-redirects to the AuthKit authorization URL; without a hint, WorkOS resolves the org from the user's identity (no local domain->org map). An unmapped user comes back org-less and is rejected at the callback (no session), so the hand-off is unconditional. `email` is forwarded only as a WorkOS `login_hint`. `return_to` is carried through WorkOS in `state` (open-redirect-validated).
+         * @summary Workos Login
+         * @param {any} [email] 
+         * @param {any} [tenantHint] 
+         * @param {any} [returnTo] 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        workosLoginAuthSsoLoginGet(email?: any, tenantHint?: any, returnTo?: any, options: any = {}): FetchArgs {
+            const localVarPath = `/auth/sso/login`;
+            const localVarUrlObj = url.parse(localVarPath, true);
+            const localVarRequestOptions = Object.assign({ method: 'GET' }, options);
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            if (email !== undefined) {
+                localVarQueryParameter['email'] = email;
+            }
+
+            if (tenantHint !== undefined) {
+                localVarQueryParameter['tenant_hint'] = tenantHint;
+            }
+
+            if (returnTo !== undefined) {
+                localVarQueryParameter['return_to'] = returnTo;
+            }
+
+            localVarUrlObj.query = Object.assign({}, localVarUrlObj.query, localVarQueryParameter, options.query);
+            // fix override query string Detail: https://stackoverflow.com/a/7517673/1077943
+            localVarUrlObj.search = null;
+            localVarRequestOptions.headers = Object.assign({}, localVarHeaderParameter, options.headers);
+
+            return {
+                url: url.format(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+    }
+};
+
+/**
+ * AuthApi - functional programming interface
+ * @export
+ */
+export const AuthApiFp = function(configuration?: Configuration) {
+    return {
+        /**
+         * Clear the session cookie and return the WorkOS logout URL to revoke the session.  Clearing only the cookie leaves the WorkOS session valid until expiry, so a stolen sealed session would still work. We compute the WorkOS logout URL from the current session and return it; the frontend redirects there to actually end the WorkOS session. Safe to call when already signed out (logout_url null).
+         * @summary Logout
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        logoutAuthLogoutPost(options?: any): (fetch?: FetchAPI, basePath?: string) => Promise<any> {
+            const localVarFetchArgs = AuthApiFetchParamCreator(configuration).logoutAuthLogoutPost(options);
+            return (fetch: FetchAPI = isomorphicFetch, basePath: string = BASE_PATH) => {
+                return fetch(basePath + localVarFetchArgs.url, localVarFetchArgs.options).then((response) => {
+                    if (response.status >= 200 && response.status < 300) {
+                        return response.json();
+                    } else {
+                        throw response;
+                    }
+                });
+            };
+        },
+        /**
+         * Return the current portal session: user, active tenant, memberships, scopes.  Portal-session only. API-key callers have no portal identity and are rejected with 403 — they should use the resource APIs directly, not `/me`. A valid session without an active membership surfaces as 403 from the middleware.
+         * @summary Me
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        meMeGet(options?: any): (fetch?: FetchAPI, basePath?: string) => Promise<MeResponse> {
+            const localVarFetchArgs = AuthApiFetchParamCreator(configuration).meMeGet(options);
+            return (fetch: FetchAPI = isomorphicFetch, basePath: string = BASE_PATH) => {
+                return fetch(basePath + localVarFetchArgs.url, localVarFetchArgs.options).then((response) => {
+                    if (response.status >= 200 && response.status < 300) {
+                        return response.json();
+                    } else {
+                        throw response;
+                    }
+                });
+            };
+        },
+        /**
+         * Complete login: exchange the WorkOS code and issue the session cookie.  The backend owns the code exchange (the WorkOS secret never reaches the browser). The `state` is HMAC-signed and carries a CSRF nonce + landing path; the signature must verify AND the nonce must match the host-only pre-login cookie (double-submit) or the callback is rejected. On authorized or pending-admin-assignment it sets the HTTP-only sealed-session cookie and 303-redirects to the frontend; the frontend's `/me` call then decides app vs. pending UI. Every response clears the one-shot state cookie.
+         * @summary Workos Callback
+         * @param {any} [code] 
+         * @param {any} [state] 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        workosCallbackAuthSsoCallbackGet(code?: any, state?: any, options?: any): (fetch?: FetchAPI, basePath?: string) => Promise<any> {
+            const localVarFetchArgs = AuthApiFetchParamCreator(configuration).workosCallbackAuthSsoCallbackGet(code, state, options);
+            return (fetch: FetchAPI = isomorphicFetch, basePath: string = BASE_PATH) => {
+                return fetch(basePath + localVarFetchArgs.url, localVarFetchArgs.options).then((response) => {
+                    if (response.status >= 200 && response.status < 300) {
+                        return response.json();
+                    } else {
+                        throw response;
+                    }
+                });
+            };
+        },
+        /**
+         * Start the WorkOS AuthKit login hand-off.  Resolves the target WorkOS organization from `tenant_hint` when present and 303-redirects to the AuthKit authorization URL; without a hint, WorkOS resolves the org from the user's identity (no local domain->org map). An unmapped user comes back org-less and is rejected at the callback (no session), so the hand-off is unconditional. `email` is forwarded only as a WorkOS `login_hint`. `return_to` is carried through WorkOS in `state` (open-redirect-validated).
+         * @summary Workos Login
+         * @param {any} [email] 
+         * @param {any} [tenantHint] 
+         * @param {any} [returnTo] 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        workosLoginAuthSsoLoginGet(email?: any, tenantHint?: any, returnTo?: any, options?: any): (fetch?: FetchAPI, basePath?: string) => Promise<any> {
+            const localVarFetchArgs = AuthApiFetchParamCreator(configuration).workosLoginAuthSsoLoginGet(email, tenantHint, returnTo, options);
+            return (fetch: FetchAPI = isomorphicFetch, basePath: string = BASE_PATH) => {
+                return fetch(basePath + localVarFetchArgs.url, localVarFetchArgs.options).then((response) => {
+                    if (response.status >= 200 && response.status < 300) {
+                        return response.json();
+                    } else {
+                        throw response;
+                    }
+                });
+            };
+        },
+    }
+};
+
+/**
+ * AuthApi - factory interface
+ * @export
+ */
+export const AuthApiFactory = function (configuration?: Configuration, fetch?: FetchAPI, basePath?: string) {
+    return {
+        /**
+         * Clear the session cookie and return the WorkOS logout URL to revoke the session.  Clearing only the cookie leaves the WorkOS session valid until expiry, so a stolen sealed session would still work. We compute the WorkOS logout URL from the current session and return it; the frontend redirects there to actually end the WorkOS session. Safe to call when already signed out (logout_url null).
+         * @summary Logout
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        logoutAuthLogoutPost(options?: any) {
+            return AuthApiFp(configuration).logoutAuthLogoutPost(options)(fetch, basePath);
+        },
+        /**
+         * Return the current portal session: user, active tenant, memberships, scopes.  Portal-session only. API-key callers have no portal identity and are rejected with 403 — they should use the resource APIs directly, not `/me`. A valid session without an active membership surfaces as 403 from the middleware.
+         * @summary Me
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        meMeGet(options?: any) {
+            return AuthApiFp(configuration).meMeGet(options)(fetch, basePath);
+        },
+        /**
+         * Complete login: exchange the WorkOS code and issue the session cookie.  The backend owns the code exchange (the WorkOS secret never reaches the browser). The `state` is HMAC-signed and carries a CSRF nonce + landing path; the signature must verify AND the nonce must match the host-only pre-login cookie (double-submit) or the callback is rejected. On authorized or pending-admin-assignment it sets the HTTP-only sealed-session cookie and 303-redirects to the frontend; the frontend's `/me` call then decides app vs. pending UI. Every response clears the one-shot state cookie.
+         * @summary Workos Callback
+         * @param {any} [code] 
+         * @param {any} [state] 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        workosCallbackAuthSsoCallbackGet(code?: any, state?: any, options?: any) {
+            return AuthApiFp(configuration).workosCallbackAuthSsoCallbackGet(code, state, options)(fetch, basePath);
+        },
+        /**
+         * Start the WorkOS AuthKit login hand-off.  Resolves the target WorkOS organization from `tenant_hint` when present and 303-redirects to the AuthKit authorization URL; without a hint, WorkOS resolves the org from the user's identity (no local domain->org map). An unmapped user comes back org-less and is rejected at the callback (no session), so the hand-off is unconditional. `email` is forwarded only as a WorkOS `login_hint`. `return_to` is carried through WorkOS in `state` (open-redirect-validated).
+         * @summary Workos Login
+         * @param {any} [email] 
+         * @param {any} [tenantHint] 
+         * @param {any} [returnTo] 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        workosLoginAuthSsoLoginGet(email?: any, tenantHint?: any, returnTo?: any, options?: any) {
+            return AuthApiFp(configuration).workosLoginAuthSsoLoginGet(email, tenantHint, returnTo, options)(fetch, basePath);
+        },
+    };
+};
+
+/**
+ * AuthApi - object-oriented interface
+ * @export
+ * @class AuthApi
+ * @extends {BaseAPI}
+ */
+export class AuthApi extends BaseAPI {
+    /**
+     * Clear the session cookie and return the WorkOS logout URL to revoke the session.  Clearing only the cookie leaves the WorkOS session valid until expiry, so a stolen sealed session would still work. We compute the WorkOS logout URL from the current session and return it; the frontend redirects there to actually end the WorkOS session. Safe to call when already signed out (logout_url null).
+     * @summary Logout
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof AuthApi
+     */
+    public logoutAuthLogoutPost(options?: any) {
+        return AuthApiFp(this.configuration).logoutAuthLogoutPost(options)(this.fetch, this.basePath);
+    }
+
+    /**
+     * Return the current portal session: user, active tenant, memberships, scopes.  Portal-session only. API-key callers have no portal identity and are rejected with 403 — they should use the resource APIs directly, not `/me`. A valid session without an active membership surfaces as 403 from the middleware.
+     * @summary Me
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof AuthApi
+     */
+    public meMeGet(options?: any) {
+        return AuthApiFp(this.configuration).meMeGet(options)(this.fetch, this.basePath);
+    }
+
+    /**
+     * Complete login: exchange the WorkOS code and issue the session cookie.  The backend owns the code exchange (the WorkOS secret never reaches the browser). The `state` is HMAC-signed and carries a CSRF nonce + landing path; the signature must verify AND the nonce must match the host-only pre-login cookie (double-submit) or the callback is rejected. On authorized or pending-admin-assignment it sets the HTTP-only sealed-session cookie and 303-redirects to the frontend; the frontend's `/me` call then decides app vs. pending UI. Every response clears the one-shot state cookie.
+     * @summary Workos Callback
+     * @param {any} [code] 
+     * @param {any} [state] 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof AuthApi
+     */
+    public workosCallbackAuthSsoCallbackGet(code?: any, state?: any, options?: any) {
+        return AuthApiFp(this.configuration).workosCallbackAuthSsoCallbackGet(code, state, options)(this.fetch, this.basePath);
+    }
+
+    /**
+     * Start the WorkOS AuthKit login hand-off.  Resolves the target WorkOS organization from `tenant_hint` when present and 303-redirects to the AuthKit authorization URL; without a hint, WorkOS resolves the org from the user's identity (no local domain->org map). An unmapped user comes back org-less and is rejected at the callback (no session), so the hand-off is unconditional. `email` is forwarded only as a WorkOS `login_hint`. `return_to` is carried through WorkOS in `state` (open-redirect-validated).
+     * @summary Workos Login
+     * @param {any} [email] 
+     * @param {any} [tenantHint] 
+     * @param {any} [returnTo] 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof AuthApi
+     */
+    public workosLoginAuthSsoLoginGet(email?: any, tenantHint?: any, returnTo?: any, options?: any) {
+        return AuthApiFp(this.configuration).workosLoginAuthSsoLoginGet(email, tenantHint, returnTo, options)(this.fetch, this.basePath);
+    }
+
+}
+/**
+ * LearningBoundaryApi - fetch parameter creator
+ * @export
+ */
+export const LearningBoundaryApiFetchParamCreator = function (configuration?: Configuration) {
+    return {
+        /**
+         * Submit a finished run for server-side learning extraction. Processed on a background worker, so the request returns immediately. Idempotent by run id.
+         * @summary Observe a finished episode
+         * @param {ObserveRequest} body 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        observeEndpointV1ObservePost(body: ObserveRequest, options: any = {}): FetchArgs {
+            // verify required parameter 'body' is not null or undefined
+            if (body === null || body === undefined) {
+                throw new RequiredError('body','Required parameter body was null or undefined when calling observeEndpointV1ObservePost.');
+            }
+            const localVarPath = `/v1/observe`;
+            const localVarUrlObj = url.parse(localVarPath, true);
+            const localVarRequestOptions = Object.assign({ method: 'POST' }, options);
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            localVarHeaderParameter['Content-Type'] = 'application/json';
+
+            localVarUrlObj.query = Object.assign({}, localVarUrlObj.query, localVarQueryParameter, options.query);
+            // fix override query string Detail: https://stackoverflow.com/a/7517673/1077943
+            localVarUrlObj.search = null;
+            localVarRequestOptions.headers = Object.assign({}, localVarHeaderParameter, options.headers);
+            const needsSerialization = (<any>"ObserveRequest" !== "string") || localVarRequestOptions.headers['Content-Type'] === 'application/json';
+            localVarRequestOptions.body =  needsSerialization ? JSON.stringify(body || {}) : (body || "");
+
+            return {
+                url: url.format(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * Credit the learnings a finished run used. The eligible union and attribution are derived server-side from the run's offer log. Processed on a background worker; idempotent by run id.
+         * @summary Reinforce the learnings a run used
+         * @param {ReinforceRequest} body 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        reinforceEndpointV1ReinforcePost(body: ReinforceRequest, options: any = {}): FetchArgs {
+            // verify required parameter 'body' is not null or undefined
+            if (body === null || body === undefined) {
+                throw new RequiredError('body','Required parameter body was null or undefined when calling reinforceEndpointV1ReinforcePost.');
+            }
+            const localVarPath = `/v1/reinforce`;
+            const localVarUrlObj = url.parse(localVarPath, true);
+            const localVarRequestOptions = Object.assign({ method: 'POST' }, options);
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            localVarHeaderParameter['Content-Type'] = 'application/json';
+
+            localVarUrlObj.query = Object.assign({}, localVarUrlObj.query, localVarQueryParameter, options.query);
+            // fix override query string Detail: https://stackoverflow.com/a/7517673/1077943
+            localVarUrlObj.search = null;
+            localVarRequestOptions.headers = Object.assign({}, localVarHeaderParameter, options.headers);
+            const needsSerialization = (<any>"ReinforceRequest" !== "string") || localVarRequestOptions.headers['Content-Type'] === 'application/json';
+            localVarRequestOptions.body =  needsSerialization ? JSON.stringify(body || {}) : (body || "");
+
+            return {
+                url: url.format(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * Return the learnings bound to a run's goal, as a rendered injection block plus the offered learning IDs. Records the offer server-side so a later reinforce can credit the learnings the run used.
+         * @summary Resolve the learnings bound to a goal
+         * @param {ResolveRequest} body 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        resolveEndpointV1ResolvePost(body: ResolveRequest, options: any = {}): FetchArgs {
+            // verify required parameter 'body' is not null or undefined
+            if (body === null || body === undefined) {
+                throw new RequiredError('body','Required parameter body was null or undefined when calling resolveEndpointV1ResolvePost.');
+            }
+            const localVarPath = `/v1/resolve`;
+            const localVarUrlObj = url.parse(localVarPath, true);
+            const localVarRequestOptions = Object.assign({ method: 'POST' }, options);
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            localVarHeaderParameter['Content-Type'] = 'application/json';
+
+            localVarUrlObj.query = Object.assign({}, localVarUrlObj.query, localVarQueryParameter, options.query);
+            // fix override query string Detail: https://stackoverflow.com/a/7517673/1077943
+            localVarUrlObj.search = null;
+            localVarRequestOptions.headers = Object.assign({}, localVarHeaderParameter, options.headers);
+            const needsSerialization = (<any>"ResolveRequest" !== "string") || localVarRequestOptions.headers['Content-Type'] === 'application/json';
+            localVarRequestOptions.body =  needsSerialization ? JSON.stringify(body || {}) : (body || "");
+
+            return {
+                url: url.format(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+    }
+};
+
+/**
+ * LearningBoundaryApi - functional programming interface
+ * @export
+ */
+export const LearningBoundaryApiFp = function(configuration?: Configuration) {
+    return {
+        /**
+         * Submit a finished run for server-side learning extraction. Processed on a background worker, so the request returns immediately. Idempotent by run id.
+         * @summary Observe a finished episode
+         * @param {ObserveRequest} body 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        observeEndpointV1ObservePost(body: ObserveRequest, options?: any): (fetch?: FetchAPI, basePath?: string) => Promise<BoundaryAcceptedResponse> {
+            const localVarFetchArgs = LearningBoundaryApiFetchParamCreator(configuration).observeEndpointV1ObservePost(body, options);
+            return (fetch: FetchAPI = isomorphicFetch, basePath: string = BASE_PATH) => {
+                return fetch(basePath + localVarFetchArgs.url, localVarFetchArgs.options).then((response) => {
+                    if (response.status >= 200 && response.status < 300) {
+                        return response.json();
+                    } else {
+                        throw response;
+                    }
+                });
+            };
+        },
+        /**
+         * Credit the learnings a finished run used. The eligible union and attribution are derived server-side from the run's offer log. Processed on a background worker; idempotent by run id.
+         * @summary Reinforce the learnings a run used
+         * @param {ReinforceRequest} body 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        reinforceEndpointV1ReinforcePost(body: ReinforceRequest, options?: any): (fetch?: FetchAPI, basePath?: string) => Promise<BoundaryAcceptedResponse> {
+            const localVarFetchArgs = LearningBoundaryApiFetchParamCreator(configuration).reinforceEndpointV1ReinforcePost(body, options);
+            return (fetch: FetchAPI = isomorphicFetch, basePath: string = BASE_PATH) => {
+                return fetch(basePath + localVarFetchArgs.url, localVarFetchArgs.options).then((response) => {
+                    if (response.status >= 200 && response.status < 300) {
+                        return response.json();
+                    } else {
+                        throw response;
+                    }
+                });
+            };
+        },
+        /**
+         * Return the learnings bound to a run's goal, as a rendered injection block plus the offered learning IDs. Records the offer server-side so a later reinforce can credit the learnings the run used.
+         * @summary Resolve the learnings bound to a goal
+         * @param {ResolveRequest} body 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        resolveEndpointV1ResolvePost(body: ResolveRequest, options?: any): (fetch?: FetchAPI, basePath?: string) => Promise<ResolveResponse> {
+            const localVarFetchArgs = LearningBoundaryApiFetchParamCreator(configuration).resolveEndpointV1ResolvePost(body, options);
+            return (fetch: FetchAPI = isomorphicFetch, basePath: string = BASE_PATH) => {
+                return fetch(basePath + localVarFetchArgs.url, localVarFetchArgs.options).then((response) => {
+                    if (response.status >= 200 && response.status < 300) {
+                        return response.json();
+                    } else {
+                        throw response;
+                    }
+                });
+            };
+        },
+    }
+};
+
+/**
+ * LearningBoundaryApi - factory interface
+ * @export
+ */
+export const LearningBoundaryApiFactory = function (configuration?: Configuration, fetch?: FetchAPI, basePath?: string) {
+    return {
+        /**
+         * Submit a finished run for server-side learning extraction. Processed on a background worker, so the request returns immediately. Idempotent by run id.
+         * @summary Observe a finished episode
+         * @param {ObserveRequest} body 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        observeEndpointV1ObservePost(body: ObserveRequest, options?: any) {
+            return LearningBoundaryApiFp(configuration).observeEndpointV1ObservePost(body, options)(fetch, basePath);
+        },
+        /**
+         * Credit the learnings a finished run used. The eligible union and attribution are derived server-side from the run's offer log. Processed on a background worker; idempotent by run id.
+         * @summary Reinforce the learnings a run used
+         * @param {ReinforceRequest} body 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        reinforceEndpointV1ReinforcePost(body: ReinforceRequest, options?: any) {
+            return LearningBoundaryApiFp(configuration).reinforceEndpointV1ReinforcePost(body, options)(fetch, basePath);
+        },
+        /**
+         * Return the learnings bound to a run's goal, as a rendered injection block plus the offered learning IDs. Records the offer server-side so a later reinforce can credit the learnings the run used.
+         * @summary Resolve the learnings bound to a goal
+         * @param {ResolveRequest} body 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        resolveEndpointV1ResolvePost(body: ResolveRequest, options?: any) {
+            return LearningBoundaryApiFp(configuration).resolveEndpointV1ResolvePost(body, options)(fetch, basePath);
+        },
+    };
+};
+
+/**
+ * LearningBoundaryApi - object-oriented interface
+ * @export
+ * @class LearningBoundaryApi
+ * @extends {BaseAPI}
+ */
+export class LearningBoundaryApi extends BaseAPI {
+    /**
+     * Submit a finished run for server-side learning extraction. Processed on a background worker, so the request returns immediately. Idempotent by run id.
+     * @summary Observe a finished episode
+     * @param {ObserveRequest} body 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof LearningBoundaryApi
+     */
+    public observeEndpointV1ObservePost(body: ObserveRequest, options?: any) {
+        return LearningBoundaryApiFp(this.configuration).observeEndpointV1ObservePost(body, options)(this.fetch, this.basePath);
+    }
+
+    /**
+     * Credit the learnings a finished run used. The eligible union and attribution are derived server-side from the run's offer log. Processed on a background worker; idempotent by run id.
+     * @summary Reinforce the learnings a run used
+     * @param {ReinforceRequest} body 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof LearningBoundaryApi
+     */
+    public reinforceEndpointV1ReinforcePost(body: ReinforceRequest, options?: any) {
+        return LearningBoundaryApiFp(this.configuration).reinforceEndpointV1ReinforcePost(body, options)(this.fetch, this.basePath);
+    }
+
+    /**
+     * Return the learnings bound to a run's goal, as a rendered injection block plus the offered learning IDs. Records the offer server-side so a later reinforce can credit the learnings the run used.
+     * @summary Resolve the learnings bound to a goal
+     * @param {ResolveRequest} body 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof LearningBoundaryApi
+     */
+    public resolveEndpointV1ResolvePost(body: ResolveRequest, options?: any) {
+        return LearningBoundaryApiFp(this.configuration).resolveEndpointV1ResolvePost(body, options)(this.fetch, this.basePath);
     }
 
 }

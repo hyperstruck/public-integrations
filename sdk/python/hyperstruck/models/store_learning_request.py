@@ -100,7 +100,7 @@ class StoreLearningRequest(object):
     def utility(self):
         """Gets the utility of this StoreLearningRequest.  # noqa: E501
 
-        Initial utility, the curator's belief in how useful this learning is when applied (0.0–1.0). Establishedness is earned through corroboration, not set here.  # noqa: E501
+        Initial utility, the curator's belief in how useful this learning is when applied (0.0-1.0). Establishedness is earned through corroboration, not set here.  # noqa: E501
 
         :return: The utility of this StoreLearningRequest.  # noqa: E501
         :rtype: object
@@ -111,7 +111,7 @@ class StoreLearningRequest(object):
     def utility(self, utility):
         """Sets the utility of this StoreLearningRequest.
 
-        Initial utility, the curator's belief in how useful this learning is when applied (0.0–1.0). Establishedness is earned through corroboration, not set here.  # noqa: E501
+        Initial utility, the curator's belief in how useful this learning is when applied (0.0-1.0). Establishedness is earned through corroboration, not set here.  # noqa: E501
 
         :param utility: The utility of this StoreLearningRequest.  # noqa: E501
         :type: object
