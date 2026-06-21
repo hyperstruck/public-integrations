@@ -17,6 +17,9 @@ def test_importing_hyperstruck_does_not_import_core() -> None:
             del sys.modules[name]
 
     import hyperstruck  # noqa: F401
+    import hyperstruck.ide  # noqa: F401
+    import hyperstruck.ide.hook  # noqa: F401
+    import hyperstruck.ide.install  # noqa: F401
     import hyperstruck.langgraph  # noqa: F401
 
     leaked = [name for name in sys.modules if name == "hyperstruck_core" or name.startswith("hyperstruck_core.")]

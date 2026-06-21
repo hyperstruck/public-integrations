@@ -30,6 +30,7 @@ To keep a value off the platform entirely, declare the argument carrying it.
 from __future__ import annotations
 
 import re
+from collections.abc import Callable
 from typing import Any
 
 REDACTION_MARKER = "[REDACTED]"
@@ -39,6 +40,7 @@ REDACTION_MARKER = "[REDACTED]"
 # content, so values shorter than this are still stripped from their own declared
 # argument but never scrubbed elsewhere. Mirrors Core's server-side floor.
 MIN_SCRUB_LENGTH = 2
+
 
 def _labelled_marker(label: str) -> str:
     label = (label or "").strip()
@@ -76,22 +78,26 @@ def _strip_declared_args(steps: list[dict[str, Any]]) -> None:
                 args[arg_name] = _labelled_marker(label)
 
 
-def _scrub_value(value: Any, pattern: re.Pattern[str]) -> Any:
-    """Replace every known secret with the marker in any string, at any depth.
+def scrub_strings(value: Any, replace: Callable[[str], str]) -> Any:
+    """Apply ``replace`` to every string in a payload, at any depth.
 
-    Uses a single precompiled alternation so each string is scanned once,
-    regardless of how many distinct secrets there are. The traversal is iterative
-    (an explicit work stack), not recursive, so an arbitrarily deep payload is
-    fully scrubbed without a depth cap and cannot raise ``RecursionError`` into the
-    host's ``invoke()``. Tuples become lists, matching JSON serialisation.
+    The traversal is iterative (an explicit work stack), not recursive, so an
+    arbitrarily deep payload is fully processed without a depth cap and cannot
+    raise ``RecursionError`` into the host's run. Tuples become lists, matching
+    JSON serialisation. ``replace`` runs only on strings; other scalars pass
+    through untouched.
+
+    Exposed so other adapters can layer their own string scrub (e.g. the IDE
+    adapter's secret-pattern pass) over the same safe traversal rather than
+    reinventing it.
     """
     if isinstance(value, str):
-        return pattern.sub(REDACTION_MARKER, value)
+        return replace(value)
     if not isinstance(value, (dict, list, tuple)):
         return value
 
-    def _scrub_scalar(item: Any) -> Any:
-        return pattern.sub(REDACTION_MARKER, item) if isinstance(item, str) else item
+    def _scalar(item: Any) -> Any:
+        return replace(item) if isinstance(item, str) else item
 
     root: Any = {} if isinstance(value, dict) else []
     # Each work item rebuilds one container into its pre-created shell.
@@ -107,12 +113,21 @@ def _scrub_value(value: Any, pattern: re.Pattern[str]) -> Any:
                 child = []
                 stack.append((item, child))
             else:
-                child = _scrub_scalar(item)
+                child = _scalar(item)
             if isinstance(target, list):
                 target.append(child)
             else:
                 target[key] = child
     return root
+
+
+def _scrub_value(value: Any, pattern: re.Pattern[str]) -> Any:
+    """Replace every known secret with the marker in any string, at any depth.
+
+    Uses a single precompiled alternation so each string is scanned once,
+    regardless of how many distinct secrets there are.
+    """
+    return scrub_strings(value, lambda s: pattern.sub(REDACTION_MARKER, s))
 
 
 def redact_episode_payload(payload: dict[str, Any]) -> dict[str, Any]:

@@ -10,6 +10,7 @@ swappable client.
 - [Why](#why)
 - [Install](#install)
 - [Quick start (LangGraph)](#quick-start-langgraph)
+- [Quick start (IDE: Claude Code & Cursor)](#quick-start-ide-claude-code--cursor)
 - [How it works](#how-it-works)
 - [Configuration](#configuration)
 - [Privacy: client-side redaction](#privacy-client-side-redaction)
@@ -55,6 +56,22 @@ first use and scopes the learning corpus to it. Set the key from the environment
 
 Watch it learn through the platform's learnings and usage APIs (see the docs);
 the corpus grows as runs accrue.
+
+## Quick start (IDE: Claude Code & Cursor)
+
+The same learning loop, driven by your editor's hooks instead of a programmatic
+agent. Install once and every coding turn recalls and contributes learnings with
+no explicit commands:
+
+```
+pip install hyperstruck
+python -m hyperstruck.ide.install
+```
+
+This wires the learning hooks into Claude Code and Cursor (deep-merging your hooks
+config without touching your existing entries) and installs the `hyper-*` skills.
+Restart your editor afterwards. See [`hyperstruck/ide/README.md`](src/hyperstruck/ide/README.md)
+for the turn loop, the deferred outcome resolution, and the privacy model.
 
 ## How it works
 
@@ -111,6 +128,12 @@ HyperstruckLearningMiddleware(
     tool_sensitivity={"lookup_customer": {"ssn": "pii", "dob": "pii"}},
 )
 ```
+
+The IDE host layers a privacy-forward default on top of this: it never ships raw
+file contents or diffs (only tool name, path, status, error, and a clipped
+result), and it scrubs known credential shapes and high-entropy tokens from every
+string before it leaves the machine. Your source never leaves; only scrubbed,
+pattern-level learnings do.
 
 ## Reliability
 
