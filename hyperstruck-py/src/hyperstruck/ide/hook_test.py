@@ -419,3 +419,65 @@ def test_main_fails_open_on_internal_error(_env, monkeypatch) -> None:
 
     monkeypatch.setattr(hook, "cmd_prompt", boom)
     assert hook.main(["prompt"]) == 0  # never breaks the editor
+
+
+def test_no_command_output_shipped(_env) -> None:
+    # A command result is source-bearing (git diff, grep, test output), so no
+    # result body ships for any step; only status survives.
+    step = hook._step_from_payload(
+        {
+            "tool_name": "Bash",
+            "command": "git diff",
+            "tool_response": "diff --git a/x.py SECRETSRC",
+            "exit_code": 0,
+        },
+        _args("tool"),
+    )
+    assert step["result"] is None
+    assert step["status"] == "completed"
+
+
+def test_nested_bash_failure_detected(_env) -> None:
+    # Claude Code Bash failures live inside tool_response, not top-level.
+    step = hook._step_from_payload(
+        {
+            "tool_name": "Bash",
+            "command": "pytest",
+            "tool_response": {"stderr": "AssertionError boom", "interrupted": False},
+        },
+        _args("tool"),
+    )
+    assert step["status"] == "failed"
+    assert step["error"] and "boom" in step["error"]
+    interrupted = hook._step_from_payload(
+        {
+            "tool_name": "Bash",
+            "command": "sleep 99",
+            "tool_response": {"interrupted": True},
+        },
+        _args("tool"),
+    )
+    assert interrupted["status"] == "failed"
+
+
+def test_flush_retries_on_failed_delivery(_env, monkeypatch) -> None:
+    monkeypatch.setattr(hook, "_spawn_flush", lambda path: None)  # don't spawn
+    path = state.stage_flush(
+        "s1",
+        "agent-x:s1:r",
+        {"agent_id": "agent-x", "episode": {"run_id": "r"}, "do_observe": True},
+    )
+
+    async def fail(_payload):
+        return False
+
+    monkeypatch.setattr(hook, "_deliver", fail)
+    hook.cmd_flush(hook._parse_args(["flush", str(path)]))
+    assert state.read_flush(path) is not None  # kept for retry on failed delivery
+
+    async def ok(_payload):
+        return True
+
+    monkeypatch.setattr(hook, "_deliver", ok)
+    hook.cmd_flush(hook._parse_args(["flush", str(path)]))
+    assert state.read_flush(path) is None  # removed once delivered

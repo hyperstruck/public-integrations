@@ -113,13 +113,3 @@ def test_kv_assignment_value_redacted() -> None:
     assert "hunter2plain" not in out
     assert out.lower().startswith("db_password=")  # key kept, value redacted
     assert "topsecret" not in scrub_secrets("token: topsecret123")
-
-
-def test_dump_command_detection() -> None:
-    from hyperstruck.ide.redaction import is_content_dump_command
-
-    assert is_content_dump_command("cat .env")
-    assert is_content_dump_command("printenv")
-    assert is_content_dump_command("grep x file | cat")
-    assert not is_content_dump_command("pytest -q")
-    assert not is_content_dump_command("npm run build")

@@ -45,12 +45,10 @@ from hyperstruck.ide.constants import (
     SOURCE_CURSOR,
     STATUS_COMPLETED,
     STATUS_FAILED,
-    STEP_KIND_COMMAND,
 )
 from hyperstruck.ide.gating import classify_tool, should_observe
 from hyperstruck.ide.redaction import (
     clip_result,
-    is_content_dump_command,
     redact_ide_episode,
     scrub_secrets,
 )
@@ -150,14 +148,24 @@ def cmd_stop(payload: dict[str, Any], args: argparse.Namespace) -> None:
 
 
 def cmd_flush(args: argparse.Namespace) -> None:
-    """Deliver one staged turn: observe (if gated in) then reinforce, then exit."""
+    """Deliver one staged turn: observe (if gated in) then reinforce.
+
+    The staged file is removed ONLY when delivery succeeds. If the boundary is
+    down or a write fails, the file is left in place so the next sweep re-spawns a
+    flush for it (and eviction drops it after the retention window). This makes the
+    staging dir a real outbox rather than a one-shot that loses the episode the
+    moment delivery fails.
+    """
     payload = state.read_flush(args.flush_path)
     if not payload:
         state.remove_flush(args.flush_path)
         return
+    delivered = False
     try:
-        asyncio.run(_deliver(payload))
-    finally:
+        delivered = asyncio.run(_deliver(payload))
+    except Exception:  # noqa: BLE001 - fail open; leave the file for a later retry
+        delivered = False
+    if delivered:
         state.remove_flush(args.flush_path)
 
 
@@ -324,8 +332,12 @@ async def _aresolve(
         await client.aclose()
 
 
-async def _deliver(payload: dict[str, Any]) -> None:
-    """Observe (awaited to completion) then reinforce, so the wire order holds."""
+async def _deliver(payload: dict[str, Any]) -> bool:
+    """Observe (awaited to completion) then reinforce, so the wire order holds.
+
+    Returns True when the staged episode is done with (delivered, or unrecoverable
+    so not worth retrying) and False when delivery should be retried later.
+    """
     from hyperstruck._wire import Episode, StepRecord, TerminalOutcome
     from hyperstruck.client import HostedLearningClient
     from hyperstruck.identity import AgentIdentity
@@ -333,7 +345,7 @@ async def _deliver(payload: dict[str, Any]) -> None:
     agent_id = payload.get("agent_id")
     episode_data = payload.get("episode") or {}
     if not agent_id or not episode_data:
-        return
+        return True  # malformed staged file: drop it, retrying cannot help
     identity = AgentIdentity(agent_id=agent_id)
     outcome_data = episode_data.get("outcome") or {}
     episode = Episode(
@@ -350,7 +362,10 @@ async def _deliver(payload: dict[str, Any]) -> None:
         ),
         source_framework=episode_data.get("source_framework", SOURCE_CLAUDE_CODE),
     )
-    client = HostedLearningClient()
+    try:
+        client = HostedLearningClient()
+    except ValueError:
+        return True  # no API key configured: nothing to retry, drop it
     try:
         if payload.get("do_observe"):
             await client.observe(identity=identity, episode=episode)
@@ -361,6 +376,10 @@ async def _deliver(payload: dict[str, Any]) -> None:
                 identity=identity, episode=episode, is_org_promotion_allowed=False
             )
             await client.drain()
+        # The client retries internally then drops with a counter rather than
+        # raising; a non-zero failure count means the boundary did not accept it,
+        # so keep the staged file for the next sweep to retry.
+        return client.writes_failed == 0
     finally:
         await client.aclose()
 
@@ -389,11 +408,9 @@ def _step_from_payload(
 
     Spans Claude Code (``tool_name``/``tool_input``/``tool_response``) and Cursor
     (``command``/``file_path``/``exit_code``) shapes. Only safe-to-ship inputs go
-    in ``args`` (path, command); no file body or diff is ever captured. A *result*
-    body is shipped only for command steps (the clipped, scrubbed execution/test
-    output, the learning signal), never for edit or read steps, whose result would
-    be raw file contents or a diff. An error message is kept regardless, since it
-    is the failure signal and is clipped and scrubbed.
+    in ``args`` (path, command); no file body, diff, or tool output is ever
+    captured. The result is always dropped (it would be source); only the tool
+    name, path/command, status, and a clipped, scrubbed error survive.
     """
     name = (
         args.name
@@ -416,28 +433,22 @@ def _step_from_payload(
     if command:
         safe_args["command"] = scrub_secrets(clip_result(command))
 
-    exit_code = payload.get("exit_code")
-    is_error = _is_error(payload, exit_code)
-    # Only a command/test result rides the wire; an edit or read result would be
-    # raw file contents or a diff, which must never leave the machine. A command
-    # that dumps file/env contents (cat, env, ...) is treated the same: its output
-    # is content, not an execution signal, so it is dropped too.
-    raw_result = (
-        payload.get("tool_response") or payload.get("output") or payload.get("stdout")
-    )
-    ship_result = (
-        kind == STEP_KIND_COMMAND
-        and raw_result is not None
-        and not (command and is_content_dump_command(str(command)))
-    )
+    is_error = _is_error(payload)
+    # No tool result is ever shipped. A read or edit result is file contents or a
+    # diff, and a command's stdout can be source too (git diff, grep, cat). The
+    # only execution signal we need is pass/fail (the status); the failure detail
+    # rides in `error`, clipped and scrubbed. So `result` is always dropped.
     raw_error = payload.get("error") or payload.get("stderr")
+    response = payload.get("tool_response")
+    if not raw_error and isinstance(response, dict):
+        raw_error = response.get("stderr") or response.get("error")
 
     return {
         "id": payload.get("tool_call_id") or payload.get("id") or uuid.uuid4().hex,
         "name": str(name),
         "args": safe_args,
         "status": STATUS_FAILED if is_error else STATUS_COMPLETED,
-        "result": scrub_secrets(clip_result(raw_result)) if ship_result else None,
+        "result": None,
         "error": (
             scrub_secrets(clip_result(raw_error)) if (is_error and raw_error) else None
         ),
@@ -445,16 +456,40 @@ def _step_from_payload(
     }
 
 
-def _is_error(payload: dict[str, Any], exit_code: Any) -> bool:
-    if isinstance(exit_code, int) and exit_code != 0:
+def _is_error(payload: dict[str, Any]) -> bool:
+    """Whether a tool call failed, across Claude Code and Cursor payload shapes.
+
+    Claude Code's ``Bash`` failures surface inside ``tool_response`` (stderr /
+    interrupted / a nested exit code), not as a top-level field, so the nested
+    dict is inspected as well as the top level.
+    """
+    if _failed_exit(payload.get("exit_code")):
         return True
     if payload.get("is_error") or payload.get("error") or payload.get("stderr"):
         return True
-    status = str(payload.get("status") or "").lower()
-    if status in NATIVE_FAILURE_STATUSES:
+    if str(payload.get("status") or "").lower() in NATIVE_FAILURE_STATUSES:
         return True
     response = payload.get("tool_response")
-    return isinstance(response, dict) and bool(response.get("error"))
+    if isinstance(response, dict):
+        if (
+            response.get("error")
+            or response.get("stderr")
+            or response.get("interrupted")
+        ):
+            return True
+        if _failed_exit(
+            response.get("exit_code")
+            or response.get("exitCode")
+            or response.get("returnCode")
+        ):
+            return True
+        if str(response.get("status") or "").lower() in NATIVE_FAILURE_STATUSES:
+            return True
+    return False
+
+
+def _failed_exit(code: Any) -> bool:
+    return isinstance(code, int) and code != 0
 
 
 # -- process plumbing --------------------------------------------------------

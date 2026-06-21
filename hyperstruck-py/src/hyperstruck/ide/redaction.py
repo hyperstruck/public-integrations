@@ -118,43 +118,6 @@ def _replace(match: re.Match[str]) -> str:
     return REDACTION_MARKER if _is_high_entropy(token) else token
 
 
-# Commands whose output is file/environment contents rather than an execution
-# signal: their stdout must not ship even from a command-kind step (it would be
-# raw file/env content, defeating the no-raw-content guarantee).
-_DUMP_COMMANDS = frozenset(
-    {
-        "cat",
-        "bat",
-        "head",
-        "tail",
-        "less",
-        "more",
-        "type",
-        "nl",
-        "xxd",
-        "od",
-        "strings",
-        "printenv",
-        "env",
-        "set",
-        "export",
-        "dotenv",
-        "base64",
-    }
-)
-
-
-def is_content_dump_command(command: str) -> bool:
-    """Whether a shell command primarily dumps file or environment contents."""
-    if not command:
-        return False
-    for segment in re.split(r"[|;&]+", command):
-        first = segment.strip().split()
-        if first and first[0].lower() in _DUMP_COMMANDS:
-            return True
-    return False
-
-
 def _is_high_entropy(token: str) -> bool:
     """Shannon entropy (bits/char) of a token, against the secret threshold."""
     if len(token) < 32:

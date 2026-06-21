@@ -345,31 +345,33 @@ def _validate_auth(report: Report) -> None:
     key = os.environ.get("HYPER_API_KEY")
     if not key:
         return  # already warned in _write_auth
-    base = os.environ.get("HYPER_BASE_URL")
+    base = (os.environ.get("HYPER_BASE_URL") or "https://api.hyperstruck.com").rstrip(
+        "/"
+    )
+    # Validate with a read-only GET /agents, never a resolve: resolve auto-upserts
+    # the agent it is given, which would persist a phantom probe agent in the tenant.
     try:
-        import asyncio
+        import httpx
 
-        asyncio.run(_probe(key, base))
-        report.did("Validated auth against the learning boundary")
+        response = httpx.get(
+            f"{base}/agents",
+            params={"limit": 1},
+            headers={"Authorization": f"Bearer {key}"},
+            timeout=5.0,
+        )
     except Exception as exc:  # noqa: BLE001 - warn, never fail the install
         report.warn(
-            f"Could not validate auth ({type(exc).__name__}); the loop still installs and fails open"
+            f"Could not reach the boundary to validate auth ({type(exc).__name__}); the loop still installs and fails open"
         )
-
-
-async def _probe(key: str, base: str | None) -> None:
-    from hyperstruck.client import HostedLearningClient
-    from hyperstruck.identity import AgentIdentity
-
-    client = HostedLearningClient(api_key=key, base_url=base)
-    try:
-        await client.resolve(
-            identity=AgentIdentity(agent_id="hyperstruck-install-probe"),
-            run_id="probe",
-            goal="probe",
+        return
+    if response.status_code == 200:
+        report.did("Validated auth against the boundary")
+    elif response.status_code in (401, 403):
+        report.warn("Auth check failed (401/403): verify HYPER_API_KEY")
+    else:
+        report.warn(
+            f"Auth check returned HTTP {response.status_code}; the loop still installs and fails open"
         )
-    finally:
-        await client.aclose()
 
 
 # -- config IO ---------------------------------------------------------------
