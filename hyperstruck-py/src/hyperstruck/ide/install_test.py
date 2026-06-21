@@ -40,8 +40,18 @@ def test_wires_both_editors_and_is_idempotent(_dirs) -> None:
     cmds = _claude_cmds(claude)
     assert sum("hyperstruck.ide.hook" in c for c in cmds) == 1  # no duplicate
     cursor_cfg = json.loads((cursor / "hooks.json").read_text())
-    assert set(cursor_cfg["hooks"]) == {"afterFileEdit", "afterShellExecution", "stop"}
-    assert (cursor / "rules" / "hyperstruck-learning.mdc").exists()
+    assert set(cursor_cfg["hooks"]) == {
+        "beforeSubmitPrompt",
+        "postToolUse",
+        "afterFileEdit",
+        "afterShellExecution",
+        "stop",
+    }
+    # resolve runs on beforeSubmitPrompt; injection rides postToolUse (--inject).
+    assert "--inject" in cursor_cfg["hooks"]["postToolUse"][0]["command"]
+    assert "prompt" in cursor_cfg["hooks"]["beforeSubmitPrompt"][0]["command"]
+    # The legacy .mdc nudge is no longer written.
+    assert not (cursor / "rules" / "hyperstruck-learning.mdc").exists()
 
 
 def test_preserves_foreign_hooks(_dirs) -> None:

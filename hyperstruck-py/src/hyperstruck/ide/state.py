@@ -45,6 +45,11 @@ class ActiveTurn:
     # Learnings resolve offered for this turn, carried to the pending turn so the
     # deferred reinforce can credit them.
     offered_learning_ids: tuple[str, ...] = field(default_factory=tuple)
+    # Cursor cannot inject at prompt time, so the prompt hook stashes the resolved
+    # injection text here and the first postToolUse hook emits it, then flips
+    # is_injected so later tool hooks in the same turn do not re-inject.
+    injected_text: str | None = None
+    is_injected: bool = False
 
 
 @dataclass(frozen=True)
@@ -103,6 +108,8 @@ def read_active(session_id: str) -> ActiveTurn | None:
             source_framework=data.get("source_framework", ""),
             started_at=float(data.get("started_at", 0.0)),
             offered_learning_ids=tuple(data.get("offered_learning_ids") or ()),
+            injected_text=data.get("injected_text"),
+            is_injected=bool(data.get("is_injected", False)),
         )
     except (KeyError, TypeError, ValueError):
         return None

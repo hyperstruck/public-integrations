@@ -481,3 +481,87 @@ def test_flush_retries_on_failed_delivery(_env, monkeypatch) -> None:
     monkeypatch.setattr(hook, "_deliver", ok)
     hook.cmd_flush(hook._parse_args(["flush", str(path)]))
     assert state.read_flush(path) is None  # removed once delivered
+
+
+# -- Cursor JIT recall (beforeSubmitPrompt resolve + postToolUse injection) ----
+
+
+def test_cursor_resolve_stashes_and_does_not_emit_at_prompt(_env, capsys) -> None:
+    # Cursor's prompt hook cannot inject, so resolve stashes the text and emits nothing.
+    hook.cmd_prompt(
+        {"conversation_id": "c1", "prompt": "do x", "cwd": "/repo"},
+        hook._parse_args(["prompt", "--source", "cursor"]),
+    )
+    assert capsys.readouterr().out == ""
+    active = state.read_active("c1")
+    assert active is not None
+    assert active.injected_text == "INJECTED"
+    assert active.is_injected is False
+
+
+def test_cursor_posttooluse_injects_once(_env, capsys) -> None:
+    hook.cmd_prompt(
+        {"conversation_id": "c1", "prompt": "do x", "cwd": "/repo"},
+        hook._parse_args(["prompt", "--source", "cursor"]),
+    )
+    capsys.readouterr()  # discard the (empty) prompt output
+    hook.cmd_tool(
+        {"conversation_id": "c1", "tool_name": "Read", "cwd": "/repo"},
+        hook._parse_args(["tool", "--source", "cursor", "--inject"]),
+    )
+    out = capsys.readouterr().out
+    assert '"additional_context"' in out and "INJECTED" in out
+    assert state.read_active("c1").is_injected is True
+    # A second postToolUse in the same turn must not re-inject.
+    hook.cmd_tool(
+        {"conversation_id": "c1", "tool_name": "Edit", "cwd": "/repo"},
+        hook._parse_args(["tool", "--source", "cursor", "--inject"]),
+    )
+    assert capsys.readouterr().out == ""
+
+
+def test_cursor_rendezvous_credits_reinforce(_env) -> None:
+    # resolve and capture both key on conversation_id, so the offered learnings
+    # survive to reinforce (the attribution bug the rework fixes).
+    staged = _env
+    cc = ["--source", "cursor"]
+    conv = {"conversation_id": "c1", "cwd": "/repo"}
+    hook.cmd_prompt(
+        {**conv, "prompt": "add feature to a.py"}, hook._parse_args(["prompt", *cc])
+    )
+    hook.cmd_tool(
+        {**conv, "file_path": "a.py", "tool_response": "ok"},
+        hook._parse_args(["tool", *cc, "--kind", "edit"]),
+    )
+    hook.cmd_tool(
+        {**conv, "command": "pytest", "output": "2 passed"},
+        hook._parse_args(["tool", *cc, "--kind", "command"]),
+    )
+    hook.cmd_stop(conv, hook._parse_args(["stop", *cc]))
+    assert staged == []  # deferred
+    # Next turn finalises and flushes the prior one.
+    hook.cmd_prompt({**conv, "prompt": "next"}, hook._parse_args(["prompt", *cc]))
+    hook.cmd_stop(conv, hook._parse_args(["stop", *cc]))
+    flushed = _last_staged(staged)
+    assert flushed["do_observe"] is True  # 2 material steps captured under c1
+    assert flushed["do_reinforce"] is True  # offered ids rendezvoused with the turn
+
+
+def test_readonly_recall_does_not_touch_state(_env, capsys) -> None:
+    hook.cmd_prompt(
+        {"conversation_id": "c1", "cwd": "/repo"},
+        hook._parse_args(
+            [
+                "prompt",
+                "--source",
+                "cursor",
+                "--readonly",
+                "--emit",
+                "text",
+                "--goal",
+                "do x",
+            ]
+        ),
+    )
+    assert capsys.readouterr().out == "INJECTED"  # printed for the skill to apply
+    assert state.read_active("c1") is None  # no turn state written

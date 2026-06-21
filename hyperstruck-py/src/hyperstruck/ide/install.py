@@ -2,8 +2,8 @@
 
 Idempotent and additive. It copies the bundled ``hyper-*`` skills into each
 editor's user-global skill directory, deep-merges the learning hooks into the
-editor's hooks config *without* touching any other entry, writes the Cursor
-resolve nudge, and records auth. Re-running upgrades in place: our entries carry a
+editor's hooks config *without* touching any other entry, and records auth.
+Re-running upgrades in place: our entries carry a
 recognisable command marker, so a re-run replaces them rather than duplicating,
 and never removes a hook another tool installed.
 
@@ -45,18 +45,6 @@ def _claude_dir() -> Path:
 def _cursor_dir() -> Path:
     """Cursor's user dir, overridable for tests and exotic homes."""
     return Path(os.environ.get("HYPER_CURSOR_DIR") or (Path.home() / ".cursor"))
-
-
-_CURSOR_RULE = """---
-description: Recall Hyperstruck learnings at the start of each task
-alwaysApply: true
----
-
-At the start of each new task, before planning or editing, invoke the
-`hyper-learning` skill to recall relevant learnings for the current goal and
-apply them. This is how Hyperstruck injects prior experience on Cursor (hooks
-cannot inject context here). Keep it lightweight: one recall per task.
-"""
 
 
 @dataclass
@@ -114,7 +102,7 @@ def install(
 
 
 def uninstall() -> Report:
-    """Remove only Hyperstruck hook entries, skills, and the Cursor rule."""
+    """Remove only Hyperstruck hook entries and skills."""
     report = Report()
     _unwire(report, _claude_dir() / "settings.json", _claude_events())
     _unwire(report, _cursor_dir() / "hooks.json", _cursor_events())
@@ -124,10 +112,12 @@ def uninstall() -> Report:
             if target.is_dir():
                 shutil.rmtree(target, ignore_errors=True)
                 report.did(f"Removed skill {target}")
+    # Legacy cleanup: earlier versions wrote a Cursor recall rule, now superseded
+    # by the beforeSubmitPrompt/postToolUse hooks. Remove it if a prior install left it.
     rule = _cursor_dir() / "rules" / "hyperstruck-learning.mdc"
     if rule.exists():
         rule.unlink()
-        report.did(f"Removed {rule}")
+        report.did(f"Removed legacy {rule}")
     return report
 
 
@@ -184,13 +174,6 @@ def _install_cursor(report: Report) -> None:
     _write_json_atomic(hooks_path, config)
     report.did(f"Wired Cursor hooks in {hooks_path}")
 
-    rule_dir = _cursor_dir() / "rules"
-    rule_dir.mkdir(parents=True, exist_ok=True)
-    _write_text_atomic(rule_dir / "hyperstruck-learning.mdc", _CURSOR_RULE)
-    report.did(
-        f"Installed Cursor resolve nudge in {rule_dir / 'hyperstruck-learning.mdc'}"
-    )
-
 
 # -- hook command definitions ------------------------------------------------
 
@@ -209,7 +192,15 @@ def _claude_events() -> dict[str, str]:
 
 
 def _cursor_events() -> dict[str, str]:
+    # Cursor's prompt hook cannot inject, so resolve runs on beforeSubmitPrompt
+    # (stashes the recall, keyed by conversation_id) and the recall is injected by
+    # postToolUse, the one tool event that can return additional_context. Capture
+    # rides on afterFileEdit/afterShellExecution (the file/shell events) so it
+    # never double-counts a tool the inject hook also sees. All five hooks receive
+    # conversation_id, so resolve and capture rendezvous on the same session.
     return {
+        "beforeSubmitPrompt": _hook_cmd("prompt", "--source", SOURCE_CURSOR),
+        "postToolUse": _hook_cmd("tool", "--source", SOURCE_CURSOR, "--inject"),
         "afterFileEdit": _hook_cmd("tool", "--source", SOURCE_CURSOR, "--kind", "edit"),
         "afterShellExecution": _hook_cmd(
             "tool", "--source", SOURCE_CURSOR, "--kind", "command"

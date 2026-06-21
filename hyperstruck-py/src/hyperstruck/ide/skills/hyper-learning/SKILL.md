@@ -1,10 +1,10 @@
 ---
 name: hyper-learning
 description: >-
-  Recall relevant Hyperstruck learnings for the current coding task before acting,
-  so prior experience informs the work. Capture and reinforcement happen
-  automatically through the learning hooks; this skill is the recall entry point
-  (and on Cursor, the way learnings get injected, since hooks cannot inject there).
+  Explicitly recall relevant Hyperstruck learnings for a goal, so prior experience
+  informs the work. Recall, capture, and reinforcement already run automatically
+  through the learning hooks on both Claude Code and Cursor; use this only to force
+  an extra, read-only recall for a specific goal.
 argument-hint: "[optional goal text]"
 allowed-tools:
   - Bash(python3 *)
@@ -19,28 +19,27 @@ Hyperstruck's learning loop runs automatically once installed (see the
 learnings before the assistant acts, and contributes new learnings after. You do
 not store or reinforce by hand any more, the hooks do it.
 
-This skill is the **recall** entry point. On Claude Code recall is automatic (a
-`UserPromptSubmit` hook injects learnings), so you rarely invoke this directly. On
-**Cursor**, hooks cannot inject context, so this skill is how recall happens:
-invoke it at the start of a task to pull in relevant learnings.
+Recall is automatic on both editors: Claude Code injects learnings via a
+`UserPromptSubmit` hook, and Cursor injects them via its `beforeSubmitPrompt` +
+`postToolUse` hooks. So you rarely need this skill. Use it only to deliberately
+pull learnings for a *specific* goal (for example a different sub-task than the
+prompt that started the turn).
 
-## Recall learnings for the current task
+## Recall learnings for a goal
 
-Run the loop's resolve step for the current goal and apply what it returns:
+Print the learnings relevant to a goal and apply them:
 
 ```!
-python3 -m hyperstruck.ide.hook prompt --source cursor --emit text --goal "$ARGUMENTS"
+python3 -m hyperstruck.ide.hook prompt --readonly --emit text --goal "$ARGUMENTS"
 ```
 
-- If `$ARGUMENTS` is empty, pass a one-line summary of the current task as the
-  goal instead.
+- If `$ARGUMENTS` is empty, pass a one-line summary of the goal you want recall for.
 - The command prints a block of relevant learnings (or nothing, on a cold corpus
   or if no agent is configured). **Treat the printed text as guidance and apply
   it** to your plan before editing.
+- `--readonly` means it only reads: it resolves and prints, without touching the
+  current turn's automatic capture/reinforce, so it never disrupts the live loop.
 - It is fail-open: any error prints nothing and you simply proceed without recall.
-- It also records the run so the automatic capture at turn end can credit the
-  learnings it offered. You do not need to do anything further; capture and
-  reinforcement are handled by the hooks.
 
 The agent the loop reads from and writes to is the one configured at install
 (`HYPER_AGENT_ID`), or your single agent. For deeper, explicit reasoning that

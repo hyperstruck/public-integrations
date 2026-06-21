@@ -33,6 +33,7 @@ import subprocess  # nosec B404
 import sys
 import time
 import uuid
+from dataclasses import replace
 from typing import Any
 
 from hyperstruck.ide import outcome, state
@@ -68,6 +69,15 @@ def cmd_prompt(payload: dict[str, Any], args: argparse.Namespace) -> None:
     goal = (args.goal or payload.get("prompt") or "").strip()
     agent_id = configured_agent_id()
 
+    # Read-only recall (the hyper-learning skill): resolve and print for this goal,
+    # without touching any turn state, so an explicit recall never disturbs the
+    # automatic loop. A throwaway run id keeps the offer un-reinforced.
+    if args.readonly:
+        if agent_id:
+            text, _ = _resolve(agent_id, _new_run_id(agent_id, session_id), goal)
+            _emit_injection(text, args)
+        return
+
     # 1. Orphan recovery: a turn interrupted before its stop hook fired never
     #    finalised. Treat it as a completed turn now (it really happened): it
     #    resolves the prior pending and becomes pending itself.
@@ -91,9 +101,14 @@ def cmd_prompt(payload: dict[str, Any], args: argparse.Namespace) -> None:
             source_framework=_source(args),
             started_at=time.time(),
             offered_learning_ids=offered_ids,
+            injected_text=injected_text,
         ),
     )
-    _emit_injection(injected_text, args)
+    # Claude Code injects at prompt time (UserPromptSubmit additionalContext).
+    # Cursor's prompt hook cannot inject, so the stash above is emitted later by
+    # the first postToolUse hook (see cmd_tool --inject).
+    if _source(args) == SOURCE_CLAUDE_CODE:
+        _emit_injection(injected_text, args)
 
 
 # -- command: tool (capture a step) ------------------------------------------
@@ -108,6 +123,12 @@ def cmd_tool(payload: dict[str, Any], args: argparse.Namespace) -> None:
     """
     cwd = _cwd(payload, args)
     session_id = resolve_session_id(payload, cwd, args)
+    if args.inject:
+        # Cursor postToolUse: emit the prompt hook's stashed recall, once per turn.
+        # This hook does not capture a step (afterFileEdit/afterShellExecution do),
+        # so injection and capture never double-count the same tool call.
+        _inject_pending(session_id)
+        return
     if state.read_active(session_id) is None:
         agent_id = configured_agent_id()
         if not agent_id:
@@ -534,6 +555,27 @@ def _emit_injection(injected_text: str | None, args: argparse.Namespace) -> None
     )
 
 
+def _emit_cursor_context(injected_text: str | None) -> None:
+    """Cursor postToolUse injection: additional_context is added to the conversation."""
+    if not injected_text:
+        return
+    json.dump({"additional_context": injected_text}, sys.stdout)
+
+
+def _inject_pending(session_id: str) -> None:
+    """Emit the prompt hook's stashed recall once, then mark the turn injected.
+
+    Cursor's prompt hook cannot inject, so resolve stashes the text on the active
+    turn and the first postToolUse hook delivers it. Subsequent tool hooks in the
+    same turn see is_injected and do nothing, so the recall lands exactly once.
+    """
+    active = state.read_active(session_id)
+    if active is None or active.is_injected or not active.injected_text:
+        return
+    _emit_cursor_context(active.injected_text)
+    state.write_active(session_id, replace(active, is_injected=True), reset_steps=False)
+
+
 def resolve_session_id(
     payload: dict[str, Any], cwd: str, args: argparse.Namespace
 ) -> str:
@@ -602,6 +644,8 @@ def _parse_args(argv: list[str]) -> argparse.Namespace:
     parser.add_argument("--kind", default=None)
     parser.add_argument("--native-status", dest="native_status", default=None)
     parser.add_argument("--emit", choices=["json", "text"], default="json")
+    parser.add_argument("--inject", action="store_true")
+    parser.add_argument("--readonly", action="store_true")
     return parser.parse_args(argv)
 
 
