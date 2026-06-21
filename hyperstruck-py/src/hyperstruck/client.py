@@ -113,7 +113,9 @@ class HostedLearningClient:
                 f"one of {', '.join(_API_KEY_ENV_VARS)}"
             )
         self._api_key = resolved_key
-        self._base_url = (base_url or _first_env(_BASE_URL_ENV_VARS) or DEFAULT_BASE_URL).rstrip("/")
+        self._base_url = (
+            base_url or _first_env(_BASE_URL_ENV_VARS) or DEFAULT_BASE_URL
+        ).rstrip("/")
         _require_secure_base_url(self._base_url)
         self._resolve_timeout = resolve_timeout
         self._max_write_retries = max(1, max_write_retries)
@@ -148,12 +150,14 @@ class HostedLearningClient:
             "org_id": identity.org_id,
             "run_id": run_id,
             "goal": goal,
-            "available_tools": [{"name": t.name, "description": t.description} for t in available_tools],
+            "available_tools": [
+                {"name": t.name, "description": t.description} for t in available_tools
+            ],
             "max_learnings": max_learnings,
             "model_context_window": model_context_window,
         }
         response = await asyncio.wait_for(
-            self._http.post(self._url("/v1/resolve"), json=body, headers=self._headers),
+            self._http.post(self._url("/resolve"), json=body, headers=self._headers),
             timeout=self._resolve_timeout,
         )
         response.raise_for_status()
@@ -166,7 +170,7 @@ class HostedLearningClient:
             "org_id": identity.org_id,
             "episode": redact_episode_payload(episode.to_payload()),
         }
-        self._schedule_write("/v1/observe", body)
+        self._schedule_write("/observe", body)
 
     async def reinforce(
         self,
@@ -181,7 +185,7 @@ class HostedLearningClient:
             "episode": redact_episode_payload(episode.to_payload()),
             "is_org_promotion_allowed": is_org_promotion_allowed,
         }
-        self._schedule_write("/v1/reinforce", body)
+        self._schedule_write("/reinforce", body)
 
     # -- background delivery ------------------------------------------------
 
@@ -201,7 +205,9 @@ class HostedLearningClient:
         last_error: Exception | None = None
         for attempt in range(self._max_write_retries):
             try:
-                response = await self._http.post(self._url(path), json=body, headers=self._headers)
+                response = await self._http.post(
+                    self._url(path), json=body, headers=self._headers
+                )
                 response.raise_for_status()
                 self.writes_delivered += 1
                 return
@@ -210,7 +216,12 @@ class HostedLearningClient:
                 if attempt + 1 < self._max_write_retries:
                     await asyncio.sleep(self._retry_backoff * (2**attempt))
         self.writes_failed += 1
-        logger.warning("Hyperstruck write to %s dropped after %d attempts: %s", path, self._max_write_retries, last_error)
+        logger.warning(
+            "Hyperstruck write to %s dropped after %d attempts: %s",
+            path,
+            self._max_write_retries,
+            last_error,
+        )
 
     async def drain(self, timeout: float = 30.0) -> None:
         """Await all in-flight background writes (for shutdown and tests)."""

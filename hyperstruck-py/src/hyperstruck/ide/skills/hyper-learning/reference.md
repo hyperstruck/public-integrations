@@ -1,20 +1,20 @@
 # Hyperstruck learning reference
 
-This skill drives the hosted `/v1` learning loop through the editor hooks. Load
+This skill drives the hosted learning loop through the editor hooks. Load
 this file when you need the request shapes or the interim manual-curation path.
 
 ---
 
-## The /v1 learning loop (automatic)
+## The learning loop (automatic)
 
 The loop runs for you via the installed hooks; you do not call these by hand. They
 are listed so you understand what is happening.
 
 | Step | Endpoint | When | Purpose |
 |------|----------|------|---------|
-| resolve | `POST /v1/resolve` | turn start | Return goal-relevant learnings to inject. Server stores the offer log keyed by `run_id`. |
-| observe | `POST /v1/observe` | deferred to next turn start | Extract new learnings from the finished episode (server-side producer + critic). |
-| reinforce | `POST /v1/reinforce` | deferred to next turn start | Credit/penalise the learnings that were offered at resolve. |
+| resolve | `POST /resolve` | turn start | Return goal-relevant learnings to inject. Server stores the offer log keyed by `run_id`. |
+| observe | `POST /observe` | deferred to next turn start | Extract new learnings from the finished episode (server-side producer + critic). |
+| reinforce | `POST /reinforce` | deferred to next turn start | Credit/penalise the learnings that were offered at resolve. |
 
 The write side is deferred one turn so the user's next prompt supplies ground
 truth for the prior turn's outcome. All of this is handled by

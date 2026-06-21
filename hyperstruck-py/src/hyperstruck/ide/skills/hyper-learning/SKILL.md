@@ -57,6 +57,6 @@ capability is lost, only its home moves.
 ## What changed
 
 Earlier versions of this skill called the manual learning endpoints to store,
-search, and reinforce by hand. That is gone: the `/v1` learning loop
+search, and reinforce by hand. That is gone: the hosted resolve/observe/reinforce loop
 (resolve / observe / reinforce) now runs automatically through the hooks, and
 durable manual curation lives in the dashboard (curation API in the interim).

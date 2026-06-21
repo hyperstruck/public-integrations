@@ -56,7 +56,7 @@ async def test_resolve_returns_bound_context() -> None:
     ctx = await client.resolve(identity=IDENTITY, run_id="r1", goal="g")
     assert ctx.injected_text == "L"
     assert ctx.offered_learning_ids == ("a", "b")
-    assert seen["path"] == "/v1/resolve"
+    assert seen["path"] == "/resolve"
     assert seen["auth"] == "Bearer k"
     await client.aclose()
 
@@ -132,5 +132,5 @@ async def test_at_least_once_safe_same_run_id_sends_each_time() -> None:
     await client.observe(identity=IDENTITY, episode=_episode())
     await client.drain()
     # The client sends each time; the platform dedupes by run id server-side.
-    assert posts.count("/v1/observe") == 2
+    assert posts.count("/observe") == 2
     await client.aclose()
