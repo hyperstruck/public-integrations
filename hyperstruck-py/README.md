@@ -71,7 +71,9 @@ the corpus grows as runs accrue.
 
 - **Resolve** (run start): the middleware fetches the learnings bound to the
   run's goal and injects them into every model call. Deadline-bounded and
-  fail-open, so a slow or unreachable platform never stalls your agent.
+  fail-open, so a slow or unreachable platform never stalls your agent. Resolve
+  uses a fast, graph-free retrieval path by default, ranking learnings by
+  relevance, usefulness, and reliability with no graph round trips.
 - **Record** (during the run): planned tool calls and their outcomes are joined
   by tool-call id, so the platform knows which learning helped which step.
 - **Observe and reinforce** (run end): the finished run is shipped for
