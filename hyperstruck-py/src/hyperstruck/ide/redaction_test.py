@@ -3,8 +3,8 @@
 from __future__ import annotations
 
 from hyperstruck.ide.constants import MAX_RESULT_CHARS
-from hyperstruck.ide.redaction import clip_result, redact_ide_episode, scrub_secrets
-from hyperstruck.redaction import REDACTION_MARKER
+from hyperstruck.ide.redaction import clip_result, redact_ide_episode
+from hyperstruck.redaction import REDACTION_MARKER, scrub_secrets
 
 
 def test_known_credential_shapes_scrubbed() -> None:

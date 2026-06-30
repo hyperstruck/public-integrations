@@ -23,12 +23,12 @@ from __future__ import annotations
 
 import asyncio
 import logging
-import os
 from collections.abc import Sequence
 from typing import Any, Protocol, runtime_checkable
 
 import httpx
 
+from hyperstruck.env import API_KEY_ENV_VARS, BASE_URL_ENV_VARS, first_env
 from hyperstruck._wire import DEFAULT_MAX_LEARNINGS, Episode, ResolvedContext, ToolSpec
 from hyperstruck.identity import AgentIdentity
 from hyperstruck.redaction import redact_episode_payload
@@ -36,13 +36,17 @@ from hyperstruck.redaction import redact_episode_payload
 logger = logging.getLogger(__name__)
 
 DEFAULT_BASE_URL = "https://api.hyperstruck.com"
-_API_KEY_ENV_VARS = ("HYPERSTRUCK_API_KEY", "HYPER_API_KEY")
-_BASE_URL_ENV_VARS = ("HYPERSTRUCK_BASE_URL", "HYPER_BASE_URL")
 
 
 @runtime_checkable
 class LearningClient(Protocol):
     """The observe / resolve / reinforce boundary the middleware depends on."""
+
+    # Delivery counters, part of the contract so callers can read the write outcome
+    # after a drain (e.g. to report an honest loop-closure status) without reaching
+    # past the port into a concrete implementation.
+    writes_delivered: int
+    writes_failed: int
 
     async def resolve(
         self,
@@ -53,6 +57,7 @@ class LearningClient(Protocol):
         available_tools: Sequence[ToolSpec] = (),
         max_learnings: int = DEFAULT_MAX_LEARNINGS,
         model_context_window: int | None = None,
+        source_framework: str = "",
     ) -> ResolvedContext:
         """Return the learnings bound to a goal. Deadline-bounded; may raise."""
         ...
@@ -81,8 +86,8 @@ class LearningClient(Protocol):
         """
         ...
 
-    async def aclose(self) -> None:
-        """Drain in-flight writes and release any resources the client holds."""
+    async def aclose(self, drain_timeout: float = 30.0) -> None:
+        """Drain in-flight writes (within ``drain_timeout``) and release resources."""
         ...
 
 
@@ -106,15 +111,15 @@ class HostedLearningClient:
         max_write_retries: int = 3,
         retry_backoff: float = 0.5,
     ) -> None:
-        resolved_key = api_key or _first_env(_API_KEY_ENV_VARS)
+        resolved_key = api_key or first_env(API_KEY_ENV_VARS)
         if not resolved_key:
             raise ValueError(
                 "HostedLearningClient requires an API key: pass api_key=... or set "
-                f"one of {', '.join(_API_KEY_ENV_VARS)}"
+                f"one of {', '.join(API_KEY_ENV_VARS)}"
             )
         self._api_key = resolved_key
         self._base_url = (
-            base_url or _first_env(_BASE_URL_ENV_VARS) or DEFAULT_BASE_URL
+            base_url or first_env(BASE_URL_ENV_VARS) or DEFAULT_BASE_URL
         ).rstrip("/")
         _require_secure_base_url(self._base_url)
         self._resolve_timeout = resolve_timeout
@@ -144,12 +149,14 @@ class HostedLearningClient:
         available_tools: Sequence[ToolSpec] = (),
         max_learnings: int = DEFAULT_MAX_LEARNINGS,
         model_context_window: int | None = None,
+        source_framework: str = "",
     ) -> ResolvedContext:
         body: dict[str, Any] = {
             "agent_id": identity.agent_id,
             "org_id": identity.org_id,
             "run_id": run_id,
             "goal": goal,
+            "source_framework": source_framework,
             "available_tools": [
                 {"name": t.name, "description": t.description} for t in available_tools
             ],
@@ -193,7 +200,21 @@ class HostedLearningClient:
         """Fire-and-forget a write so the host run is never blocked."""
         task = asyncio.ensure_future(self._deliver(path, body))
         self._pending.add(task)
-        task.add_done_callback(self._pending.discard)
+        task.add_done_callback(self._on_write_done)
+
+    def _on_write_done(self, task: asyncio.Task[None]) -> None:
+        """Drop a finished write; surface an unexpected escape rather than hide it.
+
+        ``_deliver`` handles its own delivery errors, so a task that ends with an
+        exception here is an unexpected one (not a cancellation) and is logged
+        instead of silently swallowed by the discard.
+        """
+        self._pending.discard(task)
+        if task.cancelled():
+            return
+        exc = task.exception()
+        if exc is not None:
+            logger.warning("Hyperstruck write task ended unexpectedly: %s", exc)
 
     async def _deliver(self, path: str, body: dict[str, Any]) -> None:
         """Deliver one write with bounded retry and backoff.
@@ -228,8 +249,8 @@ class HostedLearningClient:
         if self._pending:
             await asyncio.wait(set(self._pending), timeout=timeout)
 
-    async def aclose(self) -> None:
-        await self.drain()
+    async def aclose(self, drain_timeout: float = 30.0) -> None:
+        await self.drain(timeout=drain_timeout)
         if self._is_client_owned:
             await self._http.aclose()
 
@@ -249,9 +270,3 @@ def _require_secure_base_url(base_url: str) -> None:
     )
 
 
-def _first_env(names: Sequence[str]) -> str | None:
-    for name in names:
-        value = os.environ.get(name)
-        if value:
-            return value
-    return None

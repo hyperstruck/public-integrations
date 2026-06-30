@@ -11,6 +11,7 @@ swappable client.
 - [Install](#install)
 - [Quick start (LangGraph)](#quick-start-langgraph)
 - [Quick start (IDE: Claude Code & Cursor)](#quick-start-ide-claude-code--cursor)
+- [Quick start (MCP host)](#quick-start-mcp-host)
 - [How it works](#how-it-works)
 - [Configuration](#configuration)
 - [Privacy: client-side redaction](#privacy-client-side-redaction)
@@ -72,6 +73,32 @@ This wires the learning hooks into Claude Code and Cursor (deep-merging your hoo
 config without touching your existing entries) and installs the `hyper-*` skills.
 Restart your editor afterwards. See [`hyperstruck/ide/README.md`](src/hyperstruck/ide/README.md)
 for the turn loop, the deferred outcome resolution, and the privacy model.
+
+## Quick start (MCP host)
+
+The same learning loop for any MCP-capable host (Claude Desktop, Cursor, Cline),
+through Hyperstruck's hosted MCP server. There is nothing to install and nothing
+to run: point your host at the remote endpoint with your key and an agent name.
+
+```json
+{
+  "mcpServers": {
+    "hyperstruck": {
+      "url": "https://mcp.hyperstruck.com/mcp/",
+      "headers": {
+        "Authorization": "Bearer your-hyperstruck-api-key",
+        "X-Hyperstruck-Agent-Id": "support-bot"
+      }
+    }
+  }
+}
+```
+
+The host's model calls two tools: `resolve` to read the learnings bound to a task
+before it acts, and `complete_run` to report the outcome after, so the next run
+is sharper. Redaction runs at our edge before anything is persisted, with the
+names/addresses tier available on the compliance add-on. Regulated teams that need
+redaction inside their own process can run the self-host build (enterprise).
 
 ## How it works
 

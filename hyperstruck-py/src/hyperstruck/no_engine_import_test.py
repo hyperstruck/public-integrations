@@ -22,5 +22,9 @@ def test_importing_hyperstruck_does_not_import_core() -> None:
     import hyperstruck.ide.install  # noqa: F401
     import hyperstruck.langgraph  # noqa: F401
 
-    leaked = [name for name in sys.modules if name == "hyperstruck_core" or name.startswith("hyperstruck_core.")]
+    leaked = [
+        name
+        for name in sys.modules
+        if name == "hyperstruck_core" or name.startswith("hyperstruck_core.")
+    ]
     assert leaked == [], f"public package imported engine modules: {leaked}"

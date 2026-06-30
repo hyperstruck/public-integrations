@@ -33,7 +33,12 @@ def _payload_with_secret() -> dict:
                 "declared_sensitivity": None,
             },
         ],
-        "outcome": {"is_success": True, "total_steps": 2, "completed_steps": 2, "failed_steps": 0},
+        "outcome": {
+            "is_success": True,
+            "total_steps": 2,
+            "completed_steps": 2,
+            "failed_steps": 0,
+        },
         "source_framework": "langgraph",
         "thread_id": None,
     }
@@ -88,7 +93,12 @@ def _payload_with_short_secret(value: str) -> dict:
                 "declared_sensitivity": {"args": {"qty": "secret"}},
             },
         ],
-        "outcome": {"is_success": True, "total_steps": 1, "completed_steps": 1, "failed_steps": 0},
+        "outcome": {
+            "is_success": True,
+            "total_steps": 1,
+            "completed_steps": 1,
+            "failed_steps": 0,
+        },
         "source_framework": "langgraph",
         "thread_id": None,
     }
@@ -140,3 +150,187 @@ def test_deeply_nested_result_is_scrubbed_without_recursion_error() -> None:
     for _ in range(5000):
         node = node["next"]
     assert node["leaf"] == REDACTION_MARKER
+
+
+# ---------------------------------------------------------------------------
+# Tiered free-text detector (secrets + validated structured PII)
+# ---------------------------------------------------------------------------
+
+from hyperstruck.redaction import (  # noqa: E402
+    RedactionPolicy,
+    redact_free_text,
+    redact_text,
+    scrub_secrets,
+)
+
+
+def test_secret_becomes_tagged_placeholder() -> None:
+    out = redact_text("my key is sk-ABCDEFGHIJKLMNOPQRSTUV here")
+    assert "sk-ABCDEFGHIJKLMNOPQRSTUV" not in out
+    assert "<SECRET_1>" in out
+
+
+def test_repeated_secret_shares_one_placeholder() -> None:
+    key = "AKIAIOSFODNN7EXAMPLE"
+    out = redact_text(f"{key} and again {key}")
+    assert out.count("<SECRET_1>") == 2
+    assert "<SECRET_2>" not in out
+
+
+def test_email_redacted_to_placeholder() -> None:
+    out = redact_text("write to ada@example.com please")
+    assert "ada@example.com" not in out
+    assert "<EMAIL_1>" in out
+
+
+def test_credit_card_validated_by_luhn() -> None:
+    # A Luhn-valid card is redacted; a same-length non-Luhn number is left alone.
+    assert "<CARD_1>" in redact_text("card 4111 1111 1111 1111 on file")
+    out = redact_text("order number 4111 1111 1111 1112 shipped")
+    assert "<CARD" not in out
+    assert "4111 1111 1111 1112" in out
+
+
+def test_iban_validated_by_mod97() -> None:
+    assert "<IBAN_1>" in redact_text("pay GB82WEST12345698765432 today")
+    assert "<IBAN" not in redact_text("ref GB00WEST12345698765432 here")
+
+
+def test_ssn_and_ip_redacted() -> None:
+    out = redact_text("ssn 123-45-6789 from host 192.168.1.5")
+    assert "<SSN_1>" in out
+    assert "<IP_1>" in out
+    assert "192.168.1.5" not in out
+
+
+def test_invalid_ip_octet_not_redacted() -> None:
+    out = redact_text("version 999.999.0.1 of the build")
+    assert "<IP" not in out
+    assert "999.999.0.1" in out
+
+
+def test_phone_redacted_but_small_number_preserved() -> None:
+    assert "<PHONE_1>" in redact_text("call +1 415-555-0132 now")
+    # A short bare integer is not a phone number and must survive.
+    assert "<PHONE" not in redact_text("we shipped 250 units")
+
+
+def test_prose_survives() -> None:
+    prose = "the agent prefers the bulk endpoint for large reads"
+    assert redact_text(prose) == prose
+
+
+def test_ner_absent_degrades_to_tier_one() -> None:
+    # Requesting NER with no backend installed must still apply Tier 1, not crash.
+    policy = RedactionPolicy(is_ner_enabled=True)
+    out = redact_text(
+        "token sk-ABCDEFGHIJKLMNOPQRSTUV for ada@example.com", policy=policy
+    )
+    assert "<SECRET_1>" in out
+    assert "<EMAIL_1>" in out
+
+
+def test_custom_ner_hook_runs() -> None:
+    policy = RedactionPolicy(
+        is_ner_enabled=True, ner_hook=lambda t: t.replace("Ada Lovelace", "<NAME_1>")
+    )
+    out = redact_text("Ada Lovelace sent ada@example.com", policy=policy)
+    assert "<NAME_1>" in out
+    assert "<EMAIL_1>" in out
+
+
+def test_redact_free_text_preserves_identifiers() -> None:
+    payload = {
+        "run_id": "bot:abc-123-def",
+        "goal": "email ada@example.com about the deploy",
+        "source_framework": "mcp:test",
+        "steps": [
+            {
+                "id": "step-1",
+                "status": "completed",
+                "name": "send_email",
+                "args": {"to": "ada@example.com"},
+                "result": "sent",
+            }
+        ],
+        "outcome": {"is_success": True},
+    }
+    redacted = redact_free_text(payload)
+    # Identifiers untouched (the boundary keys its offer log on run_id).
+    assert redacted["run_id"] == "bot:abc-123-def"
+    assert redacted["source_framework"] == "mcp:test"
+    assert redacted["steps"][0]["id"] == "step-1"
+    assert redacted["steps"][0]["status"] == "completed"
+    # Free text scrubbed, consistently across the payload.
+    assert "ada@example.com" not in redacted["goal"]
+    assert "<EMAIL_1>" in redacted["goal"]
+    assert "ada@example.com" not in redacted["steps"][0]["args"]["to"]
+    # Input not mutated.
+    assert payload["goal"] == "email ada@example.com about the deploy"
+
+
+def test_scrub_secrets_default_marker_unchanged_for_adapters() -> None:
+    # The IDE path relies on the bare marker; the shared core must still produce it.
+    assert scrub_secrets("AKIAIOSFODNN7EXAMPLE") == REDACTION_MARKER
+
+
+def test_short_secret_under_sensitive_key_is_redacted() -> None:
+    # A short, low-entropy value the secrets tier would miss in free text must
+    # still be redacted when it sits under a sensitive key name in a payload.
+    payload = {"steps": [{"name": "call", "args": {"api_key": "Xk93jZ"}}]}
+    out = redact_free_text(payload)
+    assert "Xk93jZ" not in str(out)
+    assert "<SECRET_1>" == out["steps"][0]["args"]["api_key"]
+
+
+def test_sensitive_key_matches_common_spellings() -> None:
+    payload = {"password": "p@ss", "authToken": "abc123", "note": "fine"}
+    out = redact_free_text(payload)
+    assert out["password"].startswith("<SECRET")
+    assert out["authToken"].startswith("<SECRET")
+    assert out["note"] == "fine"
+
+
+def test_redact_free_text_handles_deep_nesting_without_recursion_error() -> None:
+    # The host-reported write path is arbitrarily deep; the walk must be iterative.
+    deep: dict = {}
+    cursor = deep
+    for _ in range(6000):
+        cursor["next"] = {}
+        cursor = cursor["next"]
+    cursor["leaf"] = "ada@example.com"
+    out = redact_free_text({"goal": "g", "steps": [deep]})
+    node = out["steps"][0]
+    for _ in range(6000):
+        node = node["next"]
+    assert node["leaf"] != "ada@example.com"
+    assert "<EMAIL" in node["leaf"]
+
+
+
+
+def test_namespaced_sensitive_keys_are_redacted() -> None:
+    # The anchored regex used to miss these common spellings; the fragment match
+    # now catches them.
+    payload = {
+        "db_password": "hunter2",
+        "access_token": "abc123",
+        "client_secret": "xyz789",
+        "openai_api_key": "shortkey",
+        "harmless": "keep me",
+    }
+    out = redact_free_text(payload)
+    assert out["db_password"].startswith("<SECRET")
+    assert out["access_token"].startswith("<SECRET")
+    assert out["client_secret"].startswith("<SECRET")
+    assert out["openai_api_key"].startswith("<SECRET")
+    assert out["harmless"] == "keep me"
+
+
+def test_sensitive_key_propagates_into_nested_dict() -> None:
+    # A secret nested under a sensitive key is redacted even though its own inner
+    # key is innocuous.
+    payload = {"credential": {"value": "shortlowentropy", "kind": "bearer"}}
+    out = redact_free_text(payload)
+    assert out["credential"]["value"].startswith("<SECRET")
+    assert out["credential"]["kind"].startswith("<SECRET")
