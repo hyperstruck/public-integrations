@@ -32,6 +32,103 @@ class UsageApi(object):
             api_client = ApiClient()
         self.api_client = api_client
 
+    def get_agent_usage_summary_endpoint_agents_agent_id_usage_summary_get(self, agent_id, **kwargs):  # noqa: E501
+        """Get Agent Usage Summary  # noqa: E501
+
+        This method makes a synchronous HTTP request by default. To make an
+        asynchronous HTTP request, please pass async_req=True
+        >>> thread = api.get_agent_usage_summary_endpoint_agents_agent_id_usage_summary_get(agent_id, async_req=True)
+        >>> result = thread.get()
+
+        :param async_req bool
+        :param object agent_id: (required)
+        :param UsageTimeWindow window: Preset reporting window.
+        :return: AgentUsageSummaryResponse
+                 If the method is called asynchronously,
+                 returns the request thread.
+        """
+        kwargs['_return_http_data_only'] = True
+        if kwargs.get('async_req'):
+            return self.get_agent_usage_summary_endpoint_agents_agent_id_usage_summary_get_with_http_info(agent_id, **kwargs)  # noqa: E501
+        else:
+            (data) = self.get_agent_usage_summary_endpoint_agents_agent_id_usage_summary_get_with_http_info(agent_id, **kwargs)  # noqa: E501
+            return data
+
+    def get_agent_usage_summary_endpoint_agents_agent_id_usage_summary_get_with_http_info(self, agent_id, **kwargs):  # noqa: E501
+        """Get Agent Usage Summary  # noqa: E501
+
+        This method makes a synchronous HTTP request by default. To make an
+        asynchronous HTTP request, please pass async_req=True
+        >>> thread = api.get_agent_usage_summary_endpoint_agents_agent_id_usage_summary_get_with_http_info(agent_id, async_req=True)
+        >>> result = thread.get()
+
+        :param async_req bool
+        :param object agent_id: (required)
+        :param UsageTimeWindow window: Preset reporting window.
+        :return: AgentUsageSummaryResponse
+                 If the method is called asynchronously,
+                 returns the request thread.
+        """
+
+        all_params = ['agent_id', 'window']  # noqa: E501
+        all_params.append('async_req')
+        all_params.append('_return_http_data_only')
+        all_params.append('_preload_content')
+        all_params.append('_request_timeout')
+
+        params = locals()
+        for key, val in six.iteritems(params['kwargs']):
+            if key not in all_params:
+                raise TypeError(
+                    "Got an unexpected keyword argument '%s'"
+                    " to method get_agent_usage_summary_endpoint_agents_agent_id_usage_summary_get" % key
+                )
+            params[key] = val
+        del params['kwargs']
+        # verify the required parameter 'agent_id' is set
+        if ('agent_id' not in params or
+                params['agent_id'] is None):
+            raise ValueError("Missing the required parameter `agent_id` when calling `get_agent_usage_summary_endpoint_agents_agent_id_usage_summary_get`")  # noqa: E501
+
+        collection_formats = {}
+
+        path_params = {}
+        if 'agent_id' in params:
+            path_params['agent_id'] = params['agent_id']  # noqa: E501
+
+        query_params = []
+        if 'window' in params:
+            query_params.append(('window', params['window']))  # noqa: E501
+
+        header_params = {}
+
+        form_params = []
+        local_var_files = {}
+
+        body_params = None
+        # HTTP header `Accept`
+        header_params['Accept'] = self.api_client.select_header_accept(
+            ['application/json'])  # noqa: E501
+
+        # Authentication setting
+        auth_settings = []  # noqa: E501
+
+        return self.api_client.call_api(
+            '/agents/{agent_id}/usage/summary', 'GET',
+            path_params,
+            query_params,
+            header_params,
+            body=body_params,
+            post_params=form_params,
+            files=local_var_files,
+            response_type='AgentUsageSummaryResponse',  # noqa: E501
+            auth_settings=auth_settings,
+            async_req=params.get('async_req'),
+            _return_http_data_only=params.get('_return_http_data_only'),
+            _preload_content=params.get('_preload_content', True),
+            _request_timeout=params.get('_request_timeout'),
+            collection_formats=collection_formats)
+
     def get_own_usage_summary_usage_summary_get(self, **kwargs):  # noqa: E501
         """Get Own Usage Summary  # noqa: E501
 
@@ -111,208 +208,6 @@ class UsageApi(object):
 
         return self.api_client.call_api(
             '/usage/summary', 'GET',
-            path_params,
-            query_params,
-            header_params,
-            body=body_params,
-            post_params=form_params,
-            files=local_var_files,
-            response_type='UsageSummaryResponse',  # noqa: E501
-            auth_settings=auth_settings,
-            async_req=params.get('async_req'),
-            _return_http_data_only=params.get('_return_http_data_only'),
-            _preload_content=params.get('_preload_content', True),
-            _request_timeout=params.get('_request_timeout'),
-            collection_formats=collection_formats)
-
-    def get_tenant_llm_usage_breakdown_admin_usage_tenants_tenant_id_llm_breakdown_get(self, tenant_id, **kwargs):  # noqa: E501
-        """Get Tenant Llm Usage Breakdown Admin  # noqa: E501
-
-        This method makes a synchronous HTTP request by default. To make an
-        asynchronous HTTP request, please pass async_req=True
-        >>> thread = api.get_tenant_llm_usage_breakdown_admin_usage_tenants_tenant_id_llm_breakdown_get(tenant_id, async_req=True)
-        >>> result = thread.get()
-
-        :param async_req bool
-        :param object tenant_id: (required)
-        :param UsageTimeWindow window: Preset reporting window (custom date range not supported in this API version).
-        :param object as_of: Optional UTC timestamp used to anchor the reporting window so summary and paginated run pages stay aligned across requests.
-        :return: UsageLlmBreakdownResponse
-                 If the method is called asynchronously,
-                 returns the request thread.
-        """
-        kwargs['_return_http_data_only'] = True
-        if kwargs.get('async_req'):
-            return self.get_tenant_llm_usage_breakdown_admin_usage_tenants_tenant_id_llm_breakdown_get_with_http_info(tenant_id, **kwargs)  # noqa: E501
-        else:
-            (data) = self.get_tenant_llm_usage_breakdown_admin_usage_tenants_tenant_id_llm_breakdown_get_with_http_info(tenant_id, **kwargs)  # noqa: E501
-            return data
-
-    def get_tenant_llm_usage_breakdown_admin_usage_tenants_tenant_id_llm_breakdown_get_with_http_info(self, tenant_id, **kwargs):  # noqa: E501
-        """Get Tenant Llm Usage Breakdown Admin  # noqa: E501
-
-        This method makes a synchronous HTTP request by default. To make an
-        asynchronous HTTP request, please pass async_req=True
-        >>> thread = api.get_tenant_llm_usage_breakdown_admin_usage_tenants_tenant_id_llm_breakdown_get_with_http_info(tenant_id, async_req=True)
-        >>> result = thread.get()
-
-        :param async_req bool
-        :param object tenant_id: (required)
-        :param UsageTimeWindow window: Preset reporting window (custom date range not supported in this API version).
-        :param object as_of: Optional UTC timestamp used to anchor the reporting window so summary and paginated run pages stay aligned across requests.
-        :return: UsageLlmBreakdownResponse
-                 If the method is called asynchronously,
-                 returns the request thread.
-        """
-
-        all_params = ['tenant_id', 'window', 'as_of']  # noqa: E501
-        all_params.append('async_req')
-        all_params.append('_return_http_data_only')
-        all_params.append('_preload_content')
-        all_params.append('_request_timeout')
-
-        params = locals()
-        for key, val in six.iteritems(params['kwargs']):
-            if key not in all_params:
-                raise TypeError(
-                    "Got an unexpected keyword argument '%s'"
-                    " to method get_tenant_llm_usage_breakdown_admin_usage_tenants_tenant_id_llm_breakdown_get" % key
-                )
-            params[key] = val
-        del params['kwargs']
-        # verify the required parameter 'tenant_id' is set
-        if ('tenant_id' not in params or
-                params['tenant_id'] is None):
-            raise ValueError("Missing the required parameter `tenant_id` when calling `get_tenant_llm_usage_breakdown_admin_usage_tenants_tenant_id_llm_breakdown_get`")  # noqa: E501
-
-        collection_formats = {}
-
-        path_params = {}
-        if 'tenant_id' in params:
-            path_params['tenant_id'] = params['tenant_id']  # noqa: E501
-
-        query_params = []
-        if 'window' in params:
-            query_params.append(('window', params['window']))  # noqa: E501
-        if 'as_of' in params:
-            query_params.append(('as_of', params['as_of']))  # noqa: E501
-
-        header_params = {}
-
-        form_params = []
-        local_var_files = {}
-
-        body_params = None
-        # HTTP header `Accept`
-        header_params['Accept'] = self.api_client.select_header_accept(
-            ['application/json'])  # noqa: E501
-
-        # Authentication setting
-        auth_settings = []  # noqa: E501
-
-        return self.api_client.call_api(
-            '/usage/tenants/{tenant_id}/llm/breakdown', 'GET',
-            path_params,
-            query_params,
-            header_params,
-            body=body_params,
-            post_params=form_params,
-            files=local_var_files,
-            response_type='UsageLlmBreakdownResponse',  # noqa: E501
-            auth_settings=auth_settings,
-            async_req=params.get('async_req'),
-            _return_http_data_only=params.get('_return_http_data_only'),
-            _preload_content=params.get('_preload_content', True),
-            _request_timeout=params.get('_request_timeout'),
-            collection_formats=collection_formats)
-
-    def get_tenant_usage_summary_admin_usage_tenants_tenant_id_summary_get(self, tenant_id, **kwargs):  # noqa: E501
-        """Get Tenant Usage Summary Admin  # noqa: E501
-
-        This method makes a synchronous HTTP request by default. To make an
-        asynchronous HTTP request, please pass async_req=True
-        >>> thread = api.get_tenant_usage_summary_admin_usage_tenants_tenant_id_summary_get(tenant_id, async_req=True)
-        >>> result = thread.get()
-
-        :param async_req bool
-        :param object tenant_id: (required)
-        :param UsageTimeWindow window: Preset reporting window (custom date range not supported in this API version).
-        :param object as_of: Optional UTC timestamp used to anchor the reporting window so summary and paginated run pages stay aligned across requests.
-        :return: UsageSummaryResponse
-                 If the method is called asynchronously,
-                 returns the request thread.
-        """
-        kwargs['_return_http_data_only'] = True
-        if kwargs.get('async_req'):
-            return self.get_tenant_usage_summary_admin_usage_tenants_tenant_id_summary_get_with_http_info(tenant_id, **kwargs)  # noqa: E501
-        else:
-            (data) = self.get_tenant_usage_summary_admin_usage_tenants_tenant_id_summary_get_with_http_info(tenant_id, **kwargs)  # noqa: E501
-            return data
-
-    def get_tenant_usage_summary_admin_usage_tenants_tenant_id_summary_get_with_http_info(self, tenant_id, **kwargs):  # noqa: E501
-        """Get Tenant Usage Summary Admin  # noqa: E501
-
-        This method makes a synchronous HTTP request by default. To make an
-        asynchronous HTTP request, please pass async_req=True
-        >>> thread = api.get_tenant_usage_summary_admin_usage_tenants_tenant_id_summary_get_with_http_info(tenant_id, async_req=True)
-        >>> result = thread.get()
-
-        :param async_req bool
-        :param object tenant_id: (required)
-        :param UsageTimeWindow window: Preset reporting window (custom date range not supported in this API version).
-        :param object as_of: Optional UTC timestamp used to anchor the reporting window so summary and paginated run pages stay aligned across requests.
-        :return: UsageSummaryResponse
-                 If the method is called asynchronously,
-                 returns the request thread.
-        """
-
-        all_params = ['tenant_id', 'window', 'as_of']  # noqa: E501
-        all_params.append('async_req')
-        all_params.append('_return_http_data_only')
-        all_params.append('_preload_content')
-        all_params.append('_request_timeout')
-
-        params = locals()
-        for key, val in six.iteritems(params['kwargs']):
-            if key not in all_params:
-                raise TypeError(
-                    "Got an unexpected keyword argument '%s'"
-                    " to method get_tenant_usage_summary_admin_usage_tenants_tenant_id_summary_get" % key
-                )
-            params[key] = val
-        del params['kwargs']
-        # verify the required parameter 'tenant_id' is set
-        if ('tenant_id' not in params or
-                params['tenant_id'] is None):
-            raise ValueError("Missing the required parameter `tenant_id` when calling `get_tenant_usage_summary_admin_usage_tenants_tenant_id_summary_get`")  # noqa: E501
-
-        collection_formats = {}
-
-        path_params = {}
-        if 'tenant_id' in params:
-            path_params['tenant_id'] = params['tenant_id']  # noqa: E501
-
-        query_params = []
-        if 'window' in params:
-            query_params.append(('window', params['window']))  # noqa: E501
-        if 'as_of' in params:
-            query_params.append(('as_of', params['as_of']))  # noqa: E501
-
-        header_params = {}
-
-        form_params = []
-        local_var_files = {}
-
-        body_params = None
-        # HTTP header `Accept`
-        header_params['Accept'] = self.api_client.select_header_accept(
-            ['application/json'])  # noqa: E501
-
-        # Authentication setting
-        auth_settings = []  # noqa: E501
-
-        return self.api_client.call_api(
-            '/usage/tenants/{tenant_id}/summary', 'GET',
             path_params,
             query_params,
             header_params,
@@ -414,224 +309,6 @@ class UsageApi(object):
 
         return self.api_client.call_api(
             '/usage/runs', 'GET',
-            path_params,
-            query_params,
-            header_params,
-            body=body_params,
-            post_params=form_params,
-            files=local_var_files,
-            response_type='UsageRunListResponse',  # noqa: E501
-            auth_settings=auth_settings,
-            async_req=params.get('async_req'),
-            _return_http_data_only=params.get('_return_http_data_only'),
-            _preload_content=params.get('_preload_content', True),
-            _request_timeout=params.get('_request_timeout'),
-            collection_formats=collection_formats)
-
-    def list_tenant_run_llm_calls_admin_usage_tenants_tenant_id_runs_run_id_calls_get(self, tenant_id, run_id, **kwargs):  # noqa: E501
-        """List Tenant Run Llm Calls Admin  # noqa: E501
-
-        This method makes a synchronous HTTP request by default. To make an
-        asynchronous HTTP request, please pass async_req=True
-        >>> thread = api.list_tenant_run_llm_calls_admin_usage_tenants_tenant_id_runs_run_id_calls_get(tenant_id, run_id, async_req=True)
-        >>> result = thread.get()
-
-        :param async_req bool
-        :param object tenant_id: (required)
-        :param object run_id: (required)
-        :param object limit: Page size.
-        :param object cursor: Opaque string from the previous page's `next_cursor`.
-        :return: UsageLlmCallListResponse
-                 If the method is called asynchronously,
-                 returns the request thread.
-        """
-        kwargs['_return_http_data_only'] = True
-        if kwargs.get('async_req'):
-            return self.list_tenant_run_llm_calls_admin_usage_tenants_tenant_id_runs_run_id_calls_get_with_http_info(tenant_id, run_id, **kwargs)  # noqa: E501
-        else:
-            (data) = self.list_tenant_run_llm_calls_admin_usage_tenants_tenant_id_runs_run_id_calls_get_with_http_info(tenant_id, run_id, **kwargs)  # noqa: E501
-            return data
-
-    def list_tenant_run_llm_calls_admin_usage_tenants_tenant_id_runs_run_id_calls_get_with_http_info(self, tenant_id, run_id, **kwargs):  # noqa: E501
-        """List Tenant Run Llm Calls Admin  # noqa: E501
-
-        This method makes a synchronous HTTP request by default. To make an
-        asynchronous HTTP request, please pass async_req=True
-        >>> thread = api.list_tenant_run_llm_calls_admin_usage_tenants_tenant_id_runs_run_id_calls_get_with_http_info(tenant_id, run_id, async_req=True)
-        >>> result = thread.get()
-
-        :param async_req bool
-        :param object tenant_id: (required)
-        :param object run_id: (required)
-        :param object limit: Page size.
-        :param object cursor: Opaque string from the previous page's `next_cursor`.
-        :return: UsageLlmCallListResponse
-                 If the method is called asynchronously,
-                 returns the request thread.
-        """
-
-        all_params = ['tenant_id', 'run_id', 'limit', 'cursor']  # noqa: E501
-        all_params.append('async_req')
-        all_params.append('_return_http_data_only')
-        all_params.append('_preload_content')
-        all_params.append('_request_timeout')
-
-        params = locals()
-        for key, val in six.iteritems(params['kwargs']):
-            if key not in all_params:
-                raise TypeError(
-                    "Got an unexpected keyword argument '%s'"
-                    " to method list_tenant_run_llm_calls_admin_usage_tenants_tenant_id_runs_run_id_calls_get" % key
-                )
-            params[key] = val
-        del params['kwargs']
-        # verify the required parameter 'tenant_id' is set
-        if ('tenant_id' not in params or
-                params['tenant_id'] is None):
-            raise ValueError("Missing the required parameter `tenant_id` when calling `list_tenant_run_llm_calls_admin_usage_tenants_tenant_id_runs_run_id_calls_get`")  # noqa: E501
-        # verify the required parameter 'run_id' is set
-        if ('run_id' not in params or
-                params['run_id'] is None):
-            raise ValueError("Missing the required parameter `run_id` when calling `list_tenant_run_llm_calls_admin_usage_tenants_tenant_id_runs_run_id_calls_get`")  # noqa: E501
-
-        collection_formats = {}
-
-        path_params = {}
-        if 'tenant_id' in params:
-            path_params['tenant_id'] = params['tenant_id']  # noqa: E501
-        if 'run_id' in params:
-            path_params['run_id'] = params['run_id']  # noqa: E501
-
-        query_params = []
-        if 'limit' in params:
-            query_params.append(('limit', params['limit']))  # noqa: E501
-        if 'cursor' in params:
-            query_params.append(('cursor', params['cursor']))  # noqa: E501
-
-        header_params = {}
-
-        form_params = []
-        local_var_files = {}
-
-        body_params = None
-        # HTTP header `Accept`
-        header_params['Accept'] = self.api_client.select_header_accept(
-            ['application/json'])  # noqa: E501
-
-        # Authentication setting
-        auth_settings = []  # noqa: E501
-
-        return self.api_client.call_api(
-            '/usage/tenants/{tenant_id}/runs/{run_id}/calls', 'GET',
-            path_params,
-            query_params,
-            header_params,
-            body=body_params,
-            post_params=form_params,
-            files=local_var_files,
-            response_type='UsageLlmCallListResponse',  # noqa: E501
-            auth_settings=auth_settings,
-            async_req=params.get('async_req'),
-            _return_http_data_only=params.get('_return_http_data_only'),
-            _preload_content=params.get('_preload_content', True),
-            _request_timeout=params.get('_request_timeout'),
-            collection_formats=collection_formats)
-
-    def list_tenant_usage_runs_admin_usage_tenants_tenant_id_runs_get(self, tenant_id, **kwargs):  # noqa: E501
-        """List Tenant Usage Runs Admin  # noqa: E501
-
-        This method makes a synchronous HTTP request by default. To make an
-        asynchronous HTTP request, please pass async_req=True
-        >>> thread = api.list_tenant_usage_runs_admin_usage_tenants_tenant_id_runs_get(tenant_id, async_req=True)
-        >>> result = thread.get()
-
-        :param async_req bool
-        :param object tenant_id: (required)
-        :param UsageTimeWindow window: Preset reporting window (custom date range not supported in this API version).
-        :param object as_of: Optional UTC timestamp used to anchor the reporting window so summary and paginated run pages stay aligned across requests.
-        :param object limit: Page size.
-        :param object cursor: Opaque string from the previous page's `next_cursor`.
-        :return: UsageRunListResponse
-                 If the method is called asynchronously,
-                 returns the request thread.
-        """
-        kwargs['_return_http_data_only'] = True
-        if kwargs.get('async_req'):
-            return self.list_tenant_usage_runs_admin_usage_tenants_tenant_id_runs_get_with_http_info(tenant_id, **kwargs)  # noqa: E501
-        else:
-            (data) = self.list_tenant_usage_runs_admin_usage_tenants_tenant_id_runs_get_with_http_info(tenant_id, **kwargs)  # noqa: E501
-            return data
-
-    def list_tenant_usage_runs_admin_usage_tenants_tenant_id_runs_get_with_http_info(self, tenant_id, **kwargs):  # noqa: E501
-        """List Tenant Usage Runs Admin  # noqa: E501
-
-        This method makes a synchronous HTTP request by default. To make an
-        asynchronous HTTP request, please pass async_req=True
-        >>> thread = api.list_tenant_usage_runs_admin_usage_tenants_tenant_id_runs_get_with_http_info(tenant_id, async_req=True)
-        >>> result = thread.get()
-
-        :param async_req bool
-        :param object tenant_id: (required)
-        :param UsageTimeWindow window: Preset reporting window (custom date range not supported in this API version).
-        :param object as_of: Optional UTC timestamp used to anchor the reporting window so summary and paginated run pages stay aligned across requests.
-        :param object limit: Page size.
-        :param object cursor: Opaque string from the previous page's `next_cursor`.
-        :return: UsageRunListResponse
-                 If the method is called asynchronously,
-                 returns the request thread.
-        """
-
-        all_params = ['tenant_id', 'window', 'as_of', 'limit', 'cursor']  # noqa: E501
-        all_params.append('async_req')
-        all_params.append('_return_http_data_only')
-        all_params.append('_preload_content')
-        all_params.append('_request_timeout')
-
-        params = locals()
-        for key, val in six.iteritems(params['kwargs']):
-            if key not in all_params:
-                raise TypeError(
-                    "Got an unexpected keyword argument '%s'"
-                    " to method list_tenant_usage_runs_admin_usage_tenants_tenant_id_runs_get" % key
-                )
-            params[key] = val
-        del params['kwargs']
-        # verify the required parameter 'tenant_id' is set
-        if ('tenant_id' not in params or
-                params['tenant_id'] is None):
-            raise ValueError("Missing the required parameter `tenant_id` when calling `list_tenant_usage_runs_admin_usage_tenants_tenant_id_runs_get`")  # noqa: E501
-
-        collection_formats = {}
-
-        path_params = {}
-        if 'tenant_id' in params:
-            path_params['tenant_id'] = params['tenant_id']  # noqa: E501
-
-        query_params = []
-        if 'window' in params:
-            query_params.append(('window', params['window']))  # noqa: E501
-        if 'as_of' in params:
-            query_params.append(('as_of', params['as_of']))  # noqa: E501
-        if 'limit' in params:
-            query_params.append(('limit', params['limit']))  # noqa: E501
-        if 'cursor' in params:
-            query_params.append(('cursor', params['cursor']))  # noqa: E501
-
-        header_params = {}
-
-        form_params = []
-        local_var_files = {}
-
-        body_params = None
-        # HTTP header `Accept`
-        header_params['Accept'] = self.api_client.select_header_accept(
-            ['application/json'])  # noqa: E501
-
-        # Authentication setting
-        auth_settings = []  # noqa: E501
-
-        return self.api_client.call_api(
-            '/usage/tenants/{tenant_id}/runs', 'GET',
             path_params,
             query_params,
             header_params,

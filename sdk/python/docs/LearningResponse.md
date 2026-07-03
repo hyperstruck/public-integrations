@@ -6,7 +6,7 @@ Name | Type | Description | Notes
 **learning_id** | **object** |  | 
 **content** | **object** |  | 
 **standing** | [**LearningStanding**](LearningStanding.md) |  | 
-**trust_level** | **object** |  | 
+**trust_level** | [**TrustLevel**](TrustLevel.md) |  | 
 **source_goal** | **object** |  | 
 **applicable_goals** | **object** |  | 
 **applicable_tools** | **object** |  | 

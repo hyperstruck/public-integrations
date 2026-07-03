@@ -127,6 +127,113 @@ class LearningsApi(object):
             _request_timeout=params.get('_request_timeout'),
             collection_formats=collection_formats)
 
+    def get_agent_learnings_graph_endpoint_agents_agent_id_learnings_graph_get(self, agent_id, learning_id, **kwargs):  # noqa: E501
+        """Agent learning evidence graph  # noqa: E501
+
+        Graph of the agent's reasoning topology around a learning: the learning plus the learnings it is connected to within `depth` lineage hops, each enriched with Qdrant detail and evidence. The Neo4j graph is the primary product — if it can't be read the request fails (503). Declared before /{learning_id} so the static path is not captured as a learning id.  # noqa: E501
+        This method makes a synchronous HTTP request by default. To make an
+        asynchronous HTTP request, please pass async_req=True
+        >>> thread = api.get_agent_learnings_graph_endpoint_agents_agent_id_learnings_graph_get(agent_id, learning_id, async_req=True)
+        >>> result = thread.get()
+
+        :param async_req bool
+        :param object agent_id: (required)
+        :param object learning_id: The learning to build the graph around. (required)
+        :param object depth: Lineage hops from the learning (1-2).
+        :return: LearningAuditGraphResponse
+                 If the method is called asynchronously,
+                 returns the request thread.
+        """
+        kwargs['_return_http_data_only'] = True
+        if kwargs.get('async_req'):
+            return self.get_agent_learnings_graph_endpoint_agents_agent_id_learnings_graph_get_with_http_info(agent_id, learning_id, **kwargs)  # noqa: E501
+        else:
+            (data) = self.get_agent_learnings_graph_endpoint_agents_agent_id_learnings_graph_get_with_http_info(agent_id, learning_id, **kwargs)  # noqa: E501
+            return data
+
+    def get_agent_learnings_graph_endpoint_agents_agent_id_learnings_graph_get_with_http_info(self, agent_id, learning_id, **kwargs):  # noqa: E501
+        """Agent learning evidence graph  # noqa: E501
+
+        Graph of the agent's reasoning topology around a learning: the learning plus the learnings it is connected to within `depth` lineage hops, each enriched with Qdrant detail and evidence. The Neo4j graph is the primary product — if it can't be read the request fails (503). Declared before /{learning_id} so the static path is not captured as a learning id.  # noqa: E501
+        This method makes a synchronous HTTP request by default. To make an
+        asynchronous HTTP request, please pass async_req=True
+        >>> thread = api.get_agent_learnings_graph_endpoint_agents_agent_id_learnings_graph_get_with_http_info(agent_id, learning_id, async_req=True)
+        >>> result = thread.get()
+
+        :param async_req bool
+        :param object agent_id: (required)
+        :param object learning_id: The learning to build the graph around. (required)
+        :param object depth: Lineage hops from the learning (1-2).
+        :return: LearningAuditGraphResponse
+                 If the method is called asynchronously,
+                 returns the request thread.
+        """
+
+        all_params = ['agent_id', 'learning_id', 'depth']  # noqa: E501
+        all_params.append('async_req')
+        all_params.append('_return_http_data_only')
+        all_params.append('_preload_content')
+        all_params.append('_request_timeout')
+
+        params = locals()
+        for key, val in six.iteritems(params['kwargs']):
+            if key not in all_params:
+                raise TypeError(
+                    "Got an unexpected keyword argument '%s'"
+                    " to method get_agent_learnings_graph_endpoint_agents_agent_id_learnings_graph_get" % key
+                )
+            params[key] = val
+        del params['kwargs']
+        # verify the required parameter 'agent_id' is set
+        if ('agent_id' not in params or
+                params['agent_id'] is None):
+            raise ValueError("Missing the required parameter `agent_id` when calling `get_agent_learnings_graph_endpoint_agents_agent_id_learnings_graph_get`")  # noqa: E501
+        # verify the required parameter 'learning_id' is set
+        if ('learning_id' not in params or
+                params['learning_id'] is None):
+            raise ValueError("Missing the required parameter `learning_id` when calling `get_agent_learnings_graph_endpoint_agents_agent_id_learnings_graph_get`")  # noqa: E501
+
+        collection_formats = {}
+
+        path_params = {}
+        if 'agent_id' in params:
+            path_params['agent_id'] = params['agent_id']  # noqa: E501
+
+        query_params = []
+        if 'learning_id' in params:
+            query_params.append(('learning_id', params['learning_id']))  # noqa: E501
+        if 'depth' in params:
+            query_params.append(('depth', params['depth']))  # noqa: E501
+
+        header_params = {}
+
+        form_params = []
+        local_var_files = {}
+
+        body_params = None
+        # HTTP header `Accept`
+        header_params['Accept'] = self.api_client.select_header_accept(
+            ['application/json'])  # noqa: E501
+
+        # Authentication setting
+        auth_settings = []  # noqa: E501
+
+        return self.api_client.call_api(
+            '/agents/{agent_id}/learnings/graph', 'GET',
+            path_params,
+            query_params,
+            header_params,
+            body=body_params,
+            post_params=form_params,
+            files=local_var_files,
+            response_type='LearningAuditGraphResponse',  # noqa: E501
+            auth_settings=auth_settings,
+            async_req=params.get('async_req'),
+            _return_http_data_only=params.get('_return_http_data_only'),
+            _preload_content=params.get('_preload_content', True),
+            _request_timeout=params.get('_request_timeout'),
+            collection_formats=collection_formats)
+
     def get_learning_endpoint_agents_agent_id_learnings_learning_id_get(self, agent_id, learning_id, **kwargs):  # noqa: E501
         """Get a learning  # noqa: E501
 
@@ -223,6 +330,117 @@ class LearningsApi(object):
             post_params=form_params,
             files=local_var_files,
             response_type='LearningResponse',  # noqa: E501
+            auth_settings=auth_settings,
+            async_req=params.get('async_req'),
+            _return_http_data_only=params.get('_return_http_data_only'),
+            _preload_content=params.get('_preload_content', True),
+            _request_timeout=params.get('_request_timeout'),
+            collection_formats=collection_formats)
+
+    def list_agent_learnings_endpoint_agents_agent_id_learnings_get(self, agent_id, **kwargs):  # noqa: E501
+        """List agent learnings (audit inventory)  # noqa: E501
+
+        Paginated, filterable inventory of an agent's learnings for the curation workbench. Non-semantic (unlike /search). Defaults to the active bucket (excludes archived/superseded); use `state` for other buckets. Pagination is created_at keyset via the opaque cursor.  # noqa: E501
+        This method makes a synchronous HTTP request by default. To make an
+        asynchronous HTTP request, please pass async_req=True
+        >>> thread = api.list_agent_learnings_endpoint_agents_agent_id_learnings_get(agent_id, async_req=True)
+        >>> result = thread.get()
+
+        :param async_req bool
+        :param object agent_id: (required)
+        :param object include_instances: Include evidence instances on each item.
+        :param object limit: Page size.
+        :param object cursor: Opaque string from the previous page's `next_cursor`.
+        :param LearningStateFilter state: Review bucket: active (default), needs_review, archived, superseded, or all.
+        :return: LearningAuditListResponse
+                 If the method is called asynchronously,
+                 returns the request thread.
+        """
+        kwargs['_return_http_data_only'] = True
+        if kwargs.get('async_req'):
+            return self.list_agent_learnings_endpoint_agents_agent_id_learnings_get_with_http_info(agent_id, **kwargs)  # noqa: E501
+        else:
+            (data) = self.list_agent_learnings_endpoint_agents_agent_id_learnings_get_with_http_info(agent_id, **kwargs)  # noqa: E501
+            return data
+
+    def list_agent_learnings_endpoint_agents_agent_id_learnings_get_with_http_info(self, agent_id, **kwargs):  # noqa: E501
+        """List agent learnings (audit inventory)  # noqa: E501
+
+        Paginated, filterable inventory of an agent's learnings for the curation workbench. Non-semantic (unlike /search). Defaults to the active bucket (excludes archived/superseded); use `state` for other buckets. Pagination is created_at keyset via the opaque cursor.  # noqa: E501
+        This method makes a synchronous HTTP request by default. To make an
+        asynchronous HTTP request, please pass async_req=True
+        >>> thread = api.list_agent_learnings_endpoint_agents_agent_id_learnings_get_with_http_info(agent_id, async_req=True)
+        >>> result = thread.get()
+
+        :param async_req bool
+        :param object agent_id: (required)
+        :param object include_instances: Include evidence instances on each item.
+        :param object limit: Page size.
+        :param object cursor: Opaque string from the previous page's `next_cursor`.
+        :param LearningStateFilter state: Review bucket: active (default), needs_review, archived, superseded, or all.
+        :return: LearningAuditListResponse
+                 If the method is called asynchronously,
+                 returns the request thread.
+        """
+
+        all_params = ['agent_id', 'include_instances', 'limit', 'cursor', 'state']  # noqa: E501
+        all_params.append('async_req')
+        all_params.append('_return_http_data_only')
+        all_params.append('_preload_content')
+        all_params.append('_request_timeout')
+
+        params = locals()
+        for key, val in six.iteritems(params['kwargs']):
+            if key not in all_params:
+                raise TypeError(
+                    "Got an unexpected keyword argument '%s'"
+                    " to method list_agent_learnings_endpoint_agents_agent_id_learnings_get" % key
+                )
+            params[key] = val
+        del params['kwargs']
+        # verify the required parameter 'agent_id' is set
+        if ('agent_id' not in params or
+                params['agent_id'] is None):
+            raise ValueError("Missing the required parameter `agent_id` when calling `list_agent_learnings_endpoint_agents_agent_id_learnings_get`")  # noqa: E501
+
+        collection_formats = {}
+
+        path_params = {}
+        if 'agent_id' in params:
+            path_params['agent_id'] = params['agent_id']  # noqa: E501
+
+        query_params = []
+        if 'include_instances' in params:
+            query_params.append(('include_instances', params['include_instances']))  # noqa: E501
+        if 'limit' in params:
+            query_params.append(('limit', params['limit']))  # noqa: E501
+        if 'cursor' in params:
+            query_params.append(('cursor', params['cursor']))  # noqa: E501
+        if 'state' in params:
+            query_params.append(('state', params['state']))  # noqa: E501
+
+        header_params = {}
+
+        form_params = []
+        local_var_files = {}
+
+        body_params = None
+        # HTTP header `Accept`
+        header_params['Accept'] = self.api_client.select_header_accept(
+            ['application/json'])  # noqa: E501
+
+        # Authentication setting
+        auth_settings = []  # noqa: E501
+
+        return self.api_client.call_api(
+            '/agents/{agent_id}/learnings', 'GET',
+            path_params,
+            query_params,
+            header_params,
+            body=body_params,
+            post_params=form_params,
+            files=local_var_files,
+            response_type='LearningAuditListResponse',  # noqa: E501
             auth_settings=auth_settings,
             async_req=params.get('async_req'),
             _return_http_data_only=params.get('_return_http_data_only'),

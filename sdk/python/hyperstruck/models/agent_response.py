@@ -32,14 +32,16 @@ class AgentResponse(object):
         'name': 'object',
         'description': 'object',
         'status': 'object',
-        'model_provider': 'ModelProvider',
+        'model_provider': 'HostedAgentModelProvider',
         'model_name': 'object',
         'reasoning_profile': 'ReasoningTier',
         'memory_profile': 'object',
         'knowledge_scope': 'object',
+        'home_space_id': 'object',
         'core_config': 'AgentCoreConfigOutput',
         'llm_credential': 'object',
-        'created_at': 'object'
+        'created_at': 'object',
+        'updated_at': 'object'
     }
 
     attribute_map = {
@@ -52,12 +54,14 @@ class AgentResponse(object):
         'reasoning_profile': 'reasoning_profile',
         'memory_profile': 'memory_profile',
         'knowledge_scope': 'knowledge_scope',
+        'home_space_id': 'home_space_id',
         'core_config': 'core_config',
         'llm_credential': 'llm_credential',
-        'created_at': 'created_at'
+        'created_at': 'created_at',
+        'updated_at': 'updated_at'
     }
 
-    def __init__(self, id=None, name=None, description=None, status=None, model_provider=None, model_name=None, reasoning_profile=None, memory_profile=None, knowledge_scope=None, core_config=None, llm_credential=None, created_at=None):  # noqa: E501
+    def __init__(self, id=None, name=None, description=None, status=None, model_provider=None, model_name=None, reasoning_profile=None, memory_profile=None, knowledge_scope=None, home_space_id=None, core_config=None, llm_credential=None, created_at=None, updated_at=None):  # noqa: E501
         """AgentResponse - a model defined in Swagger"""  # noqa: E501
         self._id = None
         self._name = None
@@ -68,9 +72,11 @@ class AgentResponse(object):
         self._reasoning_profile = None
         self._memory_profile = None
         self._knowledge_scope = None
+        self._home_space_id = None
         self._core_config = None
         self._llm_credential = None
         self._created_at = None
+        self._updated_at = None
         self.discriminator = None
         self.id = id
         self.name = name
@@ -81,10 +87,13 @@ class AgentResponse(object):
         self.reasoning_profile = reasoning_profile
         self.memory_profile = memory_profile
         self.knowledge_scope = knowledge_scope
+        if home_space_id is not None:
+            self.home_space_id = home_space_id
         self.core_config = core_config
         if llm_credential is not None:
             self.llm_credential = llm_credential
         self.created_at = created_at
+        self.updated_at = updated_at
 
     @property
     def id(self):
@@ -184,7 +193,7 @@ class AgentResponse(object):
 
 
         :return: The model_provider of this AgentResponse.  # noqa: E501
-        :rtype: ModelProvider
+        :rtype: HostedAgentModelProvider
         """
         return self._model_provider
 
@@ -194,7 +203,7 @@ class AgentResponse(object):
 
 
         :param model_provider: The model_provider of this AgentResponse.  # noqa: E501
-        :type: ModelProvider
+        :type: HostedAgentModelProvider
         """
         if model_provider is None:
             raise ValueError("Invalid value for `model_provider`, must not be `None`")  # noqa: E501
@@ -294,6 +303,29 @@ class AgentResponse(object):
         self._knowledge_scope = knowledge_scope
 
     @property
+    def home_space_id(self):
+        """Gets the home_space_id of this AgentResponse.  # noqa: E501
+
+        Home space (`public.spaces`) for this agent, if any.  # noqa: E501
+
+        :return: The home_space_id of this AgentResponse.  # noqa: E501
+        :rtype: object
+        """
+        return self._home_space_id
+
+    @home_space_id.setter
+    def home_space_id(self, home_space_id):
+        """Sets the home_space_id of this AgentResponse.
+
+        Home space (`public.spaces`) for this agent, if any.  # noqa: E501
+
+        :param home_space_id: The home_space_id of this AgentResponse.  # noqa: E501
+        :type: object
+        """
+
+        self._home_space_id = home_space_id
+
+    @property
     def core_config(self):
         """Gets the core_config of this AgentResponse.  # noqa: E501
 
@@ -361,6 +393,29 @@ class AgentResponse(object):
             raise ValueError("Invalid value for `created_at`, must not be `None`")  # noqa: E501
 
         self._created_at = created_at
+
+    @property
+    def updated_at(self):
+        """Gets the updated_at of this AgentResponse.  # noqa: E501
+
+
+        :return: The updated_at of this AgentResponse.  # noqa: E501
+        :rtype: object
+        """
+        return self._updated_at
+
+    @updated_at.setter
+    def updated_at(self, updated_at):
+        """Sets the updated_at of this AgentResponse.
+
+
+        :param updated_at: The updated_at of this AgentResponse.  # noqa: E501
+        :type: object
+        """
+        if updated_at is None:
+            raise ValueError("Invalid value for `updated_at`, must not be `None`")  # noqa: E501
+
+        self._updated_at = updated_at
 
     def to_dict(self):
         """Returns the model properties as a dict"""

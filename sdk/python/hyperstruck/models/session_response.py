@@ -33,8 +33,12 @@ class SessionResponse(object):
         'status': 'object',
         'title': 'object',
         'latest_run_id': 'object',
+        'latest_run_status': 'object',
+        'message_count': 'object',
+        'run_count': 'object',
         'metadata': 'object',
-        'created_at': 'object'
+        'created_at': 'object',
+        'updated_at': 'object'
     }
 
     attribute_map = {
@@ -43,19 +47,27 @@ class SessionResponse(object):
         'status': 'status',
         'title': 'title',
         'latest_run_id': 'latest_run_id',
+        'latest_run_status': 'latest_run_status',
+        'message_count': 'message_count',
+        'run_count': 'run_count',
         'metadata': 'metadata',
-        'created_at': 'created_at'
+        'created_at': 'created_at',
+        'updated_at': 'updated_at'
     }
 
-    def __init__(self, id=None, agent_id=None, status=None, title=None, latest_run_id=None, metadata=None, created_at=None):  # noqa: E501
+    def __init__(self, id=None, agent_id=None, status=None, title=None, latest_run_id=None, latest_run_status=None, message_count=None, run_count=None, metadata=None, created_at=None, updated_at=None):  # noqa: E501
         """SessionResponse - a model defined in Swagger"""  # noqa: E501
         self._id = None
         self._agent_id = None
         self._status = None
         self._title = None
         self._latest_run_id = None
+        self._latest_run_status = None
+        self._message_count = None
+        self._run_count = None
         self._metadata = None
         self._created_at = None
+        self._updated_at = None
         self.discriminator = None
         self.id = id
         self.agent_id = agent_id
@@ -63,9 +75,16 @@ class SessionResponse(object):
         self.title = title
         if latest_run_id is not None:
             self.latest_run_id = latest_run_id
+        if latest_run_status is not None:
+            self.latest_run_status = latest_run_status
+        if message_count is not None:
+            self.message_count = message_count
+        if run_count is not None:
+            self.run_count = run_count
         if metadata is not None:
             self.metadata = metadata
         self.created_at = created_at
+        self.updated_at = updated_at
 
     @property
     def id(self):
@@ -181,6 +200,75 @@ class SessionResponse(object):
         self._latest_run_id = latest_run_id
 
     @property
+    def latest_run_status(self):
+        """Gets the latest_run_status of this SessionResponse.  # noqa: E501
+
+        Status of `latest_run_id`; only populated on list responses.  # noqa: E501
+
+        :return: The latest_run_status of this SessionResponse.  # noqa: E501
+        :rtype: object
+        """
+        return self._latest_run_status
+
+    @latest_run_status.setter
+    def latest_run_status(self, latest_run_status):
+        """Sets the latest_run_status of this SessionResponse.
+
+        Status of `latest_run_id`; only populated on list responses.  # noqa: E501
+
+        :param latest_run_status: The latest_run_status of this SessionResponse.  # noqa: E501
+        :type: object
+        """
+
+        self._latest_run_status = latest_run_status
+
+    @property
+    def message_count(self):
+        """Gets the message_count of this SessionResponse.  # noqa: E501
+
+        Transcript message count; only populated on list responses.  # noqa: E501
+
+        :return: The message_count of this SessionResponse.  # noqa: E501
+        :rtype: object
+        """
+        return self._message_count
+
+    @message_count.setter
+    def message_count(self, message_count):
+        """Sets the message_count of this SessionResponse.
+
+        Transcript message count; only populated on list responses.  # noqa: E501
+
+        :param message_count: The message_count of this SessionResponse.  # noqa: E501
+        :type: object
+        """
+
+        self._message_count = message_count
+
+    @property
+    def run_count(self):
+        """Gets the run_count of this SessionResponse.  # noqa: E501
+
+        Number of runs in the session; only populated on list responses.  # noqa: E501
+
+        :return: The run_count of this SessionResponse.  # noqa: E501
+        :rtype: object
+        """
+        return self._run_count
+
+    @run_count.setter
+    def run_count(self, run_count):
+        """Sets the run_count of this SessionResponse.
+
+        Number of runs in the session; only populated on list responses.  # noqa: E501
+
+        :param run_count: The run_count of this SessionResponse.  # noqa: E501
+        :type: object
+        """
+
+        self._run_count = run_count
+
+    @property
     def metadata(self):
         """Gets the metadata of this SessionResponse.  # noqa: E501
 
@@ -223,6 +311,29 @@ class SessionResponse(object):
             raise ValueError("Invalid value for `created_at`, must not be `None`")  # noqa: E501
 
         self._created_at = created_at
+
+    @property
+    def updated_at(self):
+        """Gets the updated_at of this SessionResponse.  # noqa: E501
+
+
+        :return: The updated_at of this SessionResponse.  # noqa: E501
+        :rtype: object
+        """
+        return self._updated_at
+
+    @updated_at.setter
+    def updated_at(self, updated_at):
+        """Sets the updated_at of this SessionResponse.
+
+
+        :param updated_at: The updated_at of this SessionResponse.  # noqa: E501
+        :type: object
+        """
+        if updated_at is None:
+            raise ValueError("Invalid value for `updated_at`, must not be `None`")  # noqa: E501
+
+        self._updated_at = updated_at
 
     def to_dict(self):
         """Returns the model properties as a dict"""

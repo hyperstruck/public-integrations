@@ -5,7 +5,9 @@ All URIs are relative to */*
 Method | HTTP request | Description
 ------------- | ------------- | -------------
 [**delete_agent_learnings_endpoint_agents_agent_id_learnings_delete**](LearningsApi.md#delete_agent_learnings_endpoint_agents_agent_id_learnings_delete) | **DELETE** /agents/{agent_id}/learnings | Delete all learnings for an agent
+[**get_agent_learnings_graph_endpoint_agents_agent_id_learnings_graph_get**](LearningsApi.md#get_agent_learnings_graph_endpoint_agents_agent_id_learnings_graph_get) | **GET** /agents/{agent_id}/learnings/graph | Agent learning evidence graph
 [**get_learning_endpoint_agents_agent_id_learnings_learning_id_get**](LearningsApi.md#get_learning_endpoint_agents_agent_id_learnings_learning_id_get) | **GET** /agents/{agent_id}/learnings/{learning_id} | Get a learning
+[**list_agent_learnings_endpoint_agents_agent_id_learnings_get**](LearningsApi.md#list_agent_learnings_endpoint_agents_agent_id_learnings_get) | **GET** /agents/{agent_id}/learnings | List agent learnings (audit inventory)
 [**reinforce_learning_endpoint_agents_agent_id_learnings_learning_id_reinforce_post**](LearningsApi.md#reinforce_learning_endpoint_agents_agent_id_learnings_learning_id_reinforce_post) | **POST** /agents/{agent_id}/learnings/{learning_id}/reinforce | Reinforce a learning
 [**search_learnings_endpoint_agents_agent_id_learnings_search_get**](LearningsApi.md#search_learnings_endpoint_agents_agent_id_learnings_search_get) | **GET** /agents/{agent_id}/learnings/search | Search learnings
 [**store_learning_endpoint_agents_agent_id_learnings_post**](LearningsApi.md#store_learning_endpoint_agents_agent_id_learnings_post) | **POST** /agents/{agent_id}/learnings | Store a learning
@@ -58,6 +60,58 @@ No authorization required
 
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 
+# **get_agent_learnings_graph_endpoint_agents_agent_id_learnings_graph_get**
+> LearningAuditGraphResponse get_agent_learnings_graph_endpoint_agents_agent_id_learnings_graph_get(agent_id, learning_id, depth=depth)
+
+Agent learning evidence graph
+
+Graph of the agent's reasoning topology around a learning: the learning plus the learnings it is connected to within `depth` lineage hops, each enriched with Qdrant detail and evidence. The Neo4j graph is the primary product — if it can't be read the request fails (503). Declared before /{learning_id} so the static path is not captured as a learning id.
+
+### Example
+```python
+from __future__ import print_function
+import time
+import hyperstruck
+from hyperstruck.rest import ApiException
+from pprint import pprint
+
+# create an instance of the API class
+api_instance = hyperstruck.LearningsApi()
+agent_id = NULL # object | 
+learning_id = NULL # object | The learning to build the graph around.
+depth = 1 # object | Lineage hops from the learning (1-2). (optional) (default to 1)
+
+try:
+    # Agent learning evidence graph
+    api_response = api_instance.get_agent_learnings_graph_endpoint_agents_agent_id_learnings_graph_get(agent_id, learning_id, depth=depth)
+    pprint(api_response)
+except ApiException as e:
+    print("Exception when calling LearningsApi->get_agent_learnings_graph_endpoint_agents_agent_id_learnings_graph_get: %s\n" % e)
+```
+
+### Parameters
+
+Name | Type | Description  | Notes
+------------- | ------------- | ------------- | -------------
+ **agent_id** | [**object**](.md)|  | 
+ **learning_id** | [**object**](.md)| The learning to build the graph around. | 
+ **depth** | [**object**](.md)| Lineage hops from the learning (1-2). | [optional] [default to 1]
+
+### Return type
+
+[**LearningAuditGraphResponse**](LearningAuditGraphResponse.md)
+
+### Authorization
+
+No authorization required
+
+### HTTP request headers
+
+ - **Content-Type**: Not defined
+ - **Accept**: application/json
+
+[[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
+
 # **get_learning_endpoint_agents_agent_id_learnings_learning_id_get**
 > LearningResponse get_learning_endpoint_agents_agent_id_learnings_learning_id_get(agent_id, learning_id)
 
@@ -96,6 +150,62 @@ Name | Type | Description  | Notes
 ### Return type
 
 [**LearningResponse**](LearningResponse.md)
+
+### Authorization
+
+No authorization required
+
+### HTTP request headers
+
+ - **Content-Type**: Not defined
+ - **Accept**: application/json
+
+[[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
+
+# **list_agent_learnings_endpoint_agents_agent_id_learnings_get**
+> LearningAuditListResponse list_agent_learnings_endpoint_agents_agent_id_learnings_get(agent_id, include_instances=include_instances, limit=limit, cursor=cursor, state=state)
+
+List agent learnings (audit inventory)
+
+Paginated, filterable inventory of an agent's learnings for the curation workbench. Non-semantic (unlike /search). Defaults to the active bucket (excludes archived/superseded); use `state` for other buckets. Pagination is created_at keyset via the opaque cursor.
+
+### Example
+```python
+from __future__ import print_function
+import time
+import hyperstruck
+from hyperstruck.rest import ApiException
+from pprint import pprint
+
+# create an instance of the API class
+api_instance = hyperstruck.LearningsApi()
+agent_id = NULL # object | 
+include_instances = true # object | Include evidence instances on each item. (optional) (default to true)
+limit = 50 # object | Page size. (optional) (default to 50)
+cursor = NULL # object | Opaque string from the previous page's `next_cursor`. (optional)
+state = hyperstruck.LearningStateFilter() # LearningStateFilter | Review bucket: active (default), needs_review, archived, superseded, or all. (optional) (default to active)
+
+try:
+    # List agent learnings (audit inventory)
+    api_response = api_instance.list_agent_learnings_endpoint_agents_agent_id_learnings_get(agent_id, include_instances=include_instances, limit=limit, cursor=cursor, state=state)
+    pprint(api_response)
+except ApiException as e:
+    print("Exception when calling LearningsApi->list_agent_learnings_endpoint_agents_agent_id_learnings_get: %s\n" % e)
+```
+
+### Parameters
+
+Name | Type | Description  | Notes
+------------- | ------------- | ------------- | -------------
+ **agent_id** | [**object**](.md)|  | 
+ **include_instances** | [**object**](.md)| Include evidence instances on each item. | [optional] [default to true]
+ **limit** | [**object**](.md)| Page size. | [optional] [default to 50]
+ **cursor** | [**object**](.md)| Opaque string from the previous page&#x27;s &#x60;next_cursor&#x60;. | [optional] 
+ **state** | [**LearningStateFilter**](.md)| Review bucket: active (default), needs_review, archived, superseded, or all. | [optional] [default to active]
+
+### Return type
+
+[**LearningAuditListResponse**](LearningAuditListResponse.md)
 
 ### Authorization
 

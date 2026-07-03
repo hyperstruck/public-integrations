@@ -40,7 +40,6 @@ class RunResponse(object):
         'ended_at': 'object',
         'compute_seconds': 'object',
         'estimated_compute_cost_usd': 'object',
-        'estimated_llm_cost_usd': 'object',
         'estimated_total_cost_usd': 'object',
         'error': 'object',
         'metadata': 'object',
@@ -60,14 +59,13 @@ class RunResponse(object):
         'ended_at': 'ended_at',
         'compute_seconds': 'compute_seconds',
         'estimated_compute_cost_usd': 'estimated_compute_cost_usd',
-        'estimated_llm_cost_usd': 'estimated_llm_cost_usd',
         'estimated_total_cost_usd': 'estimated_total_cost_usd',
         'error': 'error',
         'metadata': 'metadata',
         'created_at': 'created_at'
     }
 
-    def __init__(self, id=None, agent_id=None, session_id=None, parent_run_id=None, run_type=None, status=None, goal=None, worker_profile=None, started_at=None, ended_at=None, compute_seconds=None, estimated_compute_cost_usd=None, estimated_llm_cost_usd=None, estimated_total_cost_usd=None, error=None, metadata=None, created_at=None):  # noqa: E501
+    def __init__(self, id=None, agent_id=None, session_id=None, parent_run_id=None, run_type=None, status=None, goal=None, worker_profile=None, started_at=None, ended_at=None, compute_seconds=None, estimated_compute_cost_usd=None, estimated_total_cost_usd=None, error=None, metadata=None, created_at=None):  # noqa: E501
         """RunResponse - a model defined in Swagger"""  # noqa: E501
         self._id = None
         self._agent_id = None
@@ -81,7 +79,6 @@ class RunResponse(object):
         self._ended_at = None
         self._compute_seconds = None
         self._estimated_compute_cost_usd = None
-        self._estimated_llm_cost_usd = None
         self._estimated_total_cost_usd = None
         self._error = None
         self._metadata = None
@@ -100,8 +97,6 @@ class RunResponse(object):
         self.ended_at = ended_at
         self.compute_seconds = compute_seconds
         self.estimated_compute_cost_usd = estimated_compute_cost_usd
-        if estimated_llm_cost_usd is not None:
-            self.estimated_llm_cost_usd = estimated_llm_cost_usd
         if estimated_total_cost_usd is not None:
             self.estimated_total_cost_usd = estimated_total_cost_usd
         self.error = error
@@ -382,27 +377,6 @@ class RunResponse(object):
             raise ValueError("Invalid value for `estimated_compute_cost_usd`, must not be `None`")  # noqa: E501
 
         self._estimated_compute_cost_usd = estimated_compute_cost_usd
-
-    @property
-    def estimated_llm_cost_usd(self):
-        """Gets the estimated_llm_cost_usd of this RunResponse.  # noqa: E501
-
-
-        :return: The estimated_llm_cost_usd of this RunResponse.  # noqa: E501
-        :rtype: object
-        """
-        return self._estimated_llm_cost_usd
-
-    @estimated_llm_cost_usd.setter
-    def estimated_llm_cost_usd(self, estimated_llm_cost_usd):
-        """Sets the estimated_llm_cost_usd of this RunResponse.
-
-
-        :param estimated_llm_cost_usd: The estimated_llm_cost_usd of this RunResponse.  # noqa: E501
-        :type: object
-        """
-
-        self._estimated_llm_cost_usd = estimated_llm_cost_usd
 
     @property
     def estimated_total_cost_usd(self):

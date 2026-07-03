@@ -15,7 +15,6 @@ Name | Type | Description | Notes
 **ended_at** | **object** |  | 
 **compute_seconds** | **object** |  | 
 **estimated_compute_cost_usd** | **object** |  | 
-**estimated_llm_cost_usd** | **object** |  | [optional] 
 **estimated_total_cost_usd** | **object** |  | [optional] 
 **error** | **object** |  | 
 **metadata** | **object** |  | [optional] 

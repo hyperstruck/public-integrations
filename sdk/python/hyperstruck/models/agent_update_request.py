@@ -36,6 +36,7 @@ class AgentUpdateRequest(object):
         'reasoning_profile': 'object',
         'memory_profile': 'object',
         'knowledge_scope': 'object',
+        'home_space_id': 'object',
         'core_config': 'object'
     }
 
@@ -48,10 +49,11 @@ class AgentUpdateRequest(object):
         'reasoning_profile': 'reasoning_profile',
         'memory_profile': 'memory_profile',
         'knowledge_scope': 'knowledge_scope',
+        'home_space_id': 'home_space_id',
         'core_config': 'core_config'
     }
 
-    def __init__(self, name=None, description=None, status=None, model_provider=None, model_name=None, reasoning_profile=None, memory_profile=None, knowledge_scope=None, core_config=None):  # noqa: E501
+    def __init__(self, name=None, description=None, status=None, model_provider=None, model_name=None, reasoning_profile=None, memory_profile=None, knowledge_scope=None, home_space_id=None, core_config=None):  # noqa: E501
         """AgentUpdateRequest - a model defined in Swagger"""  # noqa: E501
         self._name = None
         self._description = None
@@ -61,6 +63,7 @@ class AgentUpdateRequest(object):
         self._reasoning_profile = None
         self._memory_profile = None
         self._knowledge_scope = None
+        self._home_space_id = None
         self._core_config = None
         self.discriminator = None
         if name is not None:
@@ -79,6 +82,8 @@ class AgentUpdateRequest(object):
             self.memory_profile = memory_profile
         if knowledge_scope is not None:
             self.knowledge_scope = knowledge_scope
+        if home_space_id is not None:
+            self.home_space_id = home_space_id
         if core_config is not None:
             self.core_config = core_config
 
@@ -249,6 +254,29 @@ class AgentUpdateRequest(object):
         """
 
         self._knowledge_scope = knowledge_scope
+
+    @property
+    def home_space_id(self):
+        """Gets the home_space_id of this AgentUpdateRequest.  # noqa: E501
+
+        Move the agent's home space; null leaves it unchanged.  # noqa: E501
+
+        :return: The home_space_id of this AgentUpdateRequest.  # noqa: E501
+        :rtype: object
+        """
+        return self._home_space_id
+
+    @home_space_id.setter
+    def home_space_id(self, home_space_id):
+        """Sets the home_space_id of this AgentUpdateRequest.
+
+        Move the agent's home space; null leaves it unchanged.  # noqa: E501
+
+        :param home_space_id: The home_space_id of this AgentUpdateRequest.  # noqa: E501
+        :type: object
+        """
+
+        self._home_space_id = home_space_id
 
     @property
     def core_config(self):

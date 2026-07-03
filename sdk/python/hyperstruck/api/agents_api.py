@@ -338,7 +338,10 @@ class AgentsApi(object):
         :param async_req bool
         :param object agent_id: (required)
         :param object include_llm_credential: When true (default), resolve effective provider credential metadata for this agent's `model_provider` without exposing secrets.
-        :return: AgentResponse
+        :param object include_summary: When true, include a per-agent usage summary.
+        :param object include_access: Reserved: home-space operators / FGA access. Not yet populated (Fibery #122); accepted as a no-op for forward compatibility.
+        :param UsageTimeWindow window: Window applied when `include_summary` is true.
+        :return: AgentDetailResponse
                  If the method is called asynchronously,
                  returns the request thread.
         """
@@ -360,12 +363,15 @@ class AgentsApi(object):
         :param async_req bool
         :param object agent_id: (required)
         :param object include_llm_credential: When true (default), resolve effective provider credential metadata for this agent's `model_provider` without exposing secrets.
-        :return: AgentResponse
+        :param object include_summary: When true, include a per-agent usage summary.
+        :param object include_access: Reserved: home-space operators / FGA access. Not yet populated (Fibery #122); accepted as a no-op for forward compatibility.
+        :param UsageTimeWindow window: Window applied when `include_summary` is true.
+        :return: AgentDetailResponse
                  If the method is called asynchronously,
                  returns the request thread.
         """
 
-        all_params = ['agent_id', 'include_llm_credential']  # noqa: E501
+        all_params = ['agent_id', 'include_llm_credential', 'include_summary', 'include_access', 'window']  # noqa: E501
         all_params.append('async_req')
         all_params.append('_return_http_data_only')
         all_params.append('_preload_content')
@@ -394,6 +400,12 @@ class AgentsApi(object):
         query_params = []
         if 'include_llm_credential' in params:
             query_params.append(('include_llm_credential', params['include_llm_credential']))  # noqa: E501
+        if 'include_summary' in params:
+            query_params.append(('include_summary', params['include_summary']))  # noqa: E501
+        if 'include_access' in params:
+            query_params.append(('include_access', params['include_access']))  # noqa: E501
+        if 'window' in params:
+            query_params.append(('window', params['window']))  # noqa: E501
 
         header_params = {}
 
@@ -416,7 +428,221 @@ class AgentsApi(object):
             body=body_params,
             post_params=form_params,
             files=local_var_files,
-            response_type='AgentResponse',  # noqa: E501
+            response_type='AgentDetailResponse',  # noqa: E501
+            auth_settings=auth_settings,
+            async_req=params.get('async_req'),
+            _return_http_data_only=params.get('_return_http_data_only'),
+            _preload_content=params.get('_preload_content', True),
+            _request_timeout=params.get('_request_timeout'),
+            collection_formats=collection_formats)
+
+    def get_agent_usage_summary_endpoint_agents_agent_id_usage_summary_get(self, agent_id, **kwargs):  # noqa: E501
+        """Get Agent Usage Summary  # noqa: E501
+
+        This method makes a synchronous HTTP request by default. To make an
+        asynchronous HTTP request, please pass async_req=True
+        >>> thread = api.get_agent_usage_summary_endpoint_agents_agent_id_usage_summary_get(agent_id, async_req=True)
+        >>> result = thread.get()
+
+        :param async_req bool
+        :param object agent_id: (required)
+        :param UsageTimeWindow window: Preset reporting window.
+        :return: AgentUsageSummaryResponse
+                 If the method is called asynchronously,
+                 returns the request thread.
+        """
+        kwargs['_return_http_data_only'] = True
+        if kwargs.get('async_req'):
+            return self.get_agent_usage_summary_endpoint_agents_agent_id_usage_summary_get_with_http_info(agent_id, **kwargs)  # noqa: E501
+        else:
+            (data) = self.get_agent_usage_summary_endpoint_agents_agent_id_usage_summary_get_with_http_info(agent_id, **kwargs)  # noqa: E501
+            return data
+
+    def get_agent_usage_summary_endpoint_agents_agent_id_usage_summary_get_with_http_info(self, agent_id, **kwargs):  # noqa: E501
+        """Get Agent Usage Summary  # noqa: E501
+
+        This method makes a synchronous HTTP request by default. To make an
+        asynchronous HTTP request, please pass async_req=True
+        >>> thread = api.get_agent_usage_summary_endpoint_agents_agent_id_usage_summary_get_with_http_info(agent_id, async_req=True)
+        >>> result = thread.get()
+
+        :param async_req bool
+        :param object agent_id: (required)
+        :param UsageTimeWindow window: Preset reporting window.
+        :return: AgentUsageSummaryResponse
+                 If the method is called asynchronously,
+                 returns the request thread.
+        """
+
+        all_params = ['agent_id', 'window']  # noqa: E501
+        all_params.append('async_req')
+        all_params.append('_return_http_data_only')
+        all_params.append('_preload_content')
+        all_params.append('_request_timeout')
+
+        params = locals()
+        for key, val in six.iteritems(params['kwargs']):
+            if key not in all_params:
+                raise TypeError(
+                    "Got an unexpected keyword argument '%s'"
+                    " to method get_agent_usage_summary_endpoint_agents_agent_id_usage_summary_get" % key
+                )
+            params[key] = val
+        del params['kwargs']
+        # verify the required parameter 'agent_id' is set
+        if ('agent_id' not in params or
+                params['agent_id'] is None):
+            raise ValueError("Missing the required parameter `agent_id` when calling `get_agent_usage_summary_endpoint_agents_agent_id_usage_summary_get`")  # noqa: E501
+
+        collection_formats = {}
+
+        path_params = {}
+        if 'agent_id' in params:
+            path_params['agent_id'] = params['agent_id']  # noqa: E501
+
+        query_params = []
+        if 'window' in params:
+            query_params.append(('window', params['window']))  # noqa: E501
+
+        header_params = {}
+
+        form_params = []
+        local_var_files = {}
+
+        body_params = None
+        # HTTP header `Accept`
+        header_params['Accept'] = self.api_client.select_header_accept(
+            ['application/json'])  # noqa: E501
+
+        # Authentication setting
+        auth_settings = []  # noqa: E501
+
+        return self.api_client.call_api(
+            '/agents/{agent_id}/usage/summary', 'GET',
+            path_params,
+            query_params,
+            header_params,
+            body=body_params,
+            post_params=form_params,
+            files=local_var_files,
+            response_type='AgentUsageSummaryResponse',  # noqa: E501
+            auth_settings=auth_settings,
+            async_req=params.get('async_req'),
+            _return_http_data_only=params.get('_return_http_data_only'),
+            _preload_content=params.get('_preload_content', True),
+            _request_timeout=params.get('_request_timeout'),
+            collection_formats=collection_formats)
+
+    def list_agent_runs_endpoint_agents_agent_id_runs_get(self, agent_id, **kwargs):  # noqa: E501
+        """List Agent Runs  # noqa: E501
+
+        This method makes a synchronous HTTP request by default. To make an
+        asynchronous HTTP request, please pass async_req=True
+        >>> thread = api.list_agent_runs_endpoint_agents_agent_id_runs_get(agent_id, async_req=True)
+        >>> result = thread.get()
+
+        :param async_req bool
+        :param object agent_id: (required)
+        :param object status: Filter by one or more run statuses.
+        :param object run_type: Filter by one or more run types (goal|resume).
+        :param object session_id: Filter to a single session.
+        :param UsageTimeWindow window: Window bounding which runs are returned.
+        :param object limit: Page size.
+        :param object cursor: Opaque string from the previous page's `next_cursor`.
+        :return: AgentRunListResponse
+                 If the method is called asynchronously,
+                 returns the request thread.
+        """
+        kwargs['_return_http_data_only'] = True
+        if kwargs.get('async_req'):
+            return self.list_agent_runs_endpoint_agents_agent_id_runs_get_with_http_info(agent_id, **kwargs)  # noqa: E501
+        else:
+            (data) = self.list_agent_runs_endpoint_agents_agent_id_runs_get_with_http_info(agent_id, **kwargs)  # noqa: E501
+            return data
+
+    def list_agent_runs_endpoint_agents_agent_id_runs_get_with_http_info(self, agent_id, **kwargs):  # noqa: E501
+        """List Agent Runs  # noqa: E501
+
+        This method makes a synchronous HTTP request by default. To make an
+        asynchronous HTTP request, please pass async_req=True
+        >>> thread = api.list_agent_runs_endpoint_agents_agent_id_runs_get_with_http_info(agent_id, async_req=True)
+        >>> result = thread.get()
+
+        :param async_req bool
+        :param object agent_id: (required)
+        :param object status: Filter by one or more run statuses.
+        :param object run_type: Filter by one or more run types (goal|resume).
+        :param object session_id: Filter to a single session.
+        :param UsageTimeWindow window: Window bounding which runs are returned.
+        :param object limit: Page size.
+        :param object cursor: Opaque string from the previous page's `next_cursor`.
+        :return: AgentRunListResponse
+                 If the method is called asynchronously,
+                 returns the request thread.
+        """
+
+        all_params = ['agent_id', 'status', 'run_type', 'session_id', 'window', 'limit', 'cursor']  # noqa: E501
+        all_params.append('async_req')
+        all_params.append('_return_http_data_only')
+        all_params.append('_preload_content')
+        all_params.append('_request_timeout')
+
+        params = locals()
+        for key, val in six.iteritems(params['kwargs']):
+            if key not in all_params:
+                raise TypeError(
+                    "Got an unexpected keyword argument '%s'"
+                    " to method list_agent_runs_endpoint_agents_agent_id_runs_get" % key
+                )
+            params[key] = val
+        del params['kwargs']
+        # verify the required parameter 'agent_id' is set
+        if ('agent_id' not in params or
+                params['agent_id'] is None):
+            raise ValueError("Missing the required parameter `agent_id` when calling `list_agent_runs_endpoint_agents_agent_id_runs_get`")  # noqa: E501
+
+        collection_formats = {}
+
+        path_params = {}
+        if 'agent_id' in params:
+            path_params['agent_id'] = params['agent_id']  # noqa: E501
+
+        query_params = []
+        if 'status' in params:
+            query_params.append(('status', params['status']))  # noqa: E501
+        if 'run_type' in params:
+            query_params.append(('run_type', params['run_type']))  # noqa: E501
+        if 'session_id' in params:
+            query_params.append(('session_id', params['session_id']))  # noqa: E501
+        if 'window' in params:
+            query_params.append(('window', params['window']))  # noqa: E501
+        if 'limit' in params:
+            query_params.append(('limit', params['limit']))  # noqa: E501
+        if 'cursor' in params:
+            query_params.append(('cursor', params['cursor']))  # noqa: E501
+
+        header_params = {}
+
+        form_params = []
+        local_var_files = {}
+
+        body_params = None
+        # HTTP header `Accept`
+        header_params['Accept'] = self.api_client.select_header_accept(
+            ['application/json'])  # noqa: E501
+
+        # Authentication setting
+        auth_settings = []  # noqa: E501
+
+        return self.api_client.call_api(
+            '/agents/{agent_id}/runs', 'GET',
+            path_params,
+            query_params,
+            header_params,
+            body=body_params,
+            post_params=form_params,
+            files=local_var_files,
+            response_type='AgentRunListResponse',  # noqa: E501
             auth_settings=auth_settings,
             async_req=params.get('async_req'),
             _return_http_data_only=params.get('_return_http_data_only'),
@@ -534,10 +760,16 @@ class AgentsApi(object):
         >>> result = thread.get()
 
         :param async_req bool
-        :param object include_llm_credential: When true, include `llm_credential` per agent showing whether runtime uses `tenant_default` or `agent_override` for `model_provider`.
+        :param object q: Case-insensitive search over name and description.
+        :param object status: Filter by one or more agent statuses.
+        :param object space_id: Filter to agents homed in this space.
+        :param object reasoning_profile: Filter by one or more reasoning profiles.
+        :param object sort: Sort mode: created_desc|created_asc|name_asc|name_desc|last_run_desc|run_count_desc|spend_desc.
+        :param UsageTimeWindow window: Window for metric sorts and per-agent summaries.
+        :param object include_summary: When true, include a per-agent usage summary.
         :param object limit: Page size.
         :param object cursor: Opaque string from the previous page's `next_cursor`.
-        :return: AgentListResponse
+        :return: AgentInventoryResponse
                  If the method is called asynchronously,
                  returns the request thread.
         """
@@ -557,15 +789,21 @@ class AgentsApi(object):
         >>> result = thread.get()
 
         :param async_req bool
-        :param object include_llm_credential: When true, include `llm_credential` per agent showing whether runtime uses `tenant_default` or `agent_override` for `model_provider`.
+        :param object q: Case-insensitive search over name and description.
+        :param object status: Filter by one or more agent statuses.
+        :param object space_id: Filter to agents homed in this space.
+        :param object reasoning_profile: Filter by one or more reasoning profiles.
+        :param object sort: Sort mode: created_desc|created_asc|name_asc|name_desc|last_run_desc|run_count_desc|spend_desc.
+        :param UsageTimeWindow window: Window for metric sorts and per-agent summaries.
+        :param object include_summary: When true, include a per-agent usage summary.
         :param object limit: Page size.
         :param object cursor: Opaque string from the previous page's `next_cursor`.
-        :return: AgentListResponse
+        :return: AgentInventoryResponse
                  If the method is called asynchronously,
                  returns the request thread.
         """
 
-        all_params = ['include_llm_credential', 'limit', 'cursor']  # noqa: E501
+        all_params = ['q', 'status', 'space_id', 'reasoning_profile', 'sort', 'window', 'include_summary', 'limit', 'cursor']  # noqa: E501
         all_params.append('async_req')
         all_params.append('_return_http_data_only')
         all_params.append('_preload_content')
@@ -586,8 +824,20 @@ class AgentsApi(object):
         path_params = {}
 
         query_params = []
-        if 'include_llm_credential' in params:
-            query_params.append(('include_llm_credential', params['include_llm_credential']))  # noqa: E501
+        if 'q' in params:
+            query_params.append(('q', params['q']))  # noqa: E501
+        if 'status' in params:
+            query_params.append(('status', params['status']))  # noqa: E501
+        if 'space_id' in params:
+            query_params.append(('space_id', params['space_id']))  # noqa: E501
+        if 'reasoning_profile' in params:
+            query_params.append(('reasoning_profile', params['reasoning_profile']))  # noqa: E501
+        if 'sort' in params:
+            query_params.append(('sort', params['sort']))  # noqa: E501
+        if 'window' in params:
+            query_params.append(('window', params['window']))  # noqa: E501
+        if 'include_summary' in params:
+            query_params.append(('include_summary', params['include_summary']))  # noqa: E501
         if 'limit' in params:
             query_params.append(('limit', params['limit']))  # noqa: E501
         if 'cursor' in params:
@@ -614,7 +864,100 @@ class AgentsApi(object):
             body=body_params,
             post_params=form_params,
             files=local_var_files,
-            response_type='AgentListResponse',  # noqa: E501
+            response_type='AgentInventoryResponse',  # noqa: E501
+            auth_settings=auth_settings,
+            async_req=params.get('async_req'),
+            _return_http_data_only=params.get('_return_http_data_only'),
+            _preload_content=params.get('_preload_content', True),
+            _request_timeout=params.get('_request_timeout'),
+            collection_formats=collection_formats)
+
+    def list_definition_suggestions_endpoint_agents_definition_suggestions_get(self, **kwargs):  # noqa: E501
+        """List Definition Suggestions  # noqa: E501
+
+        This method makes a synchronous HTTP request by default. To make an
+        asynchronous HTTP request, please pass async_req=True
+        >>> thread = api.list_definition_suggestions_endpoint_agents_definition_suggestions_get(async_req=True)
+        >>> result = thread.get()
+
+        :param async_req bool
+        :param AgentDefinitionSuggestionKind kind: Suggestion catalog to return.
+        :param object q: Optional case-insensitive filter over label/description.
+        :return: AgentDefinitionSuggestionListResponse
+                 If the method is called asynchronously,
+                 returns the request thread.
+        """
+        kwargs['_return_http_data_only'] = True
+        if kwargs.get('async_req'):
+            return self.list_definition_suggestions_endpoint_agents_definition_suggestions_get_with_http_info(**kwargs)  # noqa: E501
+        else:
+            (data) = self.list_definition_suggestions_endpoint_agents_definition_suggestions_get_with_http_info(**kwargs)  # noqa: E501
+            return data
+
+    def list_definition_suggestions_endpoint_agents_definition_suggestions_get_with_http_info(self, **kwargs):  # noqa: E501
+        """List Definition Suggestions  # noqa: E501
+
+        This method makes a synchronous HTTP request by default. To make an
+        asynchronous HTTP request, please pass async_req=True
+        >>> thread = api.list_definition_suggestions_endpoint_agents_definition_suggestions_get_with_http_info(async_req=True)
+        >>> result = thread.get()
+
+        :param async_req bool
+        :param AgentDefinitionSuggestionKind kind: Suggestion catalog to return.
+        :param object q: Optional case-insensitive filter over label/description.
+        :return: AgentDefinitionSuggestionListResponse
+                 If the method is called asynchronously,
+                 returns the request thread.
+        """
+
+        all_params = ['kind', 'q']  # noqa: E501
+        all_params.append('async_req')
+        all_params.append('_return_http_data_only')
+        all_params.append('_preload_content')
+        all_params.append('_request_timeout')
+
+        params = locals()
+        for key, val in six.iteritems(params['kwargs']):
+            if key not in all_params:
+                raise TypeError(
+                    "Got an unexpected keyword argument '%s'"
+                    " to method list_definition_suggestions_endpoint_agents_definition_suggestions_get" % key
+                )
+            params[key] = val
+        del params['kwargs']
+
+        collection_formats = {}
+
+        path_params = {}
+
+        query_params = []
+        if 'kind' in params:
+            query_params.append(('kind', params['kind']))  # noqa: E501
+        if 'q' in params:
+            query_params.append(('q', params['q']))  # noqa: E501
+
+        header_params = {}
+
+        form_params = []
+        local_var_files = {}
+
+        body_params = None
+        # HTTP header `Accept`
+        header_params['Accept'] = self.api_client.select_header_accept(
+            ['application/json'])  # noqa: E501
+
+        # Authentication setting
+        auth_settings = []  # noqa: E501
+
+        return self.api_client.call_api(
+            '/agents/definition-suggestions', 'GET',
+            path_params,
+            query_params,
+            header_params,
+            body=body_params,
+            post_params=form_params,
+            files=local_var_files,
+            response_type='AgentDefinitionSuggestionListResponse',  # noqa: E501
             auth_settings=auth_settings,
             async_req=params.get('async_req'),
             _return_http_data_only=params.get('_return_http_data_only'),

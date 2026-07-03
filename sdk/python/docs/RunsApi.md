@@ -6,6 +6,7 @@ Method | HTTP request | Description
 ------------- | ------------- | -------------
 [**dispatch_goal_run_endpoint_agents_agent_id_goals_post**](RunsApi.md#dispatch_goal_run_endpoint_agents_agent_id_goals_post) | **POST** /agents/{agent_id}/goals | Create Goal Run
 [**get_run_endpoint_runs_run_id_get**](RunsApi.md#get_run_endpoint_runs_run_id_get) | **GET** /runs/{run_id} | Get Run
+[**list_agent_runs_endpoint_agents_agent_id_runs_get**](RunsApi.md#list_agent_runs_endpoint_agents_agent_id_runs_get) | **GET** /agents/{agent_id}/runs | List Agent Runs
 [**list_session_runs_endpoint_sessions_session_id_runs_get**](RunsApi.md#list_session_runs_endpoint_sessions_session_id_runs_get) | **GET** /sessions/{session_id}/runs | List Session Runs
 [**resume_run_endpoint_runs_run_id_resume_post**](RunsApi.md#resume_run_endpoint_runs_run_id_resume_post) | **POST** /runs/{run_id}/resume | Resume Run
 
@@ -58,7 +59,7 @@ No authorization required
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 
 # **get_run_endpoint_runs_run_id_get**
-> RunResponse get_run_endpoint_runs_run_id_get(run_id)
+> RunDetailResponse get_run_endpoint_runs_run_id_get(run_id)
 
 Get Run
 
@@ -90,7 +91,65 @@ Name | Type | Description  | Notes
 
 ### Return type
 
-[**RunResponse**](RunResponse.md)
+[**RunDetailResponse**](RunDetailResponse.md)
+
+### Authorization
+
+No authorization required
+
+### HTTP request headers
+
+ - **Content-Type**: Not defined
+ - **Accept**: application/json
+
+[[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
+
+# **list_agent_runs_endpoint_agents_agent_id_runs_get**
+> AgentRunListResponse list_agent_runs_endpoint_agents_agent_id_runs_get(agent_id, status=status, run_type=run_type, session_id=session_id, window=window, limit=limit, cursor=cursor)
+
+List Agent Runs
+
+### Example
+```python
+from __future__ import print_function
+import time
+import hyperstruck
+from hyperstruck.rest import ApiException
+from pprint import pprint
+
+# create an instance of the API class
+api_instance = hyperstruck.RunsApi()
+agent_id = NULL # object | 
+status = [] # object | Filter by one or more run statuses. (optional) (default to [])
+run_type = [] # object | Filter by one or more run types (goal|resume). (optional) (default to [])
+session_id = NULL # object | Filter to a single session. (optional)
+window = hyperstruck.UsageTimeWindow() # UsageTimeWindow | Window bounding which runs are returned. (optional) (default to last_30_days)
+limit = 25 # object | Page size. (optional) (default to 25)
+cursor = NULL # object | Opaque string from the previous page's `next_cursor`. (optional)
+
+try:
+    # List Agent Runs
+    api_response = api_instance.list_agent_runs_endpoint_agents_agent_id_runs_get(agent_id, status=status, run_type=run_type, session_id=session_id, window=window, limit=limit, cursor=cursor)
+    pprint(api_response)
+except ApiException as e:
+    print("Exception when calling RunsApi->list_agent_runs_endpoint_agents_agent_id_runs_get: %s\n" % e)
+```
+
+### Parameters
+
+Name | Type | Description  | Notes
+------------- | ------------- | ------------- | -------------
+ **agent_id** | [**object**](.md)|  | 
+ **status** | [**object**](.md)| Filter by one or more run statuses. | [optional] [default to []]
+ **run_type** | [**object**](.md)| Filter by one or more run types (goal|resume). | [optional] [default to []]
+ **session_id** | [**object**](.md)| Filter to a single session. | [optional] 
+ **window** | [**UsageTimeWindow**](.md)| Window bounding which runs are returned. | [optional] [default to last_30_days]
+ **limit** | [**object**](.md)| Page size. | [optional] [default to 25]
+ **cursor** | [**object**](.md)| Opaque string from the previous page&#x27;s &#x60;next_cursor&#x60;. | [optional] 
+
+### Return type
+
+[**AgentRunListResponse**](AgentRunListResponse.md)
 
 ### Authorization
 

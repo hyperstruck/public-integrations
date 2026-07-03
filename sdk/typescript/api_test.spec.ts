@@ -15,33 +15,6 @@ import { Configuration } from "./configuration"
 
 const config: Configuration = {}
 
-describe("AdminIdentityApi", () => {
-  let instance: api.AdminIdentityApi
-  beforeEach(function() {
-    instance = new api.AdminIdentityApi(config)
-  });
-
-  test("createIdentityProviderAdminTenantsTenantIdIdentityProviderPost", () => {
-    const body: api.WorkOSOrganizationLinkRequest = undefined
-    const tenantId: any = undefined
-    return expect(instance.createIdentityProviderAdminTenantsTenantIdIdentityProviderPost(body, tenantId, {})).resolves.toBe(null)
-  })
-  test("createMemberAdminTenantsTenantIdMembersPost", () => {
-    const body: api.AdminMembershipRequest = undefined
-    const tenantId: any = undefined
-    return expect(instance.createMemberAdminTenantsTenantIdMembersPost(body, tenantId, {})).resolves.toBe(null)
-  })
-  test("createPortalLinkAdminTenantsTenantIdIdentityProviderPortalLinksPost", () => {
-    const body: api.WorkOSPortalLinkRequest = undefined
-    const tenantId: any = undefined
-    return expect(instance.createPortalLinkAdminTenantsTenantIdIdentityProviderPortalLinksPost(body, tenantId, {})).resolves.toBe(null)
-  })
-  test("workosWebhookWebhooksWorkosPost", () => {
-    const workOSSignature: any = undefined
-    return expect(instance.workosWebhookWebhooksWorkosPost(workOSSignature, {})).resolves.toBe(null)
-  })
-})
-
 describe("AgentsApi", () => {
   let instance: api.AgentsApi
   beforeEach(function() {
@@ -64,7 +37,25 @@ describe("AgentsApi", () => {
   test("getAgentEndpointAgentsAgentIdGet", () => {
     const agentId: any = undefined
     const includeLlmCredential: any = undefined
-    return expect(instance.getAgentEndpointAgentsAgentIdGet(agentId, includeLlmCredential, {})).resolves.toBe(null)
+    const includeSummary: any = undefined
+    const includeAccess: any = undefined
+    const window: UsageTimeWindow = undefined
+    return expect(instance.getAgentEndpointAgentsAgentIdGet(agentId, includeLlmCredential, includeSummary, includeAccess, window, {})).resolves.toBe(null)
+  })
+  test("getAgentUsageSummaryEndpointAgentsAgentIdUsageSummaryGet", () => {
+    const agentId: any = undefined
+    const window: UsageTimeWindow = undefined
+    return expect(instance.getAgentUsageSummaryEndpointAgentsAgentIdUsageSummaryGet(agentId, window, {})).resolves.toBe(null)
+  })
+  test("listAgentRunsEndpointAgentsAgentIdRunsGet", () => {
+    const agentId: any = undefined
+    const status: any = undefined
+    const runType: any = undefined
+    const sessionId: any = undefined
+    const window: UsageTimeWindow = undefined
+    const limit: any = undefined
+    const cursor: any = undefined
+    return expect(instance.listAgentRunsEndpointAgentsAgentIdRunsGet(agentId, status, runType, sessionId, window, limit, cursor, {})).resolves.toBe(null)
   })
   test("listAgentSessionsEndpointAgentsAgentIdSessionsGet", () => {
     const agentId: any = undefined
@@ -73,15 +64,45 @@ describe("AgentsApi", () => {
     return expect(instance.listAgentSessionsEndpointAgentsAgentIdSessionsGet(agentId, limit, cursor, {})).resolves.toBe(null)
   })
   test("listAgentsEndpointAgentsGet", () => {
-    const includeLlmCredential: any = undefined
+    const q: any = undefined
+    const status: any = undefined
+    const spaceId: any = undefined
+    const reasoningProfile: any = undefined
+    const sort: any = undefined
+    const window: UsageTimeWindow = undefined
+    const includeSummary: any = undefined
     const limit: any = undefined
     const cursor: any = undefined
-    return expect(instance.listAgentsEndpointAgentsGet(includeLlmCredential, limit, cursor, {})).resolves.toBe(null)
+    return expect(instance.listAgentsEndpointAgentsGet(q, status, spaceId, reasoningProfile, sort, window, includeSummary, limit, cursor, {})).resolves.toBe(null)
+  })
+  test("listDefinitionSuggestionsEndpointAgentsDefinitionSuggestionsGet", () => {
+    const kind: AgentDefinitionSuggestionKind = undefined
+    const q: any = undefined
+    return expect(instance.listDefinitionSuggestionsEndpointAgentsDefinitionSuggestionsGet(kind, q, {})).resolves.toBe(null)
   })
   test("updateAgentEndpointAgentsAgentIdPatch", () => {
     const body: api.AgentUpdateRequest = undefined
     const agentId: any = undefined
     return expect(instance.updateAgentEndpointAgentsAgentIdPatch(body, agentId, {})).resolves.toBe(null)
+  })
+})
+
+describe("ApiKeysApi", () => {
+  let instance: api.ApiKeysApi
+  beforeEach(function() {
+    instance = new api.ApiKeysApi(config)
+  });
+
+  test("createApiKeyEndpointApiKeysPost", () => {
+    const body: api.ApiKeyCreateRequest = undefined
+    return expect(instance.createApiKeyEndpointApiKeysPost(body, {})).resolves.toBe(null)
+  })
+  test("listApiKeysEndpointApiKeysGet", () => {
+    return expect(instance.listApiKeysEndpointApiKeysGet({})).resolves.toBe(null)
+  })
+  test("revokeApiKeyEndpointApiKeysApiKeyIdRevokePost", () => {
+    const apiKeyId: any = undefined
+    return expect(instance.revokeApiKeyEndpointApiKeysApiKeyIdRevokePost(apiKeyId, {})).resolves.toBe(null)
   })
 })
 
@@ -91,22 +112,30 @@ describe("AuthApi", () => {
     instance = new api.AuthApi(config)
   });
 
-  test("logoutAuthLogoutPost", () => {
-    return expect(instance.logoutAuthLogoutPost({})).resolves.toBe(null)
-  })
   test("meMeGet", () => {
     return expect(instance.meMeGet({})).resolves.toBe(null)
   })
-  test("workosCallbackAuthSsoCallbackGet", () => {
-    const code: any = undefined
-    const state: any = undefined
-    return expect(instance.workosCallbackAuthSsoCallbackGet(code, state, {})).resolves.toBe(null)
+})
+
+describe("BillingApi", () => {
+  let instance: api.BillingApi
+  beforeEach(function() {
+    instance = new api.BillingApi(config)
+  });
+
+  test("getBillingSummaryEndpointBillingSummaryGet", () => {
+    return expect(instance.getBillingSummaryEndpointBillingSummaryGet({})).resolves.toBe(null)
   })
-  test("workosLoginAuthSsoLoginGet", () => {
-    const email: any = undefined
-    const tenantHint: any = undefined
-    const returnTo: any = undefined
-    return expect(instance.workosLoginAuthSsoLoginGet(email, tenantHint, returnTo, {})).resolves.toBe(null)
+})
+
+describe("EntitlementsApi", () => {
+  let instance: api.EntitlementsApi
+  beforeEach(function() {
+    instance = new api.EntitlementsApi(config)
+  });
+
+  test("entitlementsEndpointEntitlementsGet", () => {
+    return expect(instance.entitlementsEndpointEntitlementsGet({})).resolves.toBe(null)
   })
 })
 
@@ -116,17 +145,22 @@ describe("LearningBoundaryApi", () => {
     instance = new api.LearningBoundaryApi(config)
   });
 
-  test("observeEndpointV1ObservePost", () => {
+  test("funnelEndpointFunnelGet", () => {
+    const windowHours: any = undefined
+    const graceMinutes: any = undefined
+    return expect(instance.funnelEndpointFunnelGet(windowHours, graceMinutes, {})).resolves.toBe(null)
+  })
+  test("observeEndpointObservePost", () => {
     const body: api.ObserveRequest = undefined
-    return expect(instance.observeEndpointV1ObservePost(body, {})).resolves.toBe(null)
+    return expect(instance.observeEndpointObservePost(body, {})).resolves.toBe(null)
   })
-  test("reinforceEndpointV1ReinforcePost", () => {
+  test("reinforceEndpointReinforcePost", () => {
     const body: api.ReinforceRequest = undefined
-    return expect(instance.reinforceEndpointV1ReinforcePost(body, {})).resolves.toBe(null)
+    return expect(instance.reinforceEndpointReinforcePost(body, {})).resolves.toBe(null)
   })
-  test("resolveEndpointV1ResolvePost", () => {
+  test("resolveEndpointResolvePost", () => {
     const body: api.ResolveRequest = undefined
-    return expect(instance.resolveEndpointV1ResolvePost(body, {})).resolves.toBe(null)
+    return expect(instance.resolveEndpointResolvePost(body, {})).resolves.toBe(null)
   })
 })
 
@@ -140,10 +174,24 @@ describe("LearningsApi", () => {
     const agentId: any = undefined
     return expect(instance.deleteAgentLearningsEndpointAgentsAgentIdLearningsDelete(agentId, {})).resolves.toBe(null)
   })
+  test("getAgentLearningsGraphEndpointAgentsAgentIdLearningsGraphGet", () => {
+    const agentId: any = undefined
+    const learningId: any = undefined
+    const depth: any = undefined
+    return expect(instance.getAgentLearningsGraphEndpointAgentsAgentIdLearningsGraphGet(agentId, learningId, depth, {})).resolves.toBe(null)
+  })
   test("getLearningEndpointAgentsAgentIdLearningsLearningIdGet", () => {
     const agentId: any = undefined
     const learningId: any = undefined
     return expect(instance.getLearningEndpointAgentsAgentIdLearningsLearningIdGet(agentId, learningId, {})).resolves.toBe(null)
+  })
+  test("listAgentLearningsEndpointAgentsAgentIdLearningsGet", () => {
+    const agentId: any = undefined
+    const includeInstances: any = undefined
+    const limit: any = undefined
+    const cursor: any = undefined
+    const state: LearningStateFilter = undefined
+    return expect(instance.listAgentLearningsEndpointAgentsAgentIdLearningsGet(agentId, includeInstances, limit, cursor, state, {})).resolves.toBe(null)
   })
   test("reinforceLearningEndpointAgentsAgentIdLearningsLearningIdReinforcePost", () => {
     const body: api.ReinforceLearningRequest = undefined
@@ -163,6 +211,19 @@ describe("LearningsApi", () => {
     const body: api.StoreLearningRequest = undefined
     const agentId: any = undefined
     return expect(instance.storeLearningEndpointAgentsAgentIdLearningsPost(body, agentId, {})).resolves.toBe(null)
+  })
+})
+
+describe("OrgLearningsApi", () => {
+  let instance: api.OrgLearningsApi
+  beforeEach(function() {
+    instance = new api.OrgLearningsApi(config)
+  });
+
+  test("listOrgLearningsEndpointOrgLearningsGet", () => {
+    const limit: any = undefined
+    const cursor: any = undefined
+    return expect(instance.listOrgLearningsEndpointOrgLearningsGet(limit, cursor, {})).resolves.toBe(null)
   })
 })
 
@@ -231,6 +292,16 @@ describe("RunsApi", () => {
     const runId: any = undefined
     return expect(instance.getRunEndpointRunsRunIdGet(runId, {})).resolves.toBe(null)
   })
+  test("listAgentRunsEndpointAgentsAgentIdRunsGet", () => {
+    const agentId: any = undefined
+    const status: any = undefined
+    const runType: any = undefined
+    const sessionId: any = undefined
+    const window: UsageTimeWindow = undefined
+    const limit: any = undefined
+    const cursor: any = undefined
+    return expect(instance.listAgentRunsEndpointAgentsAgentIdRunsGet(agentId, status, runType, sessionId, window, limit, cursor, {})).resolves.toBe(null)
+  })
   test("listSessionRunsEndpointSessionsSessionIdRunsGet", () => {
     const sessionId: any = undefined
     const limit: any = undefined
@@ -270,28 +341,34 @@ describe("SessionsApi", () => {
   })
 })
 
+describe("SpacesApi", () => {
+  let instance: api.SpacesApi
+  beforeEach(function() {
+    instance = new api.SpacesApi(config)
+  });
+
+  test("listSpacesEndpointSpacesGet", () => {
+    const limit: any = undefined
+    const cursor: any = undefined
+    return expect(instance.listSpacesEndpointSpacesGet(limit, cursor, {})).resolves.toBe(null)
+  })
+})
+
 describe("UsageApi", () => {
   let instance: api.UsageApi
   beforeEach(function() {
     instance = new api.UsageApi(config)
   });
 
+  test("getAgentUsageSummaryEndpointAgentsAgentIdUsageSummaryGet", () => {
+    const agentId: any = undefined
+    const window: UsageTimeWindow = undefined
+    return expect(instance.getAgentUsageSummaryEndpointAgentsAgentIdUsageSummaryGet(agentId, window, {})).resolves.toBe(null)
+  })
   test("getOwnUsageSummaryUsageSummaryGet", () => {
     const window: UsageTimeWindow = undefined
     const asOf: any = undefined
     return expect(instance.getOwnUsageSummaryUsageSummaryGet(window, asOf, {})).resolves.toBe(null)
-  })
-  test("getTenantLlmUsageBreakdownAdminUsageTenantsTenantIdLlmBreakdownGet", () => {
-    const tenantId: any = undefined
-    const window: UsageTimeWindow = undefined
-    const asOf: any = undefined
-    return expect(instance.getTenantLlmUsageBreakdownAdminUsageTenantsTenantIdLlmBreakdownGet(tenantId, window, asOf, {})).resolves.toBe(null)
-  })
-  test("getTenantUsageSummaryAdminUsageTenantsTenantIdSummaryGet", () => {
-    const tenantId: any = undefined
-    const window: UsageTimeWindow = undefined
-    const asOf: any = undefined
-    return expect(instance.getTenantUsageSummaryAdminUsageTenantsTenantIdSummaryGet(tenantId, window, asOf, {})).resolves.toBe(null)
   })
   test("listOwnUsageRunsUsageRunsGet", () => {
     const window: UsageTimeWindow = undefined
@@ -299,21 +376,6 @@ describe("UsageApi", () => {
     const limit: any = undefined
     const cursor: any = undefined
     return expect(instance.listOwnUsageRunsUsageRunsGet(window, asOf, limit, cursor, {})).resolves.toBe(null)
-  })
-  test("listTenantRunLlmCallsAdminUsageTenantsTenantIdRunsRunIdCallsGet", () => {
-    const tenantId: any = undefined
-    const runId: any = undefined
-    const limit: any = undefined
-    const cursor: any = undefined
-    return expect(instance.listTenantRunLlmCallsAdminUsageTenantsTenantIdRunsRunIdCallsGet(tenantId, runId, limit, cursor, {})).resolves.toBe(null)
-  })
-  test("listTenantUsageRunsAdminUsageTenantsTenantIdRunsGet", () => {
-    const tenantId: any = undefined
-    const window: UsageTimeWindow = undefined
-    const asOf: any = undefined
-    const limit: any = undefined
-    const cursor: any = undefined
-    return expect(instance.listTenantUsageRunsAdminUsageTenantsTenantIdRunsGet(tenantId, window, asOf, limit, cursor, {})).resolves.toBe(null)
   })
 })
 

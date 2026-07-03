@@ -30,7 +30,7 @@ class ReinforceLearningResponse(object):
     swagger_types = {
         'learning_id': 'object',
         'standing': 'LearningStanding',
-        'trust_level': 'object',
+        'trust_level': 'TrustLevel',
         'times_applied': 'object',
         'times_helpful': 'object'
     }
@@ -112,7 +112,7 @@ class ReinforceLearningResponse(object):
         Current trust level after reinforcement.  # noqa: E501
 
         :return: The trust_level of this ReinforceLearningResponse.  # noqa: E501
-        :rtype: object
+        :rtype: TrustLevel
         """
         return self._trust_level
 
@@ -123,7 +123,7 @@ class ReinforceLearningResponse(object):
         Current trust level after reinforcement.  # noqa: E501
 
         :param trust_level: The trust_level of this ReinforceLearningResponse.  # noqa: E501
-        :type: object
+        :type: TrustLevel
         """
         if trust_level is None:
             raise ValueError("Invalid value for `trust_level`, must not be `None`")  # noqa: E501

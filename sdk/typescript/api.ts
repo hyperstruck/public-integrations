@@ -78,68 +78,6 @@ export class RequiredError extends Error {
 }
 
 /**
- * 
- * @export
- * @interface AdminMembershipRequest
- */
-export interface AdminMembershipRequest {
-    /**
-     * 
-     * @type {any}
-     * @memberof AdminMembershipRequest
-     */
-    email: any;
-    /**
-     * 
-     * @type {any}
-     * @memberof AdminMembershipRequest
-     */
-    role: any;
-    /**
-     * 
-     * @type {any}
-     * @memberof AdminMembershipRequest
-     */
-    displayName?: any;
-    /**
-     * 
-     * @type {any}
-     * @memberof AdminMembershipRequest
-     */
-    status?: any;
-}
-/**
- * 
- * @export
- * @interface AdminMembershipResponse
- */
-export interface AdminMembershipResponse {
-    /**
-     * 
-     * @type {any}
-     * @memberof AdminMembershipResponse
-     */
-    tenantId: any;
-    /**
-     * 
-     * @type {any}
-     * @memberof AdminMembershipResponse
-     */
-    identityUserId: any;
-    /**
-     * 
-     * @type {any}
-     * @memberof AdminMembershipResponse
-     */
-    role: any;
-    /**
-     * 
-     * @type {any}
-     * @memberof AdminMembershipResponse
-     */
-    status: any;
-}
-/**
  * Fields persisted in `agents.config_jsonb`, aligned with `AgentConfig`.
  * @export
  * @interface AgentCoreConfigInput
@@ -365,7 +303,7 @@ export interface AgentCreateRequest {
      */
     status?: any;
     /**
-     * Model provider for this agent. Defaults to the platform fallback provider (`groq`).
+     * Model provider for this agent. Defaults to the platform fallback provider (`openai`).
      * @type {ModelProvider}
      * @memberof AgentCreateRequest
      */
@@ -395,6 +333,12 @@ export interface AgentCreateRequest {
      */
     knowledgeScope?: any;
     /**
+     * Optional home space (`public.spaces`) for this agent. The composite FK `(tenant_id, home_space_id)` pins it to the caller's tenant.
+     * @type {any}
+     * @memberof AgentCreateRequest
+     */
+    homeSpaceId?: any;
+    /**
      * hyperstruck-core-aligned configuration blob. Required on create so every agent has explicit instructions.
      * @type {AgentCoreConfigInput}
      * @memberof AgentCreateRequest
@@ -402,23 +346,299 @@ export interface AgentCreateRequest {
     coreConfig: AgentCoreConfigInput;
 }
 /**
- * 
+ * One curated suggestion (template / profile / example) for the create wizard.
  * @export
- * @interface AgentListResponse
+ * @interface AgentDefinitionSuggestion
  */
-export interface AgentListResponse {
+export interface AgentDefinitionSuggestion {
     /**
      * 
      * @type {any}
-     * @memberof AgentListResponse
+     * @memberof AgentDefinitionSuggestion
+     */
+    id: any;
+    /**
+     * 
+     * @type {AgentDefinitionSuggestionKind}
+     * @memberof AgentDefinitionSuggestion
+     */
+    kind: AgentDefinitionSuggestionKind;
+    /**
+     * 
+     * @type {any}
+     * @memberof AgentDefinitionSuggestion
+     */
+    label: any;
+    /**
+     * 
+     * @type {any}
+     * @memberof AgentDefinitionSuggestion
+     */
+    description?: any;
+    /**
+     * 
+     * @type {any}
+     * @memberof AgentDefinitionSuggestion
+     */
+    payload?: any;
+}
+/**
+ * Curated catalogs that help author an agent definition.
+ * @export
+ * @enum {string}
+ */
+export enum AgentDefinitionSuggestionKind {
+    Template = <any> 'template',
+    ReasoningProfile = <any> 'reasoning_profile',
+    MemoryProfile = <any> 'memory_profile',
+    KnowledgeScope = <any> 'knowledge_scope',
+    McpServer = <any> 'mcp_server',
+    Guardrail = <any> 'guardrail',
+    CodeExample = <any> 'code_example'
+}
+/**
+ * 
+ * @export
+ * @interface AgentDefinitionSuggestionListResponse
+ */
+export interface AgentDefinitionSuggestionListResponse {
+    /**
+     * 
+     * @type {any}
+     * @memberof AgentDefinitionSuggestionListResponse
+     */
+    items: any;
+    /**
+     * 
+     * @type {any}
+     * @memberof AgentDefinitionSuggestionListResponse
+     */
+    nextCursor?: any;
+}
+/**
+ * Agent detail: inventory row fields plus the optional summary.  The ``access`` block (home-space operators / FGA checks) is intentionally not populated yet — see Fibery #122 (owned by the FGA/authz surface). The base ``core_config`` field already carries the compiled config blob.
+ * @export
+ * @interface AgentDetailResponse
+ */
+export interface AgentDetailResponse {
+    /**
+     * 
+     * @type {any}
+     * @memberof AgentDetailResponse
+     */
+    id: any;
+    /**
+     * 
+     * @type {any}
+     * @memberof AgentDetailResponse
+     */
+    name: any;
+    /**
+     * 
+     * @type {any}
+     * @memberof AgentDetailResponse
+     */
+    description: any;
+    /**
+     * 
+     * @type {any}
+     * @memberof AgentDetailResponse
+     */
+    status: any;
+    /**
+     * 
+     * @type {HostedAgentModelProvider}
+     * @memberof AgentDetailResponse
+     */
+    modelProvider: HostedAgentModelProvider;
+    /**
+     * 
+     * @type {any}
+     * @memberof AgentDetailResponse
+     */
+    modelName: any;
+    /**
+     * 
+     * @type {ReasoningTier}
+     * @memberof AgentDetailResponse
+     */
+    reasoningProfile: ReasoningTier;
+    /**
+     * 
+     * @type {any}
+     * @memberof AgentDetailResponse
+     */
+    memoryProfile: any;
+    /**
+     * 
+     * @type {any}
+     * @memberof AgentDetailResponse
+     */
+    knowledgeScope: any;
+    /**
+     * Home space (`public.spaces`) for this agent, if any.
+     * @type {any}
+     * @memberof AgentDetailResponse
+     */
+    homeSpaceId?: any;
+    /**
+     * 
+     * @type {AgentCoreConfigOutput}
+     * @memberof AgentDetailResponse
+     */
+    coreConfig: AgentCoreConfigOutput;
+    /**
+     * Effective runtime LLM credential summary. Customer `agent_override` wins over `tenant_default`; if neither exists, platform fallback can identify the resolved provider/model with `credential_id=null`.
+     * @type {any}
+     * @memberof AgentDetailResponse
+     */
+    llmCredential?: any;
+    /**
+     * 
+     * @type {any}
+     * @memberof AgentDetailResponse
+     */
+    createdAt: any;
+    /**
+     * 
+     * @type {any}
+     * @memberof AgentDetailResponse
+     */
+    updatedAt: any;
+    /**
+     * 
+     * @type {any}
+     * @memberof AgentDetailResponse
+     */
+    summary?: any;
+}
+/**
+ * Searchable, sortable agent inventory with an optional per-row summary.
+ * @export
+ * @interface AgentInventoryResponse
+ */
+export interface AgentInventoryResponse {
+    /**
+     * 
+     * @type {any}
+     * @memberof AgentInventoryResponse
      */
     items: any;
     /**
      * When set, another page exists: pass as `cursor`.
      * @type {any}
-     * @memberof AgentListResponse
+     * @memberof AgentInventoryResponse
      */
     nextCursor?: any;
+    /**
+     * Fixed window anchor used for metric sorts/summaries.
+     * @type {any}
+     * @memberof AgentInventoryResponse
+     */
+    asOf?: any;
+    /**
+     * 
+     * @type {UsageTimeWindow}
+     * @memberof AgentInventoryResponse
+     */
+    window: UsageTimeWindow;
+}
+/**
+ * Inventory row: an agent plus an optional usage summary.
+ * @export
+ * @interface AgentListItem
+ */
+export interface AgentListItem {
+    /**
+     * 
+     * @type {any}
+     * @memberof AgentListItem
+     */
+    id: any;
+    /**
+     * 
+     * @type {any}
+     * @memberof AgentListItem
+     */
+    name: any;
+    /**
+     * 
+     * @type {any}
+     * @memberof AgentListItem
+     */
+    description: any;
+    /**
+     * 
+     * @type {any}
+     * @memberof AgentListItem
+     */
+    status: any;
+    /**
+     * 
+     * @type {HostedAgentModelProvider}
+     * @memberof AgentListItem
+     */
+    modelProvider: HostedAgentModelProvider;
+    /**
+     * 
+     * @type {any}
+     * @memberof AgentListItem
+     */
+    modelName: any;
+    /**
+     * 
+     * @type {ReasoningTier}
+     * @memberof AgentListItem
+     */
+    reasoningProfile: ReasoningTier;
+    /**
+     * 
+     * @type {any}
+     * @memberof AgentListItem
+     */
+    memoryProfile: any;
+    /**
+     * 
+     * @type {any}
+     * @memberof AgentListItem
+     */
+    knowledgeScope: any;
+    /**
+     * Home space (`public.spaces`) for this agent, if any.
+     * @type {any}
+     * @memberof AgentListItem
+     */
+    homeSpaceId?: any;
+    /**
+     * 
+     * @type {AgentCoreConfigOutput}
+     * @memberof AgentListItem
+     */
+    coreConfig: AgentCoreConfigOutput;
+    /**
+     * Effective runtime LLM credential summary. Customer `agent_override` wins over `tenant_default`; if neither exists, platform fallback can identify the resolved provider/model with `credential_id=null`.
+     * @type {any}
+     * @memberof AgentListItem
+     */
+    llmCredential?: any;
+    /**
+     * 
+     * @type {any}
+     * @memberof AgentListItem
+     */
+    createdAt: any;
+    /**
+     * 
+     * @type {any}
+     * @memberof AgentListItem
+     */
+    updatedAt: any;
+    /**
+     * 
+     * @type {any}
+     * @memberof AgentListItem
+     */
+    summary?: any;
 }
 /**
  * Non-secret view of the effective runtime LLM credential for this agent.
@@ -513,10 +733,10 @@ export interface AgentResponse {
     status: any;
     /**
      * 
-     * @type {ModelProvider}
+     * @type {HostedAgentModelProvider}
      * @memberof AgentResponse
      */
-    modelProvider: ModelProvider;
+    modelProvider: HostedAgentModelProvider;
     /**
      * 
      * @type {any}
@@ -542,6 +762,12 @@ export interface AgentResponse {
      */
     knowledgeScope: any;
     /**
+     * Home space (`public.spaces`) for this agent, if any.
+     * @type {any}
+     * @memberof AgentResponse
+     */
+    homeSpaceId?: any;
+    /**
      * 
      * @type {AgentCoreConfigOutput}
      * @memberof AgentResponse
@@ -559,6 +785,195 @@ export interface AgentResponse {
      * @memberof AgentResponse
      */
     createdAt: any;
+    /**
+     * 
+     * @type {any}
+     * @memberof AgentResponse
+     */
+    updatedAt: any;
+}
+/**
+ * Agent-scoped, window-bounded page of runs (newest first).
+ * @export
+ * @interface AgentRunListResponse
+ */
+export interface AgentRunListResponse {
+    /**
+     * 
+     * @type {any}
+     * @memberof AgentRunListResponse
+     */
+    agentId: any;
+    /**
+     * Echo of the usage window applied to the page.
+     * @type {any}
+     * @memberof AgentRunListResponse
+     */
+    window: any;
+    /**
+     * Inclusive UTC boundary.
+     * @type {any}
+     * @memberof AgentRunListResponse
+     */
+    periodStart: any;
+    /**
+     * Exclusive UTC boundary.
+     * @type {any}
+     * @memberof AgentRunListResponse
+     */
+    periodEndExclusive: any;
+    /**
+     * 
+     * @type {any}
+     * @memberof AgentRunListResponse
+     */
+    items: any;
+    /**
+     * When set, another page exists: pass as `cursor`.
+     * @type {any}
+     * @memberof AgentRunListResponse
+     */
+    nextCursor?: any;
+}
+/**
+ * Per-agent run aggregates with a status breakdown for the usage panel.
+ * @export
+ * @interface AgentRunStatusAggregates
+ */
+export interface AgentRunStatusAggregates {
+    /**
+     * 
+     * @type {any}
+     * @memberof AgentRunStatusAggregates
+     */
+    runCount: any;
+    /**
+     * 
+     * @type {any}
+     * @memberof AgentRunStatusAggregates
+     */
+    completedRunCount: any;
+    /**
+     * 
+     * @type {any}
+     * @memberof AgentRunStatusAggregates
+     */
+    failedRunCount: any;
+    /**
+     * 
+     * @type {any}
+     * @memberof AgentRunStatusAggregates
+     */
+    suspendedRunCount: any;
+    /**
+     * 
+     * @type {any}
+     * @memberof AgentRunStatusAggregates
+     */
+    sessionCount: any;
+    /**
+     * 
+     * @type {any}
+     * @memberof AgentRunStatusAggregates
+     */
+    totalComputeSeconds: any;
+    /**
+     * 
+     * @type {any}
+     * @memberof AgentRunStatusAggregates
+     */
+    totalEstimatedCostUsd: any;
+    /**
+     * 
+     * @type {any}
+     * @memberof AgentRunStatusAggregates
+     */
+    lastRunAt?: any;
+}
+/**
+ * Per-agent run rollups for inventory cards and the detail summary.  Computed from ``public.agent_runs`` within the window keyed on ``created_at``. ``learning_count`` / ``needs_review_learning_count`` are owned by the learning-audit surface and are ``null`` here until that surface populates them.
+ * @export
+ * @interface AgentSummaryMetrics
+ */
+export interface AgentSummaryMetrics {
+    /**
+     * 
+     * @type {UsageTimeWindow}
+     * @memberof AgentSummaryMetrics
+     */
+    window: UsageTimeWindow;
+    /**
+     * 
+     * @type {any}
+     * @memberof AgentSummaryMetrics
+     */
+    periodStart: any;
+    /**
+     * 
+     * @type {any}
+     * @memberof AgentSummaryMetrics
+     */
+    periodEndExclusive: any;
+    /**
+     * 
+     * @type {any}
+     * @memberof AgentSummaryMetrics
+     */
+    runCount: any;
+    /**
+     * 
+     * @type {any}
+     * @memberof AgentSummaryMetrics
+     */
+    sessionCount: any;
+    /**
+     * 
+     * @type {any}
+     * @memberof AgentSummaryMetrics
+     */
+    completedRunCount: any;
+    /**
+     * 
+     * @type {any}
+     * @memberof AgentSummaryMetrics
+     */
+    failedRunCount: any;
+    /**
+     * 
+     * @type {any}
+     * @memberof AgentSummaryMetrics
+     */
+    suspendedRunCount: any;
+    /**
+     * 
+     * @type {any}
+     * @memberof AgentSummaryMetrics
+     */
+    totalComputeSeconds: any;
+    /**
+     * 
+     * @type {any}
+     * @memberof AgentSummaryMetrics
+     */
+    totalEstimatedCostUsd: any;
+    /**
+     * 
+     * @type {any}
+     * @memberof AgentSummaryMetrics
+     */
+    lastRunAt?: any;
+    /**
+     * 
+     * @type {any}
+     * @memberof AgentSummaryMetrics
+     */
+    learningCount?: any;
+    /**
+     * 
+     * @type {any}
+     * @memberof AgentSummaryMetrics
+     */
+    needsReviewLearningCount?: any;
 }
 /**
  * 
@@ -615,11 +1030,308 @@ export interface AgentUpdateRequest {
      */
     knowledgeScope?: any;
     /**
+     * Move the agent's home space; null leaves it unchanged.
+     * @type {any}
+     * @memberof AgentUpdateRequest
+     */
+    homeSpaceId?: any;
+    /**
      * 
      * @type {any}
      * @memberof AgentUpdateRequest
      */
     coreConfig?: any;
+}
+/**
+ * Per-agent usage summary for a preset window.
+ * @export
+ * @interface AgentUsageSummaryResponse
+ */
+export interface AgentUsageSummaryResponse {
+    /**
+     * 
+     * @type {any}
+     * @memberof AgentUsageSummaryResponse
+     */
+    agentId: any;
+    /**
+     * 
+     * @type {UsageTimeWindow}
+     * @memberof AgentUsageSummaryResponse
+     */
+    window: UsageTimeWindow;
+    /**
+     * 
+     * @type {any}
+     * @memberof AgentUsageSummaryResponse
+     */
+    periodStart: any;
+    /**
+     * 
+     * @type {any}
+     * @memberof AgentUsageSummaryResponse
+     */
+    periodEndExclusive: any;
+    /**
+     * 
+     * @type {AgentRunStatusAggregates}
+     * @memberof AgentUsageSummaryResponse
+     */
+    agentRuns: AgentRunStatusAggregates;
+}
+/**
+ * 
+ * @export
+ * @interface ApiKeyCreateRequest
+ */
+export interface ApiKeyCreateRequest {
+    /**
+     * 
+     * @type {any}
+     * @memberof ApiKeyCreateRequest
+     */
+    name: any;
+    /**
+     * 
+     * @type {any}
+     * @memberof ApiKeyCreateRequest
+     */
+    scopes?: any;
+}
+/**
+ * 
+ * @export
+ * @interface ApiKeyCreateResponse
+ */
+export interface ApiKeyCreateResponse {
+    /**
+     * 
+     * @type {any}
+     * @memberof ApiKeyCreateResponse
+     */
+    id: any;
+    /**
+     * 
+     * @type {any}
+     * @memberof ApiKeyCreateResponse
+     */
+    name?: any;
+    /**
+     * 
+     * @type {any}
+     * @memberof ApiKeyCreateResponse
+     */
+    keyPrefix: any;
+    /**
+     * 
+     * @type {any}
+     * @memberof ApiKeyCreateResponse
+     */
+    scopes?: any;
+    /**
+     * 
+     * @type {any}
+     * @memberof ApiKeyCreateResponse
+     */
+    createdAt: any;
+    /**
+     * 
+     * @type {any}
+     * @memberof ApiKeyCreateResponse
+     */
+    lastUsedAt?: any;
+    /**
+     * 
+     * @type {any}
+     * @memberof ApiKeyCreateResponse
+     */
+    revokedAt?: any;
+    /**
+     * Full secret key; returned exactly once at creation.
+     * @type {any}
+     * @memberof ApiKeyCreateResponse
+     */
+    fullKey: any;
+}
+/**
+ * 
+ * @export
+ * @interface ApiKeyListItem
+ */
+export interface ApiKeyListItem {
+    /**
+     * 
+     * @type {any}
+     * @memberof ApiKeyListItem
+     */
+    id: any;
+    /**
+     * 
+     * @type {any}
+     * @memberof ApiKeyListItem
+     */
+    name?: any;
+    /**
+     * 
+     * @type {any}
+     * @memberof ApiKeyListItem
+     */
+    keyPrefix: any;
+    /**
+     * 
+     * @type {any}
+     * @memberof ApiKeyListItem
+     */
+    scopes?: any;
+    /**
+     * 
+     * @type {any}
+     * @memberof ApiKeyListItem
+     */
+    createdAt: any;
+    /**
+     * 
+     * @type {any}
+     * @memberof ApiKeyListItem
+     */
+    lastUsedAt?: any;
+    /**
+     * 
+     * @type {any}
+     * @memberof ApiKeyListItem
+     */
+    revokedAt?: any;
+}
+/**
+ * 
+ * @export
+ * @interface ApiKeyListResponse
+ */
+export interface ApiKeyListResponse {
+    /**
+     * 
+     * @type {any}
+     * @memberof ApiKeyListResponse
+     */
+    items: any;
+}
+/**
+ * 
+ * @export
+ * @interface ApiKeyRevokeResponse
+ */
+export interface ApiKeyRevokeResponse {
+    /**
+     * 
+     * @type {any}
+     * @memberof ApiKeyRevokeResponse
+     */
+    id: any;
+    /**
+     * 
+     * @type {any}
+     * @memberof ApiKeyRevokeResponse
+     */
+    revokedAt: any;
+}
+/**
+ * Read-only tenant billing snapshot for the active enforcement window.
+ * @export
+ * @interface BillingSummaryResponse
+ */
+export interface BillingSummaryResponse {
+    /**
+     * Tenant plan code from the authenticated principal.
+     * @type {any}
+     * @memberof BillingSummaryResponse
+     */
+    planCode?: any;
+    /**
+     * 
+     * @type {BillingWindowKind}
+     * @memberof BillingSummaryResponse
+     */
+    windowKind: BillingWindowKind;
+    /**
+     * Inclusive UTC billing window start.
+     * @type {any}
+     * @memberof BillingSummaryResponse
+     */
+    periodStart: any;
+    /**
+     * Exclusive UTC billing window end.
+     * @type {any}
+     * @memberof BillingSummaryResponse
+     */
+    periodEndExclusive: any;
+    /**
+     * Configured hard spend cap; null when unlimited.
+     * @type {any}
+     * @memberof BillingSummaryResponse
+     */
+    hardLimitUsd?: any;
+    /**
+     * Configured soft spend cap; null when unset or unlimited.
+     * @type {any}
+     * @memberof BillingSummaryResponse
+     */
+    softLimitUsd?: any;
+    /**
+     * Terminal billed spend in the window (runs + used learning holds).
+     * @type {any}
+     * @memberof BillingSummaryResponse
+     */
+    currentSpendUsd: any;
+    /**
+     * In-flight spend reservations for the current billing window.
+     * @type {any}
+     * @memberof BillingSummaryResponse
+     */
+    activeReservationsUsd: any;
+    /**
+     * current_spend_usd + active_reservations_usd.
+     * @type {any}
+     * @memberof BillingSummaryResponse
+     */
+    committedUsd: any;
+    /**
+     * hard_limit_usd - committed_usd; null when unlimited.
+     * @type {any}
+     * @memberof BillingSummaryResponse
+     */
+    availableUsd?: any;
+    /**
+     * committed_usd / hard_limit_usd as a percentage; null when unlimited.
+     * @type {any}
+     * @memberof BillingSummaryResponse
+     */
+    percentUsed?: any;
+    /**
+     * 
+     * @type {BillingSummaryStatus}
+     * @memberof BillingSummaryResponse
+     */
+    status: BillingSummaryStatus;
+}
+/**
+ * 
+ * @export
+ * @enum {string}
+ */
+export enum BillingSummaryStatus {
+    Unlimited = <any> 'unlimited',
+    Ok = <any> 'ok',
+    SoftExceeded = <any> 'soft_exceeded',
+    HardExceeded = <any> 'hard_exceeded'
+}
+/**
+ * 
+ * @export
+ * @enum {string}
+ */
+export enum BillingWindowKind {
+    SubscriptionPeriod = <any> 'subscription_period',
+    CalendarMonth = <any> 'calendar_month'
 }
 /**
  * Acknowledgement that a write was accepted for background processing.
@@ -698,6 +1410,31 @@ export interface DeleteLearningsResponse {
     deletedCount: any;
 }
 /**
+ * The plan facts a caller (or a downstream surface) is entitled to act on.
+ * @export
+ * @interface EntitlementsResponse
+ */
+export interface EntitlementsResponse {
+    /**
+     * 
+     * @type {any}
+     * @memberof EntitlementsResponse
+     */
+    planCode: any;
+    /**
+     * 
+     * @type {any}
+     * @memberof EntitlementsResponse
+     */
+    complianceGuardrailsAddon: any;
+    /**
+     * 
+     * @type {any}
+     * @memberof EntitlementsResponse
+     */
+    scopes?: any;
+}
+/**
  * A finished foreign run, the unit of the write path.
  * @export
  * @interface EpisodeModel
@@ -739,6 +1476,17 @@ export interface EpisodeModel {
      * @memberof EpisodeModel
      */
     threadId?: any;
+}
+/**
+ * Why evidence instances are or are not present on an audit item.
+ * @export
+ * @enum {string}
+ */
+export enum EvidenceAvailability {
+    Available = <any> 'available',
+    Omitted = <any> 'omitted',
+    OrgStripped = <any> 'org_stripped',
+    Truncated = <any> 'truncated'
 }
 /**
  * Accepted response for an asynchronously dispatched goal run.
@@ -910,6 +1658,85 @@ export enum HitlPolicyPreset {
     MilestoneOnly = <any> 'milestone_only'
 }
 /**
+ * Loop-closure funnel for one producing host over a window.  A half-open loop (a run that resolved but never wrote back) shows here as a missing terminal stage, not a false closure.
+ * @export
+ * @interface HostLoopClosure
+ */
+export interface HostLoopClosure {
+    /**
+     * 
+     * @type {any}
+     * @memberof HostLoopClosure
+     */
+    host: any;
+    /**
+     * 
+     * @type {any}
+     * @memberof HostLoopClosure
+     */
+    resolved: any;
+    /**
+     * 
+     * @type {any}
+     * @memberof HostLoopClosure
+     */
+    offered: any;
+    /**
+     * 
+     * @type {any}
+     * @memberof HostLoopClosure
+     */
+    observed: any;
+    /**
+     * 
+     * @type {any}
+     * @memberof HostLoopClosure
+     */
+    reinforced: any;
+    /**
+     * 
+     * @type {any}
+     * @memberof HostLoopClosure
+     */
+    halfOpen: any;
+    /**
+     * 
+     * @type {any}
+     * @memberof HostLoopClosure
+     */
+    inFlight?: any;
+    /**
+     * 
+     * @type {any}
+     * @memberof HostLoopClosure
+     */
+    loopClosureRate: any;
+    /**
+     * 
+     * @type {any}
+     * @memberof HostLoopClosure
+     */
+    halfOpenRate: any;
+    /**
+     * 
+     * @type {any}
+     * @memberof HostLoopClosure
+     */
+    avgSecondsToClose?: any;
+}
+/**
+ * Model providers returned by agent inventory, including learning-boundary stubs.
+ * @export
+ * @enum {string}
+ */
+export enum HostedAgentModelProvider {
+    Ollama = <any> 'ollama',
+    Openai = <any> 'openai',
+    Anthropic = <any> 'anthropic',
+    Groq = <any> 'groq',
+    External = <any> 'external'
+}
+/**
  * 
  * @export
  * @interface IdentityUserModel
@@ -933,6 +1760,391 @@ export interface IdentityUserModel {
      * @memberof IdentityUserModel
      */
     displayName?: any;
+}
+/**
+ * Corpus-wide counts for the metric strip, from indexed Qdrant counts only.  The four live/terminal buckets are mutually exclusive and sum to ``total``; ``needs_review`` counts live-but-unverified learnings (trust is indexed, so no scan is needed).
+ * @export
+ * @interface LearningAuditFacets
+ */
+export interface LearningAuditFacets {
+    /**
+     * 
+     * @type {any}
+     * @memberof LearningAuditFacets
+     */
+    total: any;
+    /**
+     * Live and verified (total minus the rest).
+     * @type {any}
+     * @memberof LearningAuditFacets
+     */
+    active: any;
+    /**
+     * Live but unverified.
+     * @type {any}
+     * @memberof LearningAuditFacets
+     */
+    needsReview: any;
+    /**
+     * 
+     * @type {any}
+     * @memberof LearningAuditFacets
+     */
+    archived: any;
+    /**
+     * 
+     * @type {any}
+     * @memberof LearningAuditFacets
+     */
+    superseded: any;
+}
+/**
+ * A directed edge between two node ids.
+ * @export
+ * @interface LearningAuditGraphEdge
+ */
+export interface LearningAuditGraphEdge {
+    /**
+     * 
+     * @type {any}
+     * @memberof LearningAuditGraphEdge
+     */
+    id: any;
+    /**
+     * 
+     * @type {any}
+     * @memberof LearningAuditGraphEdge
+     */
+    source: any;
+    /**
+     * 
+     * @type {any}
+     * @memberof LearningAuditGraphEdge
+     */
+    target: any;
+    /**
+     * 
+     * @type {LearningGraphEdgeType}
+     * @memberof LearningAuditGraphEdge
+     */
+    edgeType: LearningGraphEdgeType;
+}
+/**
+ * A graph node. Carries no position: the client computes layout.
+ * @export
+ * @interface LearningAuditGraphNode
+ */
+export interface LearningAuditGraphNode {
+    /**
+     * 
+     * @type {any}
+     * @memberof LearningAuditGraphNode
+     */
+    id: any;
+    /**
+     * 
+     * @type {LearningGraphNodeType}
+     * @memberof LearningAuditGraphNode
+     */
+    nodeType: LearningGraphNodeType;
+    /**
+     * 
+     * @type {any}
+     * @memberof LearningAuditGraphNode
+     */
+    label: any;
+    /**
+     * Set on learning nodes so a list row maps to its graph node.
+     * @type {any}
+     * @memberof LearningAuditGraphNode
+     */
+    learningId?: any;
+    /**
+     * Status hint for client tone (learning nodes only).
+     * @type {any}
+     * @memberof LearningAuditGraphNode
+     */
+    reviewState?: any;
+    /**
+     * 
+     * @type {any}
+     * @memberof LearningAuditGraphNode
+     */
+    utility?: any;
+}
+/**
+ * Bounded evidence graph for the three.js surface.
+ * @export
+ * @interface LearningAuditGraphResponse
+ */
+export interface LearningAuditGraphResponse {
+    /**
+     * 
+     * @type {any}
+     * @memberof LearningAuditGraphResponse
+     */
+    nodes: any;
+    /**
+     * 
+     * @type {any}
+     * @memberof LearningAuditGraphResponse
+     */
+    edges: any;
+    /**
+     * 
+     * @type {any}
+     * @memberof LearningAuditGraphResponse
+     */
+    learningId?: any;
+    /**
+     * True when caps dropped nodes/edges from the response.
+     * @type {any}
+     * @memberof LearningAuditGraphResponse
+     */
+    truncated?: any;
+    /**
+     * 
+     * @type {any}
+     * @memberof LearningAuditGraphResponse
+     */
+    retrievedAt: any;
+}
+/**
+ * A single agent learning as shown in the curation inventory.
+ * @export
+ * @interface LearningAuditItem
+ */
+export interface LearningAuditItem {
+    /**
+     * 
+     * @type {any}
+     * @memberof LearningAuditItem
+     */
+    learningId: any;
+    /**
+     * 
+     * @type {any}
+     * @memberof LearningAuditItem
+     */
+    content: any;
+    /**
+     * 
+     * @type {any}
+     * @memberof LearningAuditItem
+     */
+    summary?: any;
+    /**
+     * 
+     * @type {LearningScope}
+     * @memberof LearningAuditItem
+     */
+    scope?: LearningScope;
+    /**
+     * 
+     * @type {any}
+     * @memberof LearningAuditItem
+     */
+    category?: any;
+    /**
+     * Deprecated compatibility passthrough; null for new records.
+     * @type {any}
+     * @memberof LearningAuditItem
+     */
+    legacyLearningType?: any;
+    /**
+     * Value when applied, 0.0-1.0 (Core's application-outcome EMA).
+     * @type {any}
+     * @memberof LearningAuditItem
+     */
+    utility: any;
+    /**
+     * How established, 0.0-1.0 (Wilson lower bound over corroborations, lowered by contradictions).
+     * @type {any}
+     * @memberof LearningAuditItem
+     */
+    reliability: any;
+    /**
+     * Independent sources that corroborated this learning.
+     * @type {any}
+     * @memberof LearningAuditItem
+     */
+    corroborationCount: any;
+    /**
+     * Verification tier; UNKNOWN for an unmappable stored value.
+     * @type {TrustLevel}
+     * @memberof LearningAuditItem
+     */
+    trustLevel: TrustLevel;
+    /**
+     * 
+     * @type {PrivacyClassification}
+     * @memberof LearningAuditItem
+     */
+    privacy: PrivacyClassification;
+    /**
+     * 
+     * @type {ReviewState}
+     * @memberof LearningAuditItem
+     */
+    reviewState: ReviewState;
+    /**
+     * 
+     * @type {any}
+     * @memberof LearningAuditItem
+     */
+    reviewReasons?: any;
+    /**
+     * 
+     * @type {any}
+     * @memberof LearningAuditItem
+     */
+    timesApplied: any;
+    /**
+     * 
+     * @type {any}
+     * @memberof LearningAuditItem
+     */
+    timesHelpful: any;
+    /**
+     * UI alias of times_applied (same value, kept for the curation column heading); not an independent counter.
+     * @type {any}
+     * @memberof LearningAuditItem
+     */
+    reuseCount: any;
+    /**
+     * Display tags (applicable tools and goals merged).
+     * @type {any}
+     * @memberof LearningAuditItem
+     */
+    tags?: any;
+    /**
+     * 
+     * @type {any}
+     * @memberof LearningAuditItem
+     */
+    applicableGoals?: any;
+    /**
+     * 
+     * @type {any}
+     * @memberof LearningAuditItem
+     */
+    applicableTools?: any;
+    /**
+     * 
+     * @type {any}
+     * @memberof LearningAuditItem
+     */
+    instances?: any;
+    /**
+     * 
+     * @type {any}
+     * @memberof LearningAuditItem
+     */
+    evidenceSummary?: any;
+    /**
+     * 
+     * @type {EvidenceAvailability}
+     * @memberof LearningAuditItem
+     */
+    evidenceAvailability?: EvidenceAvailability;
+    /**
+     * 
+     * @type {any}
+     * @memberof LearningAuditItem
+     */
+    createdAt: any;
+    /**
+     * 
+     * @type {any}
+     * @memberof LearningAuditItem
+     */
+    updatedAt: any;
+}
+/**
+ * Paginated agent learning inventory.
+ * @export
+ * @interface LearningAuditListResponse
+ */
+export interface LearningAuditListResponse {
+    /**
+     * 
+     * @type {any}
+     * @memberof LearningAuditListResponse
+     */
+    items: any;
+    /**
+     * Opaque cursor for the next page; null when exhausted.
+     * @type {any}
+     * @memberof LearningAuditListResponse
+     */
+    nextCursor?: any;
+    /**
+     * Corpus-wide bucket counts; only populated on the first page.
+     * @type {any}
+     * @memberof LearningAuditListResponse
+     */
+    facets?: any;
+    /**
+     * 
+     * @type {any}
+     * @memberof LearningAuditListResponse
+     */
+    partialFailures?: any;
+    /**
+     * 
+     * @type {any}
+     * @memberof LearningAuditListResponse
+     */
+    retrievedAt: any;
+}
+/**
+ * A degraded data source that did not fail the whole request.
+ * @export
+ * @interface LearningAuditPartialFailure
+ */
+export interface LearningAuditPartialFailure {
+    /**
+     * Degraded source, e.g. 'neo4j_topology'.
+     * @type {any}
+     * @memberof LearningAuditPartialFailure
+     */
+    source: any;
+    /**
+     * What was unavailable and the impact.
+     * @type {any}
+     * @memberof LearningAuditPartialFailure
+     */
+    detail: any;
+}
+/**
+ * Edge kinds in the evidence graph (mirror Neo4j relationship types).
+ * @export
+ * @enum {string}
+ */
+export enum LearningGraphEdgeType {
+    HASINSTANCE = <any> 'HAS_INSTANCE',
+    PRODUCEDLEARNING = <any> 'PRODUCED_LEARNING',
+    USEDINPLAN = <any> 'USED_IN_PLAN',
+    APPLIESTO = <any> 'APPLIES_TO',
+    APPLIESTOGOAL = <any> 'APPLIES_TO_GOAL',
+    SUPERSEDES = <any> 'SUPERSEDES',
+    CONTRADICTS = <any> 'CONTRADICTS',
+    REFINES = <any> 'REFINES',
+    ORGPROMOTIONOF = <any> 'ORG_PROMOTION_OF'
+}
+/**
+ * Node kinds in the evidence graph.
+ * @export
+ * @enum {string}
+ */
+export enum LearningGraphNodeType {
+    Learning = <any> 'learning',
+    Instance = <any> 'instance',
+    Plan = <any> 'plan',
+    Goal = <any> 'goal',
+    Tool = <any> 'tool',
+    OrgLearning = <any> 'org_learning',
+    EvidenceSource = <any> 'evidence_source'
 }
 /**
  * Specific evidence instance that supports a stored learning.
@@ -1022,10 +2234,10 @@ export interface LearningResponse {
     standing: LearningStanding;
     /**
      * 
-     * @type {any}
+     * @type {TrustLevel}
      * @memberof LearningResponse
      */
-    trustLevel: any;
+    trustLevel: TrustLevel;
     /**
      * 
      * @type {any}
@@ -1153,7 +2365,7 @@ export interface LearningStanding {
      */
     utility: any;
     /**
-     * How established, 0.0-1.0 (Wilson lower bound over independent corroborations).
+     * How established, 0.0-1.0 (Wilson lower bound over independent corroborations, lowered by contradictions).
      * @type {any}
      * @memberof LearningStanding
      */
@@ -1166,6 +2378,18 @@ export interface LearningStanding {
     corroborationCount: any;
 }
 /**
+ * Which review-state bucket the inventory returns (maps to the facets).  The buckets are mutually exclusive, so each row's ``review_state`` badge matches the bucket it falls in: ``active`` is live and verified (not archived, not superseded, trust != unverified); ``needs_review`` is live but unverified; ``archived``/``superseded`` select on the respective flag; ``all`` is everything.
+ * @export
+ * @enum {string}
+ */
+export enum LearningStateFilter {
+    Active = <any> 'active',
+    NeedsReview = <any> 'needs_review',
+    Archived = <any> 'archived',
+    Superseded = <any> 'superseded',
+    All = <any> 'all'
+}
+/**
  * 
  * @export
  * @enum {string}
@@ -1174,6 +2398,25 @@ export enum LlmCredentialSource {
     CustomerAgentOverride = <any> 'customer_agent_override',
     CustomerTenantDefault = <any> 'customer_tenant_default',
     PlatformDefault = <any> 'platform_default'
+}
+/**
+ * Per-host loop-closure funnel computed from the run table.
+ * @export
+ * @interface LoopClosureFunnelResponse
+ */
+export interface LoopClosureFunnelResponse {
+    /**
+     * 
+     * @type {any}
+     * @memberof LoopClosureFunnelResponse
+     */
+    windowHours: any;
+    /**
+     * 
+     * @type {any}
+     * @memberof LoopClosureFunnelResponse
+     */
+    hosts?: any;
 }
 /**
  * Base authentication configuration for MCP servers.
@@ -1441,6 +2684,122 @@ export interface ObserveRequest {
      * @memberof ObserveRequest
      */
     episode: EpisodeModel;
+}
+/**
+ * A de-identified, org-promoted learning in the shared library.  Org learnings never carry raw instance evidence (stripped at promotion); their corroboration story is the cross-agent validation count instead.
+ * @export
+ * @interface OrgLearningItem
+ */
+export interface OrgLearningItem {
+    /**
+     * 
+     * @type {any}
+     * @memberof OrgLearningItem
+     */
+    orgLearningId: any;
+    /**
+     * 
+     * @type {any}
+     * @memberof OrgLearningItem
+     */
+    content: any;
+    /**
+     * 
+     * @type {any}
+     * @memberof OrgLearningItem
+     */
+    summary?: any;
+    /**
+     * 
+     * @type {any}
+     * @memberof OrgLearningItem
+     */
+    utility: any;
+    /**
+     * 
+     * @type {TrustLevel}
+     * @memberof OrgLearningItem
+     */
+    trustLevel: TrustLevel;
+    /**
+     * 
+     * @type {any}
+     * @memberof OrgLearningItem
+     */
+    originatingAgentId?: any;
+    /**
+     * 
+     * @type {any}
+     * @memberof OrgLearningItem
+     */
+    validatingAgentCount?: any;
+    /**
+     * 
+     * @type {any}
+     * @memberof OrgLearningItem
+     */
+    crossAgentAppliedCount?: any;
+    /**
+     * 
+     * @type {any}
+     * @memberof OrgLearningItem
+     */
+    applicableTools?: any;
+    /**
+     * 
+     * @type {any}
+     * @memberof OrgLearningItem
+     */
+    evidenceSummary?: any;
+    /**
+     * 
+     * @type {EvidenceAvailability}
+     * @memberof OrgLearningItem
+     */
+    evidenceAvailability?: EvidenceAvailability;
+    /**
+     * 
+     * @type {any}
+     * @memberof OrgLearningItem
+     */
+    createdAt: any;
+    /**
+     * 
+     * @type {any}
+     * @memberof OrgLearningItem
+     */
+    updatedAt: any;
+}
+/**
+ * Paginated org-shared learning library (tenant-scoped).
+ * @export
+ * @interface OrgLearningListResponse
+ */
+export interface OrgLearningListResponse {
+    /**
+     * 
+     * @type {any}
+     * @memberof OrgLearningListResponse
+     */
+    items: any;
+    /**
+     * 
+     * @type {any}
+     * @memberof OrgLearningListResponse
+     */
+    nextCursor?: any;
+    /**
+     * 
+     * @type {any}
+     * @memberof OrgLearningListResponse
+     */
+    total: any;
+    /**
+     * 
+     * @type {any}
+     * @memberof OrgLearningListResponse
+     */
+    retrievedAt: any;
 }
 /**
  * The run's terminal result.
@@ -1891,10 +3250,10 @@ export interface ReinforceLearningResponse {
     standing: LearningStanding;
     /**
      * Current trust level after reinforcement.
-     * @type {any}
+     * @type {TrustLevel}
      * @memberof ReinforceLearningResponse
      */
-    trustLevel: any;
+    trustLevel: TrustLevel;
     /**
      * 
      * @type {any}
@@ -1970,6 +3329,12 @@ export interface ResolveRequest {
      */
     goal: any;
     /**
+     * Producing host/framework (e.g. 'mcp:cursor'), used to attribute the per-host funnel. Optional; backfilled from the episode at write-back.
+     * @type {any}
+     * @memberof ResolveRequest
+     */
+    sourceFramework?: any;
+    /**
      * 
      * @type {any}
      * @memberof ResolveRequest
@@ -1987,6 +3352,12 @@ export interface ResolveRequest {
      * @memberof ResolveRequest
      */
     modelContextWindow?: any;
+    /**
+     * Retrieval depth. 'fast' (default): one ranked vector search, no graph. 'full': graph-enriched, heavier but richer.
+     * @type {any}
+     * @memberof ResolveRequest
+     */
+    retrieval?: any;
 }
 /**
  * The bound learnings: the rendered block plus the offered IDs.
@@ -2057,6 +3428,170 @@ export interface ResumeRunRequest {
     metadata?: any;
 }
 /**
+ * A single explanation for why a learning is in its review state.
+ * @export
+ * @interface ReviewReason
+ */
+export interface ReviewReason {
+    /**
+     * Stable machine code, e.g. 'unverified'.
+     * @type {any}
+     * @memberof ReviewReason
+     */
+    code: any;
+    /**
+     * Human-readable explanation for the UI.
+     * @type {any}
+     * @memberof ReviewReason
+     */
+    detail: any;
+}
+/**
+ * Curation status for a learning, derived from stored signals.  Derivation lives server-side (one rule, all clients agree). ``needs_review`` from the list/facets path flags unverified trust (an indexed Qdrant signal); the graph endpoint additionally raises a *live* node to ``needs_review`` when Neo4j topology reveals a CONTRADICTS edge. That asymmetry is intentional: the list/facets path is indexed-count-only and contradictions have no indexed Qdrant mirror, so a verified-but-contradicted learning reads ``active`` in the inventory and ``needs_review`` in the evidence graph (where conflicts surface). Age and reuse are surfaced as raw fields, not a label.
+ * @export
+ * @enum {string}
+ */
+export enum ReviewState {
+    Active = <any> 'active',
+    NeedsReview = <any> 'needs_review',
+    Superseded = <any> 'superseded',
+    Archived = <any> 'archived'
+}
+/**
+ * A run plus its structured input/output for the run-detail panel.
+ * @export
+ * @interface RunDetailResponse
+ */
+export interface RunDetailResponse {
+    /**
+     * 
+     * @type {any}
+     * @memberof RunDetailResponse
+     */
+    id: any;
+    /**
+     * 
+     * @type {any}
+     * @memberof RunDetailResponse
+     */
+    agentId: any;
+    /**
+     * 
+     * @type {any}
+     * @memberof RunDetailResponse
+     */
+    sessionId: any;
+    /**
+     * 
+     * @type {any}
+     * @memberof RunDetailResponse
+     */
+    parentRunId?: any;
+    /**
+     * 
+     * @type {RunType}
+     * @memberof RunDetailResponse
+     */
+    runType: RunType;
+    /**
+     * 
+     * @type {RunStatus}
+     * @memberof RunDetailResponse
+     */
+    status: RunStatus;
+    /**
+     * 
+     * @type {any}
+     * @memberof RunDetailResponse
+     */
+    goal: any;
+    /**
+     * 
+     * @type {any}
+     * @memberof RunDetailResponse
+     */
+    workerProfile: any;
+    /**
+     * 
+     * @type {any}
+     * @memberof RunDetailResponse
+     */
+    startedAt: any;
+    /**
+     * 
+     * @type {any}
+     * @memberof RunDetailResponse
+     */
+    endedAt: any;
+    /**
+     * 
+     * @type {any}
+     * @memberof RunDetailResponse
+     */
+    computeSeconds: any;
+    /**
+     * 
+     * @type {any}
+     * @memberof RunDetailResponse
+     */
+    estimatedComputeCostUsd: any;
+    /**
+     * 
+     * @type {any}
+     * @memberof RunDetailResponse
+     */
+    estimatedTotalCostUsd?: any;
+    /**
+     * 
+     * @type {any}
+     * @memberof RunDetailResponse
+     */
+    error: any;
+    /**
+     * 
+     * @type {any}
+     * @memberof RunDetailResponse
+     */
+    metadata?: any;
+    /**
+     * 
+     * @type {any}
+     * @memberof RunDetailResponse
+     */
+    createdAt: any;
+    /**
+     * 
+     * @type {RunInputSummary}
+     * @memberof RunDetailResponse
+     */
+    input: RunInputSummary;
+    /**
+     * 
+     * @type {RunOutputSummary}
+     * @memberof RunDetailResponse
+     */
+    output: RunOutputSummary;
+}
+/**
+ * Caller-supplied inputs for a run (goal + optional context).
+ * @export
+ * @interface RunInputSummary
+ */
+export interface RunInputSummary {
+    /**
+     * 
+     * @type {any}
+     * @memberof RunInputSummary
+     */
+    goal?: any;
+    /**
+     * 
+     * @type {any}
+     * @memberof RunInputSummary
+     */
+    context?: any;
+}
+/**
  * Paginated list of runs.
  * @export
  * @interface RunListResponse
@@ -2074,6 +3609,31 @@ export interface RunListResponse {
      * @memberof RunListResponse
      */
     nextCursor?: any;
+}
+/**
+ * Sanitized terminal output for a run.
+ * @export
+ * @interface RunOutputSummary
+ */
+export interface RunOutputSummary {
+    /**
+     * 
+     * @type {any}
+     * @memberof RunOutputSummary
+     */
+    result?: any;
+    /**
+     * 
+     * @type {any}
+     * @memberof RunOutputSummary
+     */
+    error?: any;
+    /**
+     * 
+     * @type {any}
+     * @memberof RunOutputSummary
+     */
+    suspension?: any;
 }
 /**
  * Public representation of one tenant-visible run.
@@ -2153,12 +3713,6 @@ export interface RunResponse {
      * @memberof RunResponse
      */
     estimatedComputeCostUsd: any;
-    /**
-     * 
-     * @type {any}
-     * @memberof RunResponse
-     */
-    estimatedLlmCostUsd?: any;
     /**
      * 
      * @type {any}
@@ -2323,6 +3877,24 @@ export interface SessionResponse {
      */
     latestRunId?: any;
     /**
+     * Status of `latest_run_id`; only populated on list responses.
+     * @type {any}
+     * @memberof SessionResponse
+     */
+    latestRunStatus?: any;
+    /**
+     * Transcript message count; only populated on list responses.
+     * @type {any}
+     * @memberof SessionResponse
+     */
+    messageCount?: any;
+    /**
+     * Number of runs in the session; only populated on list responses.
+     * @type {any}
+     * @memberof SessionResponse
+     */
+    runCount?: any;
+    /**
      * 
      * @type {any}
      * @memberof SessionResponse
@@ -2334,6 +3906,12 @@ export interface SessionResponse {
      * @memberof SessionResponse
      */
     createdAt: any;
+    /**
+     * 
+     * @type {any}
+     * @memberof SessionResponse
+     */
+    updatedAt: any;
 }
 /**
  * Per-agent degradation signal for multi-agent search.
@@ -2403,6 +3981,85 @@ export interface SimilarPlansResponse {
      * @memberof SimilarPlansResponse
      */
     partialFailures?: any;
+}
+/**
+ * Space kinds, matching the `spaces.kind` check constraint.
+ * @export
+ * @enum {string}
+ */
+export enum SpaceKind {
+    Commons = <any> 'commons',
+    Department = <any> 'department',
+    Domain = <any> 'domain',
+    Personal = <any> 'personal'
+}
+/**
+ * 
+ * @export
+ * @interface SpaceListResponse
+ */
+export interface SpaceListResponse {
+    /**
+     * 
+     * @type {any}
+     * @memberof SpaceListResponse
+     */
+    items: any;
+    /**
+     * When set, another page exists: pass as `cursor`.
+     * @type {any}
+     * @memberof SpaceListResponse
+     */
+    nextCursor?: any;
+}
+/**
+ * One tenant-visible space plus a convenience count of homed agents.
+ * @export
+ * @interface SpaceResponse
+ */
+export interface SpaceResponse {
+    /**
+     * 
+     * @type {any}
+     * @memberof SpaceResponse
+     */
+    id: any;
+    /**
+     * 
+     * @type {any}
+     * @memberof SpaceResponse
+     */
+    name: any;
+    /**
+     * 
+     * @type {SpaceKind}
+     * @memberof SpaceResponse
+     */
+    kind: SpaceKind;
+    /**
+     * WorkOS directory group id; set iff kind == 'department'.
+     * @type {any}
+     * @memberof SpaceResponse
+     */
+    departmentId?: any;
+    /**
+     * Steward identity user id; set iff kind == 'personal'.
+     * @type {any}
+     * @memberof SpaceResponse
+     */
+    ownerIdentityUserId?: any;
+    /**
+     * How many agents currently home in this space.
+     * @type {any}
+     * @memberof SpaceResponse
+     */
+    agentCount: any;
+    /**
+     * 
+     * @type {any}
+     * @memberof SpaceResponse
+     */
+    createdAt: any;
 }
 /**
  * One executed step: a decision joined to its outcome.
@@ -2539,6 +4196,18 @@ export interface TenantModel {
      * @memberof TenantModel
      */
     name: any;
+    /**
+     * 
+     * @type {any}
+     * @memberof TenantModel
+     */
+    plan: any;
+    /**
+     * 
+     * @type {any}
+     * @memberof TenantModel
+     */
+    complianceGuardrailsAddon?: any;
 }
 /**
  * A tool the agent had available, for tool-aware retrieval.
@@ -2560,6 +4229,18 @@ export interface ToolSpecModel {
     description?: any;
 }
 /**
+ * Verification tier of a learning (mirrors Core's ``TrustLevel``).  A closed set rather than a bare string so an invalid tier can't flow through to a client (and the TS mirror stays in sync). ``UNKNOWN`` is API-only: it represents a stored value we couldn't map (corrupt/legacy payload) so the UI shows an honest \"unknown\" instead of silently labelling it verified. Map inbound values through :meth:`coerce` at the response boundary.
+ * @export
+ * @enum {string}
+ */
+export enum TrustLevel {
+    Unverified = <any> 'unverified',
+    AgentVerified = <any> 'agent_verified',
+    SourceVerified = <any> 'source_verified',
+    Corroborated = <any> 'corroborated',
+    Unknown = <any> 'unknown'
+}
+/**
  * Rollups from ``usage_daily.learning_count`` over UTC dates.
  * @export
  * @interface UsageLearningAggregates
@@ -2571,270 +4252,6 @@ export interface UsageLearningAggregates {
      * @memberof UsageLearningAggregates
      */
     totalLearningOperations: any;
-}
-/**
- * Admin-only per-call LLM cost breakdown for a tenant over a preset window.  Surfaces the raw provider-cost ledger (``llm_usage``), not the billed aggregate. Carries grand totals plus independent by-model and by-component rollups so a single request answers total spend and both attribution questions.
- * @export
- * @interface UsageLlmBreakdownResponse
- */
-export interface UsageLlmBreakdownResponse {
-    /**
-     * 
-     * @type {any}
-     * @memberof UsageLlmBreakdownResponse
-     */
-    tenantId: any;
-    /**
-     * 
-     * @type {UsageTimeWindow}
-     * @memberof UsageLlmBreakdownResponse
-     */
-    window: UsageTimeWindow;
-    /**
-     * Inclusive UTC boundary.
-     * @type {any}
-     * @memberof UsageLlmBreakdownResponse
-     */
-    periodStart: any;
-    /**
-     * Exclusive UTC boundary.
-     * @type {any}
-     * @memberof UsageLlmBreakdownResponse
-     */
-    periodEndExclusive: any;
-    /**
-     * 
-     * @type {UsageLlmTotals}
-     * @memberof UsageLlmBreakdownResponse
-     */
-    totals: UsageLlmTotals;
-    /**
-     * 
-     * @type {any}
-     * @memberof UsageLlmBreakdownResponse
-     */
-    byModel: any;
-    /**
-     * 
-     * @type {any}
-     * @memberof UsageLlmBreakdownResponse
-     */
-    byComponent: any;
-}
-/**
- * A single billable LLM call from the raw provider-cost ledger.
- * @export
- * @interface UsageLlmCallItem
- */
-export interface UsageLlmCallItem {
-    /**
-     * 
-     * @type {any}
-     * @memberof UsageLlmCallItem
-     */
-    id: any;
-    /**
-     * 
-     * @type {any}
-     * @memberof UsageLlmCallItem
-     */
-    modelId: any;
-    /**
-     * 
-     * @type {any}
-     * @memberof UsageLlmCallItem
-     */
-    component: any;
-    /**
-     * Serving provider (e.g. groq, openai); null on older rows or the non-routed path.
-     * @type {any}
-     * @memberof UsageLlmCallItem
-     */
-    provider?: any;
-    /**
-     * 
-     * @type {any}
-     * @memberof UsageLlmCallItem
-     */
-    promptTokens: any;
-    /**
-     * 
-     * @type {any}
-     * @memberof UsageLlmCallItem
-     */
-    completionTokens: any;
-    /**
-     * 
-     * @type {any}
-     * @memberof UsageLlmCallItem
-     */
-    totalTokens: any;
-    /**
-     * Raw provider cost for this call; null when not recorded.
-     * @type {any}
-     * @memberof UsageLlmCallItem
-     */
-    costUsd?: any;
-    /**
-     * 
-     * @type {any}
-     * @memberof UsageLlmCallItem
-     */
-    recordedAt: any;
-}
-/**
- * Cursor page of a run's LLM calls in chronological (execution) order.
- * @export
- * @interface UsageLlmCallListResponse
- */
-export interface UsageLlmCallListResponse {
-    /**
-     * 
-     * @type {any}
-     * @memberof UsageLlmCallListResponse
-     */
-    tenantId: any;
-    /**
-     * 
-     * @type {any}
-     * @memberof UsageLlmCallListResponse
-     */
-    runId: any;
-    /**
-     * 
-     * @type {any}
-     * @memberof UsageLlmCallListResponse
-     */
-    items: any;
-    /**
-     * Opaque cursor; pass as `cursor` for the next page.
-     * @type {any}
-     * @memberof UsageLlmCallListResponse
-     */
-    nextCursor?: any;
-}
-/**
- * Raw-provider LLM usage rolled up for a single reasoning component.
- * @export
- * @interface UsageLlmComponentAggregate
- */
-export interface UsageLlmComponentAggregate {
-    /**
-     * Reasoning component, e.g. planner, executor, final_reflector.
-     * @type {any}
-     * @memberof UsageLlmComponentAggregate
-     */
-    component: any;
-    /**
-     * 
-     * @type {any}
-     * @memberof UsageLlmComponentAggregate
-     */
-    callCount: any;
-    /**
-     * 
-     * @type {any}
-     * @memberof UsageLlmComponentAggregate
-     */
-    promptTokens: any;
-    /**
-     * 
-     * @type {any}
-     * @memberof UsageLlmComponentAggregate
-     */
-    completionTokens: any;
-    /**
-     * 
-     * @type {any}
-     * @memberof UsageLlmComponentAggregate
-     */
-    totalTokens: any;
-    /**
-     * Sum of raw provider cost_usd.
-     * @type {any}
-     * @memberof UsageLlmComponentAggregate
-     */
-    costUsd: any;
-}
-/**
- * Raw-provider LLM usage rolled up for a single model.
- * @export
- * @interface UsageLlmModelAggregate
- */
-export interface UsageLlmModelAggregate {
-    /**
-     * Model identifier; 'unknown' when the call did not record one.
-     * @type {any}
-     * @memberof UsageLlmModelAggregate
-     */
-    modelId: any;
-    /**
-     * 
-     * @type {any}
-     * @memberof UsageLlmModelAggregate
-     */
-    callCount: any;
-    /**
-     * 
-     * @type {any}
-     * @memberof UsageLlmModelAggregate
-     */
-    promptTokens: any;
-    /**
-     * 
-     * @type {any}
-     * @memberof UsageLlmModelAggregate
-     */
-    completionTokens: any;
-    /**
-     * 
-     * @type {any}
-     * @memberof UsageLlmModelAggregate
-     */
-    totalTokens: any;
-    /**
-     * Sum of raw provider cost_usd.
-     * @type {any}
-     * @memberof UsageLlmModelAggregate
-     */
-    costUsd: any;
-}
-/**
- * Aggregate raw-provider LLM usage across a set of calls (operator-only).
- * @export
- * @interface UsageLlmTotals
- */
-export interface UsageLlmTotals {
-    /**
-     * Number of billable LLM calls.
-     * @type {any}
-     * @memberof UsageLlmTotals
-     */
-    callCount: any;
-    /**
-     * Sum of prompt tokens.
-     * @type {any}
-     * @memberof UsageLlmTotals
-     */
-    promptTokens: any;
-    /**
-     * Sum of completion tokens.
-     * @type {any}
-     * @memberof UsageLlmTotals
-     */
-    completionTokens: any;
-    /**
-     * Sum of total tokens.
-     * @type {any}
-     * @memberof UsageLlmTotals
-     */
-    totalTokens: any;
-    /**
-     * Sum of raw provider cost_usd (pre-markup). Distinct from the billed estimated_llm_cost_usd; operator-only.
-     * @type {any}
-     * @memberof UsageLlmTotals
-     */
-    costUsd: any;
 }
 /**
  * Rollups for ``agent_runs`` in the window (keyed on ``created_at``).
@@ -3123,438 +4540,6 @@ export interface ValidationError {
     ctx?: any;
 }
 /**
- * 
- * @export
- * @interface WorkOSOrganizationLinkRequest
- */
-export interface WorkOSOrganizationLinkRequest {
-    /**
-     * 
-     * @type {any}
-     * @memberof WorkOSOrganizationLinkRequest
-     */
-    customerName: any;
-    /**
-     * 
-     * @type {any}
-     * @memberof WorkOSOrganizationLinkRequest
-     */
-    domains?: any;
-    /**
-     * 
-     * @type {any}
-     * @memberof WorkOSOrganizationLinkRequest
-     */
-    jitProvisioningEnabled?: any;
-}
-/**
- * 
- * @export
- * @interface WorkOSOrganizationLinkResponse
- */
-export interface WorkOSOrganizationLinkResponse {
-    /**
-     * 
-     * @type {any}
-     * @memberof WorkOSOrganizationLinkResponse
-     */
-    tenantId: any;
-    /**
-     * 
-     * @type {any}
-     * @memberof WorkOSOrganizationLinkResponse
-     */
-    providerOrganizationId: any;
-    /**
-     * 
-     * @type {any}
-     * @memberof WorkOSOrganizationLinkResponse
-     */
-    status: any;
-}
-/**
- * 
- * @export
- * @interface WorkOSPortalLinkRequest
- */
-export interface WorkOSPortalLinkRequest {
-    /**
-     * 
-     * @type {any}
-     * @memberof WorkOSPortalLinkRequest
-     */
-    intent: any;
-    /**
-     * 
-     * @type {any}
-     * @memberof WorkOSPortalLinkRequest
-     */
-    returnUrl?: any;
-}
-/**
- * 
- * @export
- * @interface WorkOSPortalLinkResponse
- */
-export interface WorkOSPortalLinkResponse {
-    /**
-     * 
-     * @type {any}
-     * @memberof WorkOSPortalLinkResponse
-     */
-    link: any;
-}
-/**
- * AdminIdentityApi - fetch parameter creator
- * @export
- */
-export const AdminIdentityApiFetchParamCreator = function (configuration?: Configuration) {
-    return {
-        /**
-         * Create a WorkOS Organization for the tenant and map it.  Requires the `identity:admin:write` scope. Creates a WorkOS Organization with `external_id = tenant_id`, then stores the mapping (status `pending_setup`) through admin impersonation. Creates real WorkOS state.
-         * @summary Create Identity Provider
-         * @param {WorkOSOrganizationLinkRequest} body 
-         * @param {any} tenantId 
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        createIdentityProviderAdminTenantsTenantIdIdentityProviderPost(body: WorkOSOrganizationLinkRequest, tenantId: any, options: any = {}): FetchArgs {
-            // verify required parameter 'body' is not null or undefined
-            if (body === null || body === undefined) {
-                throw new RequiredError('body','Required parameter body was null or undefined when calling createIdentityProviderAdminTenantsTenantIdIdentityProviderPost.');
-            }
-            // verify required parameter 'tenantId' is not null or undefined
-            if (tenantId === null || tenantId === undefined) {
-                throw new RequiredError('tenantId','Required parameter tenantId was null or undefined when calling createIdentityProviderAdminTenantsTenantIdIdentityProviderPost.');
-            }
-            const localVarPath = `/admin/tenants/{tenant_id}/identity-provider`
-                .replace(`{${"tenant_id"}}`, encodeURIComponent(String(tenantId)));
-            const localVarUrlObj = url.parse(localVarPath, true);
-            const localVarRequestOptions = Object.assign({ method: 'POST' }, options);
-            const localVarHeaderParameter = {} as any;
-            const localVarQueryParameter = {} as any;
-
-            localVarHeaderParameter['Content-Type'] = 'application/json';
-
-            localVarUrlObj.query = Object.assign({}, localVarUrlObj.query, localVarQueryParameter, options.query);
-            // fix override query string Detail: https://stackoverflow.com/a/7517673/1077943
-            localVarUrlObj.search = null;
-            localVarRequestOptions.headers = Object.assign({}, localVarHeaderParameter, options.headers);
-            const needsSerialization = (<any>"WorkOSOrganizationLinkRequest" !== "string") || localVarRequestOptions.headers['Content-Type'] === 'application/json';
-            localVarRequestOptions.body =  needsSerialization ? JSON.stringify(body || {}) : (body || "");
-
-            return {
-                url: url.format(localVarUrlObj),
-                options: localVarRequestOptions,
-            };
-        },
-        /**
-         * Manually assign a tenant membership (admin-provisioned).  Requires the `identity:admin:write` scope. Creates the identity user by email if needed and upserts the membership (`provisioning_source = 'hyperstruck_admin'`) through admin impersonation. Used to seed the first owner before SSO, or whenever JIT is disabled.
-         * @summary Create Member
-         * @param {AdminMembershipRequest} body 
-         * @param {any} tenantId 
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        createMemberAdminTenantsTenantIdMembersPost(body: AdminMembershipRequest, tenantId: any, options: any = {}): FetchArgs {
-            // verify required parameter 'body' is not null or undefined
-            if (body === null || body === undefined) {
-                throw new RequiredError('body','Required parameter body was null or undefined when calling createMemberAdminTenantsTenantIdMembersPost.');
-            }
-            // verify required parameter 'tenantId' is not null or undefined
-            if (tenantId === null || tenantId === undefined) {
-                throw new RequiredError('tenantId','Required parameter tenantId was null or undefined when calling createMemberAdminTenantsTenantIdMembersPost.');
-            }
-            const localVarPath = `/admin/tenants/{tenant_id}/members`
-                .replace(`{${"tenant_id"}}`, encodeURIComponent(String(tenantId)));
-            const localVarUrlObj = url.parse(localVarPath, true);
-            const localVarRequestOptions = Object.assign({ method: 'POST' }, options);
-            const localVarHeaderParameter = {} as any;
-            const localVarQueryParameter = {} as any;
-
-            localVarHeaderParameter['Content-Type'] = 'application/json';
-
-            localVarUrlObj.query = Object.assign({}, localVarUrlObj.query, localVarQueryParameter, options.query);
-            // fix override query string Detail: https://stackoverflow.com/a/7517673/1077943
-            localVarUrlObj.search = null;
-            localVarRequestOptions.headers = Object.assign({}, localVarHeaderParameter, options.headers);
-            const needsSerialization = (<any>"AdminMembershipRequest" !== "string") || localVarRequestOptions.headers['Content-Type'] === 'application/json';
-            localVarRequestOptions.body =  needsSerialization ? JSON.stringify(body || {}) : (body || "");
-
-            return {
-                url: url.format(localVarUrlObj),
-                options: localVarRequestOptions,
-            };
-        },
-        /**
-         * Generate a WorkOS Admin Portal link for the tenant's organization.  Requires the `identity:admin:write` scope. Returns a link to hand customer IT for domain verification / SSO setup (`intent` = `sso` or `domain_verification`). Responds 404 if the tenant has no WorkOS organization mapping yet.
-         * @summary Create Portal Link
-         * @param {WorkOSPortalLinkRequest} body 
-         * @param {any} tenantId 
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        createPortalLinkAdminTenantsTenantIdIdentityProviderPortalLinksPost(body: WorkOSPortalLinkRequest, tenantId: any, options: any = {}): FetchArgs {
-            // verify required parameter 'body' is not null or undefined
-            if (body === null || body === undefined) {
-                throw new RequiredError('body','Required parameter body was null or undefined when calling createPortalLinkAdminTenantsTenantIdIdentityProviderPortalLinksPost.');
-            }
-            // verify required parameter 'tenantId' is not null or undefined
-            if (tenantId === null || tenantId === undefined) {
-                throw new RequiredError('tenantId','Required parameter tenantId was null or undefined when calling createPortalLinkAdminTenantsTenantIdIdentityProviderPortalLinksPost.');
-            }
-            const localVarPath = `/admin/tenants/{tenant_id}/identity-provider/portal-links`
-                .replace(`{${"tenant_id"}}`, encodeURIComponent(String(tenantId)));
-            const localVarUrlObj = url.parse(localVarPath, true);
-            const localVarRequestOptions = Object.assign({ method: 'POST' }, options);
-            const localVarHeaderParameter = {} as any;
-            const localVarQueryParameter = {} as any;
-
-            localVarHeaderParameter['Content-Type'] = 'application/json';
-
-            localVarUrlObj.query = Object.assign({}, localVarUrlObj.query, localVarQueryParameter, options.query);
-            // fix override query string Detail: https://stackoverflow.com/a/7517673/1077943
-            localVarUrlObj.search = null;
-            localVarRequestOptions.headers = Object.assign({}, localVarHeaderParameter, options.headers);
-            const needsSerialization = (<any>"WorkOSPortalLinkRequest" !== "string") || localVarRequestOptions.headers['Content-Type'] === 'application/json';
-            localVarRequestOptions.body =  needsSerialization ? JSON.stringify(body || {}) : (body || "");
-
-            return {
-                url: url.format(localVarUrlObj),
-                options: localVarRequestOptions,
-            };
-        },
-        /**
-         * Receive and verify WorkOS webhook events.  Public but signature-verified via the `WorkOS-Signature` header against `HYPER_WORKOS__WEBHOOK_SECRET`. Reconciles provider connection status for an already-mapped organization only; never grants tenant access on its own.
-         * @summary Workos Webhook
-         * @param {any} [workOSSignature] 
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        workosWebhookWebhooksWorkosPost(workOSSignature?: any, options: any = {}): FetchArgs {
-            const localVarPath = `/webhooks/workos`;
-            const localVarUrlObj = url.parse(localVarPath, true);
-            const localVarRequestOptions = Object.assign({ method: 'POST' }, options);
-            const localVarHeaderParameter = {} as any;
-            const localVarQueryParameter = {} as any;
-
-            if (workOSSignature !== undefined && workOSSignature !== null) {
-                localVarHeaderParameter['WorkOS-Signature'] = String(workOSSignature);
-            }
-
-            localVarUrlObj.query = Object.assign({}, localVarUrlObj.query, localVarQueryParameter, options.query);
-            // fix override query string Detail: https://stackoverflow.com/a/7517673/1077943
-            localVarUrlObj.search = null;
-            localVarRequestOptions.headers = Object.assign({}, localVarHeaderParameter, options.headers);
-
-            return {
-                url: url.format(localVarUrlObj),
-                options: localVarRequestOptions,
-            };
-        },
-    }
-};
-
-/**
- * AdminIdentityApi - functional programming interface
- * @export
- */
-export const AdminIdentityApiFp = function(configuration?: Configuration) {
-    return {
-        /**
-         * Create a WorkOS Organization for the tenant and map it.  Requires the `identity:admin:write` scope. Creates a WorkOS Organization with `external_id = tenant_id`, then stores the mapping (status `pending_setup`) through admin impersonation. Creates real WorkOS state.
-         * @summary Create Identity Provider
-         * @param {WorkOSOrganizationLinkRequest} body 
-         * @param {any} tenantId 
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        createIdentityProviderAdminTenantsTenantIdIdentityProviderPost(body: WorkOSOrganizationLinkRequest, tenantId: any, options?: any): (fetch?: FetchAPI, basePath?: string) => Promise<WorkOSOrganizationLinkResponse> {
-            const localVarFetchArgs = AdminIdentityApiFetchParamCreator(configuration).createIdentityProviderAdminTenantsTenantIdIdentityProviderPost(body, tenantId, options);
-            return (fetch: FetchAPI = isomorphicFetch, basePath: string = BASE_PATH) => {
-                return fetch(basePath + localVarFetchArgs.url, localVarFetchArgs.options).then((response) => {
-                    if (response.status >= 200 && response.status < 300) {
-                        return response.json();
-                    } else {
-                        throw response;
-                    }
-                });
-            };
-        },
-        /**
-         * Manually assign a tenant membership (admin-provisioned).  Requires the `identity:admin:write` scope. Creates the identity user by email if needed and upserts the membership (`provisioning_source = 'hyperstruck_admin'`) through admin impersonation. Used to seed the first owner before SSO, or whenever JIT is disabled.
-         * @summary Create Member
-         * @param {AdminMembershipRequest} body 
-         * @param {any} tenantId 
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        createMemberAdminTenantsTenantIdMembersPost(body: AdminMembershipRequest, tenantId: any, options?: any): (fetch?: FetchAPI, basePath?: string) => Promise<AdminMembershipResponse> {
-            const localVarFetchArgs = AdminIdentityApiFetchParamCreator(configuration).createMemberAdminTenantsTenantIdMembersPost(body, tenantId, options);
-            return (fetch: FetchAPI = isomorphicFetch, basePath: string = BASE_PATH) => {
-                return fetch(basePath + localVarFetchArgs.url, localVarFetchArgs.options).then((response) => {
-                    if (response.status >= 200 && response.status < 300) {
-                        return response.json();
-                    } else {
-                        throw response;
-                    }
-                });
-            };
-        },
-        /**
-         * Generate a WorkOS Admin Portal link for the tenant's organization.  Requires the `identity:admin:write` scope. Returns a link to hand customer IT for domain verification / SSO setup (`intent` = `sso` or `domain_verification`). Responds 404 if the tenant has no WorkOS organization mapping yet.
-         * @summary Create Portal Link
-         * @param {WorkOSPortalLinkRequest} body 
-         * @param {any} tenantId 
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        createPortalLinkAdminTenantsTenantIdIdentityProviderPortalLinksPost(body: WorkOSPortalLinkRequest, tenantId: any, options?: any): (fetch?: FetchAPI, basePath?: string) => Promise<WorkOSPortalLinkResponse> {
-            const localVarFetchArgs = AdminIdentityApiFetchParamCreator(configuration).createPortalLinkAdminTenantsTenantIdIdentityProviderPortalLinksPost(body, tenantId, options);
-            return (fetch: FetchAPI = isomorphicFetch, basePath: string = BASE_PATH) => {
-                return fetch(basePath + localVarFetchArgs.url, localVarFetchArgs.options).then((response) => {
-                    if (response.status >= 200 && response.status < 300) {
-                        return response.json();
-                    } else {
-                        throw response;
-                    }
-                });
-            };
-        },
-        /**
-         * Receive and verify WorkOS webhook events.  Public but signature-verified via the `WorkOS-Signature` header against `HYPER_WORKOS__WEBHOOK_SECRET`. Reconciles provider connection status for an already-mapped organization only; never grants tenant access on its own.
-         * @summary Workos Webhook
-         * @param {any} [workOSSignature] 
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        workosWebhookWebhooksWorkosPost(workOSSignature?: any, options?: any): (fetch?: FetchAPI, basePath?: string) => Promise<any> {
-            const localVarFetchArgs = AdminIdentityApiFetchParamCreator(configuration).workosWebhookWebhooksWorkosPost(workOSSignature, options);
-            return (fetch: FetchAPI = isomorphicFetch, basePath: string = BASE_PATH) => {
-                return fetch(basePath + localVarFetchArgs.url, localVarFetchArgs.options).then((response) => {
-                    if (response.status >= 200 && response.status < 300) {
-                        return response.json();
-                    } else {
-                        throw response;
-                    }
-                });
-            };
-        },
-    }
-};
-
-/**
- * AdminIdentityApi - factory interface
- * @export
- */
-export const AdminIdentityApiFactory = function (configuration?: Configuration, fetch?: FetchAPI, basePath?: string) {
-    return {
-        /**
-         * Create a WorkOS Organization for the tenant and map it.  Requires the `identity:admin:write` scope. Creates a WorkOS Organization with `external_id = tenant_id`, then stores the mapping (status `pending_setup`) through admin impersonation. Creates real WorkOS state.
-         * @summary Create Identity Provider
-         * @param {WorkOSOrganizationLinkRequest} body 
-         * @param {any} tenantId 
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        createIdentityProviderAdminTenantsTenantIdIdentityProviderPost(body: WorkOSOrganizationLinkRequest, tenantId: any, options?: any) {
-            return AdminIdentityApiFp(configuration).createIdentityProviderAdminTenantsTenantIdIdentityProviderPost(body, tenantId, options)(fetch, basePath);
-        },
-        /**
-         * Manually assign a tenant membership (admin-provisioned).  Requires the `identity:admin:write` scope. Creates the identity user by email if needed and upserts the membership (`provisioning_source = 'hyperstruck_admin'`) through admin impersonation. Used to seed the first owner before SSO, or whenever JIT is disabled.
-         * @summary Create Member
-         * @param {AdminMembershipRequest} body 
-         * @param {any} tenantId 
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        createMemberAdminTenantsTenantIdMembersPost(body: AdminMembershipRequest, tenantId: any, options?: any) {
-            return AdminIdentityApiFp(configuration).createMemberAdminTenantsTenantIdMembersPost(body, tenantId, options)(fetch, basePath);
-        },
-        /**
-         * Generate a WorkOS Admin Portal link for the tenant's organization.  Requires the `identity:admin:write` scope. Returns a link to hand customer IT for domain verification / SSO setup (`intent` = `sso` or `domain_verification`). Responds 404 if the tenant has no WorkOS organization mapping yet.
-         * @summary Create Portal Link
-         * @param {WorkOSPortalLinkRequest} body 
-         * @param {any} tenantId 
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        createPortalLinkAdminTenantsTenantIdIdentityProviderPortalLinksPost(body: WorkOSPortalLinkRequest, tenantId: any, options?: any) {
-            return AdminIdentityApiFp(configuration).createPortalLinkAdminTenantsTenantIdIdentityProviderPortalLinksPost(body, tenantId, options)(fetch, basePath);
-        },
-        /**
-         * Receive and verify WorkOS webhook events.  Public but signature-verified via the `WorkOS-Signature` header against `HYPER_WORKOS__WEBHOOK_SECRET`. Reconciles provider connection status for an already-mapped organization only; never grants tenant access on its own.
-         * @summary Workos Webhook
-         * @param {any} [workOSSignature] 
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        workosWebhookWebhooksWorkosPost(workOSSignature?: any, options?: any) {
-            return AdminIdentityApiFp(configuration).workosWebhookWebhooksWorkosPost(workOSSignature, options)(fetch, basePath);
-        },
-    };
-};
-
-/**
- * AdminIdentityApi - object-oriented interface
- * @export
- * @class AdminIdentityApi
- * @extends {BaseAPI}
- */
-export class AdminIdentityApi extends BaseAPI {
-    /**
-     * Create a WorkOS Organization for the tenant and map it.  Requires the `identity:admin:write` scope. Creates a WorkOS Organization with `external_id = tenant_id`, then stores the mapping (status `pending_setup`) through admin impersonation. Creates real WorkOS state.
-     * @summary Create Identity Provider
-     * @param {WorkOSOrganizationLinkRequest} body 
-     * @param {any} tenantId 
-     * @param {*} [options] Override http request option.
-     * @throws {RequiredError}
-     * @memberof AdminIdentityApi
-     */
-    public createIdentityProviderAdminTenantsTenantIdIdentityProviderPost(body: WorkOSOrganizationLinkRequest, tenantId: any, options?: any) {
-        return AdminIdentityApiFp(this.configuration).createIdentityProviderAdminTenantsTenantIdIdentityProviderPost(body, tenantId, options)(this.fetch, this.basePath);
-    }
-
-    /**
-     * Manually assign a tenant membership (admin-provisioned).  Requires the `identity:admin:write` scope. Creates the identity user by email if needed and upserts the membership (`provisioning_source = 'hyperstruck_admin'`) through admin impersonation. Used to seed the first owner before SSO, or whenever JIT is disabled.
-     * @summary Create Member
-     * @param {AdminMembershipRequest} body 
-     * @param {any} tenantId 
-     * @param {*} [options] Override http request option.
-     * @throws {RequiredError}
-     * @memberof AdminIdentityApi
-     */
-    public createMemberAdminTenantsTenantIdMembersPost(body: AdminMembershipRequest, tenantId: any, options?: any) {
-        return AdminIdentityApiFp(this.configuration).createMemberAdminTenantsTenantIdMembersPost(body, tenantId, options)(this.fetch, this.basePath);
-    }
-
-    /**
-     * Generate a WorkOS Admin Portal link for the tenant's organization.  Requires the `identity:admin:write` scope. Returns a link to hand customer IT for domain verification / SSO setup (`intent` = `sso` or `domain_verification`). Responds 404 if the tenant has no WorkOS organization mapping yet.
-     * @summary Create Portal Link
-     * @param {WorkOSPortalLinkRequest} body 
-     * @param {any} tenantId 
-     * @param {*} [options] Override http request option.
-     * @throws {RequiredError}
-     * @memberof AdminIdentityApi
-     */
-    public createPortalLinkAdminTenantsTenantIdIdentityProviderPortalLinksPost(body: WorkOSPortalLinkRequest, tenantId: any, options?: any) {
-        return AdminIdentityApiFp(this.configuration).createPortalLinkAdminTenantsTenantIdIdentityProviderPortalLinksPost(body, tenantId, options)(this.fetch, this.basePath);
-    }
-
-    /**
-     * Receive and verify WorkOS webhook events.  Public but signature-verified via the `WorkOS-Signature` header against `HYPER_WORKOS__WEBHOOK_SECRET`. Reconciles provider connection status for an already-mapped organization only; never grants tenant access on its own.
-     * @summary Workos Webhook
-     * @param {any} [workOSSignature] 
-     * @param {*} [options] Override http request option.
-     * @throws {RequiredError}
-     * @memberof AdminIdentityApi
-     */
-    public workosWebhookWebhooksWorkosPost(workOSSignature?: any, options?: any) {
-        return AdminIdentityApiFp(this.configuration).workosWebhookWebhooksWorkosPost(workOSSignature, options)(this.fetch, this.basePath);
-    }
-
-}
-/**
  * AgentsApi - fetch parameter creator
  * @export
  */
@@ -3664,10 +4649,13 @@ export const AgentsApiFetchParamCreator = function (configuration?: Configuratio
          * @summary Get Agent
          * @param {any} agentId 
          * @param {any} [includeLlmCredential] When true (default), resolve effective provider credential metadata for this agent&#x27;s &#x60;model_provider&#x60; without exposing secrets.
+         * @param {any} [includeSummary] When true, include a per-agent usage summary.
+         * @param {any} [includeAccess] Reserved: home-space operators / FGA access. Not yet populated (Fibery #122); accepted as a no-op for forward compatibility.
+         * @param {UsageTimeWindow} [window] Window applied when &#x60;include_summary&#x60; is true.
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        getAgentEndpointAgentsAgentIdGet(agentId: any, includeLlmCredential?: any, options: any = {}): FetchArgs {
+        getAgentEndpointAgentsAgentIdGet(agentId: any, includeLlmCredential?: any, includeSummary?: any, includeAccess?: any, window?: UsageTimeWindow, options: any = {}): FetchArgs {
             // verify required parameter 'agentId' is not null or undefined
             if (agentId === null || agentId === undefined) {
                 throw new RequiredError('agentId','Required parameter agentId was null or undefined when calling getAgentEndpointAgentsAgentIdGet.');
@@ -3681,6 +4669,111 @@ export const AgentsApiFetchParamCreator = function (configuration?: Configuratio
 
             if (includeLlmCredential !== undefined) {
                 localVarQueryParameter['include_llm_credential'] = includeLlmCredential;
+            }
+
+            if (includeSummary !== undefined) {
+                localVarQueryParameter['include_summary'] = includeSummary;
+            }
+
+            if (includeAccess !== undefined) {
+                localVarQueryParameter['include_access'] = includeAccess;
+            }
+
+            if (window !== undefined) {
+                localVarQueryParameter['window'] = window;
+            }
+
+            localVarUrlObj.query = Object.assign({}, localVarUrlObj.query, localVarQueryParameter, options.query);
+            // fix override query string Detail: https://stackoverflow.com/a/7517673/1077943
+            localVarUrlObj.search = null;
+            localVarRequestOptions.headers = Object.assign({}, localVarHeaderParameter, options.headers);
+
+            return {
+                url: url.format(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * 
+         * @summary Get Agent Usage Summary
+         * @param {any} agentId 
+         * @param {UsageTimeWindow} [window] Preset reporting window.
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        getAgentUsageSummaryEndpointAgentsAgentIdUsageSummaryGet(agentId: any, window?: UsageTimeWindow, options: any = {}): FetchArgs {
+            // verify required parameter 'agentId' is not null or undefined
+            if (agentId === null || agentId === undefined) {
+                throw new RequiredError('agentId','Required parameter agentId was null or undefined when calling getAgentUsageSummaryEndpointAgentsAgentIdUsageSummaryGet.');
+            }
+            const localVarPath = `/agents/{agent_id}/usage/summary`
+                .replace(`{${"agent_id"}}`, encodeURIComponent(String(agentId)));
+            const localVarUrlObj = url.parse(localVarPath, true);
+            const localVarRequestOptions = Object.assign({ method: 'GET' }, options);
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            if (window !== undefined) {
+                localVarQueryParameter['window'] = window;
+            }
+
+            localVarUrlObj.query = Object.assign({}, localVarUrlObj.query, localVarQueryParameter, options.query);
+            // fix override query string Detail: https://stackoverflow.com/a/7517673/1077943
+            localVarUrlObj.search = null;
+            localVarRequestOptions.headers = Object.assign({}, localVarHeaderParameter, options.headers);
+
+            return {
+                url: url.format(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * 
+         * @summary List Agent Runs
+         * @param {any} agentId 
+         * @param {any} [status] Filter by one or more run statuses.
+         * @param {any} [runType] Filter by one or more run types (goal|resume).
+         * @param {any} [sessionId] Filter to a single session.
+         * @param {UsageTimeWindow} [window] Window bounding which runs are returned.
+         * @param {any} [limit] Page size.
+         * @param {any} [cursor] Opaque string from the previous page&#x27;s &#x60;next_cursor&#x60;.
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        listAgentRunsEndpointAgentsAgentIdRunsGet(agentId: any, status?: any, runType?: any, sessionId?: any, window?: UsageTimeWindow, limit?: any, cursor?: any, options: any = {}): FetchArgs {
+            // verify required parameter 'agentId' is not null or undefined
+            if (agentId === null || agentId === undefined) {
+                throw new RequiredError('agentId','Required parameter agentId was null or undefined when calling listAgentRunsEndpointAgentsAgentIdRunsGet.');
+            }
+            const localVarPath = `/agents/{agent_id}/runs`
+                .replace(`{${"agent_id"}}`, encodeURIComponent(String(agentId)));
+            const localVarUrlObj = url.parse(localVarPath, true);
+            const localVarRequestOptions = Object.assign({ method: 'GET' }, options);
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            if (status !== undefined) {
+                localVarQueryParameter['status'] = status;
+            }
+
+            if (runType !== undefined) {
+                localVarQueryParameter['run_type'] = runType;
+            }
+
+            if (sessionId !== undefined) {
+                localVarQueryParameter['session_id'] = sessionId;
+            }
+
+            if (window !== undefined) {
+                localVarQueryParameter['window'] = window;
+            }
+
+            if (limit !== undefined) {
+                localVarQueryParameter['limit'] = limit;
+            }
+
+            if (cursor !== undefined) {
+                localVarQueryParameter['cursor'] = cursor;
             }
 
             localVarUrlObj.query = Object.assign({}, localVarUrlObj.query, localVarQueryParameter, options.query);
@@ -3735,21 +4828,51 @@ export const AgentsApiFetchParamCreator = function (configuration?: Configuratio
         /**
          * 
          * @summary List Agents
-         * @param {any} [includeLlmCredential] When true, include &#x60;llm_credential&#x60; per agent showing whether runtime uses &#x60;tenant_default&#x60; or &#x60;agent_override&#x60; for &#x60;model_provider&#x60;.
+         * @param {any} [q] Case-insensitive search over name and description.
+         * @param {any} [status] Filter by one or more agent statuses.
+         * @param {any} [spaceId] Filter to agents homed in this space.
+         * @param {any} [reasoningProfile] Filter by one or more reasoning profiles.
+         * @param {any} [sort] Sort mode: created_desc|created_asc|name_asc|name_desc|last_run_desc|run_count_desc|spend_desc.
+         * @param {UsageTimeWindow} [window] Window for metric sorts and per-agent summaries.
+         * @param {any} [includeSummary] When true, include a per-agent usage summary.
          * @param {any} [limit] Page size.
          * @param {any} [cursor] Opaque string from the previous page&#x27;s &#x60;next_cursor&#x60;.
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        listAgentsEndpointAgentsGet(includeLlmCredential?: any, limit?: any, cursor?: any, options: any = {}): FetchArgs {
+        listAgentsEndpointAgentsGet(q?: any, status?: any, spaceId?: any, reasoningProfile?: any, sort?: any, window?: UsageTimeWindow, includeSummary?: any, limit?: any, cursor?: any, options: any = {}): FetchArgs {
             const localVarPath = `/agents`;
             const localVarUrlObj = url.parse(localVarPath, true);
             const localVarRequestOptions = Object.assign({ method: 'GET' }, options);
             const localVarHeaderParameter = {} as any;
             const localVarQueryParameter = {} as any;
 
-            if (includeLlmCredential !== undefined) {
-                localVarQueryParameter['include_llm_credential'] = includeLlmCredential;
+            if (q !== undefined) {
+                localVarQueryParameter['q'] = q;
+            }
+
+            if (status !== undefined) {
+                localVarQueryParameter['status'] = status;
+            }
+
+            if (spaceId !== undefined) {
+                localVarQueryParameter['space_id'] = spaceId;
+            }
+
+            if (reasoningProfile !== undefined) {
+                localVarQueryParameter['reasoning_profile'] = reasoningProfile;
+            }
+
+            if (sort !== undefined) {
+                localVarQueryParameter['sort'] = sort;
+            }
+
+            if (window !== undefined) {
+                localVarQueryParameter['window'] = window;
+            }
+
+            if (includeSummary !== undefined) {
+                localVarQueryParameter['include_summary'] = includeSummary;
             }
 
             if (limit !== undefined) {
@@ -3758,6 +4881,39 @@ export const AgentsApiFetchParamCreator = function (configuration?: Configuratio
 
             if (cursor !== undefined) {
                 localVarQueryParameter['cursor'] = cursor;
+            }
+
+            localVarUrlObj.query = Object.assign({}, localVarUrlObj.query, localVarQueryParameter, options.query);
+            // fix override query string Detail: https://stackoverflow.com/a/7517673/1077943
+            localVarUrlObj.search = null;
+            localVarRequestOptions.headers = Object.assign({}, localVarHeaderParameter, options.headers);
+
+            return {
+                url: url.format(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * 
+         * @summary List Definition Suggestions
+         * @param {AgentDefinitionSuggestionKind} [kind] Suggestion catalog to return.
+         * @param {any} [q] Optional case-insensitive filter over label/description.
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        listDefinitionSuggestionsEndpointAgentsDefinitionSuggestionsGet(kind?: AgentDefinitionSuggestionKind, q?: any, options: any = {}): FetchArgs {
+            const localVarPath = `/agents/definition-suggestions`;
+            const localVarUrlObj = url.parse(localVarPath, true);
+            const localVarRequestOptions = Object.assign({ method: 'GET' }, options);
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            if (kind !== undefined) {
+                localVarQueryParameter['kind'] = kind;
+            }
+
+            if (q !== undefined) {
+                localVarQueryParameter['q'] = q;
             }
 
             localVarUrlObj.query = Object.assign({}, localVarUrlObj.query, localVarQueryParameter, options.query);
@@ -3880,11 +5036,59 @@ export const AgentsApiFp = function(configuration?: Configuration) {
          * @summary Get Agent
          * @param {any} agentId 
          * @param {any} [includeLlmCredential] When true (default), resolve effective provider credential metadata for this agent&#x27;s &#x60;model_provider&#x60; without exposing secrets.
+         * @param {any} [includeSummary] When true, include a per-agent usage summary.
+         * @param {any} [includeAccess] Reserved: home-space operators / FGA access. Not yet populated (Fibery #122); accepted as a no-op for forward compatibility.
+         * @param {UsageTimeWindow} [window] Window applied when &#x60;include_summary&#x60; is true.
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        getAgentEndpointAgentsAgentIdGet(agentId: any, includeLlmCredential?: any, options?: any): (fetch?: FetchAPI, basePath?: string) => Promise<AgentResponse> {
-            const localVarFetchArgs = AgentsApiFetchParamCreator(configuration).getAgentEndpointAgentsAgentIdGet(agentId, includeLlmCredential, options);
+        getAgentEndpointAgentsAgentIdGet(agentId: any, includeLlmCredential?: any, includeSummary?: any, includeAccess?: any, window?: UsageTimeWindow, options?: any): (fetch?: FetchAPI, basePath?: string) => Promise<AgentDetailResponse> {
+            const localVarFetchArgs = AgentsApiFetchParamCreator(configuration).getAgentEndpointAgentsAgentIdGet(agentId, includeLlmCredential, includeSummary, includeAccess, window, options);
+            return (fetch: FetchAPI = isomorphicFetch, basePath: string = BASE_PATH) => {
+                return fetch(basePath + localVarFetchArgs.url, localVarFetchArgs.options).then((response) => {
+                    if (response.status >= 200 && response.status < 300) {
+                        return response.json();
+                    } else {
+                        throw response;
+                    }
+                });
+            };
+        },
+        /**
+         * 
+         * @summary Get Agent Usage Summary
+         * @param {any} agentId 
+         * @param {UsageTimeWindow} [window] Preset reporting window.
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        getAgentUsageSummaryEndpointAgentsAgentIdUsageSummaryGet(agentId: any, window?: UsageTimeWindow, options?: any): (fetch?: FetchAPI, basePath?: string) => Promise<AgentUsageSummaryResponse> {
+            const localVarFetchArgs = AgentsApiFetchParamCreator(configuration).getAgentUsageSummaryEndpointAgentsAgentIdUsageSummaryGet(agentId, window, options);
+            return (fetch: FetchAPI = isomorphicFetch, basePath: string = BASE_PATH) => {
+                return fetch(basePath + localVarFetchArgs.url, localVarFetchArgs.options).then((response) => {
+                    if (response.status >= 200 && response.status < 300) {
+                        return response.json();
+                    } else {
+                        throw response;
+                    }
+                });
+            };
+        },
+        /**
+         * 
+         * @summary List Agent Runs
+         * @param {any} agentId 
+         * @param {any} [status] Filter by one or more run statuses.
+         * @param {any} [runType] Filter by one or more run types (goal|resume).
+         * @param {any} [sessionId] Filter to a single session.
+         * @param {UsageTimeWindow} [window] Window bounding which runs are returned.
+         * @param {any} [limit] Page size.
+         * @param {any} [cursor] Opaque string from the previous page&#x27;s &#x60;next_cursor&#x60;.
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        listAgentRunsEndpointAgentsAgentIdRunsGet(agentId: any, status?: any, runType?: any, sessionId?: any, window?: UsageTimeWindow, limit?: any, cursor?: any, options?: any): (fetch?: FetchAPI, basePath?: string) => Promise<AgentRunListResponse> {
+            const localVarFetchArgs = AgentsApiFetchParamCreator(configuration).listAgentRunsEndpointAgentsAgentIdRunsGet(agentId, status, runType, sessionId, window, limit, cursor, options);
             return (fetch: FetchAPI = isomorphicFetch, basePath: string = BASE_PATH) => {
                 return fetch(basePath + localVarFetchArgs.url, localVarFetchArgs.options).then((response) => {
                     if (response.status >= 200 && response.status < 300) {
@@ -3919,14 +5123,40 @@ export const AgentsApiFp = function(configuration?: Configuration) {
         /**
          * 
          * @summary List Agents
-         * @param {any} [includeLlmCredential] When true, include &#x60;llm_credential&#x60; per agent showing whether runtime uses &#x60;tenant_default&#x60; or &#x60;agent_override&#x60; for &#x60;model_provider&#x60;.
+         * @param {any} [q] Case-insensitive search over name and description.
+         * @param {any} [status] Filter by one or more agent statuses.
+         * @param {any} [spaceId] Filter to agents homed in this space.
+         * @param {any} [reasoningProfile] Filter by one or more reasoning profiles.
+         * @param {any} [sort] Sort mode: created_desc|created_asc|name_asc|name_desc|last_run_desc|run_count_desc|spend_desc.
+         * @param {UsageTimeWindow} [window] Window for metric sorts and per-agent summaries.
+         * @param {any} [includeSummary] When true, include a per-agent usage summary.
          * @param {any} [limit] Page size.
          * @param {any} [cursor] Opaque string from the previous page&#x27;s &#x60;next_cursor&#x60;.
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        listAgentsEndpointAgentsGet(includeLlmCredential?: any, limit?: any, cursor?: any, options?: any): (fetch?: FetchAPI, basePath?: string) => Promise<AgentListResponse> {
-            const localVarFetchArgs = AgentsApiFetchParamCreator(configuration).listAgentsEndpointAgentsGet(includeLlmCredential, limit, cursor, options);
+        listAgentsEndpointAgentsGet(q?: any, status?: any, spaceId?: any, reasoningProfile?: any, sort?: any, window?: UsageTimeWindow, includeSummary?: any, limit?: any, cursor?: any, options?: any): (fetch?: FetchAPI, basePath?: string) => Promise<AgentInventoryResponse> {
+            const localVarFetchArgs = AgentsApiFetchParamCreator(configuration).listAgentsEndpointAgentsGet(q, status, spaceId, reasoningProfile, sort, window, includeSummary, limit, cursor, options);
+            return (fetch: FetchAPI = isomorphicFetch, basePath: string = BASE_PATH) => {
+                return fetch(basePath + localVarFetchArgs.url, localVarFetchArgs.options).then((response) => {
+                    if (response.status >= 200 && response.status < 300) {
+                        return response.json();
+                    } else {
+                        throw response;
+                    }
+                });
+            };
+        },
+        /**
+         * 
+         * @summary List Definition Suggestions
+         * @param {AgentDefinitionSuggestionKind} [kind] Suggestion catalog to return.
+         * @param {any} [q] Optional case-insensitive filter over label/description.
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        listDefinitionSuggestionsEndpointAgentsDefinitionSuggestionsGet(kind?: AgentDefinitionSuggestionKind, q?: any, options?: any): (fetch?: FetchAPI, basePath?: string) => Promise<AgentDefinitionSuggestionListResponse> {
+            const localVarFetchArgs = AgentsApiFetchParamCreator(configuration).listDefinitionSuggestionsEndpointAgentsDefinitionSuggestionsGet(kind, q, options);
             return (fetch: FetchAPI = isomorphicFetch, basePath: string = BASE_PATH) => {
                 return fetch(basePath + localVarFetchArgs.url, localVarFetchArgs.options).then((response) => {
                     if (response.status >= 200 && response.status < 300) {
@@ -4002,11 +5232,41 @@ export const AgentsApiFactory = function (configuration?: Configuration, fetch?:
          * @summary Get Agent
          * @param {any} agentId 
          * @param {any} [includeLlmCredential] When true (default), resolve effective provider credential metadata for this agent&#x27;s &#x60;model_provider&#x60; without exposing secrets.
+         * @param {any} [includeSummary] When true, include a per-agent usage summary.
+         * @param {any} [includeAccess] Reserved: home-space operators / FGA access. Not yet populated (Fibery #122); accepted as a no-op for forward compatibility.
+         * @param {UsageTimeWindow} [window] Window applied when &#x60;include_summary&#x60; is true.
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        getAgentEndpointAgentsAgentIdGet(agentId: any, includeLlmCredential?: any, options?: any) {
-            return AgentsApiFp(configuration).getAgentEndpointAgentsAgentIdGet(agentId, includeLlmCredential, options)(fetch, basePath);
+        getAgentEndpointAgentsAgentIdGet(agentId: any, includeLlmCredential?: any, includeSummary?: any, includeAccess?: any, window?: UsageTimeWindow, options?: any) {
+            return AgentsApiFp(configuration).getAgentEndpointAgentsAgentIdGet(agentId, includeLlmCredential, includeSummary, includeAccess, window, options)(fetch, basePath);
+        },
+        /**
+         * 
+         * @summary Get Agent Usage Summary
+         * @param {any} agentId 
+         * @param {UsageTimeWindow} [window] Preset reporting window.
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        getAgentUsageSummaryEndpointAgentsAgentIdUsageSummaryGet(agentId: any, window?: UsageTimeWindow, options?: any) {
+            return AgentsApiFp(configuration).getAgentUsageSummaryEndpointAgentsAgentIdUsageSummaryGet(agentId, window, options)(fetch, basePath);
+        },
+        /**
+         * 
+         * @summary List Agent Runs
+         * @param {any} agentId 
+         * @param {any} [status] Filter by one or more run statuses.
+         * @param {any} [runType] Filter by one or more run types (goal|resume).
+         * @param {any} [sessionId] Filter to a single session.
+         * @param {UsageTimeWindow} [window] Window bounding which runs are returned.
+         * @param {any} [limit] Page size.
+         * @param {any} [cursor] Opaque string from the previous page&#x27;s &#x60;next_cursor&#x60;.
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        listAgentRunsEndpointAgentsAgentIdRunsGet(agentId: any, status?: any, runType?: any, sessionId?: any, window?: UsageTimeWindow, limit?: any, cursor?: any, options?: any) {
+            return AgentsApiFp(configuration).listAgentRunsEndpointAgentsAgentIdRunsGet(agentId, status, runType, sessionId, window, limit, cursor, options)(fetch, basePath);
         },
         /**
          * 
@@ -4023,14 +5283,31 @@ export const AgentsApiFactory = function (configuration?: Configuration, fetch?:
         /**
          * 
          * @summary List Agents
-         * @param {any} [includeLlmCredential] When true, include &#x60;llm_credential&#x60; per agent showing whether runtime uses &#x60;tenant_default&#x60; or &#x60;agent_override&#x60; for &#x60;model_provider&#x60;.
+         * @param {any} [q] Case-insensitive search over name and description.
+         * @param {any} [status] Filter by one or more agent statuses.
+         * @param {any} [spaceId] Filter to agents homed in this space.
+         * @param {any} [reasoningProfile] Filter by one or more reasoning profiles.
+         * @param {any} [sort] Sort mode: created_desc|created_asc|name_asc|name_desc|last_run_desc|run_count_desc|spend_desc.
+         * @param {UsageTimeWindow} [window] Window for metric sorts and per-agent summaries.
+         * @param {any} [includeSummary] When true, include a per-agent usage summary.
          * @param {any} [limit] Page size.
          * @param {any} [cursor] Opaque string from the previous page&#x27;s &#x60;next_cursor&#x60;.
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        listAgentsEndpointAgentsGet(includeLlmCredential?: any, limit?: any, cursor?: any, options?: any) {
-            return AgentsApiFp(configuration).listAgentsEndpointAgentsGet(includeLlmCredential, limit, cursor, options)(fetch, basePath);
+        listAgentsEndpointAgentsGet(q?: any, status?: any, spaceId?: any, reasoningProfile?: any, sort?: any, window?: UsageTimeWindow, includeSummary?: any, limit?: any, cursor?: any, options?: any) {
+            return AgentsApiFp(configuration).listAgentsEndpointAgentsGet(q, status, spaceId, reasoningProfile, sort, window, includeSummary, limit, cursor, options)(fetch, basePath);
+        },
+        /**
+         * 
+         * @summary List Definition Suggestions
+         * @param {AgentDefinitionSuggestionKind} [kind] Suggestion catalog to return.
+         * @param {any} [q] Optional case-insensitive filter over label/description.
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        listDefinitionSuggestionsEndpointAgentsDefinitionSuggestionsGet(kind?: AgentDefinitionSuggestionKind, q?: any, options?: any) {
+            return AgentsApiFp(configuration).listDefinitionSuggestionsEndpointAgentsDefinitionSuggestionsGet(kind, q, options)(fetch, basePath);
         },
         /**
          * 
@@ -4095,12 +5372,46 @@ export class AgentsApi extends BaseAPI {
      * @summary Get Agent
      * @param {any} agentId 
      * @param {any} [includeLlmCredential] When true (default), resolve effective provider credential metadata for this agent&#x27;s &#x60;model_provider&#x60; without exposing secrets.
+     * @param {any} [includeSummary] When true, include a per-agent usage summary.
+     * @param {any} [includeAccess] Reserved: home-space operators / FGA access. Not yet populated (Fibery #122); accepted as a no-op for forward compatibility.
+     * @param {UsageTimeWindow} [window] Window applied when &#x60;include_summary&#x60; is true.
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      * @memberof AgentsApi
      */
-    public getAgentEndpointAgentsAgentIdGet(agentId: any, includeLlmCredential?: any, options?: any) {
-        return AgentsApiFp(this.configuration).getAgentEndpointAgentsAgentIdGet(agentId, includeLlmCredential, options)(this.fetch, this.basePath);
+    public getAgentEndpointAgentsAgentIdGet(agentId: any, includeLlmCredential?: any, includeSummary?: any, includeAccess?: any, window?: UsageTimeWindow, options?: any) {
+        return AgentsApiFp(this.configuration).getAgentEndpointAgentsAgentIdGet(agentId, includeLlmCredential, includeSummary, includeAccess, window, options)(this.fetch, this.basePath);
+    }
+
+    /**
+     * 
+     * @summary Get Agent Usage Summary
+     * @param {any} agentId 
+     * @param {UsageTimeWindow} [window] Preset reporting window.
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof AgentsApi
+     */
+    public getAgentUsageSummaryEndpointAgentsAgentIdUsageSummaryGet(agentId: any, window?: UsageTimeWindow, options?: any) {
+        return AgentsApiFp(this.configuration).getAgentUsageSummaryEndpointAgentsAgentIdUsageSummaryGet(agentId, window, options)(this.fetch, this.basePath);
+    }
+
+    /**
+     * 
+     * @summary List Agent Runs
+     * @param {any} agentId 
+     * @param {any} [status] Filter by one or more run statuses.
+     * @param {any} [runType] Filter by one or more run types (goal|resume).
+     * @param {any} [sessionId] Filter to a single session.
+     * @param {UsageTimeWindow} [window] Window bounding which runs are returned.
+     * @param {any} [limit] Page size.
+     * @param {any} [cursor] Opaque string from the previous page&#x27;s &#x60;next_cursor&#x60;.
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof AgentsApi
+     */
+    public listAgentRunsEndpointAgentsAgentIdRunsGet(agentId: any, status?: any, runType?: any, sessionId?: any, window?: UsageTimeWindow, limit?: any, cursor?: any, options?: any) {
+        return AgentsApiFp(this.configuration).listAgentRunsEndpointAgentsAgentIdRunsGet(agentId, status, runType, sessionId, window, limit, cursor, options)(this.fetch, this.basePath);
     }
 
     /**
@@ -4120,15 +5431,34 @@ export class AgentsApi extends BaseAPI {
     /**
      * 
      * @summary List Agents
-     * @param {any} [includeLlmCredential] When true, include &#x60;llm_credential&#x60; per agent showing whether runtime uses &#x60;tenant_default&#x60; or &#x60;agent_override&#x60; for &#x60;model_provider&#x60;.
+     * @param {any} [q] Case-insensitive search over name and description.
+     * @param {any} [status] Filter by one or more agent statuses.
+     * @param {any} [spaceId] Filter to agents homed in this space.
+     * @param {any} [reasoningProfile] Filter by one or more reasoning profiles.
+     * @param {any} [sort] Sort mode: created_desc|created_asc|name_asc|name_desc|last_run_desc|run_count_desc|spend_desc.
+     * @param {UsageTimeWindow} [window] Window for metric sorts and per-agent summaries.
+     * @param {any} [includeSummary] When true, include a per-agent usage summary.
      * @param {any} [limit] Page size.
      * @param {any} [cursor] Opaque string from the previous page&#x27;s &#x60;next_cursor&#x60;.
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      * @memberof AgentsApi
      */
-    public listAgentsEndpointAgentsGet(includeLlmCredential?: any, limit?: any, cursor?: any, options?: any) {
-        return AgentsApiFp(this.configuration).listAgentsEndpointAgentsGet(includeLlmCredential, limit, cursor, options)(this.fetch, this.basePath);
+    public listAgentsEndpointAgentsGet(q?: any, status?: any, spaceId?: any, reasoningProfile?: any, sort?: any, window?: UsageTimeWindow, includeSummary?: any, limit?: any, cursor?: any, options?: any) {
+        return AgentsApiFp(this.configuration).listAgentsEndpointAgentsGet(q, status, spaceId, reasoningProfile, sort, window, includeSummary, limit, cursor, options)(this.fetch, this.basePath);
+    }
+
+    /**
+     * 
+     * @summary List Definition Suggestions
+     * @param {AgentDefinitionSuggestionKind} [kind] Suggestion catalog to return.
+     * @param {any} [q] Optional case-insensitive filter over label/description.
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof AgentsApi
+     */
+    public listDefinitionSuggestionsEndpointAgentsDefinitionSuggestionsGet(kind?: AgentDefinitionSuggestionKind, q?: any, options?: any) {
+        return AgentsApiFp(this.configuration).listDefinitionSuggestionsEndpointAgentsDefinitionSuggestionsGet(kind, q, options)(this.fetch, this.basePath);
     }
 
     /**
@@ -4146,19 +5476,80 @@ export class AgentsApi extends BaseAPI {
 
 }
 /**
- * AuthApi - fetch parameter creator
+ * ApiKeysApi - fetch parameter creator
  * @export
  */
-export const AuthApiFetchParamCreator = function (configuration?: Configuration) {
+export const ApiKeysApiFetchParamCreator = function (configuration?: Configuration) {
     return {
         /**
-         * Clear the session cookie and return the WorkOS logout URL to revoke the session.  Clearing only the cookie leaves the WorkOS session valid until expiry, so a stolen sealed session would still work. We compute the WorkOS logout URL from the current session and return it; the frontend redirects there to actually end the WorkOS session. Safe to call when already signed out (logout_url null).
-         * @summary Logout
+         * 
+         * @summary Create Api Key Endpoint
+         * @param {ApiKeyCreateRequest} body 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        logoutAuthLogoutPost(options: any = {}): FetchArgs {
-            const localVarPath = `/auth/logout`;
+        createApiKeyEndpointApiKeysPost(body: ApiKeyCreateRequest, options: any = {}): FetchArgs {
+            // verify required parameter 'body' is not null or undefined
+            if (body === null || body === undefined) {
+                throw new RequiredError('body','Required parameter body was null or undefined when calling createApiKeyEndpointApiKeysPost.');
+            }
+            const localVarPath = `/api-keys`;
+            const localVarUrlObj = url.parse(localVarPath, true);
+            const localVarRequestOptions = Object.assign({ method: 'POST' }, options);
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            localVarHeaderParameter['Content-Type'] = 'application/json';
+
+            localVarUrlObj.query = Object.assign({}, localVarUrlObj.query, localVarQueryParameter, options.query);
+            // fix override query string Detail: https://stackoverflow.com/a/7517673/1077943
+            localVarUrlObj.search = null;
+            localVarRequestOptions.headers = Object.assign({}, localVarHeaderParameter, options.headers);
+            const needsSerialization = (<any>"ApiKeyCreateRequest" !== "string") || localVarRequestOptions.headers['Content-Type'] === 'application/json';
+            localVarRequestOptions.body =  needsSerialization ? JSON.stringify(body || {}) : (body || "");
+
+            return {
+                url: url.format(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * 
+         * @summary List Api Keys Endpoint
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        listApiKeysEndpointApiKeysGet(options: any = {}): FetchArgs {
+            const localVarPath = `/api-keys`;
+            const localVarUrlObj = url.parse(localVarPath, true);
+            const localVarRequestOptions = Object.assign({ method: 'GET' }, options);
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            localVarUrlObj.query = Object.assign({}, localVarUrlObj.query, localVarQueryParameter, options.query);
+            // fix override query string Detail: https://stackoverflow.com/a/7517673/1077943
+            localVarUrlObj.search = null;
+            localVarRequestOptions.headers = Object.assign({}, localVarHeaderParameter, options.headers);
+
+            return {
+                url: url.format(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * 
+         * @summary Revoke Api Key Endpoint
+         * @param {any} apiKeyId 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        revokeApiKeyEndpointApiKeysApiKeyIdRevokePost(apiKeyId: any, options: any = {}): FetchArgs {
+            // verify required parameter 'apiKeyId' is not null or undefined
+            if (apiKeyId === null || apiKeyId === undefined) {
+                throw new RequiredError('apiKeyId','Required parameter apiKeyId was null or undefined when calling revokeApiKeyEndpointApiKeysApiKeyIdRevokePost.');
+            }
+            const localVarPath = `/api-keys/{api_key_id}/revoke`
+                .replace(`{${"api_key_id"}}`, encodeURIComponent(String(apiKeyId)));
             const localVarUrlObj = url.parse(localVarPath, true);
             const localVarRequestOptions = Object.assign({ method: 'POST' }, options);
             const localVarHeaderParameter = {} as any;
@@ -4174,6 +5565,161 @@ export const AuthApiFetchParamCreator = function (configuration?: Configuration)
                 options: localVarRequestOptions,
             };
         },
+    }
+};
+
+/**
+ * ApiKeysApi - functional programming interface
+ * @export
+ */
+export const ApiKeysApiFp = function(configuration?: Configuration) {
+    return {
+        /**
+         * 
+         * @summary Create Api Key Endpoint
+         * @param {ApiKeyCreateRequest} body 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        createApiKeyEndpointApiKeysPost(body: ApiKeyCreateRequest, options?: any): (fetch?: FetchAPI, basePath?: string) => Promise<ApiKeyCreateResponse> {
+            const localVarFetchArgs = ApiKeysApiFetchParamCreator(configuration).createApiKeyEndpointApiKeysPost(body, options);
+            return (fetch: FetchAPI = isomorphicFetch, basePath: string = BASE_PATH) => {
+                return fetch(basePath + localVarFetchArgs.url, localVarFetchArgs.options).then((response) => {
+                    if (response.status >= 200 && response.status < 300) {
+                        return response.json();
+                    } else {
+                        throw response;
+                    }
+                });
+            };
+        },
+        /**
+         * 
+         * @summary List Api Keys Endpoint
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        listApiKeysEndpointApiKeysGet(options?: any): (fetch?: FetchAPI, basePath?: string) => Promise<ApiKeyListResponse> {
+            const localVarFetchArgs = ApiKeysApiFetchParamCreator(configuration).listApiKeysEndpointApiKeysGet(options);
+            return (fetch: FetchAPI = isomorphicFetch, basePath: string = BASE_PATH) => {
+                return fetch(basePath + localVarFetchArgs.url, localVarFetchArgs.options).then((response) => {
+                    if (response.status >= 200 && response.status < 300) {
+                        return response.json();
+                    } else {
+                        throw response;
+                    }
+                });
+            };
+        },
+        /**
+         * 
+         * @summary Revoke Api Key Endpoint
+         * @param {any} apiKeyId 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        revokeApiKeyEndpointApiKeysApiKeyIdRevokePost(apiKeyId: any, options?: any): (fetch?: FetchAPI, basePath?: string) => Promise<ApiKeyRevokeResponse> {
+            const localVarFetchArgs = ApiKeysApiFetchParamCreator(configuration).revokeApiKeyEndpointApiKeysApiKeyIdRevokePost(apiKeyId, options);
+            return (fetch: FetchAPI = isomorphicFetch, basePath: string = BASE_PATH) => {
+                return fetch(basePath + localVarFetchArgs.url, localVarFetchArgs.options).then((response) => {
+                    if (response.status >= 200 && response.status < 300) {
+                        return response.json();
+                    } else {
+                        throw response;
+                    }
+                });
+            };
+        },
+    }
+};
+
+/**
+ * ApiKeysApi - factory interface
+ * @export
+ */
+export const ApiKeysApiFactory = function (configuration?: Configuration, fetch?: FetchAPI, basePath?: string) {
+    return {
+        /**
+         * 
+         * @summary Create Api Key Endpoint
+         * @param {ApiKeyCreateRequest} body 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        createApiKeyEndpointApiKeysPost(body: ApiKeyCreateRequest, options?: any) {
+            return ApiKeysApiFp(configuration).createApiKeyEndpointApiKeysPost(body, options)(fetch, basePath);
+        },
+        /**
+         * 
+         * @summary List Api Keys Endpoint
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        listApiKeysEndpointApiKeysGet(options?: any) {
+            return ApiKeysApiFp(configuration).listApiKeysEndpointApiKeysGet(options)(fetch, basePath);
+        },
+        /**
+         * 
+         * @summary Revoke Api Key Endpoint
+         * @param {any} apiKeyId 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        revokeApiKeyEndpointApiKeysApiKeyIdRevokePost(apiKeyId: any, options?: any) {
+            return ApiKeysApiFp(configuration).revokeApiKeyEndpointApiKeysApiKeyIdRevokePost(apiKeyId, options)(fetch, basePath);
+        },
+    };
+};
+
+/**
+ * ApiKeysApi - object-oriented interface
+ * @export
+ * @class ApiKeysApi
+ * @extends {BaseAPI}
+ */
+export class ApiKeysApi extends BaseAPI {
+    /**
+     * 
+     * @summary Create Api Key Endpoint
+     * @param {ApiKeyCreateRequest} body 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof ApiKeysApi
+     */
+    public createApiKeyEndpointApiKeysPost(body: ApiKeyCreateRequest, options?: any) {
+        return ApiKeysApiFp(this.configuration).createApiKeyEndpointApiKeysPost(body, options)(this.fetch, this.basePath);
+    }
+
+    /**
+     * 
+     * @summary List Api Keys Endpoint
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof ApiKeysApi
+     */
+    public listApiKeysEndpointApiKeysGet(options?: any) {
+        return ApiKeysApiFp(this.configuration).listApiKeysEndpointApiKeysGet(options)(this.fetch, this.basePath);
+    }
+
+    /**
+     * 
+     * @summary Revoke Api Key Endpoint
+     * @param {any} apiKeyId 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof ApiKeysApi
+     */
+    public revokeApiKeyEndpointApiKeysApiKeyIdRevokePost(apiKeyId: any, options?: any) {
+        return ApiKeysApiFp(this.configuration).revokeApiKeyEndpointApiKeysApiKeyIdRevokePost(apiKeyId, options)(this.fetch, this.basePath);
+    }
+
+}
+/**
+ * AuthApi - fetch parameter creator
+ * @export
+ */
+export const AuthApiFetchParamCreator = function (configuration?: Configuration) {
+    return {
         /**
          * Return the current portal session: user, active tenant, memberships, scopes.  Portal-session only. API-key callers have no portal identity and are rejected with 403 — they should use the resource APIs directly, not `/me`. A valid session without an active membership surfaces as 403 from the middleware.
          * @summary Me
@@ -4197,77 +5743,6 @@ export const AuthApiFetchParamCreator = function (configuration?: Configuration)
                 options: localVarRequestOptions,
             };
         },
-        /**
-         * Complete login: exchange the WorkOS code and issue the session cookie.  The backend owns the code exchange (the WorkOS secret never reaches the browser). The `state` is HMAC-signed and carries a CSRF nonce + landing path; the signature must verify AND the nonce must match the host-only pre-login cookie (double-submit) or the callback is rejected. On authorized or pending-admin-assignment it sets the HTTP-only sealed-session cookie and 303-redirects to the frontend; the frontend's `/me` call then decides app vs. pending UI. Every response clears the one-shot state cookie.
-         * @summary Workos Callback
-         * @param {any} [code] 
-         * @param {any} [state] 
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        workosCallbackAuthSsoCallbackGet(code?: any, state?: any, options: any = {}): FetchArgs {
-            const localVarPath = `/auth/sso/callback`;
-            const localVarUrlObj = url.parse(localVarPath, true);
-            const localVarRequestOptions = Object.assign({ method: 'GET' }, options);
-            const localVarHeaderParameter = {} as any;
-            const localVarQueryParameter = {} as any;
-
-            if (code !== undefined) {
-                localVarQueryParameter['code'] = code;
-            }
-
-            if (state !== undefined) {
-                localVarQueryParameter['state'] = state;
-            }
-
-            localVarUrlObj.query = Object.assign({}, localVarUrlObj.query, localVarQueryParameter, options.query);
-            // fix override query string Detail: https://stackoverflow.com/a/7517673/1077943
-            localVarUrlObj.search = null;
-            localVarRequestOptions.headers = Object.assign({}, localVarHeaderParameter, options.headers);
-
-            return {
-                url: url.format(localVarUrlObj),
-                options: localVarRequestOptions,
-            };
-        },
-        /**
-         * Start the WorkOS AuthKit login hand-off.  Resolves the target WorkOS organization from `tenant_hint` when present and 303-redirects to the AuthKit authorization URL; without a hint, WorkOS resolves the org from the user's identity (no local domain->org map). An unmapped user comes back org-less and is rejected at the callback (no session), so the hand-off is unconditional. `email` is forwarded only as a WorkOS `login_hint`. `return_to` is carried through WorkOS in `state` (open-redirect-validated).
-         * @summary Workos Login
-         * @param {any} [email] 
-         * @param {any} [tenantHint] 
-         * @param {any} [returnTo] 
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        workosLoginAuthSsoLoginGet(email?: any, tenantHint?: any, returnTo?: any, options: any = {}): FetchArgs {
-            const localVarPath = `/auth/sso/login`;
-            const localVarUrlObj = url.parse(localVarPath, true);
-            const localVarRequestOptions = Object.assign({ method: 'GET' }, options);
-            const localVarHeaderParameter = {} as any;
-            const localVarQueryParameter = {} as any;
-
-            if (email !== undefined) {
-                localVarQueryParameter['email'] = email;
-            }
-
-            if (tenantHint !== undefined) {
-                localVarQueryParameter['tenant_hint'] = tenantHint;
-            }
-
-            if (returnTo !== undefined) {
-                localVarQueryParameter['return_to'] = returnTo;
-            }
-
-            localVarUrlObj.query = Object.assign({}, localVarUrlObj.query, localVarQueryParameter, options.query);
-            // fix override query string Detail: https://stackoverflow.com/a/7517673/1077943
-            localVarUrlObj.search = null;
-            localVarRequestOptions.headers = Object.assign({}, localVarHeaderParameter, options.headers);
-
-            return {
-                url: url.format(localVarUrlObj),
-                options: localVarRequestOptions,
-            };
-        },
     }
 };
 
@@ -4278,24 +5753,6 @@ export const AuthApiFetchParamCreator = function (configuration?: Configuration)
 export const AuthApiFp = function(configuration?: Configuration) {
     return {
         /**
-         * Clear the session cookie and return the WorkOS logout URL to revoke the session.  Clearing only the cookie leaves the WorkOS session valid until expiry, so a stolen sealed session would still work. We compute the WorkOS logout URL from the current session and return it; the frontend redirects there to actually end the WorkOS session. Safe to call when already signed out (logout_url null).
-         * @summary Logout
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        logoutAuthLogoutPost(options?: any): (fetch?: FetchAPI, basePath?: string) => Promise<any> {
-            const localVarFetchArgs = AuthApiFetchParamCreator(configuration).logoutAuthLogoutPost(options);
-            return (fetch: FetchAPI = isomorphicFetch, basePath: string = BASE_PATH) => {
-                return fetch(basePath + localVarFetchArgs.url, localVarFetchArgs.options).then((response) => {
-                    if (response.status >= 200 && response.status < 300) {
-                        return response.json();
-                    } else {
-                        throw response;
-                    }
-                });
-            };
-        },
-        /**
          * Return the current portal session: user, active tenant, memberships, scopes.  Portal-session only. API-key callers have no portal identity and are rejected with 403 — they should use the resource APIs directly, not `/me`. A valid session without an active membership surfaces as 403 from the middleware.
          * @summary Me
          * @param {*} [options] Override http request option.
@@ -4303,47 +5760,6 @@ export const AuthApiFp = function(configuration?: Configuration) {
          */
         meMeGet(options?: any): (fetch?: FetchAPI, basePath?: string) => Promise<MeResponse> {
             const localVarFetchArgs = AuthApiFetchParamCreator(configuration).meMeGet(options);
-            return (fetch: FetchAPI = isomorphicFetch, basePath: string = BASE_PATH) => {
-                return fetch(basePath + localVarFetchArgs.url, localVarFetchArgs.options).then((response) => {
-                    if (response.status >= 200 && response.status < 300) {
-                        return response.json();
-                    } else {
-                        throw response;
-                    }
-                });
-            };
-        },
-        /**
-         * Complete login: exchange the WorkOS code and issue the session cookie.  The backend owns the code exchange (the WorkOS secret never reaches the browser). The `state` is HMAC-signed and carries a CSRF nonce + landing path; the signature must verify AND the nonce must match the host-only pre-login cookie (double-submit) or the callback is rejected. On authorized or pending-admin-assignment it sets the HTTP-only sealed-session cookie and 303-redirects to the frontend; the frontend's `/me` call then decides app vs. pending UI. Every response clears the one-shot state cookie.
-         * @summary Workos Callback
-         * @param {any} [code] 
-         * @param {any} [state] 
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        workosCallbackAuthSsoCallbackGet(code?: any, state?: any, options?: any): (fetch?: FetchAPI, basePath?: string) => Promise<any> {
-            const localVarFetchArgs = AuthApiFetchParamCreator(configuration).workosCallbackAuthSsoCallbackGet(code, state, options);
-            return (fetch: FetchAPI = isomorphicFetch, basePath: string = BASE_PATH) => {
-                return fetch(basePath + localVarFetchArgs.url, localVarFetchArgs.options).then((response) => {
-                    if (response.status >= 200 && response.status < 300) {
-                        return response.json();
-                    } else {
-                        throw response;
-                    }
-                });
-            };
-        },
-        /**
-         * Start the WorkOS AuthKit login hand-off.  Resolves the target WorkOS organization from `tenant_hint` when present and 303-redirects to the AuthKit authorization URL; without a hint, WorkOS resolves the org from the user's identity (no local domain->org map). An unmapped user comes back org-less and is rejected at the callback (no session), so the hand-off is unconditional. `email` is forwarded only as a WorkOS `login_hint`. `return_to` is carried through WorkOS in `state` (open-redirect-validated).
-         * @summary Workos Login
-         * @param {any} [email] 
-         * @param {any} [tenantHint] 
-         * @param {any} [returnTo] 
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        workosLoginAuthSsoLoginGet(email?: any, tenantHint?: any, returnTo?: any, options?: any): (fetch?: FetchAPI, basePath?: string) => Promise<any> {
-            const localVarFetchArgs = AuthApiFetchParamCreator(configuration).workosLoginAuthSsoLoginGet(email, tenantHint, returnTo, options);
             return (fetch: FetchAPI = isomorphicFetch, basePath: string = BASE_PATH) => {
                 return fetch(basePath + localVarFetchArgs.url, localVarFetchArgs.options).then((response) => {
                     if (response.status >= 200 && response.status < 300) {
@@ -4364,15 +5780,6 @@ export const AuthApiFp = function(configuration?: Configuration) {
 export const AuthApiFactory = function (configuration?: Configuration, fetch?: FetchAPI, basePath?: string) {
     return {
         /**
-         * Clear the session cookie and return the WorkOS logout URL to revoke the session.  Clearing only the cookie leaves the WorkOS session valid until expiry, so a stolen sealed session would still work. We compute the WorkOS logout URL from the current session and return it; the frontend redirects there to actually end the WorkOS session. Safe to call when already signed out (logout_url null).
-         * @summary Logout
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        logoutAuthLogoutPost(options?: any) {
-            return AuthApiFp(configuration).logoutAuthLogoutPost(options)(fetch, basePath);
-        },
-        /**
          * Return the current portal session: user, active tenant, memberships, scopes.  Portal-session only. API-key callers have no portal identity and are rejected with 403 — they should use the resource APIs directly, not `/me`. A valid session without an active membership surfaces as 403 from the middleware.
          * @summary Me
          * @param {*} [options] Override http request option.
@@ -4380,29 +5787,6 @@ export const AuthApiFactory = function (configuration?: Configuration, fetch?: F
          */
         meMeGet(options?: any) {
             return AuthApiFp(configuration).meMeGet(options)(fetch, basePath);
-        },
-        /**
-         * Complete login: exchange the WorkOS code and issue the session cookie.  The backend owns the code exchange (the WorkOS secret never reaches the browser). The `state` is HMAC-signed and carries a CSRF nonce + landing path; the signature must verify AND the nonce must match the host-only pre-login cookie (double-submit) or the callback is rejected. On authorized or pending-admin-assignment it sets the HTTP-only sealed-session cookie and 303-redirects to the frontend; the frontend's `/me` call then decides app vs. pending UI. Every response clears the one-shot state cookie.
-         * @summary Workos Callback
-         * @param {any} [code] 
-         * @param {any} [state] 
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        workosCallbackAuthSsoCallbackGet(code?: any, state?: any, options?: any) {
-            return AuthApiFp(configuration).workosCallbackAuthSsoCallbackGet(code, state, options)(fetch, basePath);
-        },
-        /**
-         * Start the WorkOS AuthKit login hand-off.  Resolves the target WorkOS organization from `tenant_hint` when present and 303-redirects to the AuthKit authorization URL; without a hint, WorkOS resolves the org from the user's identity (no local domain->org map). An unmapped user comes back org-less and is rejected at the callback (no session), so the hand-off is unconditional. `email` is forwarded only as a WorkOS `login_hint`. `return_to` is carried through WorkOS in `state` (open-redirect-validated).
-         * @summary Workos Login
-         * @param {any} [email] 
-         * @param {any} [tenantHint] 
-         * @param {any} [returnTo] 
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        workosLoginAuthSsoLoginGet(email?: any, tenantHint?: any, returnTo?: any, options?: any) {
-            return AuthApiFp(configuration).workosLoginAuthSsoLoginGet(email, tenantHint, returnTo, options)(fetch, basePath);
         },
     };
 };
@@ -4415,17 +5799,6 @@ export const AuthApiFactory = function (configuration?: Configuration, fetch?: F
  */
 export class AuthApi extends BaseAPI {
     /**
-     * Clear the session cookie and return the WorkOS logout URL to revoke the session.  Clearing only the cookie leaves the WorkOS session valid until expiry, so a stolen sealed session would still work. We compute the WorkOS logout URL from the current session and return it; the frontend redirects there to actually end the WorkOS session. Safe to call when already signed out (logout_url null).
-     * @summary Logout
-     * @param {*} [options] Override http request option.
-     * @throws {RequiredError}
-     * @memberof AuthApi
-     */
-    public logoutAuthLogoutPost(options?: any) {
-        return AuthApiFp(this.configuration).logoutAuthLogoutPost(options)(this.fetch, this.basePath);
-    }
-
-    /**
      * Return the current portal session: user, active tenant, memberships, scopes.  Portal-session only. API-key callers have no portal identity and are rejected with 403 — they should use the resource APIs directly, not `/me`. A valid session without an active membership surfaces as 403 from the middleware.
      * @summary Me
      * @param {*} [options] Override http request option.
@@ -4436,31 +5809,196 @@ export class AuthApi extends BaseAPI {
         return AuthApiFp(this.configuration).meMeGet(options)(this.fetch, this.basePath);
     }
 
+}
+/**
+ * BillingApi - fetch parameter creator
+ * @export
+ */
+export const BillingApiFetchParamCreator = function (configuration?: Configuration) {
+    return {
+        /**
+         * 
+         * @summary Get Billing Summary Endpoint
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        getBillingSummaryEndpointBillingSummaryGet(options: any = {}): FetchArgs {
+            const localVarPath = `/billing/summary`;
+            const localVarUrlObj = url.parse(localVarPath, true);
+            const localVarRequestOptions = Object.assign({ method: 'GET' }, options);
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            localVarUrlObj.query = Object.assign({}, localVarUrlObj.query, localVarQueryParameter, options.query);
+            // fix override query string Detail: https://stackoverflow.com/a/7517673/1077943
+            localVarUrlObj.search = null;
+            localVarRequestOptions.headers = Object.assign({}, localVarHeaderParameter, options.headers);
+
+            return {
+                url: url.format(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+    }
+};
+
+/**
+ * BillingApi - functional programming interface
+ * @export
+ */
+export const BillingApiFp = function(configuration?: Configuration) {
+    return {
+        /**
+         * 
+         * @summary Get Billing Summary Endpoint
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        getBillingSummaryEndpointBillingSummaryGet(options?: any): (fetch?: FetchAPI, basePath?: string) => Promise<BillingSummaryResponse> {
+            const localVarFetchArgs = BillingApiFetchParamCreator(configuration).getBillingSummaryEndpointBillingSummaryGet(options);
+            return (fetch: FetchAPI = isomorphicFetch, basePath: string = BASE_PATH) => {
+                return fetch(basePath + localVarFetchArgs.url, localVarFetchArgs.options).then((response) => {
+                    if (response.status >= 200 && response.status < 300) {
+                        return response.json();
+                    } else {
+                        throw response;
+                    }
+                });
+            };
+        },
+    }
+};
+
+/**
+ * BillingApi - factory interface
+ * @export
+ */
+export const BillingApiFactory = function (configuration?: Configuration, fetch?: FetchAPI, basePath?: string) {
+    return {
+        /**
+         * 
+         * @summary Get Billing Summary Endpoint
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        getBillingSummaryEndpointBillingSummaryGet(options?: any) {
+            return BillingApiFp(configuration).getBillingSummaryEndpointBillingSummaryGet(options)(fetch, basePath);
+        },
+    };
+};
+
+/**
+ * BillingApi - object-oriented interface
+ * @export
+ * @class BillingApi
+ * @extends {BaseAPI}
+ */
+export class BillingApi extends BaseAPI {
     /**
-     * Complete login: exchange the WorkOS code and issue the session cookie.  The backend owns the code exchange (the WorkOS secret never reaches the browser). The `state` is HMAC-signed and carries a CSRF nonce + landing path; the signature must verify AND the nonce must match the host-only pre-login cookie (double-submit) or the callback is rejected. On authorized or pending-admin-assignment it sets the HTTP-only sealed-session cookie and 303-redirects to the frontend; the frontend's `/me` call then decides app vs. pending UI. Every response clears the one-shot state cookie.
-     * @summary Workos Callback
-     * @param {any} [code] 
-     * @param {any} [state] 
+     * 
+     * @summary Get Billing Summary Endpoint
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
-     * @memberof AuthApi
+     * @memberof BillingApi
      */
-    public workosCallbackAuthSsoCallbackGet(code?: any, state?: any, options?: any) {
-        return AuthApiFp(this.configuration).workosCallbackAuthSsoCallbackGet(code, state, options)(this.fetch, this.basePath);
+    public getBillingSummaryEndpointBillingSummaryGet(options?: any) {
+        return BillingApiFp(this.configuration).getBillingSummaryEndpointBillingSummaryGet(options)(this.fetch, this.basePath);
     }
 
+}
+/**
+ * EntitlementsApi - fetch parameter creator
+ * @export
+ */
+export const EntitlementsApiFetchParamCreator = function (configuration?: Configuration) {
+    return {
+        /**
+         * Return the authenticated caller's plan code, compliance add-on flag, and granted scopes (implied scopes expanded). Scoped to the caller's own principal.
+         * @summary The calling principal's plan entitlements
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        entitlementsEndpointEntitlementsGet(options: any = {}): FetchArgs {
+            const localVarPath = `/entitlements`;
+            const localVarUrlObj = url.parse(localVarPath, true);
+            const localVarRequestOptions = Object.assign({ method: 'GET' }, options);
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            localVarUrlObj.query = Object.assign({}, localVarUrlObj.query, localVarQueryParameter, options.query);
+            // fix override query string Detail: https://stackoverflow.com/a/7517673/1077943
+            localVarUrlObj.search = null;
+            localVarRequestOptions.headers = Object.assign({}, localVarHeaderParameter, options.headers);
+
+            return {
+                url: url.format(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+    }
+};
+
+/**
+ * EntitlementsApi - functional programming interface
+ * @export
+ */
+export const EntitlementsApiFp = function(configuration?: Configuration) {
+    return {
+        /**
+         * Return the authenticated caller's plan code, compliance add-on flag, and granted scopes (implied scopes expanded). Scoped to the caller's own principal.
+         * @summary The calling principal's plan entitlements
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        entitlementsEndpointEntitlementsGet(options?: any): (fetch?: FetchAPI, basePath?: string) => Promise<EntitlementsResponse> {
+            const localVarFetchArgs = EntitlementsApiFetchParamCreator(configuration).entitlementsEndpointEntitlementsGet(options);
+            return (fetch: FetchAPI = isomorphicFetch, basePath: string = BASE_PATH) => {
+                return fetch(basePath + localVarFetchArgs.url, localVarFetchArgs.options).then((response) => {
+                    if (response.status >= 200 && response.status < 300) {
+                        return response.json();
+                    } else {
+                        throw response;
+                    }
+                });
+            };
+        },
+    }
+};
+
+/**
+ * EntitlementsApi - factory interface
+ * @export
+ */
+export const EntitlementsApiFactory = function (configuration?: Configuration, fetch?: FetchAPI, basePath?: string) {
+    return {
+        /**
+         * Return the authenticated caller's plan code, compliance add-on flag, and granted scopes (implied scopes expanded). Scoped to the caller's own principal.
+         * @summary The calling principal's plan entitlements
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        entitlementsEndpointEntitlementsGet(options?: any) {
+            return EntitlementsApiFp(configuration).entitlementsEndpointEntitlementsGet(options)(fetch, basePath);
+        },
+    };
+};
+
+/**
+ * EntitlementsApi - object-oriented interface
+ * @export
+ * @class EntitlementsApi
+ * @extends {BaseAPI}
+ */
+export class EntitlementsApi extends BaseAPI {
     /**
-     * Start the WorkOS AuthKit login hand-off.  Resolves the target WorkOS organization from `tenant_hint` when present and 303-redirects to the AuthKit authorization URL; without a hint, WorkOS resolves the org from the user's identity (no local domain->org map). An unmapped user comes back org-less and is rejected at the callback (no session), so the hand-off is unconditional. `email` is forwarded only as a WorkOS `login_hint`. `return_to` is carried through WorkOS in `state` (open-redirect-validated).
-     * @summary Workos Login
-     * @param {any} [email] 
-     * @param {any} [tenantHint] 
-     * @param {any} [returnTo] 
+     * Return the authenticated caller's plan code, compliance add-on flag, and granted scopes (implied scopes expanded). Scoped to the caller's own principal.
+     * @summary The calling principal's plan entitlements
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
-     * @memberof AuthApi
+     * @memberof EntitlementsApi
      */
-    public workosLoginAuthSsoLoginGet(email?: any, tenantHint?: any, returnTo?: any, options?: any) {
-        return AuthApiFp(this.configuration).workosLoginAuthSsoLoginGet(email, tenantHint, returnTo, options)(this.fetch, this.basePath);
+    public entitlementsEndpointEntitlementsGet(options?: any) {
+        return EntitlementsApiFp(this.configuration).entitlementsEndpointEntitlementsGet(options)(this.fetch, this.basePath);
     }
 
 }
@@ -4471,18 +6009,51 @@ export class AuthApi extends BaseAPI {
 export const LearningBoundaryApiFetchParamCreator = function (configuration?: Configuration) {
     return {
         /**
+         * Report the loop-closure funnel (resolve -> offered -> observed -> reinforced) per producing host over a recent window. A half-open loop, a run that resolved but whose write-back never arrived, shows as a non-closure rather than a false closure. Scoped to the calling tenant.
+         * @summary Per-host loop-closure funnel
+         * @param {any} [windowHours] 
+         * @param {any} [graceMinutes] 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        funnelEndpointFunnelGet(windowHours?: any, graceMinutes?: any, options: any = {}): FetchArgs {
+            const localVarPath = `/funnel`;
+            const localVarUrlObj = url.parse(localVarPath, true);
+            const localVarRequestOptions = Object.assign({ method: 'GET' }, options);
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            if (windowHours !== undefined) {
+                localVarQueryParameter['window_hours'] = windowHours;
+            }
+
+            if (graceMinutes !== undefined) {
+                localVarQueryParameter['grace_minutes'] = graceMinutes;
+            }
+
+            localVarUrlObj.query = Object.assign({}, localVarUrlObj.query, localVarQueryParameter, options.query);
+            // fix override query string Detail: https://stackoverflow.com/a/7517673/1077943
+            localVarUrlObj.search = null;
+            localVarRequestOptions.headers = Object.assign({}, localVarHeaderParameter, options.headers);
+
+            return {
+                url: url.format(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
          * Submit a finished run for server-side learning extraction. Processed on a background worker, so the request returns immediately. Idempotent by run id.
          * @summary Observe a finished episode
          * @param {ObserveRequest} body 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        observeEndpointV1ObservePost(body: ObserveRequest, options: any = {}): FetchArgs {
+        observeEndpointObservePost(body: ObserveRequest, options: any = {}): FetchArgs {
             // verify required parameter 'body' is not null or undefined
             if (body === null || body === undefined) {
-                throw new RequiredError('body','Required parameter body was null or undefined when calling observeEndpointV1ObservePost.');
+                throw new RequiredError('body','Required parameter body was null or undefined when calling observeEndpointObservePost.');
             }
-            const localVarPath = `/v1/observe`;
+            const localVarPath = `/observe`;
             const localVarUrlObj = url.parse(localVarPath, true);
             const localVarRequestOptions = Object.assign({ method: 'POST' }, options);
             const localVarHeaderParameter = {} as any;
@@ -4509,12 +6080,12 @@ export const LearningBoundaryApiFetchParamCreator = function (configuration?: Co
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        reinforceEndpointV1ReinforcePost(body: ReinforceRequest, options: any = {}): FetchArgs {
+        reinforceEndpointReinforcePost(body: ReinforceRequest, options: any = {}): FetchArgs {
             // verify required parameter 'body' is not null or undefined
             if (body === null || body === undefined) {
-                throw new RequiredError('body','Required parameter body was null or undefined when calling reinforceEndpointV1ReinforcePost.');
+                throw new RequiredError('body','Required parameter body was null or undefined when calling reinforceEndpointReinforcePost.');
             }
-            const localVarPath = `/v1/reinforce`;
+            const localVarPath = `/reinforce`;
             const localVarUrlObj = url.parse(localVarPath, true);
             const localVarRequestOptions = Object.assign({ method: 'POST' }, options);
             const localVarHeaderParameter = {} as any;
@@ -4541,12 +6112,12 @@ export const LearningBoundaryApiFetchParamCreator = function (configuration?: Co
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        resolveEndpointV1ResolvePost(body: ResolveRequest, options: any = {}): FetchArgs {
+        resolveEndpointResolvePost(body: ResolveRequest, options: any = {}): FetchArgs {
             // verify required parameter 'body' is not null or undefined
             if (body === null || body === undefined) {
-                throw new RequiredError('body','Required parameter body was null or undefined when calling resolveEndpointV1ResolvePost.');
+                throw new RequiredError('body','Required parameter body was null or undefined when calling resolveEndpointResolvePost.');
             }
-            const localVarPath = `/v1/resolve`;
+            const localVarPath = `/resolve`;
             const localVarUrlObj = url.parse(localVarPath, true);
             const localVarRequestOptions = Object.assign({ method: 'POST' }, options);
             const localVarHeaderParameter = {} as any;
@@ -4576,14 +6147,34 @@ export const LearningBoundaryApiFetchParamCreator = function (configuration?: Co
 export const LearningBoundaryApiFp = function(configuration?: Configuration) {
     return {
         /**
+         * Report the loop-closure funnel (resolve -> offered -> observed -> reinforced) per producing host over a recent window. A half-open loop, a run that resolved but whose write-back never arrived, shows as a non-closure rather than a false closure. Scoped to the calling tenant.
+         * @summary Per-host loop-closure funnel
+         * @param {any} [windowHours] 
+         * @param {any} [graceMinutes] 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        funnelEndpointFunnelGet(windowHours?: any, graceMinutes?: any, options?: any): (fetch?: FetchAPI, basePath?: string) => Promise<LoopClosureFunnelResponse> {
+            const localVarFetchArgs = LearningBoundaryApiFetchParamCreator(configuration).funnelEndpointFunnelGet(windowHours, graceMinutes, options);
+            return (fetch: FetchAPI = isomorphicFetch, basePath: string = BASE_PATH) => {
+                return fetch(basePath + localVarFetchArgs.url, localVarFetchArgs.options).then((response) => {
+                    if (response.status >= 200 && response.status < 300) {
+                        return response.json();
+                    } else {
+                        throw response;
+                    }
+                });
+            };
+        },
+        /**
          * Submit a finished run for server-side learning extraction. Processed on a background worker, so the request returns immediately. Idempotent by run id.
          * @summary Observe a finished episode
          * @param {ObserveRequest} body 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        observeEndpointV1ObservePost(body: ObserveRequest, options?: any): (fetch?: FetchAPI, basePath?: string) => Promise<BoundaryAcceptedResponse> {
-            const localVarFetchArgs = LearningBoundaryApiFetchParamCreator(configuration).observeEndpointV1ObservePost(body, options);
+        observeEndpointObservePost(body: ObserveRequest, options?: any): (fetch?: FetchAPI, basePath?: string) => Promise<BoundaryAcceptedResponse> {
+            const localVarFetchArgs = LearningBoundaryApiFetchParamCreator(configuration).observeEndpointObservePost(body, options);
             return (fetch: FetchAPI = isomorphicFetch, basePath: string = BASE_PATH) => {
                 return fetch(basePath + localVarFetchArgs.url, localVarFetchArgs.options).then((response) => {
                     if (response.status >= 200 && response.status < 300) {
@@ -4601,8 +6192,8 @@ export const LearningBoundaryApiFp = function(configuration?: Configuration) {
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        reinforceEndpointV1ReinforcePost(body: ReinforceRequest, options?: any): (fetch?: FetchAPI, basePath?: string) => Promise<BoundaryAcceptedResponse> {
-            const localVarFetchArgs = LearningBoundaryApiFetchParamCreator(configuration).reinforceEndpointV1ReinforcePost(body, options);
+        reinforceEndpointReinforcePost(body: ReinforceRequest, options?: any): (fetch?: FetchAPI, basePath?: string) => Promise<BoundaryAcceptedResponse> {
+            const localVarFetchArgs = LearningBoundaryApiFetchParamCreator(configuration).reinforceEndpointReinforcePost(body, options);
             return (fetch: FetchAPI = isomorphicFetch, basePath: string = BASE_PATH) => {
                 return fetch(basePath + localVarFetchArgs.url, localVarFetchArgs.options).then((response) => {
                     if (response.status >= 200 && response.status < 300) {
@@ -4620,8 +6211,8 @@ export const LearningBoundaryApiFp = function(configuration?: Configuration) {
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        resolveEndpointV1ResolvePost(body: ResolveRequest, options?: any): (fetch?: FetchAPI, basePath?: string) => Promise<ResolveResponse> {
-            const localVarFetchArgs = LearningBoundaryApiFetchParamCreator(configuration).resolveEndpointV1ResolvePost(body, options);
+        resolveEndpointResolvePost(body: ResolveRequest, options?: any): (fetch?: FetchAPI, basePath?: string) => Promise<ResolveResponse> {
+            const localVarFetchArgs = LearningBoundaryApiFetchParamCreator(configuration).resolveEndpointResolvePost(body, options);
             return (fetch: FetchAPI = isomorphicFetch, basePath: string = BASE_PATH) => {
                 return fetch(basePath + localVarFetchArgs.url, localVarFetchArgs.options).then((response) => {
                     if (response.status >= 200 && response.status < 300) {
@@ -4642,14 +6233,25 @@ export const LearningBoundaryApiFp = function(configuration?: Configuration) {
 export const LearningBoundaryApiFactory = function (configuration?: Configuration, fetch?: FetchAPI, basePath?: string) {
     return {
         /**
+         * Report the loop-closure funnel (resolve -> offered -> observed -> reinforced) per producing host over a recent window. A half-open loop, a run that resolved but whose write-back never arrived, shows as a non-closure rather than a false closure. Scoped to the calling tenant.
+         * @summary Per-host loop-closure funnel
+         * @param {any} [windowHours] 
+         * @param {any} [graceMinutes] 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        funnelEndpointFunnelGet(windowHours?: any, graceMinutes?: any, options?: any) {
+            return LearningBoundaryApiFp(configuration).funnelEndpointFunnelGet(windowHours, graceMinutes, options)(fetch, basePath);
+        },
+        /**
          * Submit a finished run for server-side learning extraction. Processed on a background worker, so the request returns immediately. Idempotent by run id.
          * @summary Observe a finished episode
          * @param {ObserveRequest} body 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        observeEndpointV1ObservePost(body: ObserveRequest, options?: any) {
-            return LearningBoundaryApiFp(configuration).observeEndpointV1ObservePost(body, options)(fetch, basePath);
+        observeEndpointObservePost(body: ObserveRequest, options?: any) {
+            return LearningBoundaryApiFp(configuration).observeEndpointObservePost(body, options)(fetch, basePath);
         },
         /**
          * Credit the learnings a finished run used. The eligible union and attribution are derived server-side from the run's offer log. Processed on a background worker; idempotent by run id.
@@ -4658,8 +6260,8 @@ export const LearningBoundaryApiFactory = function (configuration?: Configuratio
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        reinforceEndpointV1ReinforcePost(body: ReinforceRequest, options?: any) {
-            return LearningBoundaryApiFp(configuration).reinforceEndpointV1ReinforcePost(body, options)(fetch, basePath);
+        reinforceEndpointReinforcePost(body: ReinforceRequest, options?: any) {
+            return LearningBoundaryApiFp(configuration).reinforceEndpointReinforcePost(body, options)(fetch, basePath);
         },
         /**
          * Return the learnings bound to a run's goal, as a rendered injection block plus the offered learning IDs. Records the offer server-side so a later reinforce can credit the learnings the run used.
@@ -4668,8 +6270,8 @@ export const LearningBoundaryApiFactory = function (configuration?: Configuratio
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        resolveEndpointV1ResolvePost(body: ResolveRequest, options?: any) {
-            return LearningBoundaryApiFp(configuration).resolveEndpointV1ResolvePost(body, options)(fetch, basePath);
+        resolveEndpointResolvePost(body: ResolveRequest, options?: any) {
+            return LearningBoundaryApiFp(configuration).resolveEndpointResolvePost(body, options)(fetch, basePath);
         },
     };
 };
@@ -4682,6 +6284,19 @@ export const LearningBoundaryApiFactory = function (configuration?: Configuratio
  */
 export class LearningBoundaryApi extends BaseAPI {
     /**
+     * Report the loop-closure funnel (resolve -> offered -> observed -> reinforced) per producing host over a recent window. A half-open loop, a run that resolved but whose write-back never arrived, shows as a non-closure rather than a false closure. Scoped to the calling tenant.
+     * @summary Per-host loop-closure funnel
+     * @param {any} [windowHours] 
+     * @param {any} [graceMinutes] 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof LearningBoundaryApi
+     */
+    public funnelEndpointFunnelGet(windowHours?: any, graceMinutes?: any, options?: any) {
+        return LearningBoundaryApiFp(this.configuration).funnelEndpointFunnelGet(windowHours, graceMinutes, options)(this.fetch, this.basePath);
+    }
+
+    /**
      * Submit a finished run for server-side learning extraction. Processed on a background worker, so the request returns immediately. Idempotent by run id.
      * @summary Observe a finished episode
      * @param {ObserveRequest} body 
@@ -4689,8 +6304,8 @@ export class LearningBoundaryApi extends BaseAPI {
      * @throws {RequiredError}
      * @memberof LearningBoundaryApi
      */
-    public observeEndpointV1ObservePost(body: ObserveRequest, options?: any) {
-        return LearningBoundaryApiFp(this.configuration).observeEndpointV1ObservePost(body, options)(this.fetch, this.basePath);
+    public observeEndpointObservePost(body: ObserveRequest, options?: any) {
+        return LearningBoundaryApiFp(this.configuration).observeEndpointObservePost(body, options)(this.fetch, this.basePath);
     }
 
     /**
@@ -4701,8 +6316,8 @@ export class LearningBoundaryApi extends BaseAPI {
      * @throws {RequiredError}
      * @memberof LearningBoundaryApi
      */
-    public reinforceEndpointV1ReinforcePost(body: ReinforceRequest, options?: any) {
-        return LearningBoundaryApiFp(this.configuration).reinforceEndpointV1ReinforcePost(body, options)(this.fetch, this.basePath);
+    public reinforceEndpointReinforcePost(body: ReinforceRequest, options?: any) {
+        return LearningBoundaryApiFp(this.configuration).reinforceEndpointReinforcePost(body, options)(this.fetch, this.basePath);
     }
 
     /**
@@ -4713,8 +6328,8 @@ export class LearningBoundaryApi extends BaseAPI {
      * @throws {RequiredError}
      * @memberof LearningBoundaryApi
      */
-    public resolveEndpointV1ResolvePost(body: ResolveRequest, options?: any) {
-        return LearningBoundaryApiFp(this.configuration).resolveEndpointV1ResolvePost(body, options)(this.fetch, this.basePath);
+    public resolveEndpointResolvePost(body: ResolveRequest, options?: any) {
+        return LearningBoundaryApiFp(this.configuration).resolveEndpointResolvePost(body, options)(this.fetch, this.basePath);
     }
 
 }
@@ -4754,6 +6369,49 @@ export const LearningsApiFetchParamCreator = function (configuration?: Configura
             };
         },
         /**
+         * Graph of the agent's reasoning topology around a learning: the learning plus the learnings it is connected to within `depth` lineage hops, each enriched with Qdrant detail and evidence. The Neo4j graph is the primary product — if it can't be read the request fails (503). Declared before /{learning_id} so the static path is not captured as a learning id.
+         * @summary Agent learning evidence graph
+         * @param {any} agentId 
+         * @param {any} learningId The learning to build the graph around.
+         * @param {any} [depth] Lineage hops from the learning (1-2).
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        getAgentLearningsGraphEndpointAgentsAgentIdLearningsGraphGet(agentId: any, learningId: any, depth?: any, options: any = {}): FetchArgs {
+            // verify required parameter 'agentId' is not null or undefined
+            if (agentId === null || agentId === undefined) {
+                throw new RequiredError('agentId','Required parameter agentId was null or undefined when calling getAgentLearningsGraphEndpointAgentsAgentIdLearningsGraphGet.');
+            }
+            // verify required parameter 'learningId' is not null or undefined
+            if (learningId === null || learningId === undefined) {
+                throw new RequiredError('learningId','Required parameter learningId was null or undefined when calling getAgentLearningsGraphEndpointAgentsAgentIdLearningsGraphGet.');
+            }
+            const localVarPath = `/agents/{agent_id}/learnings/graph`
+                .replace(`{${"agent_id"}}`, encodeURIComponent(String(agentId)));
+            const localVarUrlObj = url.parse(localVarPath, true);
+            const localVarRequestOptions = Object.assign({ method: 'GET' }, options);
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            if (learningId !== undefined) {
+                localVarQueryParameter['learning_id'] = learningId;
+            }
+
+            if (depth !== undefined) {
+                localVarQueryParameter['depth'] = depth;
+            }
+
+            localVarUrlObj.query = Object.assign({}, localVarUrlObj.query, localVarQueryParameter, options.query);
+            // fix override query string Detail: https://stackoverflow.com/a/7517673/1077943
+            localVarUrlObj.search = null;
+            localVarRequestOptions.headers = Object.assign({}, localVarHeaderParameter, options.headers);
+
+            return {
+                url: url.format(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
          * Retrieve a single learning by its ID.
          * @summary Get a learning
          * @param {any} agentId 
@@ -4777,6 +6435,55 @@ export const LearningsApiFetchParamCreator = function (configuration?: Configura
             const localVarRequestOptions = Object.assign({ method: 'GET' }, options);
             const localVarHeaderParameter = {} as any;
             const localVarQueryParameter = {} as any;
+
+            localVarUrlObj.query = Object.assign({}, localVarUrlObj.query, localVarQueryParameter, options.query);
+            // fix override query string Detail: https://stackoverflow.com/a/7517673/1077943
+            localVarUrlObj.search = null;
+            localVarRequestOptions.headers = Object.assign({}, localVarHeaderParameter, options.headers);
+
+            return {
+                url: url.format(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * Paginated, filterable inventory of an agent's learnings for the curation workbench. Non-semantic (unlike /search). Defaults to the active bucket (excludes archived/superseded); use `state` for other buckets. Pagination is created_at keyset via the opaque cursor.
+         * @summary List agent learnings (audit inventory)
+         * @param {any} agentId 
+         * @param {any} [includeInstances] Include evidence instances on each item.
+         * @param {any} [limit] Page size.
+         * @param {any} [cursor] Opaque string from the previous page&#x27;s &#x60;next_cursor&#x60;.
+         * @param {LearningStateFilter} [state] Review bucket: active (default), needs_review, archived, superseded, or all.
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        listAgentLearningsEndpointAgentsAgentIdLearningsGet(agentId: any, includeInstances?: any, limit?: any, cursor?: any, state?: LearningStateFilter, options: any = {}): FetchArgs {
+            // verify required parameter 'agentId' is not null or undefined
+            if (agentId === null || agentId === undefined) {
+                throw new RequiredError('agentId','Required parameter agentId was null or undefined when calling listAgentLearningsEndpointAgentsAgentIdLearningsGet.');
+            }
+            const localVarPath = `/agents/{agent_id}/learnings`
+                .replace(`{${"agent_id"}}`, encodeURIComponent(String(agentId)));
+            const localVarUrlObj = url.parse(localVarPath, true);
+            const localVarRequestOptions = Object.assign({ method: 'GET' }, options);
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            if (includeInstances !== undefined) {
+                localVarQueryParameter['include_instances'] = includeInstances;
+            }
+
+            if (limit !== undefined) {
+                localVarQueryParameter['limit'] = limit;
+            }
+
+            if (cursor !== undefined) {
+                localVarQueryParameter['cursor'] = cursor;
+            }
+
+            if (state !== undefined) {
+                localVarQueryParameter['state'] = state;
+            }
 
             localVarUrlObj.query = Object.assign({}, localVarUrlObj.query, localVarQueryParameter, options.query);
             // fix override query string Detail: https://stackoverflow.com/a/7517673/1077943
@@ -4952,6 +6659,27 @@ export const LearningsApiFp = function(configuration?: Configuration) {
             };
         },
         /**
+         * Graph of the agent's reasoning topology around a learning: the learning plus the learnings it is connected to within `depth` lineage hops, each enriched with Qdrant detail and evidence. The Neo4j graph is the primary product — if it can't be read the request fails (503). Declared before /{learning_id} so the static path is not captured as a learning id.
+         * @summary Agent learning evidence graph
+         * @param {any} agentId 
+         * @param {any} learningId The learning to build the graph around.
+         * @param {any} [depth] Lineage hops from the learning (1-2).
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        getAgentLearningsGraphEndpointAgentsAgentIdLearningsGraphGet(agentId: any, learningId: any, depth?: any, options?: any): (fetch?: FetchAPI, basePath?: string) => Promise<LearningAuditGraphResponse> {
+            const localVarFetchArgs = LearningsApiFetchParamCreator(configuration).getAgentLearningsGraphEndpointAgentsAgentIdLearningsGraphGet(agentId, learningId, depth, options);
+            return (fetch: FetchAPI = isomorphicFetch, basePath: string = BASE_PATH) => {
+                return fetch(basePath + localVarFetchArgs.url, localVarFetchArgs.options).then((response) => {
+                    if (response.status >= 200 && response.status < 300) {
+                        return response.json();
+                    } else {
+                        throw response;
+                    }
+                });
+            };
+        },
+        /**
          * Retrieve a single learning by its ID.
          * @summary Get a learning
          * @param {any} agentId 
@@ -4961,6 +6689,29 @@ export const LearningsApiFp = function(configuration?: Configuration) {
          */
         getLearningEndpointAgentsAgentIdLearningsLearningIdGet(agentId: any, learningId: any, options?: any): (fetch?: FetchAPI, basePath?: string) => Promise<LearningResponse> {
             const localVarFetchArgs = LearningsApiFetchParamCreator(configuration).getLearningEndpointAgentsAgentIdLearningsLearningIdGet(agentId, learningId, options);
+            return (fetch: FetchAPI = isomorphicFetch, basePath: string = BASE_PATH) => {
+                return fetch(basePath + localVarFetchArgs.url, localVarFetchArgs.options).then((response) => {
+                    if (response.status >= 200 && response.status < 300) {
+                        return response.json();
+                    } else {
+                        throw response;
+                    }
+                });
+            };
+        },
+        /**
+         * Paginated, filterable inventory of an agent's learnings for the curation workbench. Non-semantic (unlike /search). Defaults to the active bucket (excludes archived/superseded); use `state` for other buckets. Pagination is created_at keyset via the opaque cursor.
+         * @summary List agent learnings (audit inventory)
+         * @param {any} agentId 
+         * @param {any} [includeInstances] Include evidence instances on each item.
+         * @param {any} [limit] Page size.
+         * @param {any} [cursor] Opaque string from the previous page&#x27;s &#x60;next_cursor&#x60;.
+         * @param {LearningStateFilter} [state] Review bucket: active (default), needs_review, archived, superseded, or all.
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        listAgentLearningsEndpointAgentsAgentIdLearningsGet(agentId: any, includeInstances?: any, limit?: any, cursor?: any, state?: LearningStateFilter, options?: any): (fetch?: FetchAPI, basePath?: string) => Promise<LearningAuditListResponse> {
+            const localVarFetchArgs = LearningsApiFetchParamCreator(configuration).listAgentLearningsEndpointAgentsAgentIdLearningsGet(agentId, includeInstances, limit, cursor, state, options);
             return (fetch: FetchAPI = isomorphicFetch, basePath: string = BASE_PATH) => {
                 return fetch(basePath + localVarFetchArgs.url, localVarFetchArgs.options).then((response) => {
                     if (response.status >= 200 && response.status < 300) {
@@ -5055,6 +6806,18 @@ export const LearningsApiFactory = function (configuration?: Configuration, fetc
             return LearningsApiFp(configuration).deleteAgentLearningsEndpointAgentsAgentIdLearningsDelete(agentId, options)(fetch, basePath);
         },
         /**
+         * Graph of the agent's reasoning topology around a learning: the learning plus the learnings it is connected to within `depth` lineage hops, each enriched with Qdrant detail and evidence. The Neo4j graph is the primary product — if it can't be read the request fails (503). Declared before /{learning_id} so the static path is not captured as a learning id.
+         * @summary Agent learning evidence graph
+         * @param {any} agentId 
+         * @param {any} learningId The learning to build the graph around.
+         * @param {any} [depth] Lineage hops from the learning (1-2).
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        getAgentLearningsGraphEndpointAgentsAgentIdLearningsGraphGet(agentId: any, learningId: any, depth?: any, options?: any) {
+            return LearningsApiFp(configuration).getAgentLearningsGraphEndpointAgentsAgentIdLearningsGraphGet(agentId, learningId, depth, options)(fetch, basePath);
+        },
+        /**
          * Retrieve a single learning by its ID.
          * @summary Get a learning
          * @param {any} agentId 
@@ -5064,6 +6827,20 @@ export const LearningsApiFactory = function (configuration?: Configuration, fetc
          */
         getLearningEndpointAgentsAgentIdLearningsLearningIdGet(agentId: any, learningId: any, options?: any) {
             return LearningsApiFp(configuration).getLearningEndpointAgentsAgentIdLearningsLearningIdGet(agentId, learningId, options)(fetch, basePath);
+        },
+        /**
+         * Paginated, filterable inventory of an agent's learnings for the curation workbench. Non-semantic (unlike /search). Defaults to the active bucket (excludes archived/superseded); use `state` for other buckets. Pagination is created_at keyset via the opaque cursor.
+         * @summary List agent learnings (audit inventory)
+         * @param {any} agentId 
+         * @param {any} [includeInstances] Include evidence instances on each item.
+         * @param {any} [limit] Page size.
+         * @param {any} [cursor] Opaque string from the previous page&#x27;s &#x60;next_cursor&#x60;.
+         * @param {LearningStateFilter} [state] Review bucket: active (default), needs_review, archived, superseded, or all.
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        listAgentLearningsEndpointAgentsAgentIdLearningsGet(agentId: any, includeInstances?: any, limit?: any, cursor?: any, state?: LearningStateFilter, options?: any) {
+            return LearningsApiFp(configuration).listAgentLearningsEndpointAgentsAgentIdLearningsGet(agentId, includeInstances, limit, cursor, state, options)(fetch, basePath);
         },
         /**
          * Provide feedback on whether a learning was helpful. Updates the learning's standing (utility and reliability) and trust level based on the feedback signal.
@@ -5125,6 +6902,20 @@ export class LearningsApi extends BaseAPI {
     }
 
     /**
+     * Graph of the agent's reasoning topology around a learning: the learning plus the learnings it is connected to within `depth` lineage hops, each enriched with Qdrant detail and evidence. The Neo4j graph is the primary product — if it can't be read the request fails (503). Declared before /{learning_id} so the static path is not captured as a learning id.
+     * @summary Agent learning evidence graph
+     * @param {any} agentId 
+     * @param {any} learningId The learning to build the graph around.
+     * @param {any} [depth] Lineage hops from the learning (1-2).
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof LearningsApi
+     */
+    public getAgentLearningsGraphEndpointAgentsAgentIdLearningsGraphGet(agentId: any, learningId: any, depth?: any, options?: any) {
+        return LearningsApiFp(this.configuration).getAgentLearningsGraphEndpointAgentsAgentIdLearningsGraphGet(agentId, learningId, depth, options)(this.fetch, this.basePath);
+    }
+
+    /**
      * Retrieve a single learning by its ID.
      * @summary Get a learning
      * @param {any} agentId 
@@ -5135,6 +6926,22 @@ export class LearningsApi extends BaseAPI {
      */
     public getLearningEndpointAgentsAgentIdLearningsLearningIdGet(agentId: any, learningId: any, options?: any) {
         return LearningsApiFp(this.configuration).getLearningEndpointAgentsAgentIdLearningsLearningIdGet(agentId, learningId, options)(this.fetch, this.basePath);
+    }
+
+    /**
+     * Paginated, filterable inventory of an agent's learnings for the curation workbench. Non-semantic (unlike /search). Defaults to the active bucket (excludes archived/superseded); use `state` for other buckets. Pagination is created_at keyset via the opaque cursor.
+     * @summary List agent learnings (audit inventory)
+     * @param {any} agentId 
+     * @param {any} [includeInstances] Include evidence instances on each item.
+     * @param {any} [limit] Page size.
+     * @param {any} [cursor] Opaque string from the previous page&#x27;s &#x60;next_cursor&#x60;.
+     * @param {LearningStateFilter} [state] Review bucket: active (default), needs_review, archived, superseded, or all.
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof LearningsApi
+     */
+    public listAgentLearningsEndpointAgentsAgentIdLearningsGet(agentId: any, includeInstances?: any, limit?: any, cursor?: any, state?: LearningStateFilter, options?: any) {
+        return LearningsApiFp(this.configuration).listAgentLearningsEndpointAgentsAgentIdLearningsGet(agentId, includeInstances, limit, cursor, state, options)(this.fetch, this.basePath);
     }
 
     /**
@@ -5178,6 +6985,118 @@ export class LearningsApi extends BaseAPI {
      */
     public storeLearningEndpointAgentsAgentIdLearningsPost(body: StoreLearningRequest, agentId: any, options?: any) {
         return LearningsApiFp(this.configuration).storeLearningEndpointAgentsAgentIdLearningsPost(body, agentId, options)(this.fetch, this.basePath);
+    }
+
+}
+/**
+ * OrgLearningsApi - fetch parameter creator
+ * @export
+ */
+export const OrgLearningsApiFetchParamCreator = function (configuration?: Configuration) {
+    return {
+        /**
+         * Tenant-wide library of org-promoted (shared) learnings. Enterprise only. Evidence is stripped at promotion time, so items report org_stripped and summarise cross-agent corroboration. promotion_timestamp keyset pagination.
+         * @summary List org-shared learnings
+         * @param {any} [limit] Page size.
+         * @param {any} [cursor] Opaque string from the previous page&#x27;s &#x60;next_cursor&#x60;.
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        listOrgLearningsEndpointOrgLearningsGet(limit?: any, cursor?: any, options: any = {}): FetchArgs {
+            const localVarPath = `/org/learnings`;
+            const localVarUrlObj = url.parse(localVarPath, true);
+            const localVarRequestOptions = Object.assign({ method: 'GET' }, options);
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            if (limit !== undefined) {
+                localVarQueryParameter['limit'] = limit;
+            }
+
+            if (cursor !== undefined) {
+                localVarQueryParameter['cursor'] = cursor;
+            }
+
+            localVarUrlObj.query = Object.assign({}, localVarUrlObj.query, localVarQueryParameter, options.query);
+            // fix override query string Detail: https://stackoverflow.com/a/7517673/1077943
+            localVarUrlObj.search = null;
+            localVarRequestOptions.headers = Object.assign({}, localVarHeaderParameter, options.headers);
+
+            return {
+                url: url.format(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+    }
+};
+
+/**
+ * OrgLearningsApi - functional programming interface
+ * @export
+ */
+export const OrgLearningsApiFp = function(configuration?: Configuration) {
+    return {
+        /**
+         * Tenant-wide library of org-promoted (shared) learnings. Enterprise only. Evidence is stripped at promotion time, so items report org_stripped and summarise cross-agent corroboration. promotion_timestamp keyset pagination.
+         * @summary List org-shared learnings
+         * @param {any} [limit] Page size.
+         * @param {any} [cursor] Opaque string from the previous page&#x27;s &#x60;next_cursor&#x60;.
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        listOrgLearningsEndpointOrgLearningsGet(limit?: any, cursor?: any, options?: any): (fetch?: FetchAPI, basePath?: string) => Promise<OrgLearningListResponse> {
+            const localVarFetchArgs = OrgLearningsApiFetchParamCreator(configuration).listOrgLearningsEndpointOrgLearningsGet(limit, cursor, options);
+            return (fetch: FetchAPI = isomorphicFetch, basePath: string = BASE_PATH) => {
+                return fetch(basePath + localVarFetchArgs.url, localVarFetchArgs.options).then((response) => {
+                    if (response.status >= 200 && response.status < 300) {
+                        return response.json();
+                    } else {
+                        throw response;
+                    }
+                });
+            };
+        },
+    }
+};
+
+/**
+ * OrgLearningsApi - factory interface
+ * @export
+ */
+export const OrgLearningsApiFactory = function (configuration?: Configuration, fetch?: FetchAPI, basePath?: string) {
+    return {
+        /**
+         * Tenant-wide library of org-promoted (shared) learnings. Enterprise only. Evidence is stripped at promotion time, so items report org_stripped and summarise cross-agent corroboration. promotion_timestamp keyset pagination.
+         * @summary List org-shared learnings
+         * @param {any} [limit] Page size.
+         * @param {any} [cursor] Opaque string from the previous page&#x27;s &#x60;next_cursor&#x60;.
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        listOrgLearningsEndpointOrgLearningsGet(limit?: any, cursor?: any, options?: any) {
+            return OrgLearningsApiFp(configuration).listOrgLearningsEndpointOrgLearningsGet(limit, cursor, options)(fetch, basePath);
+        },
+    };
+};
+
+/**
+ * OrgLearningsApi - object-oriented interface
+ * @export
+ * @class OrgLearningsApi
+ * @extends {BaseAPI}
+ */
+export class OrgLearningsApi extends BaseAPI {
+    /**
+     * Tenant-wide library of org-promoted (shared) learnings. Enterprise only. Evidence is stripped at promotion time, so items report org_stripped and summarise cross-agent corroboration. promotion_timestamp keyset pagination.
+     * @summary List org-shared learnings
+     * @param {any} [limit] Page size.
+     * @param {any} [cursor] Opaque string from the previous page&#x27;s &#x60;next_cursor&#x60;.
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof OrgLearningsApi
+     */
+    public listOrgLearningsEndpointOrgLearningsGet(limit?: any, cursor?: any, options?: any) {
+        return OrgLearningsApiFp(this.configuration).listOrgLearningsEndpointOrgLearningsGet(limit, cursor, options)(this.fetch, this.basePath);
     }
 
 }
@@ -5876,6 +7795,65 @@ export const RunsApiFetchParamCreator = function (configuration?: Configuration)
             };
         },
         /**
+         * 
+         * @summary List Agent Runs
+         * @param {any} agentId 
+         * @param {any} [status] Filter by one or more run statuses.
+         * @param {any} [runType] Filter by one or more run types (goal|resume).
+         * @param {any} [sessionId] Filter to a single session.
+         * @param {UsageTimeWindow} [window] Window bounding which runs are returned.
+         * @param {any} [limit] Page size.
+         * @param {any} [cursor] Opaque string from the previous page&#x27;s &#x60;next_cursor&#x60;.
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        listAgentRunsEndpointAgentsAgentIdRunsGet(agentId: any, status?: any, runType?: any, sessionId?: any, window?: UsageTimeWindow, limit?: any, cursor?: any, options: any = {}): FetchArgs {
+            // verify required parameter 'agentId' is not null or undefined
+            if (agentId === null || agentId === undefined) {
+                throw new RequiredError('agentId','Required parameter agentId was null or undefined when calling listAgentRunsEndpointAgentsAgentIdRunsGet.');
+            }
+            const localVarPath = `/agents/{agent_id}/runs`
+                .replace(`{${"agent_id"}}`, encodeURIComponent(String(agentId)));
+            const localVarUrlObj = url.parse(localVarPath, true);
+            const localVarRequestOptions = Object.assign({ method: 'GET' }, options);
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            if (status !== undefined) {
+                localVarQueryParameter['status'] = status;
+            }
+
+            if (runType !== undefined) {
+                localVarQueryParameter['run_type'] = runType;
+            }
+
+            if (sessionId !== undefined) {
+                localVarQueryParameter['session_id'] = sessionId;
+            }
+
+            if (window !== undefined) {
+                localVarQueryParameter['window'] = window;
+            }
+
+            if (limit !== undefined) {
+                localVarQueryParameter['limit'] = limit;
+            }
+
+            if (cursor !== undefined) {
+                localVarQueryParameter['cursor'] = cursor;
+            }
+
+            localVarUrlObj.query = Object.assign({}, localVarUrlObj.query, localVarQueryParameter, options.query);
+            // fix override query string Detail: https://stackoverflow.com/a/7517673/1077943
+            localVarUrlObj.search = null;
+            localVarRequestOptions.headers = Object.assign({}, localVarHeaderParameter, options.headers);
+
+            return {
+                url: url.format(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
          * List runs in a session (newest first), keyset-paginated.
          * @summary List Session Runs
          * @param {any} sessionId 
@@ -5988,8 +7966,33 @@ export const RunsApiFp = function(configuration?: Configuration) {
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        getRunEndpointRunsRunIdGet(runId: any, options?: any): (fetch?: FetchAPI, basePath?: string) => Promise<RunResponse> {
+        getRunEndpointRunsRunIdGet(runId: any, options?: any): (fetch?: FetchAPI, basePath?: string) => Promise<RunDetailResponse> {
             const localVarFetchArgs = RunsApiFetchParamCreator(configuration).getRunEndpointRunsRunIdGet(runId, options);
+            return (fetch: FetchAPI = isomorphicFetch, basePath: string = BASE_PATH) => {
+                return fetch(basePath + localVarFetchArgs.url, localVarFetchArgs.options).then((response) => {
+                    if (response.status >= 200 && response.status < 300) {
+                        return response.json();
+                    } else {
+                        throw response;
+                    }
+                });
+            };
+        },
+        /**
+         * 
+         * @summary List Agent Runs
+         * @param {any} agentId 
+         * @param {any} [status] Filter by one or more run statuses.
+         * @param {any} [runType] Filter by one or more run types (goal|resume).
+         * @param {any} [sessionId] Filter to a single session.
+         * @param {UsageTimeWindow} [window] Window bounding which runs are returned.
+         * @param {any} [limit] Page size.
+         * @param {any} [cursor] Opaque string from the previous page&#x27;s &#x60;next_cursor&#x60;.
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        listAgentRunsEndpointAgentsAgentIdRunsGet(agentId: any, status?: any, runType?: any, sessionId?: any, window?: UsageTimeWindow, limit?: any, cursor?: any, options?: any): (fetch?: FetchAPI, basePath?: string) => Promise<AgentRunListResponse> {
+            const localVarFetchArgs = RunsApiFetchParamCreator(configuration).listAgentRunsEndpointAgentsAgentIdRunsGet(agentId, status, runType, sessionId, window, limit, cursor, options);
             return (fetch: FetchAPI = isomorphicFetch, basePath: string = BASE_PATH) => {
                 return fetch(basePath + localVarFetchArgs.url, localVarFetchArgs.options).then((response) => {
                     if (response.status >= 200 && response.status < 300) {
@@ -6072,6 +8075,22 @@ export const RunsApiFactory = function (configuration?: Configuration, fetch?: F
             return RunsApiFp(configuration).getRunEndpointRunsRunIdGet(runId, options)(fetch, basePath);
         },
         /**
+         * 
+         * @summary List Agent Runs
+         * @param {any} agentId 
+         * @param {any} [status] Filter by one or more run statuses.
+         * @param {any} [runType] Filter by one or more run types (goal|resume).
+         * @param {any} [sessionId] Filter to a single session.
+         * @param {UsageTimeWindow} [window] Window bounding which runs are returned.
+         * @param {any} [limit] Page size.
+         * @param {any} [cursor] Opaque string from the previous page&#x27;s &#x60;next_cursor&#x60;.
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        listAgentRunsEndpointAgentsAgentIdRunsGet(agentId: any, status?: any, runType?: any, sessionId?: any, window?: UsageTimeWindow, limit?: any, cursor?: any, options?: any) {
+            return RunsApiFp(configuration).listAgentRunsEndpointAgentsAgentIdRunsGet(agentId, status, runType, sessionId, window, limit, cursor, options)(fetch, basePath);
+        },
+        /**
          * List runs in a session (newest first), keyset-paginated.
          * @summary List Session Runs
          * @param {any} sessionId 
@@ -6127,6 +8146,24 @@ export class RunsApi extends BaseAPI {
      */
     public getRunEndpointRunsRunIdGet(runId: any, options?: any) {
         return RunsApiFp(this.configuration).getRunEndpointRunsRunIdGet(runId, options)(this.fetch, this.basePath);
+    }
+
+    /**
+     * 
+     * @summary List Agent Runs
+     * @param {any} agentId 
+     * @param {any} [status] Filter by one or more run statuses.
+     * @param {any} [runType] Filter by one or more run types (goal|resume).
+     * @param {any} [sessionId] Filter to a single session.
+     * @param {UsageTimeWindow} [window] Window bounding which runs are returned.
+     * @param {any} [limit] Page size.
+     * @param {any} [cursor] Opaque string from the previous page&#x27;s &#x60;next_cursor&#x60;.
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof RunsApi
+     */
+    public listAgentRunsEndpointAgentsAgentIdRunsGet(agentId: any, status?: any, runType?: any, sessionId?: any, window?: UsageTimeWindow, limit?: any, cursor?: any, options?: any) {
+        return RunsApiFp(this.configuration).listAgentRunsEndpointAgentsAgentIdRunsGet(agentId, status, runType, sessionId, window, limit, cursor, options)(this.fetch, this.basePath);
     }
 
     /**
@@ -6451,11 +8488,157 @@ export class SessionsApi extends BaseAPI {
 
 }
 /**
+ * SpacesApi - fetch parameter creator
+ * @export
+ */
+export const SpacesApiFetchParamCreator = function (configuration?: Configuration) {
+    return {
+        /**
+         * 
+         * @summary List Spaces
+         * @param {any} [limit] Page size.
+         * @param {any} [cursor] Opaque string from the previous page&#x27;s &#x60;next_cursor&#x60;.
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        listSpacesEndpointSpacesGet(limit?: any, cursor?: any, options: any = {}): FetchArgs {
+            const localVarPath = `/spaces`;
+            const localVarUrlObj = url.parse(localVarPath, true);
+            const localVarRequestOptions = Object.assign({ method: 'GET' }, options);
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            if (limit !== undefined) {
+                localVarQueryParameter['limit'] = limit;
+            }
+
+            if (cursor !== undefined) {
+                localVarQueryParameter['cursor'] = cursor;
+            }
+
+            localVarUrlObj.query = Object.assign({}, localVarUrlObj.query, localVarQueryParameter, options.query);
+            // fix override query string Detail: https://stackoverflow.com/a/7517673/1077943
+            localVarUrlObj.search = null;
+            localVarRequestOptions.headers = Object.assign({}, localVarHeaderParameter, options.headers);
+
+            return {
+                url: url.format(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+    }
+};
+
+/**
+ * SpacesApi - functional programming interface
+ * @export
+ */
+export const SpacesApiFp = function(configuration?: Configuration) {
+    return {
+        /**
+         * 
+         * @summary List Spaces
+         * @param {any} [limit] Page size.
+         * @param {any} [cursor] Opaque string from the previous page&#x27;s &#x60;next_cursor&#x60;.
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        listSpacesEndpointSpacesGet(limit?: any, cursor?: any, options?: any): (fetch?: FetchAPI, basePath?: string) => Promise<SpaceListResponse> {
+            const localVarFetchArgs = SpacesApiFetchParamCreator(configuration).listSpacesEndpointSpacesGet(limit, cursor, options);
+            return (fetch: FetchAPI = isomorphicFetch, basePath: string = BASE_PATH) => {
+                return fetch(basePath + localVarFetchArgs.url, localVarFetchArgs.options).then((response) => {
+                    if (response.status >= 200 && response.status < 300) {
+                        return response.json();
+                    } else {
+                        throw response;
+                    }
+                });
+            };
+        },
+    }
+};
+
+/**
+ * SpacesApi - factory interface
+ * @export
+ */
+export const SpacesApiFactory = function (configuration?: Configuration, fetch?: FetchAPI, basePath?: string) {
+    return {
+        /**
+         * 
+         * @summary List Spaces
+         * @param {any} [limit] Page size.
+         * @param {any} [cursor] Opaque string from the previous page&#x27;s &#x60;next_cursor&#x60;.
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        listSpacesEndpointSpacesGet(limit?: any, cursor?: any, options?: any) {
+            return SpacesApiFp(configuration).listSpacesEndpointSpacesGet(limit, cursor, options)(fetch, basePath);
+        },
+    };
+};
+
+/**
+ * SpacesApi - object-oriented interface
+ * @export
+ * @class SpacesApi
+ * @extends {BaseAPI}
+ */
+export class SpacesApi extends BaseAPI {
+    /**
+     * 
+     * @summary List Spaces
+     * @param {any} [limit] Page size.
+     * @param {any} [cursor] Opaque string from the previous page&#x27;s &#x60;next_cursor&#x60;.
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof SpacesApi
+     */
+    public listSpacesEndpointSpacesGet(limit?: any, cursor?: any, options?: any) {
+        return SpacesApiFp(this.configuration).listSpacesEndpointSpacesGet(limit, cursor, options)(this.fetch, this.basePath);
+    }
+
+}
+/**
  * UsageApi - fetch parameter creator
  * @export
  */
 export const UsageApiFetchParamCreator = function (configuration?: Configuration) {
     return {
+        /**
+         * 
+         * @summary Get Agent Usage Summary
+         * @param {any} agentId 
+         * @param {UsageTimeWindow} [window] Preset reporting window.
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        getAgentUsageSummaryEndpointAgentsAgentIdUsageSummaryGet(agentId: any, window?: UsageTimeWindow, options: any = {}): FetchArgs {
+            // verify required parameter 'agentId' is not null or undefined
+            if (agentId === null || agentId === undefined) {
+                throw new RequiredError('agentId','Required parameter agentId was null or undefined when calling getAgentUsageSummaryEndpointAgentsAgentIdUsageSummaryGet.');
+            }
+            const localVarPath = `/agents/{agent_id}/usage/summary`
+                .replace(`{${"agent_id"}}`, encodeURIComponent(String(agentId)));
+            const localVarUrlObj = url.parse(localVarPath, true);
+            const localVarRequestOptions = Object.assign({ method: 'GET' }, options);
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            if (window !== undefined) {
+                localVarQueryParameter['window'] = window;
+            }
+
+            localVarUrlObj.query = Object.assign({}, localVarUrlObj.query, localVarQueryParameter, options.query);
+            // fix override query string Detail: https://stackoverflow.com/a/7517673/1077943
+            localVarUrlObj.search = null;
+            localVarRequestOptions.headers = Object.assign({}, localVarHeaderParameter, options.headers);
+
+            return {
+                url: url.format(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
         /**
          * 
          * @summary Get Own Usage Summary
@@ -6466,84 +8649,6 @@ export const UsageApiFetchParamCreator = function (configuration?: Configuration
          */
         getOwnUsageSummaryUsageSummaryGet(window?: UsageTimeWindow, asOf?: any, options: any = {}): FetchArgs {
             const localVarPath = `/usage/summary`;
-            const localVarUrlObj = url.parse(localVarPath, true);
-            const localVarRequestOptions = Object.assign({ method: 'GET' }, options);
-            const localVarHeaderParameter = {} as any;
-            const localVarQueryParameter = {} as any;
-
-            if (window !== undefined) {
-                localVarQueryParameter['window'] = window;
-            }
-
-            if (asOf !== undefined) {
-                localVarQueryParameter['as_of'] = asOf;
-            }
-
-            localVarUrlObj.query = Object.assign({}, localVarUrlObj.query, localVarQueryParameter, options.query);
-            // fix override query string Detail: https://stackoverflow.com/a/7517673/1077943
-            localVarUrlObj.search = null;
-            localVarRequestOptions.headers = Object.assign({}, localVarHeaderParameter, options.headers);
-
-            return {
-                url: url.format(localVarUrlObj),
-                options: localVarRequestOptions,
-            };
-        },
-        /**
-         * 
-         * @summary Get Tenant Llm Usage Breakdown Admin
-         * @param {any} tenantId 
-         * @param {UsageTimeWindow} [window] Preset reporting window (custom date range not supported in this API version).
-         * @param {any} [asOf] Optional UTC timestamp used to anchor the reporting window so summary and paginated run pages stay aligned across requests.
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        getTenantLlmUsageBreakdownAdminUsageTenantsTenantIdLlmBreakdownGet(tenantId: any, window?: UsageTimeWindow, asOf?: any, options: any = {}): FetchArgs {
-            // verify required parameter 'tenantId' is not null or undefined
-            if (tenantId === null || tenantId === undefined) {
-                throw new RequiredError('tenantId','Required parameter tenantId was null or undefined when calling getTenantLlmUsageBreakdownAdminUsageTenantsTenantIdLlmBreakdownGet.');
-            }
-            const localVarPath = `/usage/tenants/{tenant_id}/llm/breakdown`
-                .replace(`{${"tenant_id"}}`, encodeURIComponent(String(tenantId)));
-            const localVarUrlObj = url.parse(localVarPath, true);
-            const localVarRequestOptions = Object.assign({ method: 'GET' }, options);
-            const localVarHeaderParameter = {} as any;
-            const localVarQueryParameter = {} as any;
-
-            if (window !== undefined) {
-                localVarQueryParameter['window'] = window;
-            }
-
-            if (asOf !== undefined) {
-                localVarQueryParameter['as_of'] = asOf;
-            }
-
-            localVarUrlObj.query = Object.assign({}, localVarUrlObj.query, localVarQueryParameter, options.query);
-            // fix override query string Detail: https://stackoverflow.com/a/7517673/1077943
-            localVarUrlObj.search = null;
-            localVarRequestOptions.headers = Object.assign({}, localVarHeaderParameter, options.headers);
-
-            return {
-                url: url.format(localVarUrlObj),
-                options: localVarRequestOptions,
-            };
-        },
-        /**
-         * 
-         * @summary Get Tenant Usage Summary Admin
-         * @param {any} tenantId 
-         * @param {UsageTimeWindow} [window] Preset reporting window (custom date range not supported in this API version).
-         * @param {any} [asOf] Optional UTC timestamp used to anchor the reporting window so summary and paginated run pages stay aligned across requests.
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        getTenantUsageSummaryAdminUsageTenantsTenantIdSummaryGet(tenantId: any, window?: UsageTimeWindow, asOf?: any, options: any = {}): FetchArgs {
-            // verify required parameter 'tenantId' is not null or undefined
-            if (tenantId === null || tenantId === undefined) {
-                throw new RequiredError('tenantId','Required parameter tenantId was null or undefined when calling getTenantUsageSummaryAdminUsageTenantsTenantIdSummaryGet.');
-            }
-            const localVarPath = `/usage/tenants/{tenant_id}/summary`
-                .replace(`{${"tenant_id"}}`, encodeURIComponent(String(tenantId)));
             const localVarUrlObj = url.parse(localVarPath, true);
             const localVarRequestOptions = Object.assign({ method: 'GET' }, options);
             const localVarHeaderParameter = {} as any;
@@ -6610,100 +8715,6 @@ export const UsageApiFetchParamCreator = function (configuration?: Configuration
                 options: localVarRequestOptions,
             };
         },
-        /**
-         * 
-         * @summary List Tenant Run Llm Calls Admin
-         * @param {any} tenantId 
-         * @param {any} runId 
-         * @param {any} [limit] Page size.
-         * @param {any} [cursor] Opaque string from the previous page&#x27;s &#x60;next_cursor&#x60;.
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        listTenantRunLlmCallsAdminUsageTenantsTenantIdRunsRunIdCallsGet(tenantId: any, runId: any, limit?: any, cursor?: any, options: any = {}): FetchArgs {
-            // verify required parameter 'tenantId' is not null or undefined
-            if (tenantId === null || tenantId === undefined) {
-                throw new RequiredError('tenantId','Required parameter tenantId was null or undefined when calling listTenantRunLlmCallsAdminUsageTenantsTenantIdRunsRunIdCallsGet.');
-            }
-            // verify required parameter 'runId' is not null or undefined
-            if (runId === null || runId === undefined) {
-                throw new RequiredError('runId','Required parameter runId was null or undefined when calling listTenantRunLlmCallsAdminUsageTenantsTenantIdRunsRunIdCallsGet.');
-            }
-            const localVarPath = `/usage/tenants/{tenant_id}/runs/{run_id}/calls`
-                .replace(`{${"tenant_id"}}`, encodeURIComponent(String(tenantId)))
-                .replace(`{${"run_id"}}`, encodeURIComponent(String(runId)));
-            const localVarUrlObj = url.parse(localVarPath, true);
-            const localVarRequestOptions = Object.assign({ method: 'GET' }, options);
-            const localVarHeaderParameter = {} as any;
-            const localVarQueryParameter = {} as any;
-
-            if (limit !== undefined) {
-                localVarQueryParameter['limit'] = limit;
-            }
-
-            if (cursor !== undefined) {
-                localVarQueryParameter['cursor'] = cursor;
-            }
-
-            localVarUrlObj.query = Object.assign({}, localVarUrlObj.query, localVarQueryParameter, options.query);
-            // fix override query string Detail: https://stackoverflow.com/a/7517673/1077943
-            localVarUrlObj.search = null;
-            localVarRequestOptions.headers = Object.assign({}, localVarHeaderParameter, options.headers);
-
-            return {
-                url: url.format(localVarUrlObj),
-                options: localVarRequestOptions,
-            };
-        },
-        /**
-         * 
-         * @summary List Tenant Usage Runs Admin
-         * @param {any} tenantId 
-         * @param {UsageTimeWindow} [window] Preset reporting window (custom date range not supported in this API version).
-         * @param {any} [asOf] Optional UTC timestamp used to anchor the reporting window so summary and paginated run pages stay aligned across requests.
-         * @param {any} [limit] Page size.
-         * @param {any} [cursor] Opaque string from the previous page&#x27;s &#x60;next_cursor&#x60;.
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        listTenantUsageRunsAdminUsageTenantsTenantIdRunsGet(tenantId: any, window?: UsageTimeWindow, asOf?: any, limit?: any, cursor?: any, options: any = {}): FetchArgs {
-            // verify required parameter 'tenantId' is not null or undefined
-            if (tenantId === null || tenantId === undefined) {
-                throw new RequiredError('tenantId','Required parameter tenantId was null or undefined when calling listTenantUsageRunsAdminUsageTenantsTenantIdRunsGet.');
-            }
-            const localVarPath = `/usage/tenants/{tenant_id}/runs`
-                .replace(`{${"tenant_id"}}`, encodeURIComponent(String(tenantId)));
-            const localVarUrlObj = url.parse(localVarPath, true);
-            const localVarRequestOptions = Object.assign({ method: 'GET' }, options);
-            const localVarHeaderParameter = {} as any;
-            const localVarQueryParameter = {} as any;
-
-            if (window !== undefined) {
-                localVarQueryParameter['window'] = window;
-            }
-
-            if (asOf !== undefined) {
-                localVarQueryParameter['as_of'] = asOf;
-            }
-
-            if (limit !== undefined) {
-                localVarQueryParameter['limit'] = limit;
-            }
-
-            if (cursor !== undefined) {
-                localVarQueryParameter['cursor'] = cursor;
-            }
-
-            localVarUrlObj.query = Object.assign({}, localVarUrlObj.query, localVarQueryParameter, options.query);
-            // fix override query string Detail: https://stackoverflow.com/a/7517673/1077943
-            localVarUrlObj.search = null;
-            localVarRequestOptions.headers = Object.assign({}, localVarHeaderParameter, options.headers);
-
-            return {
-                url: url.format(localVarUrlObj),
-                options: localVarRequestOptions,
-            };
-        },
     }
 };
 
@@ -6715,6 +8726,26 @@ export const UsageApiFp = function(configuration?: Configuration) {
     return {
         /**
          * 
+         * @summary Get Agent Usage Summary
+         * @param {any} agentId 
+         * @param {UsageTimeWindow} [window] Preset reporting window.
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        getAgentUsageSummaryEndpointAgentsAgentIdUsageSummaryGet(agentId: any, window?: UsageTimeWindow, options?: any): (fetch?: FetchAPI, basePath?: string) => Promise<AgentUsageSummaryResponse> {
+            const localVarFetchArgs = UsageApiFetchParamCreator(configuration).getAgentUsageSummaryEndpointAgentsAgentIdUsageSummaryGet(agentId, window, options);
+            return (fetch: FetchAPI = isomorphicFetch, basePath: string = BASE_PATH) => {
+                return fetch(basePath + localVarFetchArgs.url, localVarFetchArgs.options).then((response) => {
+                    if (response.status >= 200 && response.status < 300) {
+                        return response.json();
+                    } else {
+                        throw response;
+                    }
+                });
+            };
+        },
+        /**
+         * 
          * @summary Get Own Usage Summary
          * @param {UsageTimeWindow} [window] Preset reporting window (custom date range not supported in this API version).
          * @param {any} [asOf] Optional UTC timestamp used to anchor the reporting window so summary and paginated run pages stay aligned across requests.
@@ -6723,48 +8754,6 @@ export const UsageApiFp = function(configuration?: Configuration) {
          */
         getOwnUsageSummaryUsageSummaryGet(window?: UsageTimeWindow, asOf?: any, options?: any): (fetch?: FetchAPI, basePath?: string) => Promise<UsageSummaryResponse> {
             const localVarFetchArgs = UsageApiFetchParamCreator(configuration).getOwnUsageSummaryUsageSummaryGet(window, asOf, options);
-            return (fetch: FetchAPI = isomorphicFetch, basePath: string = BASE_PATH) => {
-                return fetch(basePath + localVarFetchArgs.url, localVarFetchArgs.options).then((response) => {
-                    if (response.status >= 200 && response.status < 300) {
-                        return response.json();
-                    } else {
-                        throw response;
-                    }
-                });
-            };
-        },
-        /**
-         * 
-         * @summary Get Tenant Llm Usage Breakdown Admin
-         * @param {any} tenantId 
-         * @param {UsageTimeWindow} [window] Preset reporting window (custom date range not supported in this API version).
-         * @param {any} [asOf] Optional UTC timestamp used to anchor the reporting window so summary and paginated run pages stay aligned across requests.
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        getTenantLlmUsageBreakdownAdminUsageTenantsTenantIdLlmBreakdownGet(tenantId: any, window?: UsageTimeWindow, asOf?: any, options?: any): (fetch?: FetchAPI, basePath?: string) => Promise<UsageLlmBreakdownResponse> {
-            const localVarFetchArgs = UsageApiFetchParamCreator(configuration).getTenantLlmUsageBreakdownAdminUsageTenantsTenantIdLlmBreakdownGet(tenantId, window, asOf, options);
-            return (fetch: FetchAPI = isomorphicFetch, basePath: string = BASE_PATH) => {
-                return fetch(basePath + localVarFetchArgs.url, localVarFetchArgs.options).then((response) => {
-                    if (response.status >= 200 && response.status < 300) {
-                        return response.json();
-                    } else {
-                        throw response;
-                    }
-                });
-            };
-        },
-        /**
-         * 
-         * @summary Get Tenant Usage Summary Admin
-         * @param {any} tenantId 
-         * @param {UsageTimeWindow} [window] Preset reporting window (custom date range not supported in this API version).
-         * @param {any} [asOf] Optional UTC timestamp used to anchor the reporting window so summary and paginated run pages stay aligned across requests.
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        getTenantUsageSummaryAdminUsageTenantsTenantIdSummaryGet(tenantId: any, window?: UsageTimeWindow, asOf?: any, options?: any): (fetch?: FetchAPI, basePath?: string) => Promise<UsageSummaryResponse> {
-            const localVarFetchArgs = UsageApiFetchParamCreator(configuration).getTenantUsageSummaryAdminUsageTenantsTenantIdSummaryGet(tenantId, window, asOf, options);
             return (fetch: FetchAPI = isomorphicFetch, basePath: string = BASE_PATH) => {
                 return fetch(basePath + localVarFetchArgs.url, localVarFetchArgs.options).then((response) => {
                     if (response.status >= 200 && response.status < 300) {
@@ -6797,51 +8786,6 @@ export const UsageApiFp = function(configuration?: Configuration) {
                 });
             };
         },
-        /**
-         * 
-         * @summary List Tenant Run Llm Calls Admin
-         * @param {any} tenantId 
-         * @param {any} runId 
-         * @param {any} [limit] Page size.
-         * @param {any} [cursor] Opaque string from the previous page&#x27;s &#x60;next_cursor&#x60;.
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        listTenantRunLlmCallsAdminUsageTenantsTenantIdRunsRunIdCallsGet(tenantId: any, runId: any, limit?: any, cursor?: any, options?: any): (fetch?: FetchAPI, basePath?: string) => Promise<UsageLlmCallListResponse> {
-            const localVarFetchArgs = UsageApiFetchParamCreator(configuration).listTenantRunLlmCallsAdminUsageTenantsTenantIdRunsRunIdCallsGet(tenantId, runId, limit, cursor, options);
-            return (fetch: FetchAPI = isomorphicFetch, basePath: string = BASE_PATH) => {
-                return fetch(basePath + localVarFetchArgs.url, localVarFetchArgs.options).then((response) => {
-                    if (response.status >= 200 && response.status < 300) {
-                        return response.json();
-                    } else {
-                        throw response;
-                    }
-                });
-            };
-        },
-        /**
-         * 
-         * @summary List Tenant Usage Runs Admin
-         * @param {any} tenantId 
-         * @param {UsageTimeWindow} [window] Preset reporting window (custom date range not supported in this API version).
-         * @param {any} [asOf] Optional UTC timestamp used to anchor the reporting window so summary and paginated run pages stay aligned across requests.
-         * @param {any} [limit] Page size.
-         * @param {any} [cursor] Opaque string from the previous page&#x27;s &#x60;next_cursor&#x60;.
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        listTenantUsageRunsAdminUsageTenantsTenantIdRunsGet(tenantId: any, window?: UsageTimeWindow, asOf?: any, limit?: any, cursor?: any, options?: any): (fetch?: FetchAPI, basePath?: string) => Promise<UsageRunListResponse> {
-            const localVarFetchArgs = UsageApiFetchParamCreator(configuration).listTenantUsageRunsAdminUsageTenantsTenantIdRunsGet(tenantId, window, asOf, limit, cursor, options);
-            return (fetch: FetchAPI = isomorphicFetch, basePath: string = BASE_PATH) => {
-                return fetch(basePath + localVarFetchArgs.url, localVarFetchArgs.options).then((response) => {
-                    if (response.status >= 200 && response.status < 300) {
-                        return response.json();
-                    } else {
-                        throw response;
-                    }
-                });
-            };
-        },
     }
 };
 
@@ -6853,6 +8797,17 @@ export const UsageApiFactory = function (configuration?: Configuration, fetch?: 
     return {
         /**
          * 
+         * @summary Get Agent Usage Summary
+         * @param {any} agentId 
+         * @param {UsageTimeWindow} [window] Preset reporting window.
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        getAgentUsageSummaryEndpointAgentsAgentIdUsageSummaryGet(agentId: any, window?: UsageTimeWindow, options?: any) {
+            return UsageApiFp(configuration).getAgentUsageSummaryEndpointAgentsAgentIdUsageSummaryGet(agentId, window, options)(fetch, basePath);
+        },
+        /**
+         * 
          * @summary Get Own Usage Summary
          * @param {UsageTimeWindow} [window] Preset reporting window (custom date range not supported in this API version).
          * @param {any} [asOf] Optional UTC timestamp used to anchor the reporting window so summary and paginated run pages stay aligned across requests.
@@ -6861,30 +8816,6 @@ export const UsageApiFactory = function (configuration?: Configuration, fetch?: 
          */
         getOwnUsageSummaryUsageSummaryGet(window?: UsageTimeWindow, asOf?: any, options?: any) {
             return UsageApiFp(configuration).getOwnUsageSummaryUsageSummaryGet(window, asOf, options)(fetch, basePath);
-        },
-        /**
-         * 
-         * @summary Get Tenant Llm Usage Breakdown Admin
-         * @param {any} tenantId 
-         * @param {UsageTimeWindow} [window] Preset reporting window (custom date range not supported in this API version).
-         * @param {any} [asOf] Optional UTC timestamp used to anchor the reporting window so summary and paginated run pages stay aligned across requests.
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        getTenantLlmUsageBreakdownAdminUsageTenantsTenantIdLlmBreakdownGet(tenantId: any, window?: UsageTimeWindow, asOf?: any, options?: any) {
-            return UsageApiFp(configuration).getTenantLlmUsageBreakdownAdminUsageTenantsTenantIdLlmBreakdownGet(tenantId, window, asOf, options)(fetch, basePath);
-        },
-        /**
-         * 
-         * @summary Get Tenant Usage Summary Admin
-         * @param {any} tenantId 
-         * @param {UsageTimeWindow} [window] Preset reporting window (custom date range not supported in this API version).
-         * @param {any} [asOf] Optional UTC timestamp used to anchor the reporting window so summary and paginated run pages stay aligned across requests.
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        getTenantUsageSummaryAdminUsageTenantsTenantIdSummaryGet(tenantId: any, window?: UsageTimeWindow, asOf?: any, options?: any) {
-            return UsageApiFp(configuration).getTenantUsageSummaryAdminUsageTenantsTenantIdSummaryGet(tenantId, window, asOf, options)(fetch, basePath);
         },
         /**
          * 
@@ -6899,33 +8830,6 @@ export const UsageApiFactory = function (configuration?: Configuration, fetch?: 
         listOwnUsageRunsUsageRunsGet(window?: UsageTimeWindow, asOf?: any, limit?: any, cursor?: any, options?: any) {
             return UsageApiFp(configuration).listOwnUsageRunsUsageRunsGet(window, asOf, limit, cursor, options)(fetch, basePath);
         },
-        /**
-         * 
-         * @summary List Tenant Run Llm Calls Admin
-         * @param {any} tenantId 
-         * @param {any} runId 
-         * @param {any} [limit] Page size.
-         * @param {any} [cursor] Opaque string from the previous page&#x27;s &#x60;next_cursor&#x60;.
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        listTenantRunLlmCallsAdminUsageTenantsTenantIdRunsRunIdCallsGet(tenantId: any, runId: any, limit?: any, cursor?: any, options?: any) {
-            return UsageApiFp(configuration).listTenantRunLlmCallsAdminUsageTenantsTenantIdRunsRunIdCallsGet(tenantId, runId, limit, cursor, options)(fetch, basePath);
-        },
-        /**
-         * 
-         * @summary List Tenant Usage Runs Admin
-         * @param {any} tenantId 
-         * @param {UsageTimeWindow} [window] Preset reporting window (custom date range not supported in this API version).
-         * @param {any} [asOf] Optional UTC timestamp used to anchor the reporting window so summary and paginated run pages stay aligned across requests.
-         * @param {any} [limit] Page size.
-         * @param {any} [cursor] Opaque string from the previous page&#x27;s &#x60;next_cursor&#x60;.
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        listTenantUsageRunsAdminUsageTenantsTenantIdRunsGet(tenantId: any, window?: UsageTimeWindow, asOf?: any, limit?: any, cursor?: any, options?: any) {
-            return UsageApiFp(configuration).listTenantUsageRunsAdminUsageTenantsTenantIdRunsGet(tenantId, window, asOf, limit, cursor, options)(fetch, basePath);
-        },
     };
 };
 
@@ -6936,6 +8840,19 @@ export const UsageApiFactory = function (configuration?: Configuration, fetch?: 
  * @extends {BaseAPI}
  */
 export class UsageApi extends BaseAPI {
+    /**
+     * 
+     * @summary Get Agent Usage Summary
+     * @param {any} agentId 
+     * @param {UsageTimeWindow} [window] Preset reporting window.
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof UsageApi
+     */
+    public getAgentUsageSummaryEndpointAgentsAgentIdUsageSummaryGet(agentId: any, window?: UsageTimeWindow, options?: any) {
+        return UsageApiFp(this.configuration).getAgentUsageSummaryEndpointAgentsAgentIdUsageSummaryGet(agentId, window, options)(this.fetch, this.basePath);
+    }
+
     /**
      * 
      * @summary Get Own Usage Summary
@@ -6951,34 +8868,6 @@ export class UsageApi extends BaseAPI {
 
     /**
      * 
-     * @summary Get Tenant Llm Usage Breakdown Admin
-     * @param {any} tenantId 
-     * @param {UsageTimeWindow} [window] Preset reporting window (custom date range not supported in this API version).
-     * @param {any} [asOf] Optional UTC timestamp used to anchor the reporting window so summary and paginated run pages stay aligned across requests.
-     * @param {*} [options] Override http request option.
-     * @throws {RequiredError}
-     * @memberof UsageApi
-     */
-    public getTenantLlmUsageBreakdownAdminUsageTenantsTenantIdLlmBreakdownGet(tenantId: any, window?: UsageTimeWindow, asOf?: any, options?: any) {
-        return UsageApiFp(this.configuration).getTenantLlmUsageBreakdownAdminUsageTenantsTenantIdLlmBreakdownGet(tenantId, window, asOf, options)(this.fetch, this.basePath);
-    }
-
-    /**
-     * 
-     * @summary Get Tenant Usage Summary Admin
-     * @param {any} tenantId 
-     * @param {UsageTimeWindow} [window] Preset reporting window (custom date range not supported in this API version).
-     * @param {any} [asOf] Optional UTC timestamp used to anchor the reporting window so summary and paginated run pages stay aligned across requests.
-     * @param {*} [options] Override http request option.
-     * @throws {RequiredError}
-     * @memberof UsageApi
-     */
-    public getTenantUsageSummaryAdminUsageTenantsTenantIdSummaryGet(tenantId: any, window?: UsageTimeWindow, asOf?: any, options?: any) {
-        return UsageApiFp(this.configuration).getTenantUsageSummaryAdminUsageTenantsTenantIdSummaryGet(tenantId, window, asOf, options)(this.fetch, this.basePath);
-    }
-
-    /**
-     * 
      * @summary List Own Usage Runs
      * @param {UsageTimeWindow} [window] Preset reporting window (custom date range not supported in this API version).
      * @param {any} [asOf] Optional UTC timestamp used to anchor the reporting window so summary and paginated run pages stay aligned across requests.
@@ -6990,37 +8879,6 @@ export class UsageApi extends BaseAPI {
      */
     public listOwnUsageRunsUsageRunsGet(window?: UsageTimeWindow, asOf?: any, limit?: any, cursor?: any, options?: any) {
         return UsageApiFp(this.configuration).listOwnUsageRunsUsageRunsGet(window, asOf, limit, cursor, options)(this.fetch, this.basePath);
-    }
-
-    /**
-     * 
-     * @summary List Tenant Run Llm Calls Admin
-     * @param {any} tenantId 
-     * @param {any} runId 
-     * @param {any} [limit] Page size.
-     * @param {any} [cursor] Opaque string from the previous page&#x27;s &#x60;next_cursor&#x60;.
-     * @param {*} [options] Override http request option.
-     * @throws {RequiredError}
-     * @memberof UsageApi
-     */
-    public listTenantRunLlmCallsAdminUsageTenantsTenantIdRunsRunIdCallsGet(tenantId: any, runId: any, limit?: any, cursor?: any, options?: any) {
-        return UsageApiFp(this.configuration).listTenantRunLlmCallsAdminUsageTenantsTenantIdRunsRunIdCallsGet(tenantId, runId, limit, cursor, options)(this.fetch, this.basePath);
-    }
-
-    /**
-     * 
-     * @summary List Tenant Usage Runs Admin
-     * @param {any} tenantId 
-     * @param {UsageTimeWindow} [window] Preset reporting window (custom date range not supported in this API version).
-     * @param {any} [asOf] Optional UTC timestamp used to anchor the reporting window so summary and paginated run pages stay aligned across requests.
-     * @param {any} [limit] Page size.
-     * @param {any} [cursor] Opaque string from the previous page&#x27;s &#x60;next_cursor&#x60;.
-     * @param {*} [options] Override http request option.
-     * @throws {RequiredError}
-     * @memberof UsageApi
-     */
-    public listTenantUsageRunsAdminUsageTenantsTenantIdRunsGet(tenantId: any, window?: UsageTimeWindow, asOf?: any, limit?: any, cursor?: any, options?: any) {
-        return UsageApiFp(this.configuration).listTenantUsageRunsAdminUsageTenantsTenantIdRunsGet(tenantId, window, asOf, limit, cursor, options)(this.fetch, this.basePath);
     }
 
 }

@@ -32,9 +32,11 @@ class ResolveRequest(object):
         'org_id': 'object',
         'run_id': 'object',
         'goal': 'object',
+        'source_framework': 'object',
         'available_tools': 'object',
         'max_learnings': 'object',
-        'model_context_window': 'object'
+        'model_context_window': 'object',
+        'retrieval': 'object'
     }
 
     attribute_map = {
@@ -42,32 +44,40 @@ class ResolveRequest(object):
         'org_id': 'org_id',
         'run_id': 'run_id',
         'goal': 'goal',
+        'source_framework': 'source_framework',
         'available_tools': 'available_tools',
         'max_learnings': 'max_learnings',
-        'model_context_window': 'model_context_window'
+        'model_context_window': 'model_context_window',
+        'retrieval': 'retrieval'
     }
 
-    def __init__(self, agent_id=None, org_id=None, run_id=None, goal=None, available_tools=None, max_learnings=None, model_context_window=None):  # noqa: E501
+    def __init__(self, agent_id=None, org_id=None, run_id=None, goal=None, source_framework=None, available_tools=None, max_learnings=None, model_context_window=None, retrieval=None):  # noqa: E501
         """ResolveRequest - a model defined in Swagger"""  # noqa: E501
         self._agent_id = None
         self._org_id = None
         self._run_id = None
         self._goal = None
+        self._source_framework = None
         self._available_tools = None
         self._max_learnings = None
         self._model_context_window = None
+        self._retrieval = None
         self.discriminator = None
         self.agent_id = agent_id
         if org_id is not None:
             self.org_id = org_id
         self.run_id = run_id
         self.goal = goal
+        if source_framework is not None:
+            self.source_framework = source_framework
         if available_tools is not None:
             self.available_tools = available_tools
         if max_learnings is not None:
             self.max_learnings = max_learnings
         if model_context_window is not None:
             self.model_context_window = model_context_window
+        if retrieval is not None:
+            self.retrieval = retrieval
 
     @property
     def agent_id(self):
@@ -162,6 +172,29 @@ class ResolveRequest(object):
         self._goal = goal
 
     @property
+    def source_framework(self):
+        """Gets the source_framework of this ResolveRequest.  # noqa: E501
+
+        Producing host/framework (e.g. 'mcp:cursor'), used to attribute the per-host funnel. Optional; backfilled from the episode at write-back.  # noqa: E501
+
+        :return: The source_framework of this ResolveRequest.  # noqa: E501
+        :rtype: object
+        """
+        return self._source_framework
+
+    @source_framework.setter
+    def source_framework(self, source_framework):
+        """Sets the source_framework of this ResolveRequest.
+
+        Producing host/framework (e.g. 'mcp:cursor'), used to attribute the per-host funnel. Optional; backfilled from the episode at write-back.  # noqa: E501
+
+        :param source_framework: The source_framework of this ResolveRequest.  # noqa: E501
+        :type: object
+        """
+
+        self._source_framework = source_framework
+
+    @property
     def available_tools(self):
         """Gets the available_tools of this ResolveRequest.  # noqa: E501
 
@@ -223,6 +256,29 @@ class ResolveRequest(object):
         """
 
         self._model_context_window = model_context_window
+
+    @property
+    def retrieval(self):
+        """Gets the retrieval of this ResolveRequest.  # noqa: E501
+
+        Retrieval depth. 'fast' (default): one ranked vector search, no graph. 'full': graph-enriched, heavier but richer.  # noqa: E501
+
+        :return: The retrieval of this ResolveRequest.  # noqa: E501
+        :rtype: object
+        """
+        return self._retrieval
+
+    @retrieval.setter
+    def retrieval(self, retrieval):
+        """Sets the retrieval of this ResolveRequest.
+
+        Retrieval depth. 'fast' (default): one ranked vector search, no graph. 'full': graph-enriched, heavier but richer.  # noqa: E501
+
+        :param retrieval: The retrieval of this ResolveRequest.  # noqa: E501
+        :type: object
+        """
+
+        self._retrieval = retrieval
 
     def to_dict(self):
         """Returns the model properties as a dict"""

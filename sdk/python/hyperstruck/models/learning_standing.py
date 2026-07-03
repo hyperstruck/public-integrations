@@ -78,7 +78,7 @@ class LearningStanding(object):
     def reliability(self):
         """Gets the reliability of this LearningStanding.  # noqa: E501
 
-        How established, 0.0-1.0 (Wilson lower bound over independent corroborations).  # noqa: E501
+        How established, 0.0-1.0 (Wilson lower bound over independent corroborations, lowered by contradictions).  # noqa: E501
 
         :return: The reliability of this LearningStanding.  # noqa: E501
         :rtype: object
@@ -89,7 +89,7 @@ class LearningStanding(object):
     def reliability(self, reliability):
         """Sets the reliability of this LearningStanding.
 
-        How established, 0.0-1.0 (Wilson lower bound over independent corroborations).  # noqa: E501
+        How established, 0.0-1.0 (Wilson lower bound over independent corroborations, lowered by contradictions).  # noqa: E501
 
         :param reliability: The reliability of this LearningStanding.  # noqa: E501
         :type: object

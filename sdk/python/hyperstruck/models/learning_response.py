@@ -31,7 +31,7 @@ class LearningResponse(object):
         'learning_id': 'object',
         'content': 'object',
         'standing': 'LearningStanding',
-        'trust_level': 'object',
+        'trust_level': 'TrustLevel',
         'source_goal': 'object',
         'applicable_goals': 'object',
         'applicable_tools': 'object',
@@ -174,7 +174,7 @@ class LearningResponse(object):
 
 
         :return: The trust_level of this LearningResponse.  # noqa: E501
-        :rtype: object
+        :rtype: TrustLevel
         """
         return self._trust_level
 
@@ -184,7 +184,7 @@ class LearningResponse(object):
 
 
         :param trust_level: The trust_level of this LearningResponse.  # noqa: E501
-        :type: object
+        :type: TrustLevel
         """
         if trust_level is None:
             raise ValueError("Invalid value for `trust_level`, must not be `None`")  # noqa: E501
