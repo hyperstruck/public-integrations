@@ -16,6 +16,7 @@ is the thin, fail-open client that wires it into your editor.
 - [Privacy](#privacy)
 - [Identity](#identity)
 - [Fail-open by design](#fail-open-by-design)
+- [Diagnosing a quiet hook](#diagnosing-a-quiet-hook)
 
 ## Why
 
@@ -122,3 +123,18 @@ uses the one you set at install.
 The loop is strictly additive. A missing API key, a network error, a malformed
 config, a timeout: every one degrades to a silent no-op. The learning loop can
 never block or slow your editing.
+
+## Diagnosing a quiet hook
+
+The flip side of failing open is that a hook producing no output is ambiguous: it
+could have never fired, fired with no agent configured, resolved zero learnings,
+or hit a network error. In a cloud or remote agent (for example a Cursor
+background agent) the hooks do not run at all, because they are local processes
+wired into your editor and reading local config; only a local editing session
+fires them.
+
+To tell these apart, set `HYPER_HOOK_DEBUG=1`. Each hook then writes one status
+breadcrumb to stderr on exit (which command fired, whether an agent was
+configured, and the resolve result), while stdout stays clean for the injection
+payload. It is off by default, so normal runs stay silent; the values `0`,
+`false`, `no`, and `off` also count as off.

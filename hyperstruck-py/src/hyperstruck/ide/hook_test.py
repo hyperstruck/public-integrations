@@ -7,6 +7,10 @@ import pytest
 from hyperstruck._wire import StepRecord
 from hyperstruck.ide import hook, state
 
+# Captured before the autouse fixture patches it, so the resolve breadcrumb tests
+# can exercise the real _resolve rather than the fixture's stub.
+_REAL_RESOLVE = hook._resolve
+
 
 @pytest.fixture(autouse=True)
 def _env(tmp_path, monkeypatch):
@@ -565,3 +569,61 @@ def test_readonly_recall_does_not_touch_state(_env, capsys) -> None:
     )
     assert capsys.readouterr().out == "INJECTED"  # printed for the skill to apply
     assert state.read_active("c1") is None  # no turn state written
+
+
+# -- debug breadcrumbs -------------------------------------------------------
+
+
+async def _aresolve_ok(agent_id, run_id, goal):
+    return "TEXT", ("L1", "L2")
+
+
+async def _aresolve_boom(agent_id, run_id, goal):
+    raise RuntimeError("boom")
+
+
+def test_debug_silent_by_default(_env, capsys, monkeypatch) -> None:
+    monkeypatch.delenv("HYPER_HOOK_DEBUG", raising=False)
+    hook._debug("should not appear")
+    assert capsys.readouterr().err == ""
+
+
+@pytest.mark.parametrize("off_value", ["", "0", "false", "no", "off", "FALSE"])
+def test_debug_off_values_stay_silent(_env, capsys, monkeypatch, off_value) -> None:
+    monkeypatch.setenv("HYPER_HOOK_DEBUG", off_value)
+    hook._debug("should not appear")
+    assert capsys.readouterr().err == ""
+
+
+def test_debug_on_writes_stderr(_env, capsys, monkeypatch) -> None:
+    monkeypatch.setenv("HYPER_HOOK_DEBUG", "1")
+    hook._debug("hello world")
+    assert "hello world" in capsys.readouterr().err
+
+
+def test_prompt_no_agent_emits_breadcrumb(_env, capsys, monkeypatch) -> None:
+    monkeypatch.setenv("HYPER_HOOK_DEBUG", "1")
+    monkeypatch.delenv("HYPER_AGENT_ID", raising=False)
+    hook.cmd_prompt(
+        {"session_id": "s1", "prompt": "do x", "cwd": "/repo"}, _args("prompt")
+    )
+    err = capsys.readouterr().err
+    assert "no agent configured" in err
+    assert state.read_active("s1") is None  # still fails open, no turn written
+
+
+def test_resolve_ok_breadcrumb_counts_learnings(capsys, monkeypatch) -> None:
+    monkeypatch.setenv("HYPER_HOOK_DEBUG", "1")
+    monkeypatch.setattr(hook, "_resolve", _REAL_RESOLVE)
+    monkeypatch.setattr(hook, "_aresolve", _aresolve_ok)
+    text, offered = hook._resolve("agent-x", "run-1", "do x")
+    assert (text, offered) == ("TEXT", ("L1", "L2"))
+    assert "resolve ok: 2 learning(s)" in capsys.readouterr().err
+
+
+def test_resolve_failure_breadcrumb_and_fails_open(capsys, monkeypatch) -> None:
+    monkeypatch.setenv("HYPER_HOOK_DEBUG", "1")
+    monkeypatch.setattr(hook, "_resolve", _REAL_RESOLVE)
+    monkeypatch.setattr(hook, "_aresolve", _aresolve_boom)
+    assert hook._resolve("agent-x", "run-1", "do x") == (None, ())
+    assert "resolve failed (RuntimeError): boom" in capsys.readouterr().err

@@ -44,6 +44,17 @@ FLUSHING_SUBDIR = "flushing"  # handed-off episodes a detached flush is deliveri
 # which wins over the git-derived default.
 AGENT_ID_ENV_VARS = ("HYPER_LEARNING_AGENT_ID", "HYPER_AGENT_ID")
 
+# -- diagnostics -------------------------------------------------------------
+
+# When set to a truthy value, each hook writes one status breadcrumb to stderr on
+# exit. Off by default so the loop stays silent and fails open; on, it lets a user
+# tell "hook never fired" apart from "fired but no agent / empty resolve / network
+# down", which otherwise all produce identical empty output.
+HOOK_DEBUG_ENV = "HYPER_HOOK_DEBUG"
+
+# Values of HOOK_DEBUG_ENV that count as "off" (anything else enables debug).
+HOOK_DEBUG_OFF_VALUES = frozenset({"", "0", "false", "no", "off"})
+
 # -- provenance --------------------------------------------------------------
 
 SOURCE_CLAUDE_CODE = "claude-code"

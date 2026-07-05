@@ -41,6 +41,8 @@ from hyperstruck.ide.config import configured_agent_id, load_env
 from hyperstruck.ide.constants import (
     EVICTION_WINDOW_SECONDS,
     FLUSH_STALE_SECONDS,
+    HOOK_DEBUG_ENV,
+    HOOK_DEBUG_OFF_VALUES,
     NATIVE_FAILURE_STATUSES,
     SOURCE_CLAUDE_CODE,
     SOURCE_CURSOR,
@@ -76,6 +78,8 @@ def cmd_prompt(payload: dict[str, Any], args: argparse.Namespace) -> None:
         if agent_id:
             text, _ = _resolve(agent_id, _new_run_id(agent_id, session_id), goal)
             _emit_injection(text, args)
+        else:
+            _debug("prompt(readonly): no agent configured")
         return
 
     # 1. Orphan recovery: a turn interrupted before its stop hook fired never
@@ -88,6 +92,7 @@ def cmd_prompt(payload: dict[str, Any], args: argparse.Namespace) -> None:
     _sweep_stale(exclude=session_id)
     # 3. No configured agent means nothing to learn into: fail open, no injection.
     if not agent_id:
+        _debug("prompt: no agent configured; loop idle, nothing to resolve")
         return
     # 4. Begin the new turn and inject.
     run_id = _new_run_id(agent_id, session_id)
@@ -132,6 +137,7 @@ def cmd_tool(payload: dict[str, Any], args: argparse.Namespace) -> None:
     if state.read_active(session_id) is None:
         agent_id = configured_agent_id()
         if not agent_id:
+            _debug("tool: no agent configured; step not captured")
             return  # no agent configured: nothing to capture into, fail open
         run_id = _new_run_id(agent_id, session_id)
         # reset_steps=False: a parallel tool hook may already have written a step
@@ -159,6 +165,7 @@ def cmd_stop(payload: dict[str, Any], args: argparse.Namespace) -> None:
     session_id = resolve_session_id(payload, cwd, args)
     active = state.read_active(session_id)
     if active is None:
+        _debug("stop: no active turn for session; nothing to finalise")
         return
     steps = state.read_steps(session_id)
     native_status = args.native_status or payload.get("status")
@@ -328,10 +335,14 @@ def _resolve(
 ) -> tuple[str | None, tuple[str, ...]]:
     """Resolve the goal's learnings. Returns (injected_text, offered_ids); fails open."""
     if not goal:
+        _debug("resolve skipped: empty goal")
         return None, ()
     try:
-        return asyncio.run(_aresolve(agent_id, run_id, goal))
-    except Exception:  # noqa: BLE001 - fail open, never block the prompt
+        text, offered = asyncio.run(_aresolve(agent_id, run_id, goal))
+        _debug(f"resolve ok: {len(offered)} learning(s) for agent {agent_id}")
+        return text, offered
+    except Exception as exc:  # noqa: BLE001 - fail open, never block the prompt
+        _debug(f"resolve failed ({type(exc).__name__}): {exc}")
         return None, ()
 
 
@@ -516,6 +527,21 @@ def _failed_exit(code: Any) -> bool:
 # -- process plumbing --------------------------------------------------------
 
 
+def _debug(message: str) -> None:
+    """Write one diagnostic breadcrumb to stderr when ``HYPER_HOOK_DEBUG`` is set.
+
+    stderr, never stdout: stdout carries the injection JSON and must stay clean.
+    Guarded so it can never raise and break the loop's fail-open contract.
+    """
+    if (os.environ.get(HOOK_DEBUG_ENV) or "").strip().lower() in HOOK_DEBUG_OFF_VALUES:
+        return
+    try:
+        sys.stderr.write(f"[hyperstruck-hook] {message}\n")
+        sys.stderr.flush()
+    except (OSError, ValueError):
+        pass
+
+
 def _new_run_id(agent_id: str, session_id: str) -> str:
     """Mint a run id namespaced by agent and session; the uuid tail is the unique part."""
     return f"{agent_id}:{session_id}:{uuid.uuid4().hex}"
@@ -657,6 +683,9 @@ def main(argv: list[str] | None = None) -> int:
         return 0
     try:
         load_env()  # bring ~/.hyperstruck/.env (auth + configured agent) into env
+        _debug(
+            f"fired command={args.command} source={args.source or SOURCE_CLAUDE_CODE}"
+        )
         if args.command == "flush":
             cmd_flush(args)
             return 0
@@ -667,9 +696,7 @@ def main(argv: list[str] | None = None) -> int:
             cmd_tool(payload, args)
         elif args.command == "stop":
             cmd_stop(payload, args)
-    except (
-        BaseException
-    ):  # noqa: BLE001 - the loop must never break the editor, even on cancellation/interrupt
+    except BaseException:  # noqa: BLE001 - the loop must never break the editor, even on cancellation/interrupt
         return 0
     return 0
 
