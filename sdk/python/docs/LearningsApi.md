@@ -9,6 +9,7 @@ Method | HTTP request | Description
 [**get_learning_endpoint_agents_agent_id_learnings_learning_id_get**](LearningsApi.md#get_learning_endpoint_agents_agent_id_learnings_learning_id_get) | **GET** /agents/{agent_id}/learnings/{learning_id} | Get a learning
 [**list_agent_learnings_endpoint_agents_agent_id_learnings_get**](LearningsApi.md#list_agent_learnings_endpoint_agents_agent_id_learnings_get) | **GET** /agents/{agent_id}/learnings | List agent learnings (audit inventory)
 [**reinforce_learning_endpoint_agents_agent_id_learnings_learning_id_reinforce_post**](LearningsApi.md#reinforce_learning_endpoint_agents_agent_id_learnings_learning_id_reinforce_post) | **POST** /agents/{agent_id}/learnings/{learning_id}/reinforce | Reinforce a learning
+[**reject_learning_endpoint_agents_agent_id_learnings_learning_id_reject_post**](LearningsApi.md#reject_learning_endpoint_agents_agent_id_learnings_learning_id_reject_post) | **POST** /agents/{agent_id}/learnings/{learning_id}/reject | Reject (archive) a learning
 [**search_learnings_endpoint_agents_agent_id_learnings_search_get**](LearningsApi.md#search_learnings_endpoint_agents_agent_id_learnings_search_get) | **GET** /agents/{agent_id}/learnings/search | Search learnings
 [**store_learning_endpoint_agents_agent_id_learnings_post**](LearningsApi.md#store_learning_endpoint_agents_agent_id_learnings_post) | **POST** /agents/{agent_id}/learnings | Store a learning
 
@@ -258,6 +259,58 @@ Name | Type | Description  | Notes
 ### Return type
 
 [**ReinforceLearningResponse**](ReinforceLearningResponse.md)
+
+### Authorization
+
+No authorization required
+
+### HTTP request headers
+
+ - **Content-Type**: application/json
+ - **Accept**: application/json
+
+[[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
+
+# **reject_learning_endpoint_agents_agent_id_learnings_learning_id_reject_post**
+> RejectLearningResponse reject_learning_endpoint_agents_agent_id_learnings_learning_id_reject_post(body, agent_id, learning_id)
+
+Reject (archive) a learning
+
+Archive a live learning with curator provenance. Utility and trust are unchanged.
+
+### Example
+```python
+from __future__ import print_function
+import time
+import hyperstruck
+from hyperstruck.rest import ApiException
+from pprint import pprint
+
+# create an instance of the API class
+api_instance = hyperstruck.LearningsApi()
+body = hyperstruck.RejectLearningRequest() # RejectLearningRequest | 
+agent_id = NULL # object | 
+learning_id = NULL # object | 
+
+try:
+    # Reject (archive) a learning
+    api_response = api_instance.reject_learning_endpoint_agents_agent_id_learnings_learning_id_reject_post(body, agent_id, learning_id)
+    pprint(api_response)
+except ApiException as e:
+    print("Exception when calling LearningsApi->reject_learning_endpoint_agents_agent_id_learnings_learning_id_reject_post: %s\n" % e)
+```
+
+### Parameters
+
+Name | Type | Description  | Notes
+------------- | ------------- | ------------- | -------------
+ **body** | [**RejectLearningRequest**](RejectLearningRequest.md)|  | 
+ **agent_id** | [**object**](.md)|  | 
+ **learning_id** | [**object**](.md)|  | 
+
+### Return type
+
+[**RejectLearningResponse**](RejectLearningResponse.md)
 
 ### Authorization
 

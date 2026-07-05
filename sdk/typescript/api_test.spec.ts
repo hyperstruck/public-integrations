@@ -199,6 +199,12 @@ describe("LearningsApi", () => {
     const learningId: any = undefined
     return expect(instance.reinforceLearningEndpointAgentsAgentIdLearningsLearningIdReinforcePost(body, agentId, learningId, {})).resolves.toBe(null)
   })
+  test("rejectLearningEndpointAgentsAgentIdLearningsLearningIdRejectPost", () => {
+    const body: api.RejectLearningRequest = undefined
+    const agentId: any = undefined
+    const learningId: any = undefined
+    return expect(instance.rejectLearningEndpointAgentsAgentIdLearningsLearningIdRejectPost(body, agentId, learningId, {})).resolves.toBe(null)
+  })
   test("searchLearningsEndpointAgentsAgentIdLearningsSearchGet", () => {
     const agentId: any = undefined
     const q: any = undefined

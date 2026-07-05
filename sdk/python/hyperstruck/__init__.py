@@ -120,6 +120,9 @@ from hyperstruck.models.reasoning_tier import ReasoningTier
 from hyperstruck.models.reinforce_learning_request import ReinforceLearningRequest
 from hyperstruck.models.reinforce_learning_response import ReinforceLearningResponse
 from hyperstruck.models.reinforce_request import ReinforceRequest
+from hyperstruck.models.reject_learning_reason_code import RejectLearningReasonCode
+from hyperstruck.models.reject_learning_request import RejectLearningRequest
+from hyperstruck.models.reject_learning_response import RejectLearningResponse
 from hyperstruck.models.resolve_request import ResolveRequest
 from hyperstruck.models.resolve_response import ResolveResponse
 from hyperstruck.models.resume_run_request import ResumeRunRequest

@@ -2633,7 +2633,8 @@ export enum ModelProvider {
     Groq = <any> 'groq',
     Google = <any> 'google',
     Mistral = <any> 'mistral',
-    Xai = <any> 'xai'
+    Xai = <any> 'xai',
+    Deepinfra = <any> 'deepinfra'
 }
 /**
  * Cross-agent similar-plan search request.
@@ -3297,6 +3298,75 @@ export interface ReinforceRequest {
      * @memberof ReinforceRequest
      */
     isOrgPromotionAllowed?: any;
+}
+/**
+ * Preset reason codes for curator reject (archive).
+ * @export
+ * @enum {string}
+ */
+export enum RejectLearningReasonCode {
+    ManuallyCurated = <any> 'manually_curated',
+    Incorrect = <any> 'incorrect',
+    Outdated = <any> 'outdated',
+    TooSpecific = <any> 'too_specific',
+    Duplicate = <any> 'duplicate',
+    Other = <any> 'other'
+}
+/**
+ * Request body for curator reject (archive with provenance).
+ * @export
+ * @interface RejectLearningRequest
+ */
+export interface RejectLearningRequest {
+    /**
+     * 
+     * @type {RejectLearningReasonCode}
+     * @memberof RejectLearningRequest
+     */
+    reasonCode?: RejectLearningReasonCode;
+    /**
+     * 
+     * @type {any}
+     * @memberof RejectLearningRequest
+     */
+    reason?: any;
+}
+/**
+ * Response after curator reject (archive).
+ * @export
+ * @interface RejectLearningResponse
+ */
+export interface RejectLearningResponse {
+    /**
+     * 
+     * @type {any}
+     * @memberof RejectLearningResponse
+     */
+    learningId: any;
+    /**
+     * 
+     * @type {ReviewState}
+     * @memberof RejectLearningResponse
+     */
+    reviewState: ReviewState;
+    /**
+     * 
+     * @type {LearningStanding}
+     * @memberof RejectLearningResponse
+     */
+    standing: LearningStanding;
+    /**
+     * 
+     * @type {TrustLevel}
+     * @memberof RejectLearningResponse
+     */
+    trustLevel: TrustLevel;
+    /**
+     * 
+     * @type {any}
+     * @memberof RejectLearningResponse
+     */
+    updatedAt: any;
 }
 /**
  * Ask for the learnings bound to a goal at run start.
@@ -6540,6 +6610,50 @@ export const LearningsApiFetchParamCreator = function (configuration?: Configura
             };
         },
         /**
+         * Archive a live learning with curator provenance. Utility and trust are unchanged.
+         * @summary Reject (archive) a learning
+         * @param {RejectLearningRequest} body 
+         * @param {any} agentId 
+         * @param {any} learningId 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        rejectLearningEndpointAgentsAgentIdLearningsLearningIdRejectPost(body: RejectLearningRequest, agentId: any, learningId: any, options: any = {}): FetchArgs {
+            // verify required parameter 'body' is not null or undefined
+            if (body === null || body === undefined) {
+                throw new RequiredError('body','Required parameter body was null or undefined when calling rejectLearningEndpointAgentsAgentIdLearningsLearningIdRejectPost.');
+            }
+            // verify required parameter 'agentId' is not null or undefined
+            if (agentId === null || agentId === undefined) {
+                throw new RequiredError('agentId','Required parameter agentId was null or undefined when calling rejectLearningEndpointAgentsAgentIdLearningsLearningIdRejectPost.');
+            }
+            // verify required parameter 'learningId' is not null or undefined
+            if (learningId === null || learningId === undefined) {
+                throw new RequiredError('learningId','Required parameter learningId was null or undefined when calling rejectLearningEndpointAgentsAgentIdLearningsLearningIdRejectPost.');
+            }
+            const localVarPath = `/agents/{agent_id}/learnings/{learning_id}/reject`
+                .replace(`{${"agent_id"}}`, encodeURIComponent(String(agentId)))
+                .replace(`{${"learning_id"}}`, encodeURIComponent(String(learningId)));
+            const localVarUrlObj = url.parse(localVarPath, true);
+            const localVarRequestOptions = Object.assign({ method: 'POST' }, options);
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            localVarHeaderParameter['Content-Type'] = 'application/json';
+
+            localVarUrlObj.query = Object.assign({}, localVarUrlObj.query, localVarQueryParameter, options.query);
+            // fix override query string Detail: https://stackoverflow.com/a/7517673/1077943
+            localVarUrlObj.search = null;
+            localVarRequestOptions.headers = Object.assign({}, localVarHeaderParameter, options.headers);
+            const needsSerialization = (<any>"RejectLearningRequest" !== "string") || localVarRequestOptions.headers['Content-Type'] === 'application/json';
+            localVarRequestOptions.body =  needsSerialization ? JSON.stringify(body || {}) : (body || "");
+
+            return {
+                url: url.format(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
          * Semantic search over the agent's learning memories. Results are ranked intelligently by relevance, considering decay of older learnings and diversity filtering to avoid redundant results.
          * @summary Search learnings
          * @param {any} agentId 
@@ -6744,6 +6858,27 @@ export const LearningsApiFp = function(configuration?: Configuration) {
             };
         },
         /**
+         * Archive a live learning with curator provenance. Utility and trust are unchanged.
+         * @summary Reject (archive) a learning
+         * @param {RejectLearningRequest} body 
+         * @param {any} agentId 
+         * @param {any} learningId 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        rejectLearningEndpointAgentsAgentIdLearningsLearningIdRejectPost(body: RejectLearningRequest, agentId: any, learningId: any, options?: any): (fetch?: FetchAPI, basePath?: string) => Promise<RejectLearningResponse> {
+            const localVarFetchArgs = LearningsApiFetchParamCreator(configuration).rejectLearningEndpointAgentsAgentIdLearningsLearningIdRejectPost(body, agentId, learningId, options);
+            return (fetch: FetchAPI = isomorphicFetch, basePath: string = BASE_PATH) => {
+                return fetch(basePath + localVarFetchArgs.url, localVarFetchArgs.options).then((response) => {
+                    if (response.status >= 200 && response.status < 300) {
+                        return response.json();
+                    } else {
+                        throw response;
+                    }
+                });
+            };
+        },
+        /**
          * Semantic search over the agent's learning memories. Results are ranked intelligently by relevance, considering decay of older learnings and diversity filtering to avoid redundant results.
          * @summary Search learnings
          * @param {any} agentId 
@@ -6855,6 +6990,18 @@ export const LearningsApiFactory = function (configuration?: Configuration, fetc
             return LearningsApiFp(configuration).reinforceLearningEndpointAgentsAgentIdLearningsLearningIdReinforcePost(body, agentId, learningId, options)(fetch, basePath);
         },
         /**
+         * Archive a live learning with curator provenance. Utility and trust are unchanged.
+         * @summary Reject (archive) a learning
+         * @param {RejectLearningRequest} body 
+         * @param {any} agentId 
+         * @param {any} learningId 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        rejectLearningEndpointAgentsAgentIdLearningsLearningIdRejectPost(body: RejectLearningRequest, agentId: any, learningId: any, options?: any) {
+            return LearningsApiFp(configuration).rejectLearningEndpointAgentsAgentIdLearningsLearningIdRejectPost(body, agentId, learningId, options)(fetch, basePath);
+        },
+        /**
          * Semantic search over the agent's learning memories. Results are ranked intelligently by relevance, considering decay of older learnings and diversity filtering to avoid redundant results.
          * @summary Search learnings
          * @param {any} agentId 
@@ -6956,6 +7103,20 @@ export class LearningsApi extends BaseAPI {
      */
     public reinforceLearningEndpointAgentsAgentIdLearningsLearningIdReinforcePost(body: ReinforceLearningRequest, agentId: any, learningId: any, options?: any) {
         return LearningsApiFp(this.configuration).reinforceLearningEndpointAgentsAgentIdLearningsLearningIdReinforcePost(body, agentId, learningId, options)(this.fetch, this.basePath);
+    }
+
+    /**
+     * Archive a live learning with curator provenance. Utility and trust are unchanged.
+     * @summary Reject (archive) a learning
+     * @param {RejectLearningRequest} body 
+     * @param {any} agentId 
+     * @param {any} learningId 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof LearningsApi
+     */
+    public rejectLearningEndpointAgentsAgentIdLearningsLearningIdRejectPost(body: RejectLearningRequest, agentId: any, learningId: any, options?: any) {
+        return LearningsApiFp(this.configuration).rejectLearningEndpointAgentsAgentIdLearningsLearningIdRejectPost(body, agentId, learningId, options)(this.fetch, this.basePath);
     }
 
     /**
