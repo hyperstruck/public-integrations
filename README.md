@@ -26,6 +26,23 @@ Skill names use the **`hyper-` prefix** so they do not clash with third-party sk
 
 There are **no extra scripts or package dependencies**. Instructions tell your AI assistant how to call the **Hyperstruck HTTP API** using built-in capabilities (for example `curl` or `WebFetch`).
 
+### Learning standing and corpus compatibility
+
+The `utility` value returned in a learning's `standing` is Core's derived,
+recency-weighted application-outcome score. It changes as later runs show that a
+learning helped or misled an agent; it is not a confidence field or the
+persistence source of truth. The optional `utility` accepted when manually
+storing a learning is only its starting prior.
+
+Core schema v5 is the required persistence and corpus-bundle contract. Normal
+API and SDK users do not construct that internal payload: use the documented
+learning request and response models instead. Platform-operated corpus export,
+import, and clone validate the complete selected corpus or bundle before
+producing output or writing data. A legacy or malformed learning therefore
+fails the operation instead of yielding a partial bundle or partial import.
+Existing operator-managed corpora must complete the global v4-to-v5 migration
+before transfer.
+
 ---
 
 ## Getting started

@@ -170,6 +170,12 @@ List agent learnings (audit inventory)
 
 Paginated, filterable inventory of an agent's learnings for the curation workbench. Non-semantic (unlike /search). Defaults to the active bucket (excludes archived/superseded); use `state` for other buckets. Pagination is created_at keyset via the opaque cursor.
 
+The response's `omitted_learning_count` reports unreadable learnings omitted from
+the current page. Treat this page-scoped count as the authoritative degraded
+visibility signal; `partial_failures` provides diagnostic detail but may be
+aggregated or truncated. A value of `0` means no learnings were omitted while
+building that page.
+
 ### Example
 ```python
 from __future__ import print_function

@@ -31,6 +31,7 @@ class LearningAuditListResponse(object):
         'items': 'object',
         'next_cursor': 'object',
         'facets': 'object',
+        'omitted_learning_count': 'int',
         'partial_failures': 'object',
         'retrieved_at': 'object'
     }
@@ -39,15 +40,17 @@ class LearningAuditListResponse(object):
         'items': 'items',
         'next_cursor': 'next_cursor',
         'facets': 'facets',
+        'omitted_learning_count': 'omitted_learning_count',
         'partial_failures': 'partial_failures',
         'retrieved_at': 'retrieved_at'
     }
 
-    def __init__(self, items=None, next_cursor=None, facets=None, partial_failures=None, retrieved_at=None):  # noqa: E501
+    def __init__(self, items=None, next_cursor=None, facets=None, omitted_learning_count=None, partial_failures=None, retrieved_at=None):  # noqa: E501
         """LearningAuditListResponse - a model defined in Swagger"""  # noqa: E501
         self._items = None
         self._next_cursor = None
         self._facets = None
+        self._omitted_learning_count = None
         self._partial_failures = None
         self._retrieved_at = None
         self.discriminator = None
@@ -56,6 +59,8 @@ class LearningAuditListResponse(object):
             self.next_cursor = next_cursor
         if facets is not None:
             self.facets = facets
+        if omitted_learning_count is not None:
+            self.omitted_learning_count = omitted_learning_count
         if partial_failures is not None:
             self.partial_failures = partial_failures
         self.retrieved_at = retrieved_at
@@ -128,6 +133,29 @@ class LearningAuditListResponse(object):
         """
 
         self._facets = facets
+
+    @property
+    def omitted_learning_count(self):
+        """Gets the omitted_learning_count of this LearningAuditListResponse.  # noqa: E501
+
+        Unreadable learnings omitted while building this page. This count is authoritative even if partial_failures are aggregated or truncated.  # noqa: E501
+
+        :return: The omitted_learning_count of this LearningAuditListResponse.  # noqa: E501
+        :rtype: int
+        """
+        return self._omitted_learning_count
+
+    @omitted_learning_count.setter
+    def omitted_learning_count(self, omitted_learning_count):
+        """Sets the omitted_learning_count of this LearningAuditListResponse.
+
+        Unreadable learnings omitted while building this page. This count is authoritative even if partial_failures are aggregated or truncated.  # noqa: E501
+
+        :param omitted_learning_count: The omitted_learning_count of this LearningAuditListResponse.  # noqa: E501
+        :type: int
+        """
+
+        self._omitted_learning_count = omitted_learning_count
 
     @property
     def partial_failures(self):

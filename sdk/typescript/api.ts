@@ -2146,6 +2146,12 @@ export interface LearningAuditListResponse {
      */
     facets?: any;
     /**
+     * Unreadable learnings omitted while building this page. This count is authoritative even if partial_failures are aggregated or truncated.
+     * @type {number}
+     * @memberof LearningAuditListResponse
+     */
+    omitted_learning_count?: number;
+    /**
      * 
      * @type {any}
      * @memberof LearningAuditListResponse

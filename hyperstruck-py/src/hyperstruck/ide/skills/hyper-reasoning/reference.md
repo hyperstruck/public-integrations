@@ -64,6 +64,37 @@ Request body:
 | `session_id` | no | Omit to auto-create; set to continue an existing session (must have no non-terminal runs) |
 | `worker_profile` | no | `"default"` or `"large"` |
 | `metadata` | no | Arbitrary dict persisted on the run |
+| `sources` | no | Up to 25 source-of-truth blocks. Each has non-empty `text` (maximum 100,000 characters), optional `id`, and optional `label`. These are the only request blocks admitted as grounding evidence. Supplying any sources activates the read-only faithfulness check. |
+| `references` | no | Up to 25 exemplar/calibration blocks. Each has non-empty `text` (maximum 100,000 characters) and optional `label`. Shown to the model but never admitted as evidence. |
+
+Use `sources` for authoritative specifications, records, transcripts, and tool
+reads. Use `references` only to demonstrate desired tone, structure, style, or
+format. Evidence supplied only through `context` or a reference cannot ground a
+claim. If a source omits `id`, the runtime assigns `source-<index>`; explicit and
+generated IDs must be unique across the source array. Source items accept only
+`text`, `id`, and `label`; reference items accept only `text` and `label`.
+
+Example:
+
+```json
+{
+  "goal": "Recommend an implementation plan.",
+  "context": "The caller needs a phased plan with explicit risks.",
+  "sources": [
+    {
+      "id": "accepted-spec",
+      "label": "Accepted specification",
+      "text": "The migration must preserve identifiers and vectors."
+    }
+  ],
+  "references": [
+    {
+      "label": "Preferred plan style",
+      "text": "Milestone: ...\\nRisks: ...\\nVerification: ..."
+    }
+  ]
+}
+```
 
 Response `202`:
 

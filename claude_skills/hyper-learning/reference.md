@@ -15,7 +15,7 @@ POST /agents/{agent_id}/learnings
 | Field | Required | Description |
 |-------|----------|-------------|
 | `content` | yes | 1–5000 chars, actionable text |
-| `utility` | no | 0.0–1.0, default 0.5. Initial belief in how useful the learning is when applied. Establishedness (reliability) is earned through corroboration, not set here. |
+| `utility` | no | 0.0–1.0, default 0.5. Starting prior only. The value later returned in `standing.utility` is Core's derived, recency-weighted application-outcome score, updated from evidence that the learning helped or misled. Establishedness (reliability) is earned through corroboration, not set here. |
 | `source_goal` | no | Goal/task that produced this insight. For local or external runs, summarize the original task that generated the compacted evidence. |
 | `applicable_goals` | no | Keyword tags for search relevance. Use this to align learnings with the selected agent's purpose and task domain. |
 | `applicable_tools` | no | Tool names for search relevance. Use this for learnings distilled from compacted Claude, Cursor, MCP, CLI, browser, CI, or other external tool transcripts. |
@@ -139,6 +139,9 @@ Response `200`:
 ```
 
 Trust promotion: 5 consecutive positive reinforcements advance `unverified` → `agent_verified`.
+
+`standing.utility` is an application-outcome signal, not a confidence score.
+Recent outcomes carry more weight than older outcomes.
 
 ---
 

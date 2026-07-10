@@ -65,6 +65,11 @@ GET  {BASE_URL}/agents/{agent_id}/learnings/{learning_id}
 POST {BASE_URL}/agents/{agent_id}/learnings/{learning_id}/reinforce   {"is_helpful": true}
 ```
 
+The `utility` supplied when adding a learning is only its starting prior.
+The value later returned in `standing.utility` is Core's derived,
+recency-weighted application-outcome score, updated as the learning helps or
+misleads later work. It is not a confidence score.
+
 Strip secrets, PII, and internal hostnames from any content you add by hand.
 
 ---

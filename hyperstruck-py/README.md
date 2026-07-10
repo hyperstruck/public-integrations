@@ -124,6 +124,12 @@ redaction inside their own process can run the self-host build (enterprise).
   server-side extraction and the learnings it used are credited. Both happen in
   the background, so your `invoke()` is never blocked.
 
+The `utility` value exposed in learning standing is a derived,
+recency-weighted application-outcome score. Later evidence that a learning
+helped or misled the agent moves the score; it is not a confidence field or a
+directly maintained persistence value. When manually storing a learning, an
+optional `utility` is only the starting prior.
+
 ## Configuration
 
 `HyperstruckLearningMiddleware(...)` accepts:

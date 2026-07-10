@@ -21,7 +21,7 @@ Do **not** invoke for straightforward edits, lookups, or tasks you can complete 
 
 ## How this skill fits the caller workflow
 
-- **The skill is HTTP orchestration:** env -> `GET /agents` -> `POST /agents/{id}/goals` with **`goal`** + **`context`** -> poll **`GET /runs/{run_id}`** -> use **`metadata.result.output`** to inform the caller's next actions.
+- **The skill is HTTP orchestration:** env -> `GET /agents` -> `POST /agents/{id}/goals` with **`goal`**, **`context`**, and any relevant **`sources`** / **`references`** -> poll **`GET /runs/{run_id}`** -> use **`metadata.result.output`** to inform the caller's next actions.
 - **Choose enough reasoning depth:** `fast` is only for compact results that can be planned and executed in one or two steps. If the answer may need several synthesis steps, richer milestones, validation, reflection, or trade-off analysis, pick **`balanced`** or **`full`** so the engine has enough iterations to execute the plan and emit final `output`.
 - **Compressed `context`:** put session facts, goal-relevant caller capabilities, tool findings, constraints, and success criteria here. Hosted reasoning has **no** access to Claude Code, Cursor, the repo, local subagents, MCP, or external integrations unless you summarize them in **`goal`** and **`context`**.
 - **Local/tool evidence for learning:** if meaningful work already happened outside Hyperstruck (for example Claude or Cursor edits, MCP calls, shell output, browser testing, CI failures, review comments, or external tool results), compact those results into **`context`**. The hosted run can only reason over and learn from tool evidence that is included in the run context or produced by tools available to the hosted agent.
@@ -109,6 +109,15 @@ Build a markdown block with these sections:
 
 > **Tip:** Paste summarized MCP/integration results, compacted local tool transcripts, relevant knowledge, and candidate learnings from Claude, Cursor, or other caller runs. The hosted reasoning runtime has no access to your local tools, Jira, Linear, Slack, databases, browser session, local filesystem, or subagents unless you pass their relevant results in `context`.
 
+### Sources and references
+
+Keep these distinct from general `context`:
+
+- **`sources`** are source-of-truth text blocks and the only request text that the grounding gate admits as evidence. Use them for authoritative records, transcripts, specifications, or tool reads. Supplying one or more also activates the read-only faithfulness check. Each item accepts non-empty `text`, optional `id`, and optional `label`; omitted IDs become `source-<index>`, and all explicit and generated IDs must be unique.
+- **`references`** are exemplar or calibration material shown to the model for tone, structure, style, or output conventions. Each item accepts `text` and optional `label`. References are never admitted as evidence.
+
+Do not place factual evidence only in `references` or rely on `context` as grounding evidence; put evidence that must ground claims in `sources`. Do not present a style example as a source. Omit both arrays when no suitable material exists. The API accepts at most 25 items per array and 100,000 characters of non-empty `text` per item.
+
 ---
 
 ## Step 4 — Submit the goal for hosted reasoning
@@ -121,6 +130,19 @@ POST {BASE_URL}/agents/{agent_id}/goals
 {
   "goal": "<structured goal from step 3>",
   "context": "<full context block from step 3>",
+  "sources": [
+    {
+      "id": "accepted-spec",
+      "label": "Accepted specification",
+      "text": "<authoritative source text>"
+    }
+  ],
+  "references": [
+    {
+      "label": "Preferred response style",
+      "text": "<example used only to calibrate tone or format>"
+    }
+  ],
   "metadata": {
     "source": "claude-code-skill",
     "task_summary": "<one-line description>"
@@ -131,6 +153,8 @@ POST {BASE_URL}/agents/{agent_id}/goals
 Optional fields:
 - `session_id` — set only to continue a previous Hyperstruck session whose last run is **terminal** (completed/failed). Omit to auto-create.
 - `worker_profile` — infrastructure sizing only: `"default"` unless you need `"large"`.
+- `sources` — authoritative source-of-truth blocks that may ground claims; omit when none are available.
+- `references` — exemplar/calibration blocks for tone, structure, or format; never treat them as evidence.
 
 Tier guidance:
 - `full` — maximal hosted reasoning depth.
