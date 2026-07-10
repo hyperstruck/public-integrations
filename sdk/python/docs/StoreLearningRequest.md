@@ -4,7 +4,7 @@
 Name | Type | Description | Notes
 ------------ | ------------- | ------------- | -------------
 **content** | **object** | The learning content to store. | 
-**utility** | **object** | Initial utility, the curator&#x27;s belief in how useful this learning is when applied (0.0-1.0). Establishedness is earned through corroboration, not set here. | [optional] 
+**utility** | **object** | Starting utility prior, the curator&#x27;s initial belief in how useful this learning is when applied (0.0-1.0). Both utility and establishedness are then earned, utility from application outcomes and establishedness from corroboration, so the value read back moves off this prior over time. | [optional] 
 **source_goal** | **object** | Goal or context this learning originated from. | [optional] 
 **applicable_goals** | **object** | Keywords or patterns this learning applies to. | [optional] 
 **applicable_tools** | **object** | Tools this learning relates to. | [optional] 

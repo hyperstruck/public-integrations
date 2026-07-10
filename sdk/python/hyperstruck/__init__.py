@@ -60,6 +60,7 @@ from hyperstruck.models.billing_summary_status import BillingSummaryStatus
 from hyperstruck.models.billing_window_kind import BillingWindowKind
 from hyperstruck.models.boundary_accepted_response import BoundaryAcceptedResponse
 from hyperstruck.models.candidate_learning_response import CandidateLearningResponse
+from hyperstruck.models.claim_assists_response import ClaimAssistsResponse
 from hyperstruck.models.decision_type import DecisionType
 from hyperstruck.models.delete_learnings_response import DeleteLearningsResponse
 from hyperstruck.models.entitlements_response import EntitlementsResponse
@@ -132,7 +133,9 @@ from hyperstruck.models.run_detail_response import RunDetailResponse
 from hyperstruck.models.run_input_summary import RunInputSummary
 from hyperstruck.models.run_list_response import RunListResponse
 from hyperstruck.models.run_output_summary import RunOutputSummary
+from hyperstruck.models.run_reference import RunReference
 from hyperstruck.models.run_response import RunResponse
+from hyperstruck.models.run_source import RunSource
 from hyperstruck.models.run_status import RunStatus
 from hyperstruck.models.run_type import RunType
 from hyperstruck.models.session_list_response import SessionListResponse

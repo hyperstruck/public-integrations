@@ -371,6 +371,10 @@ describe("UsageApi", () => {
     const window: UsageTimeWindow = undefined
     return expect(instance.getAgentUsageSummaryEndpointAgentsAgentIdUsageSummaryGet(agentId, window, {})).resolves.toBe(null)
   })
+  test("getOwnClaimAssistsUsageClaimAssistsGet", () => {
+    const windowHours: any = undefined
+    return expect(instance.getOwnClaimAssistsUsageClaimAssistsGet(windowHours, {})).resolves.toBe(null)
+  })
   test("getOwnUsageSummaryUsageSummaryGet", () => {
     const window: UsageTimeWindow = undefined
     const asOf: any = undefined

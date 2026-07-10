@@ -53,7 +53,7 @@ class LearningStanding(object):
     def utility(self):
         """Gets the utility of this LearningStanding.  # noqa: E501
 
-        Value when applied, 0.0-1.0 (application-outcome EMA).  # noqa: E501
+        Value when applied, 0.0-1.0 (recency-discounted application-outcome score).  # noqa: E501
 
         :return: The utility of this LearningStanding.  # noqa: E501
         :rtype: object
@@ -64,7 +64,7 @@ class LearningStanding(object):
     def utility(self, utility):
         """Sets the utility of this LearningStanding.
 
-        Value when applied, 0.0-1.0 (application-outcome EMA).  # noqa: E501
+        Value when applied, 0.0-1.0 (recency-discounted application-outcome score).  # noqa: E501
 
         :param utility: The utility of this LearningStanding.  # noqa: E501
         :type: object

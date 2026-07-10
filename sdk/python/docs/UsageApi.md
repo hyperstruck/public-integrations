@@ -5,6 +5,7 @@ All URIs are relative to */*
 Method | HTTP request | Description
 ------------- | ------------- | -------------
 [**get_agent_usage_summary_endpoint_agents_agent_id_usage_summary_get**](UsageApi.md#get_agent_usage_summary_endpoint_agents_agent_id_usage_summary_get) | **GET** /agents/{agent_id}/usage/summary | Get Agent Usage Summary
+[**get_own_claim_assists_usage_claim_assists_get**](UsageApi.md#get_own_claim_assists_usage_claim_assists_get) | **GET** /usage/claim-assists | Get Own Claim Assists
 [**get_own_usage_summary_usage_summary_get**](UsageApi.md#get_own_usage_summary_usage_summary_get) | **GET** /usage/summary | Get Own Usage Summary
 [**list_own_usage_runs_usage_runs_get**](UsageApi.md#list_own_usage_runs_usage_runs_get) | **GET** /usage/runs | List Own Usage Runs
 
@@ -44,6 +45,52 @@ Name | Type | Description  | Notes
 ### Return type
 
 [**AgentUsageSummaryResponse**](AgentUsageSummaryResponse.md)
+
+### Authorization
+
+No authorization required
+
+### HTTP request headers
+
+ - **Content-Type**: Not defined
+ - **Accept**: application/json
+
+[[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
+
+# **get_own_claim_assists_usage_claim_assists_get**
+> ClaimAssistsResponse get_own_claim_assists_usage_claim_assists_get(window_hours=window_hours)
+
+Get Own Claim Assists
+
+### Example
+```python
+from __future__ import print_function
+import time
+import hyperstruck
+from hyperstruck.rest import ApiException
+from pprint import pprint
+
+# create an instance of the API class
+api_instance = hyperstruck.UsageApi()
+window_hours = 24 # object |  (optional) (default to 24)
+
+try:
+    # Get Own Claim Assists
+    api_response = api_instance.get_own_claim_assists_usage_claim_assists_get(window_hours=window_hours)
+    pprint(api_response)
+except ApiException as e:
+    print("Exception when calling UsageApi->get_own_claim_assists_usage_claim_assists_get: %s\n" % e)
+```
+
+### Parameters
+
+Name | Type | Description  | Notes
+------------- | ------------- | ------------- | -------------
+ **window_hours** | [**object**](.md)|  | [optional] [default to 24]
+
+### Return type
+
+[**ClaimAssistsResponse**](ClaimAssistsResponse.md)
 
 ### Authorization
 

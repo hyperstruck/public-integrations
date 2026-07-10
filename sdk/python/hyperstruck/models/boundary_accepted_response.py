@@ -29,22 +29,27 @@ class BoundaryAcceptedResponse(object):
     """
     swagger_types = {
         'status': 'object',
-        'run_id': 'object'
+        'run_id': 'object',
+        'worker_payload_version': 'object'
     }
 
     attribute_map = {
         'status': 'status',
-        'run_id': 'run_id'
+        'run_id': 'run_id',
+        'worker_payload_version': 'worker_payload_version'
     }
 
-    def __init__(self, status=None, run_id=None):  # noqa: E501
+    def __init__(self, status=None, run_id=None, worker_payload_version=None):  # noqa: E501
         """BoundaryAcceptedResponse - a model defined in Swagger"""  # noqa: E501
         self._status = None
         self._run_id = None
+        self._worker_payload_version = None
         self.discriminator = None
         if status is not None:
             self.status = status
         self.run_id = run_id
+        if worker_payload_version is not None:
+            self.worker_payload_version = worker_payload_version
 
     @property
     def status(self):
@@ -89,6 +94,29 @@ class BoundaryAcceptedResponse(object):
             raise ValueError("Invalid value for `run_id`, must not be `None`")  # noqa: E501
 
         self._run_id = run_id
+
+    @property
+    def worker_payload_version(self):
+        """Gets the worker_payload_version of this BoundaryAcceptedResponse.  # noqa: E501
+
+        Versioned payload contract used for the worker dispatch.  # noqa: E501
+
+        :return: The worker_payload_version of this BoundaryAcceptedResponse.  # noqa: E501
+        :rtype: object
+        """
+        return self._worker_payload_version
+
+    @worker_payload_version.setter
+    def worker_payload_version(self, worker_payload_version):
+        """Sets the worker_payload_version of this BoundaryAcceptedResponse.
+
+        Versioned payload contract used for the worker dispatch.  # noqa: E501
+
+        :param worker_payload_version: The worker_payload_version of this BoundaryAcceptedResponse.  # noqa: E501
+        :type: object
+        """
+
+        self._worker_payload_version = worker_payload_version
 
     def to_dict(self):
         """Returns the model properties as a dict"""

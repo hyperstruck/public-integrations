@@ -1351,6 +1351,12 @@ export interface BoundaryAcceptedResponse {
      * @memberof BoundaryAcceptedResponse
      */
     runId: any;
+    /**
+     * Versioned payload contract used for the worker dispatch.
+     * @type {any}
+     * @memberof BoundaryAcceptedResponse
+     */
+    workerPayloadVersion?: any;
 }
 /**
  * Learning candidate attached to a plan retrieval result.
@@ -1382,6 +1388,49 @@ export interface CandidateLearningResponse {
      * @memberof CandidateLearningResponse
      */
     trustLevel: any;
+}
+/**
+ * How often the claim corpus assisted a tenant's runs over a recent window.  Aggregated from the usage outbox's assist events (a bound claim proven right or wrong at execution). These never bill; they surface the corpus's realised value.
+ * @export
+ * @interface ClaimAssistsResponse
+ */
+export interface ClaimAssistsResponse {
+    /**
+     * 
+     * @type {any}
+     * @memberof ClaimAssistsResponse
+     */
+    tenantId: any;
+    /**
+     * The recent window aggregated over.
+     * @type {any}
+     * @memberof ClaimAssistsResponse
+     */
+    windowHours: any;
+    /**
+     * Bound claims proven correct at execution.
+     * @type {any}
+     * @memberof ClaimAssistsResponse
+     */
+    applied: any;
+    /**
+     * Bound claims proven wrong at execution.
+     * @type {any}
+     * @memberof ClaimAssistsResponse
+     */
+    misled: any;
+    /**
+     * Distinct runs the corpus assisted at least once (the N of 'assisted N of M').
+     * @type {any}
+     * @memberof ClaimAssistsResponse
+     */
+    assistedRuns: any;
+    /**
+     * All runs in the window (the M of 'assisted N of M').
+     * @type {any}
+     * @memberof ClaimAssistsResponse
+     */
+    totalRuns: any;
 }
 /**
  * The type of decision the human is making.
@@ -1543,6 +1592,18 @@ export interface GoalRunRequest {
      * @memberof GoalRunRequest
      */
     metadata?: any;
+    /**
+     * Typed source-of-truth blocks (a transcript, a record set). The only request text the grounding gate admits as evidence; declaring any also activates the read-only faithfulness check so example text cannot be laundered into a claim.
+     * @type {any}
+     * @memberof GoalRunRequest
+     */
+    sources?: any;
+    /**
+     * Exemplar/calibration material shown to the model but never admitted as evidence.
+     * @type {any}
+     * @memberof GoalRunRequest
+     */
+    references?: any;
 }
 /**
  * Action to take when a guardrail finding is detected.
@@ -1952,7 +2013,7 @@ export interface LearningAuditItem {
      */
     legacyLearningType?: any;
     /**
-     * Value when applied, 0.0-1.0 (Core's application-outcome EMA).
+     * Value when applied, 0.0-1.0 (Core's recency-discounted application-outcome score).
      * @type {any}
      * @memberof LearningAuditItem
      */
@@ -2359,7 +2420,7 @@ export interface LearningSearchResponse {
  */
 export interface LearningStanding {
     /**
-     * Value when applied, 0.0-1.0 (application-outcome EMA).
+     * Value when applied, 0.0-1.0 (recency-discounted application-outcome score).
      * @type {any}
      * @memberof LearningStanding
      */
@@ -3544,7 +3605,7 @@ export interface RunDetailResponse {
      * @type {any}
      * @memberof RunDetailResponse
      */
-    agentId: any;
+    agentId?: any;
     /**
      * 
      * @type {any}
@@ -3706,6 +3767,25 @@ export interface RunOutputSummary {
     suspension?: any;
 }
 /**
+ * Exemplar / calibration material: shown to the model to calibrate tone/format, never groundable.  Mirrors the CORE ``Reference`` wire shape (``text``/``label``).
+ * @export
+ * @interface RunReference
+ */
+export interface RunReference {
+    /**
+     * Exemplar/calibration text shown to the model; never admitted as grounding evidence.
+     * @type {any}
+     * @memberof RunReference
+     */
+    text: any;
+    /**
+     * Optional human-readable label for the reference.
+     * @type {any}
+     * @memberof RunReference
+     */
+    label?: any;
+}
+/**
  * Public representation of one tenant-visible run.
  * @export
  * @interface RunResponse
@@ -3722,7 +3802,7 @@ export interface RunResponse {
      * @type {any}
      * @memberof RunResponse
      */
-    agentId: any;
+    agentId?: any;
     /**
      * 
      * @type {any}
@@ -3807,6 +3887,31 @@ export interface RunResponse {
      * @memberof RunResponse
      */
     createdAt: any;
+}
+/**
+ * Caller-supplied source-of-truth: the only request text the grounding gate admits as evidence.  Mirrors the CORE ``Source`` wire shape (``text``/``id``/``label``) so the worker rebuilds it without translation loss. ``id`` is an optional stable provenance handle; CORE assigns ``source-<index>`` when omitted, so callers may leave it blank.
+ * @export
+ * @interface RunSource
+ */
+export interface RunSource {
+    /**
+     * Source-of-truth text a claim may be grounded against, exactly like a tool read.
+     * @type {any}
+     * @memberof RunSource
+     */
+    text: any;
+    /**
+     * Optional stable provenance handle; auto-assigned when omitted, must be unique across the set.
+     * @type {any}
+     * @memberof RunSource
+     */
+    id?: any;
+    /**
+     * Optional human-readable label for the source.
+     * @type {any}
+     * @memberof RunSource
+     */
+    label?: any;
 }
 /**
  * Canonical status values persisted in `public.agent_runs.status`.
@@ -4212,7 +4317,7 @@ export interface StoreLearningRequest {
      */
     content: any;
     /**
-     * Initial utility, the curator's belief in how useful this learning is when applied (0.0-1.0). Establishedness is earned through corroboration, not set here.
+     * Starting utility prior, the curator's initial belief in how useful this learning is when applied (0.0-1.0). Both utility and establishedness are then earned, utility from application outcomes and establishedness from corroboration, so the value read back moves off this prior over time.
      * @type {any}
      * @memberof StoreLearningRequest
      */
@@ -4401,7 +4506,7 @@ export interface UsageRunItem {
      * @type {any}
      * @memberof UsageRunItem
      */
-    agentId: any;
+    agentId?: any;
     /**
      * 
      * @type {any}
@@ -8802,6 +8907,34 @@ export const UsageApiFetchParamCreator = function (configuration?: Configuration
         },
         /**
          * 
+         * @summary Get Own Claim Assists
+         * @param {any} [windowHours] 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        getOwnClaimAssistsUsageClaimAssistsGet(windowHours?: any, options: any = {}): FetchArgs {
+            const localVarPath = `/usage/claim-assists`;
+            const localVarUrlObj = url.parse(localVarPath, true);
+            const localVarRequestOptions = Object.assign({ method: 'GET' }, options);
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            if (windowHours !== undefined) {
+                localVarQueryParameter['window_hours'] = windowHours;
+            }
+
+            localVarUrlObj.query = Object.assign({}, localVarUrlObj.query, localVarQueryParameter, options.query);
+            // fix override query string Detail: https://stackoverflow.com/a/7517673/1077943
+            localVarUrlObj.search = null;
+            localVarRequestOptions.headers = Object.assign({}, localVarHeaderParameter, options.headers);
+
+            return {
+                url: url.format(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * 
          * @summary Get Own Usage Summary
          * @param {UsageTimeWindow} [window] Preset reporting window (custom date range not supported in this API version).
          * @param {any} [asOf] Optional UTC timestamp used to anchor the reporting window so summary and paginated run pages stay aligned across requests.
@@ -8907,6 +9040,25 @@ export const UsageApiFp = function(configuration?: Configuration) {
         },
         /**
          * 
+         * @summary Get Own Claim Assists
+         * @param {any} [windowHours] 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        getOwnClaimAssistsUsageClaimAssistsGet(windowHours?: any, options?: any): (fetch?: FetchAPI, basePath?: string) => Promise<ClaimAssistsResponse> {
+            const localVarFetchArgs = UsageApiFetchParamCreator(configuration).getOwnClaimAssistsUsageClaimAssistsGet(windowHours, options);
+            return (fetch: FetchAPI = isomorphicFetch, basePath: string = BASE_PATH) => {
+                return fetch(basePath + localVarFetchArgs.url, localVarFetchArgs.options).then((response) => {
+                    if (response.status >= 200 && response.status < 300) {
+                        return response.json();
+                    } else {
+                        throw response;
+                    }
+                });
+            };
+        },
+        /**
+         * 
          * @summary Get Own Usage Summary
          * @param {UsageTimeWindow} [window] Preset reporting window (custom date range not supported in this API version).
          * @param {any} [asOf] Optional UTC timestamp used to anchor the reporting window so summary and paginated run pages stay aligned across requests.
@@ -8969,6 +9121,16 @@ export const UsageApiFactory = function (configuration?: Configuration, fetch?: 
         },
         /**
          * 
+         * @summary Get Own Claim Assists
+         * @param {any} [windowHours] 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        getOwnClaimAssistsUsageClaimAssistsGet(windowHours?: any, options?: any) {
+            return UsageApiFp(configuration).getOwnClaimAssistsUsageClaimAssistsGet(windowHours, options)(fetch, basePath);
+        },
+        /**
+         * 
          * @summary Get Own Usage Summary
          * @param {UsageTimeWindow} [window] Preset reporting window (custom date range not supported in this API version).
          * @param {any} [asOf] Optional UTC timestamp used to anchor the reporting window so summary and paginated run pages stay aligned across requests.
@@ -9012,6 +9174,18 @@ export class UsageApi extends BaseAPI {
      */
     public getAgentUsageSummaryEndpointAgentsAgentIdUsageSummaryGet(agentId: any, window?: UsageTimeWindow, options?: any) {
         return UsageApiFp(this.configuration).getAgentUsageSummaryEndpointAgentsAgentIdUsageSummaryGet(agentId, window, options)(this.fetch, this.basePath);
+    }
+
+    /**
+     * 
+     * @summary Get Own Claim Assists
+     * @param {any} [windowHours] 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof UsageApi
+     */
+    public getOwnClaimAssistsUsageClaimAssistsGet(windowHours?: any, options?: any) {
+        return UsageApiFp(this.configuration).getOwnClaimAssistsUsageClaimAssistsGet(windowHours, options)(this.fetch, this.basePath);
     }
 
     /**

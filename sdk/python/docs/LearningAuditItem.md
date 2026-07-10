@@ -9,7 +9,7 @@ Name | Type | Description | Notes
 **scope** | [**LearningScope**](LearningScope.md) |  | [optional] 
 **category** | **object** |  | [optional] 
 **legacy_learning_type** | **object** | Deprecated compatibility passthrough; null for new records. | [optional] 
-**utility** | **object** | Value when applied, 0.0-1.0 (Core&#x27;s application-outcome EMA). | 
+**utility** | **object** | Value when applied, 0.0-1.0 (Core&#x27;s recency-discounted application-outcome score). | 
 **reliability** | **object** | How established, 0.0-1.0 (Wilson lower bound over corroborations, lowered by contradictions). | 
 **corroboration_count** | **object** | Independent sources that corroborated this learning. | 
 **trust_level** | [**TrustLevel**](TrustLevel.md) | Verification tier; UNKNOWN for an unmappable stored value. | 

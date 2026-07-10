@@ -4,7 +4,7 @@
 Name | Type | Description | Notes
 ------------ | ------------- | ------------- | -------------
 **id** | **object** |  | 
-**agent_id** | **object** |  | 
+**agent_id** | **object** |  | [optional] 
 **session_id** | **object** |  | 
 **parent_run_id** | **object** |  | [optional] 
 **run_type** | [**RunType**](RunType.md) |  | 

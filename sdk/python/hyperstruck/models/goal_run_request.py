@@ -32,7 +32,9 @@ class GoalRunRequest(object):
         'context': 'object',
         'session_id': 'object',
         'worker_profile': 'object',
-        'metadata': 'object'
+        'metadata': 'object',
+        'sources': 'object',
+        'references': 'object'
     }
 
     attribute_map = {
@@ -40,16 +42,20 @@ class GoalRunRequest(object):
         'context': 'context',
         'session_id': 'session_id',
         'worker_profile': 'worker_profile',
-        'metadata': 'metadata'
+        'metadata': 'metadata',
+        'sources': 'sources',
+        'references': 'references'
     }
 
-    def __init__(self, goal=None, context=None, session_id=None, worker_profile=None, metadata=None):  # noqa: E501
+    def __init__(self, goal=None, context=None, session_id=None, worker_profile=None, metadata=None, sources=None, references=None):  # noqa: E501
         """GoalRunRequest - a model defined in Swagger"""  # noqa: E501
         self._goal = None
         self._context = None
         self._session_id = None
         self._worker_profile = None
         self._metadata = None
+        self._sources = None
+        self._references = None
         self.discriminator = None
         self.goal = goal
         if context is not None:
@@ -60,6 +66,10 @@ class GoalRunRequest(object):
             self.worker_profile = worker_profile
         if metadata is not None:
             self.metadata = metadata
+        if sources is not None:
+            self.sources = sources
+        if references is not None:
+            self.references = references
 
     @property
     def goal(self):
@@ -177,6 +187,52 @@ class GoalRunRequest(object):
         """
 
         self._metadata = metadata
+
+    @property
+    def sources(self):
+        """Gets the sources of this GoalRunRequest.  # noqa: E501
+
+        Typed source-of-truth blocks (a transcript, a record set). The only request text the grounding gate admits as evidence; declaring any also activates the read-only faithfulness check so example text cannot be laundered into a claim.  # noqa: E501
+
+        :return: The sources of this GoalRunRequest.  # noqa: E501
+        :rtype: object
+        """
+        return self._sources
+
+    @sources.setter
+    def sources(self, sources):
+        """Sets the sources of this GoalRunRequest.
+
+        Typed source-of-truth blocks (a transcript, a record set). The only request text the grounding gate admits as evidence; declaring any also activates the read-only faithfulness check so example text cannot be laundered into a claim.  # noqa: E501
+
+        :param sources: The sources of this GoalRunRequest.  # noqa: E501
+        :type: object
+        """
+
+        self._sources = sources
+
+    @property
+    def references(self):
+        """Gets the references of this GoalRunRequest.  # noqa: E501
+
+        Exemplar/calibration material shown to the model but never admitted as evidence.  # noqa: E501
+
+        :return: The references of this GoalRunRequest.  # noqa: E501
+        :rtype: object
+        """
+        return self._references
+
+    @references.setter
+    def references(self, references):
+        """Sets the references of this GoalRunRequest.
+
+        Exemplar/calibration material shown to the model but never admitted as evidence.  # noqa: E501
+
+        :param references: The references of this GoalRunRequest.  # noqa: E501
+        :type: object
+        """
+
+        self._references = references
 
     def to_dict(self):
         """Returns the model properties as a dict"""

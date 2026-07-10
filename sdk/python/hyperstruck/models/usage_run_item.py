@@ -79,7 +79,8 @@ class UsageRunItem(object):
         self._created_at = None
         self.discriminator = None
         self.id = id
-        self.agent_id = agent_id
+        if agent_id is not None:
+            self.agent_id = agent_id
         self.session_id = session_id
         if parent_run_id is not None:
             self.parent_run_id = parent_run_id
@@ -135,8 +136,6 @@ class UsageRunItem(object):
         :param agent_id: The agent_id of this UsageRunItem.  # noqa: E501
         :type: object
         """
-        if agent_id is None:
-            raise ValueError("Invalid value for `agent_id`, must not be `None`")  # noqa: E501
 
         self._agent_id = agent_id
 
