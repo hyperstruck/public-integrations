@@ -94,6 +94,25 @@ to run: point your host at the remote endpoint with your key and an agent name.
 }
 ```
 
+The hosted endpoint authenticates the bearer before MCP discovery, request
+parsing, or SSE setup. The key must be active and include at least one MCP tool
+scope: `agents:read` or `agents:write`. Admission does not grant every tool:
+`resolve` still requires `agents:read`, while `complete_run` requires
+`agents:write`.
+
+Connection failures use standard HTTP status codes:
+
+- `401 Unauthorized`: the bearer is missing, malformed, or rejected. Check the
+  configured API key; the response includes `WWW-Authenticate: Bearer`.
+- `403 Forbidden`: the key is valid but has neither MCP tool scope.
+- `429 Too Many Requests`: the key exceeded the hosted MCP request limit. Retry
+  after the number of seconds in the `Retry-After` response header.
+- `503 Service Unavailable`: authentication could not be confirmed, including
+  temporary authentication-service or lookup-capacity failures. Retry later.
+
+Successful authentication and entitlement lookups may be cached for up to 60
+seconds. Rejected credentials and service failures are not cached.
+
 The host's model calls two tools: `resolve` to read the learnings bound to a task
 before it acts, and `complete_run` to report the outcome after, so the next run
 is sharper. Redaction runs at our edge before anything is persisted, with the
