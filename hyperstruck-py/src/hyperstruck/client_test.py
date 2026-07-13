@@ -5,7 +5,13 @@ from __future__ import annotations
 import httpx
 import pytest
 
-from hyperstruck._wire import Episode, StepRecord, TerminalOutcome
+from hyperstruck._wire import (
+    Episode,
+    EvidenceItem,
+    DistillOutcome,
+    StepRecord,
+    TerminalOutcome,
+)
 from hyperstruck.client import HostedLearningClient
 from hyperstruck.identity import AgentIdentity
 
@@ -16,7 +22,11 @@ def _episode() -> Episode:
     return Episode(
         run_id="support-bot:abc",
         goal="help the customer",
-        steps=(StepRecord(id="c1", name="lookup", args={"q": "x"}, status="completed", result="ok"),),
+        steps=(
+            StepRecord(
+                id="c1", name="lookup", args={"q": "x"}, status="completed", result="ok"
+            ),
+        ),
         outcome=TerminalOutcome(is_success=True, total_steps=1, completed_steps=1),
     )
 
@@ -50,7 +60,9 @@ async def test_resolve_returns_bound_context() -> None:
     def handler(request: httpx.Request) -> httpx.Response:
         seen["path"] = request.url.path
         seen["auth"] = request.headers.get("authorization")
-        return httpx.Response(200, json={"injected_text": "L", "offered_learning_ids": ["a", "b"]})
+        return httpx.Response(
+            200, json={"injected_text": "L", "offered_learning_ids": ["a", "b"]}
+        )
 
     client = _client(handler)
     ctx = await client.resolve(identity=IDENTITY, run_id="r1", goal="g")
@@ -78,7 +90,9 @@ async def test_observe_is_background_and_redacted() -> None:
         import json
 
         bodies.append(json.loads(request.content))
-        return httpx.Response(202, json={"status": "accepted", "run_id": "support-bot:abc"})
+        return httpx.Response(
+            202, json={"status": "accepted", "run_id": "support-bot:abc"}
+        )
 
     episode = Episode(
         run_id="support-bot:abc",
@@ -101,6 +115,71 @@ async def test_observe_is_background_and_redacted() -> None:
     assert client.writes_delivered == 1
     sent = bodies[0]["episode"]["steps"][0]["args"]["ssn"]
     assert sent == "[REDACTED:pii]"
+    await client.aclose()
+
+
+async def test_distill_posts_flat_body_in_background() -> None:
+    bodies = []
+    paths = []
+
+    def handler(request: httpx.Request) -> httpx.Response:
+        import json
+
+        paths.append(request.url.path)
+        bodies.append(json.loads(request.content))
+        return httpx.Response(
+            202, json={"status": "accepted", "run_id": "distill:pm-1"}
+        )
+
+    client = _client(handler)
+    await client.distill(
+        identity=IDENTITY,
+        run_id="distill:pm-1",
+        goal="extract learnings",
+        evidence=(
+            EvidenceItem(id="e1", content="a" * 300, role="contrast", status="failed"),
+            EvidenceItem(id="e2", content="b" * 300, role="support"),
+        ),
+        outcome=DistillOutcome(is_success=True, summary="done"),
+        evaluation="root cause differed",
+    )
+    await client.drain()
+    assert client.writes_delivered == 1
+    assert paths[0] == "/distill"
+    # Flat body (agent_id from identity), not wrapped like observe/reinforce.
+    assert bodies[0]["agent_id"] == "support-bot"
+    assert bodies[0]["run_id"] == "distill:pm-1"
+    assert len(bodies[0]["evidence"]) == 2
+    await client.aclose()
+
+
+async def test_distill_raises_on_deterministic_client_errors() -> None:
+    # Fire-and-forget delivery would swallow the server's 400, so the deterministic
+    # mistakes must fail loud at the call site instead of losing the job silently.
+    sent = {"count": 0}
+
+    def handler(request: httpx.Request) -> httpx.Response:
+        sent["count"] += 1
+        return httpx.Response(202, json={"status": "accepted"})
+
+    client = _client(handler)
+    ok_evidence = (
+        EvidenceItem(id="e1", content="a" * 300, role="contrast", status="failed"),
+        EvidenceItem(id="e2", content="b" * 300, role="support"),
+    )
+    with pytest.raises(ValueError, match="distill:"):
+        await client.distill(
+            identity=IDENTITY, run_id="pm-1", goal="g", evidence=ok_evidence
+        )
+    with pytest.raises(ValueError, match="at least 2"):
+        await client.distill(
+            identity=IDENTITY,
+            run_id="distill:pm-1",
+            goal="g",
+            evidence=ok_evidence[:1],
+        )
+    await client.drain()
+    assert sent["count"] == 0  # nothing dispatched for the rejected calls
     await client.aclose()
 
 

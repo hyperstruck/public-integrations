@@ -145,6 +145,10 @@ describe("LearningBoundaryApi", () => {
     instance = new api.LearningBoundaryApi(config)
   });
 
+  test("distillEndpointDistillPost", () => {
+    const body: api.DistillRequest = undefined
+    return expect(instance.distillEndpointDistillPost(body, {})).resolves.toBe(null)
+  })
   test("funnelEndpointFunnelGet", () => {
     const windowHours: any = undefined
     const graceMinutes: any = undefined

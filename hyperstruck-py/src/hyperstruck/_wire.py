@@ -57,7 +57,9 @@ class Episode:
     run_id: str
     goal: str
     steps: tuple[StepRecord, ...] = ()
-    outcome: TerminalOutcome = field(default_factory=lambda: TerminalOutcome(is_success=True))
+    outcome: TerminalOutcome = field(
+        default_factory=lambda: TerminalOutcome(is_success=True)
+    )
     source_framework: str = "langgraph"
     thread_id: str | None = None
 
@@ -70,6 +72,64 @@ class Episode:
             "outcome": asdict(self.outcome),
             "source_framework": self.source_framework,
             "thread_id": self.thread_id,
+        }
+
+
+@dataclass(frozen=True)
+class EvidenceItem:
+    """One piece of corpus evidence for distillation (a content step, not a tool call)."""
+
+    id: str
+    content: str
+    label: str = ""
+    role: Literal["support", "contrast", "neutral"] = "neutral"
+    status: Literal["completed", "failed"] = "completed"
+    source_ref: str | None = None
+
+
+@dataclass(frozen=True)
+class DistillOutcome:
+    """The corpus job's terminal verdict."""
+
+    is_success: bool
+    summary: str | None = None
+
+
+@dataclass(frozen=True)
+class DistillJob:
+    """A corpus distillation job, ready to ship to ``POST /distill``.
+
+    Unlike an ``Episode`` this is the whole flat request body (it carries its own
+    ``agent_id``): a distillation job stands outside the resolve/observe/reinforce loop, so
+    there is no wrapping envelope. ``run_id`` must be namespaced ``distill:``.
+    """
+
+    agent_id: str
+    run_id: str
+    goal: str
+    evidence: tuple[EvidenceItem, ...]
+    outcome: DistillOutcome = field(
+        default_factory=lambda: DistillOutcome(is_success=True)
+    )
+    org_id: str | None = None
+    evaluation: str | None = None
+    synthesis_notes: str | None = None
+    source_framework: str = "api:distill"
+    occurred_at: str | None = None
+
+    def to_payload(self) -> dict[str, Any]:
+        """Serialise to the JSON body the platform expects."""
+        return {
+            "agent_id": self.agent_id,
+            "org_id": self.org_id,
+            "run_id": self.run_id,
+            "goal": self.goal,
+            "evidence": [asdict(item) for item in self.evidence],
+            "outcome": asdict(self.outcome),
+            "evaluation": self.evaluation,
+            "synthesis_notes": self.synthesis_notes,
+            "source_framework": self.source_framework,
+            "occurred_at": self.occurred_at,
         }
 
 

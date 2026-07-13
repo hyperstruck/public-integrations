@@ -63,9 +63,12 @@ from hyperstruck.models.candidate_learning_response import CandidateLearningResp
 from hyperstruck.models.claim_assists_response import ClaimAssistsResponse
 from hyperstruck.models.decision_type import DecisionType
 from hyperstruck.models.delete_learnings_response import DeleteLearningsResponse
+from hyperstruck.models.distill_outcome_model import DistillOutcomeModel
+from hyperstruck.models.distill_request import DistillRequest
 from hyperstruck.models.entitlements_response import EntitlementsResponse
 from hyperstruck.models.episode_model import EpisodeModel
 from hyperstruck.models.evidence_availability import EvidenceAvailability
+from hyperstruck.models.evidence_item_model import EvidenceItemModel
 from hyperstruck.models.goal_run_accepted_response import GoalRunAcceptedResponse
 from hyperstruck.models.goal_run_request import GoalRunRequest
 from hyperstruck.models.guardrail_action import GuardrailAction

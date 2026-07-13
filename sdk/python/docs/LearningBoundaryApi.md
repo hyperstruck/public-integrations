@@ -4,10 +4,59 @@ All URIs are relative to */*
 
 Method | HTTP request | Description
 ------------- | ------------- | -------------
+[**distill_endpoint_distill_post**](LearningBoundaryApi.md#distill_endpoint_distill_post) | **POST** /distill | Distil learnings from a corpus of evidence
 [**funnel_endpoint_funnel_get**](LearningBoundaryApi.md#funnel_endpoint_funnel_get) | **GET** /funnel | Per-host loop-closure funnel
 [**observe_endpoint_observe_post**](LearningBoundaryApi.md#observe_endpoint_observe_post) | **POST** /observe | Observe a finished episode
 [**reinforce_endpoint_reinforce_post**](LearningBoundaryApi.md#reinforce_endpoint_reinforce_post) | **POST** /reinforce | Reinforce the learnings a run used
 [**resolve_endpoint_resolve_post**](LearningBoundaryApi.md#resolve_endpoint_resolve_post) | **POST** /resolve | Resolve the learnings bound to a goal
+
+# **distill_endpoint_distill_post**
+> BoundaryAcceptedResponse distill_endpoint_distill_post(body)
+
+Distil learnings from a corpus of evidence
+
+Distil durable learnings from a corpus (post-mortems, docs, diffs, analysis output) by submitting a distillation goal plus evidence items, instead of a tool-step episode. Runs the same server-side extraction as observe on a background worker (202), but stands outside the resolve/observe/reinforce loop. Requires at least two evidence items with enough content to ground a learning, a declared contrast signal (differing status/role, a role='contrast' item, or an evaluation note), and a 'distill:'-prefixed run_id. A corpus that declares contrast but carries none is still accepted and simply yields nothing (a valid 202). Evidence content is stored verbatim where grounded, so callers must pre-redact secrets.
+
+### Example
+```python
+from __future__ import print_function
+import time
+import hyperstruck
+from hyperstruck.rest import ApiException
+from pprint import pprint
+
+# create an instance of the API class
+api_instance = hyperstruck.LearningBoundaryApi()
+body = hyperstruck.DistillRequest() # DistillRequest | 
+
+try:
+    # Distil learnings from a corpus of evidence
+    api_response = api_instance.distill_endpoint_distill_post(body)
+    pprint(api_response)
+except ApiException as e:
+    print("Exception when calling LearningBoundaryApi->distill_endpoint_distill_post: %s\n" % e)
+```
+
+### Parameters
+
+Name | Type | Description  | Notes
+------------- | ------------- | ------------- | -------------
+ **body** | [**DistillRequest**](DistillRequest.md)|  | 
+
+### Return type
+
+[**BoundaryAcceptedResponse**](BoundaryAcceptedResponse.md)
+
+### Authorization
+
+No authorization required
+
+### HTTP request headers
+
+ - **Content-Type**: application/json
+ - **Accept**: application/json
+
+[[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 
 # **funnel_endpoint_funnel_get**
 > LoopClosureFunnelResponse funnel_endpoint_funnel_get(window_hours=window_hours, grace_minutes=grace_minutes)

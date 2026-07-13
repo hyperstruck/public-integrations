@@ -1459,6 +1459,92 @@ export interface DeleteLearningsResponse {
     deletedCount: any;
 }
 /**
+ * The corpus job's terminal verdict.
+ * @export
+ * @interface DistillOutcomeModel
+ */
+export interface DistillOutcomeModel {
+    /**
+     * 
+     * @type {any}
+     * @memberof DistillOutcomeModel
+     */
+    isSuccess: any;
+    /**
+     * 
+     * @type {any}
+     * @memberof DistillOutcomeModel
+     */
+    summary?: any;
+}
+/**
+ * Extract learnings from a corpus of evidence, without fabricating tool steps.  A developer-friendly twin of observe for post-mortems, docs, diffs, and analysis output. It reuses Core's extraction pipeline (contrast, grounding, critic) but sits outside the resolve -> observe -> reinforce loop: an extract job never resolves or reinforces, and is metered on its own ``is_distilled`` funnel so it does not pollute loop-closure attribution.
+ * @export
+ * @interface DistillRequest
+ */
+export interface DistillRequest {
+    /**
+     * 
+     * @type {any}
+     * @memberof DistillRequest
+     */
+    agentId: any;
+    /**
+     * 
+     * @type {any}
+     * @memberof DistillRequest
+     */
+    orgId?: any;
+    /**
+     * 
+     * @type {any}
+     * @memberof DistillRequest
+     */
+    runId: any;
+    /**
+     * The extraction intent.
+     * @type {any}
+     * @memberof DistillRequest
+     */
+    goal: any;
+    /**
+     * 
+     * @type {any}
+     * @memberof DistillRequest
+     */
+    evidence?: any;
+    /**
+     * 
+     * @type {DistillOutcomeModel}
+     * @memberof DistillRequest
+     */
+    outcome: DistillOutcomeModel;
+    /**
+     * Reviewer verdict or contrast aid; folded into the grounding corpus.
+     * @type {any}
+     * @memberof DistillRequest
+     */
+    evaluation?: any;
+    /**
+     * 
+     * @type {any}
+     * @memberof DistillRequest
+     */
+    synthesisNotes?: any;
+    /**
+     * 
+     * @type {any}
+     * @memberof DistillRequest
+     */
+    sourceFramework?: any;
+    /**
+     * 
+     * @type {any}
+     * @memberof DistillRequest
+     */
+    occurredAt?: any;
+}
+/**
  * The plan facts a caller (or a downstream surface) is entitled to act on.
  * @export
  * @interface EntitlementsResponse
@@ -1536,6 +1622,49 @@ export enum EvidenceAvailability {
     Omitted = <any> 'omitted',
     OrgStripped = <any> 'org_stripped',
     Truncated = <any> 'truncated'
+}
+/**
+ * One piece of corpus evidence to extract learnings from.  The developer-friendly twin of a tool ``StepModel``: instead of fabricating a tool call, a caller supplies the primary text (``content``, the grounding source) and a light label/role so the extractor can mine contrast across items (baseline vs fix, success vs failure) rather than summarise a single document.
+ * @export
+ * @interface EvidenceItemModel
+ */
+export interface EvidenceItemModel {
+    /**
+     * Stable within the run.
+     * @type {any}
+     * @memberof EvidenceItemModel
+     */
+    id: any;
+    /**
+     * Primary text; the grounding source extraction quotes from.
+     * @type {any}
+     * @memberof EvidenceItemModel
+     */
+    content: any;
+    /**
+     * e.g. \"baseline\", \"fix\".
+     * @type {any}
+     * @memberof EvidenceItemModel
+     */
+    label?: any;
+    /**
+     * 
+     * @type {any}
+     * @memberof EvidenceItemModel
+     */
+    role?: any;
+    /**
+     * 
+     * @type {any}
+     * @memberof EvidenceItemModel
+     */
+    status?: any;
+    /**
+     * Non-secret provenance: a doc id or URL.
+     * @type {any}
+     * @memberof EvidenceItemModel
+     */
+    sourceRef?: any;
 }
 /**
  * Accepted response for an asynchronously dispatched goal run.
@@ -6190,6 +6319,38 @@ export class EntitlementsApi extends BaseAPI {
 export const LearningBoundaryApiFetchParamCreator = function (configuration?: Configuration) {
     return {
         /**
+         * Distil durable learnings from a corpus (post-mortems, docs, diffs, analysis output) by submitting a distillation goal plus evidence items, instead of a tool-step episode. Runs the same server-side extraction as observe on a background worker (202), but stands outside the resolve/observe/reinforce loop. Requires at least two evidence items with enough content to ground a learning, a declared contrast signal (differing status/role, a role='contrast' item, or an evaluation note), and a 'distill:'-prefixed run_id. A corpus that declares contrast but carries none is still accepted and simply yields nothing (a valid 202). Evidence content is stored verbatim where grounded, so callers must pre-redact secrets.
+         * @summary Distil learnings from a corpus of evidence
+         * @param {DistillRequest} body 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        distillEndpointDistillPost(body: DistillRequest, options: any = {}): FetchArgs {
+            // verify required parameter 'body' is not null or undefined
+            if (body === null || body === undefined) {
+                throw new RequiredError('body','Required parameter body was null or undefined when calling distillEndpointDistillPost.');
+            }
+            const localVarPath = `/distill`;
+            const localVarUrlObj = url.parse(localVarPath, true);
+            const localVarRequestOptions = Object.assign({ method: 'POST' }, options);
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            localVarHeaderParameter['Content-Type'] = 'application/json';
+
+            localVarUrlObj.query = Object.assign({}, localVarUrlObj.query, localVarQueryParameter, options.query);
+            // fix override query string Detail: https://stackoverflow.com/a/7517673/1077943
+            localVarUrlObj.search = null;
+            localVarRequestOptions.headers = Object.assign({}, localVarHeaderParameter, options.headers);
+            const needsSerialization = (<any>"DistillRequest" !== "string") || localVarRequestOptions.headers['Content-Type'] === 'application/json';
+            localVarRequestOptions.body =  needsSerialization ? JSON.stringify(body || {}) : (body || "");
+
+            return {
+                url: url.format(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
          * Report the loop-closure funnel (resolve -> offered -> observed -> reinforced) per producing host over a recent window. A half-open loop, a run that resolved but whose write-back never arrived, shows as a non-closure rather than a false closure. Scoped to the calling tenant.
          * @summary Per-host loop-closure funnel
          * @param {any} [windowHours] 
@@ -6328,6 +6489,25 @@ export const LearningBoundaryApiFetchParamCreator = function (configuration?: Co
 export const LearningBoundaryApiFp = function(configuration?: Configuration) {
     return {
         /**
+         * Distil durable learnings from a corpus (post-mortems, docs, diffs, analysis output) by submitting a distillation goal plus evidence items, instead of a tool-step episode. Runs the same server-side extraction as observe on a background worker (202), but stands outside the resolve/observe/reinforce loop. Requires at least two evidence items with enough content to ground a learning, a declared contrast signal (differing status/role, a role='contrast' item, or an evaluation note), and a 'distill:'-prefixed run_id. A corpus that declares contrast but carries none is still accepted and simply yields nothing (a valid 202). Evidence content is stored verbatim where grounded, so callers must pre-redact secrets.
+         * @summary Distil learnings from a corpus of evidence
+         * @param {DistillRequest} body 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        distillEndpointDistillPost(body: DistillRequest, options?: any): (fetch?: FetchAPI, basePath?: string) => Promise<BoundaryAcceptedResponse> {
+            const localVarFetchArgs = LearningBoundaryApiFetchParamCreator(configuration).distillEndpointDistillPost(body, options);
+            return (fetch: FetchAPI = isomorphicFetch, basePath: string = BASE_PATH) => {
+                return fetch(basePath + localVarFetchArgs.url, localVarFetchArgs.options).then((response) => {
+                    if (response.status >= 200 && response.status < 300) {
+                        return response.json();
+                    } else {
+                        throw response;
+                    }
+                });
+            };
+        },
+        /**
          * Report the loop-closure funnel (resolve -> offered -> observed -> reinforced) per producing host over a recent window. A half-open loop, a run that resolved but whose write-back never arrived, shows as a non-closure rather than a false closure. Scoped to the calling tenant.
          * @summary Per-host loop-closure funnel
          * @param {any} [windowHours] 
@@ -6414,6 +6594,16 @@ export const LearningBoundaryApiFp = function(configuration?: Configuration) {
 export const LearningBoundaryApiFactory = function (configuration?: Configuration, fetch?: FetchAPI, basePath?: string) {
     return {
         /**
+         * Distil durable learnings from a corpus (post-mortems, docs, diffs, analysis output) by submitting a distillation goal plus evidence items, instead of a tool-step episode. Runs the same server-side extraction as observe on a background worker (202), but stands outside the resolve/observe/reinforce loop. Requires at least two evidence items with enough content to ground a learning, a declared contrast signal (differing status/role, a role='contrast' item, or an evaluation note), and a 'distill:'-prefixed run_id. A corpus that declares contrast but carries none is still accepted and simply yields nothing (a valid 202). Evidence content is stored verbatim where grounded, so callers must pre-redact secrets.
+         * @summary Distil learnings from a corpus of evidence
+         * @param {DistillRequest} body 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        distillEndpointDistillPost(body: DistillRequest, options?: any) {
+            return LearningBoundaryApiFp(configuration).distillEndpointDistillPost(body, options)(fetch, basePath);
+        },
+        /**
          * Report the loop-closure funnel (resolve -> offered -> observed -> reinforced) per producing host over a recent window. A half-open loop, a run that resolved but whose write-back never arrived, shows as a non-closure rather than a false closure. Scoped to the calling tenant.
          * @summary Per-host loop-closure funnel
          * @param {any} [windowHours] 
@@ -6464,6 +6654,18 @@ export const LearningBoundaryApiFactory = function (configuration?: Configuratio
  * @extends {BaseAPI}
  */
 export class LearningBoundaryApi extends BaseAPI {
+    /**
+     * Distil durable learnings from a corpus (post-mortems, docs, diffs, analysis output) by submitting a distillation goal plus evidence items, instead of a tool-step episode. Runs the same server-side extraction as observe on a background worker (202), but stands outside the resolve/observe/reinforce loop. Requires at least two evidence items with enough content to ground a learning, a declared contrast signal (differing status/role, a role='contrast' item, or an evaluation note), and a 'distill:'-prefixed run_id. A corpus that declares contrast but carries none is still accepted and simply yields nothing (a valid 202). Evidence content is stored verbatim where grounded, so callers must pre-redact secrets.
+     * @summary Distil learnings from a corpus of evidence
+     * @param {DistillRequest} body 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof LearningBoundaryApi
+     */
+    public distillEndpointDistillPost(body: DistillRequest, options?: any) {
+        return LearningBoundaryApiFp(this.configuration).distillEndpointDistillPost(body, options)(this.fetch, this.basePath);
+    }
+
     /**
      * Report the loop-closure funnel (resolve -> offered -> observed -> reinforced) per producing host over a recent window. A half-open loop, a run that resolved but whose write-back never arrived, shows as a non-closure rather than a false closure. Scoped to the calling tenant.
      * @summary Per-host loop-closure funnel

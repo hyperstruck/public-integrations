@@ -29,7 +29,15 @@ from typing import Any, Protocol, runtime_checkable
 import httpx
 
 from hyperstruck.env import API_KEY_ENV_VARS, BASE_URL_ENV_VARS, first_env
-from hyperstruck._wire import DEFAULT_MAX_LEARNINGS, Episode, ResolvedContext, ToolSpec
+from hyperstruck._wire import (
+    DEFAULT_MAX_LEARNINGS,
+    Episode,
+    EvidenceItem,
+    DistillOutcome,
+    DistillJob,
+    ResolvedContext,
+    ToolSpec,
+)
 from hyperstruck.identity import AgentIdentity
 from hyperstruck.redaction import redact_episode_payload
 
@@ -74,6 +82,22 @@ class LearningClient(Protocol):
         is_org_promotion_allowed: bool = False,
     ) -> None:
         """Credit the learnings the run used. Non-blocking."""
+        ...
+
+    async def distill(
+        self,
+        *,
+        identity: AgentIdentity,
+        run_id: str,
+        goal: str,
+        evidence: Sequence[EvidenceItem],
+        outcome: DistillOutcome | None = None,
+        evaluation: str | None = None,
+        synthesis_notes: str | None = None,
+        source_framework: str = "api:distill",
+        occurred_at: str | None = None,
+    ) -> None:
+        """Distil learnings from a corpus of evidence. Non-blocking."""
         ...
 
     async def drain(self, timeout: float = 30.0) -> None:
@@ -194,6 +218,47 @@ class HostedLearningClient:
         }
         self._schedule_write("/reinforce", body)
 
+    async def distill(
+        self,
+        *,
+        identity: AgentIdentity,
+        run_id: str,
+        goal: str,
+        evidence: Sequence[EvidenceItem],
+        outcome: DistillOutcome | None = None,
+        evaluation: str | None = None,
+        synthesis_notes: str | None = None,
+        source_framework: str = "api:distill",
+        occurred_at: str | None = None,
+    ) -> None:
+        # Writes are fire-and-forget, so a server 400 would be swallowed silently.
+        # Fail loud here on the two structural mistakes a caller is most likely to hit
+        # (unnamespaced run id, too few items). The server's content-size and
+        # occurred_at gates are not mirrored to avoid duplicating its thresholds; those
+        # surface only server-side.
+        if not run_id.startswith("distill:"):
+            raise ValueError(
+                "run_id must be namespaced with the 'distill:' prefix "
+                "(e.g. 'distill:my-postmortem-2026-07')"
+            )
+        if len(evidence) < 2:
+            raise ValueError("distill requires at least 2 evidence items")
+        # Identity is authoritative (as for observe/reinforce); the caller must
+        # pre-redact secrets in evidence content, which is stored verbatim server-side.
+        job = DistillJob(
+            agent_id=identity.agent_id,
+            org_id=identity.org_id,
+            run_id=run_id,
+            goal=goal,
+            evidence=tuple(evidence),
+            outcome=outcome or DistillOutcome(is_success=True),
+            evaluation=evaluation,
+            synthesis_notes=synthesis_notes,
+            source_framework=source_framework,
+            occurred_at=occurred_at,
+        )
+        self._schedule_write("/distill", job.to_payload())
+
     # -- background delivery ------------------------------------------------
 
     def _schedule_write(self, path: str, body: dict[str, Any]) -> None:
@@ -268,5 +333,3 @@ def _require_secure_base_url(base_url: str) -> None:
         f"Hyperstruck base URL must be https:// (got {base_url!r}); the API key would otherwise "
         "be sent in cleartext. Use https, or http://localhost for local development."
     )
-
-
