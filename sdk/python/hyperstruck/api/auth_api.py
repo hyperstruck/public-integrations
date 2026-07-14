@@ -3,7 +3,7 @@
 """
     Hyperstruck Core
 
-    Hyperstruck Core management API  # noqa: E501
+    Create and operate hosted agents, runs, learnings, and integrations. Authenticate resource requests with a Bearer API key unless an endpoint explicitly requires a portal session.  # noqa: E501
 
     OpenAPI spec version: 0.1.0
     
@@ -33,9 +33,9 @@ class AuthApi(object):
         self.api_client = api_client
 
     def me_me_get(self, **kwargs):  # noqa: E501
-        """Me  # noqa: E501
+        """Get Current Portal Identity  # noqa: E501
 
-        Return the current portal session: user, active tenant, memberships, scopes.  Portal-session only. API-key callers have no portal identity and are rejected with 403 — they should use the resource APIs directly, not `/me`. A valid session without an active membership surfaces as 403 from the middleware.  # noqa: E501
+        Return the signed-in portal user's identity, active tenant, memberships, role, and effective scopes. This endpoint requires a portal session; Bearer API keys should call resource endpoints directly.  # noqa: E501
         This method makes a synchronous HTTP request by default. To make an
         asynchronous HTTP request, please pass async_req=True
         >>> thread = api.me_me_get(async_req=True)
@@ -54,9 +54,9 @@ class AuthApi(object):
             return data
 
     def me_me_get_with_http_info(self, **kwargs):  # noqa: E501
-        """Me  # noqa: E501
+        """Get Current Portal Identity  # noqa: E501
 
-        Return the current portal session: user, active tenant, memberships, scopes.  Portal-session only. API-key callers have no portal identity and are rejected with 403 — they should use the resource APIs directly, not `/me`. A valid session without an active membership surfaces as 403 from the middleware.  # noqa: E501
+        Return the signed-in portal user's identity, active tenant, memberships, role, and effective scopes. This endpoint requires a portal session; Bearer API keys should call resource endpoints directly.  # noqa: E501
         This method makes a synchronous HTTP request by default. To make an
         asynchronous HTTP request, please pass async_req=True
         >>> thread = api.me_me_get_with_http_info(async_req=True)
@@ -101,7 +101,7 @@ class AuthApi(object):
             ['application/json'])  # noqa: E501
 
         # Authentication setting
-        auth_settings = []  # noqa: E501
+        auth_settings = ['PortalSessionCookie']  # noqa: E501
 
         return self.api_client.call_api(
             '/me', 'GET',

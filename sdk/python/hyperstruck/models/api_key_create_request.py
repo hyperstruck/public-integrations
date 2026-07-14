@@ -3,7 +3,7 @@
 """
     Hyperstruck Core
 
-    Hyperstruck Core management API  # noqa: E501
+    Create and operate hosted agents, runs, learnings, and integrations. Authenticate resource requests with a Bearer API key unless an endpoint explicitly requires a portal session.  # noqa: E501
 
     OpenAPI spec version: 0.1.0
     
@@ -50,6 +50,7 @@ class ApiKeyCreateRequest(object):
     def name(self):
         """Gets the name of this ApiKeyCreateRequest.  # noqa: E501
 
+        Human-readable label describing where the key is used.  # noqa: E501
 
         :return: The name of this ApiKeyCreateRequest.  # noqa: E501
         :rtype: object
@@ -60,6 +61,7 @@ class ApiKeyCreateRequest(object):
     def name(self, name):
         """Sets the name of this ApiKeyCreateRequest.
 
+        Human-readable label describing where the key is used.  # noqa: E501
 
         :param name: The name of this ApiKeyCreateRequest.  # noqa: E501
         :type: object
@@ -73,6 +75,7 @@ class ApiKeyCreateRequest(object):
     def scopes(self):
         """Gets the scopes of this ApiKeyCreateRequest.  # noqa: E501
 
+        Least-privilege capabilities granted to the key.  # noqa: E501
 
         :return: The scopes of this ApiKeyCreateRequest.  # noqa: E501
         :rtype: object
@@ -83,6 +86,7 @@ class ApiKeyCreateRequest(object):
     def scopes(self, scopes):
         """Sets the scopes of this ApiKeyCreateRequest.
 
+        Least-privilege capabilities granted to the key.  # noqa: E501
 
         :param scopes: The scopes of this ApiKeyCreateRequest.  # noqa: E501
         :type: object

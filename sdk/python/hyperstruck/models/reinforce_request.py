@@ -3,7 +3,7 @@
 """
     Hyperstruck Core
 
-    Hyperstruck Core management API  # noqa: E501
+    Create and operate hosted agents, runs, learnings, and integrations. Authenticate resource requests with a Bearer API key unless an endpoint explicitly requires a portal session.  # noqa: E501
 
     OpenAPI spec version: 0.1.0
     
@@ -59,6 +59,7 @@ class ReinforceRequest(object):
     def agent_id(self):
         """Gets the agent_id of this ReinforceRequest.  # noqa: E501
 
+        Caller-defined string identifying the external agent.  # noqa: E501
 
         :return: The agent_id of this ReinforceRequest.  # noqa: E501
         :rtype: object
@@ -69,6 +70,7 @@ class ReinforceRequest(object):
     def agent_id(self, agent_id):
         """Sets the agent_id of this ReinforceRequest.
 
+        Caller-defined string identifying the external agent.  # noqa: E501
 
         :param agent_id: The agent_id of this ReinforceRequest.  # noqa: E501
         :type: object
@@ -82,6 +84,7 @@ class ReinforceRequest(object):
     def org_id(self):
         """Gets the org_id of this ReinforceRequest.  # noqa: E501
 
+        Optional caller-owned organisation reference.  # noqa: E501
 
         :return: The org_id of this ReinforceRequest.  # noqa: E501
         :rtype: object
@@ -92,6 +95,7 @@ class ReinforceRequest(object):
     def org_id(self, org_id):
         """Sets the org_id of this ReinforceRequest.
 
+        Optional caller-owned organisation reference.  # noqa: E501
 
         :param org_id: The org_id of this ReinforceRequest.  # noqa: E501
         :type: object
@@ -103,6 +107,7 @@ class ReinforceRequest(object):
     def episode(self):
         """Gets the episode of this ReinforceRequest.  # noqa: E501
 
+        Completed episode using the same caller-owned `run_id` supplied to resolve.  # noqa: E501
 
         :return: The episode of this ReinforceRequest.  # noqa: E501
         :rtype: EpisodeModel
@@ -113,6 +118,7 @@ class ReinforceRequest(object):
     def episode(self, episode):
         """Sets the episode of this ReinforceRequest.
 
+        Completed episode using the same caller-owned `run_id` supplied to resolve.  # noqa: E501
 
         :param episode: The episode of this ReinforceRequest.  # noqa: E501
         :type: EpisodeModel
@@ -126,6 +132,7 @@ class ReinforceRequest(object):
     def is_org_promotion_allowed(self):
         """Gets the is_org_promotion_allowed of this ReinforceRequest.  # noqa: E501
 
+        Whether eligible learnings may be considered for organisation sharing.  # noqa: E501
 
         :return: The is_org_promotion_allowed of this ReinforceRequest.  # noqa: E501
         :rtype: object
@@ -136,6 +143,7 @@ class ReinforceRequest(object):
     def is_org_promotion_allowed(self, is_org_promotion_allowed):
         """Sets the is_org_promotion_allowed of this ReinforceRequest.
 
+        Whether eligible learnings may be considered for organisation sharing.  # noqa: E501
 
         :param is_org_promotion_allowed: The is_org_promotion_allowed of this ReinforceRequest.  # noqa: E501
         :type: object

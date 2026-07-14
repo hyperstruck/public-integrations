@@ -1,7 +1,7 @@
 // tslint:disable
 /**
  * Hyperstruck Core
- * Hyperstruck Core management API
+ * Create and operate hosted agents, runs, learnings, and integrations. Authenticate resource requests with a Bearer API key unless an endpoint explicitly requires a portal session.
  *
  * OpenAPI spec version: 0.1.0
  * 

@@ -3,7 +3,7 @@
 """
     Hyperstruck Core
 
-    Hyperstruck Core management API  # noqa: E501
+    Create and operate hosted agents, runs, learnings, and integrations. Authenticate resource requests with a Bearer API key unless an endpoint explicitly requires a portal session.  # noqa: E501
 
     OpenAPI spec version: 0.1.0
     
@@ -215,7 +215,7 @@ class StoreLearningRequest(object):
     def instances(self):
         """Gets the instances of this StoreLearningRequest.  # noqa: E501
 
-        Specific evidence instances that support the learning. API-sourced instances are content-addressed for deduplication by entity values and outcome.  # noqa: E501
+        Specific structured examples that support the learning, expressed as entity values and observed outcomes.  # noqa: E501
 
         :return: The instances of this StoreLearningRequest.  # noqa: E501
         :rtype: object
@@ -226,7 +226,7 @@ class StoreLearningRequest(object):
     def instances(self, instances):
         """Sets the instances of this StoreLearningRequest.
 
-        Specific evidence instances that support the learning. API-sourced instances are content-addressed for deduplication by entity values and outcome.  # noqa: E501
+        Specific structured examples that support the learning, expressed as entity values and observed outcomes.  # noqa: E501
 
         :param instances: The instances of this StoreLearningRequest.  # noqa: E501
         :type: object

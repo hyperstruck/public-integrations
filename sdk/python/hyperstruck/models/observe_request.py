@@ -3,7 +3,7 @@
 """
     Hyperstruck Core
 
-    Hyperstruck Core management API  # noqa: E501
+    Create and operate hosted agents, runs, learnings, and integrations. Authenticate resource requests with a Bearer API key unless an endpoint explicitly requires a portal session.  # noqa: E501
 
     OpenAPI spec version: 0.1.0
     
@@ -54,6 +54,7 @@ class ObserveRequest(object):
     def agent_id(self):
         """Gets the agent_id of this ObserveRequest.  # noqa: E501
 
+        Caller-defined string identifying the external agent.  # noqa: E501
 
         :return: The agent_id of this ObserveRequest.  # noqa: E501
         :rtype: object
@@ -64,6 +65,7 @@ class ObserveRequest(object):
     def agent_id(self, agent_id):
         """Sets the agent_id of this ObserveRequest.
 
+        Caller-defined string identifying the external agent.  # noqa: E501
 
         :param agent_id: The agent_id of this ObserveRequest.  # noqa: E501
         :type: object
@@ -77,6 +79,7 @@ class ObserveRequest(object):
     def org_id(self):
         """Gets the org_id of this ObserveRequest.  # noqa: E501
 
+        Optional caller-owned organisation reference.  # noqa: E501
 
         :return: The org_id of this ObserveRequest.  # noqa: E501
         :rtype: object
@@ -87,6 +90,7 @@ class ObserveRequest(object):
     def org_id(self, org_id):
         """Sets the org_id of this ObserveRequest.
 
+        Optional caller-owned organisation reference.  # noqa: E501
 
         :param org_id: The org_id of this ObserveRequest.  # noqa: E501
         :type: object
@@ -98,6 +102,7 @@ class ObserveRequest(object):
     def episode(self):
         """Gets the episode of this ObserveRequest.  # noqa: E501
 
+        Caller-supplied completed episode. Direct API clients may construct it without LangGraph.  # noqa: E501
 
         :return: The episode of this ObserveRequest.  # noqa: E501
         :rtype: EpisodeModel
@@ -108,6 +113,7 @@ class ObserveRequest(object):
     def episode(self, episode):
         """Sets the episode of this ObserveRequest.
 
+        Caller-supplied completed episode. Direct API clients may construct it without LangGraph.  # noqa: E501
 
         :param episode: The episode of this ObserveRequest.  # noqa: E501
         :type: EpisodeModel

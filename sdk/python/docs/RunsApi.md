@@ -15,6 +15,8 @@ Method | HTTP request | Description
 
 Create Goal Run
 
+Start asynchronous work for a hosted agent. A 202 response contains the server-issued run UUID; use `GET /runs/{run_id}` to follow its status and resume it if human input is requested.
+
 ### Example
 ```python
 from __future__ import print_function
@@ -23,10 +25,16 @@ import hyperstruck
 from hyperstruck.rest import ApiException
 from pprint import pprint
 
+# Configure API key authorization: BearerApiKey
+configuration = hyperstruck.Configuration()
+configuration.api_key['Authorization'] = 'YOUR_API_KEY'
+# Uncomment below to setup prefix (e.g. Bearer) for API key, if needed
+# configuration.api_key_prefix['Authorization'] = 'Bearer'
+
 # create an instance of the API class
-api_instance = hyperstruck.RunsApi()
-body = hyperstruck.GoalRunRequest() # GoalRunRequest | 
-agent_id = NULL # object | 
+api_instance = hyperstruck.RunsApi(hyperstruck.ApiClient(configuration))
+body = hyperstruck.GoalRunRequest() # GoalRunRequest |
+agent_id = NULL # object | Hosted agent UUID returned by the agent create or list endpoint.
 
 try:
     # Create Goal Run
@@ -40,8 +48,8 @@ except ApiException as e:
 
 Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
- **body** | [**GoalRunRequest**](GoalRunRequest.md)|  | 
- **agent_id** | [**object**](.md)|  | 
+ **body** | [**GoalRunRequest**](GoalRunRequest.md)|  |
+ **agent_id** | [**object**](.md)| Hosted agent UUID returned by the agent create or list endpoint. |
 
 ### Return type
 
@@ -49,7 +57,7 @@ Name | Type | Description  | Notes
 
 ### Authorization
 
-No authorization required
+[BearerApiKey](../README.md#BearerApiKey)
 
 ### HTTP request headers
 
@@ -63,6 +71,8 @@ No authorization required
 
 Get Run
 
+Retrieve the latest state and result of a hosted run by its server-issued UUID. Poll this endpoint after starting or resuming a run until it reaches a terminal state or requests human input.
+
 ### Example
 ```python
 from __future__ import print_function
@@ -71,9 +81,15 @@ import hyperstruck
 from hyperstruck.rest import ApiException
 from pprint import pprint
 
+# Configure API key authorization: BearerApiKey
+configuration = hyperstruck.Configuration()
+configuration.api_key['Authorization'] = 'YOUR_API_KEY'
+# Uncomment below to setup prefix (e.g. Bearer) for API key, if needed
+# configuration.api_key_prefix['Authorization'] = 'Bearer'
+
 # create an instance of the API class
-api_instance = hyperstruck.RunsApi()
-run_id = NULL # object | 
+api_instance = hyperstruck.RunsApi(hyperstruck.ApiClient(configuration))
+run_id = NULL # object | Server-issued hosted run UUID returned when a run is accepted.
 
 try:
     # Get Run
@@ -87,7 +103,7 @@ except ApiException as e:
 
 Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
- **run_id** | [**object**](.md)|  | 
+ **run_id** | [**object**](.md)| Server-issued hosted run UUID returned when a run is accepted. |
 
 ### Return type
 
@@ -95,7 +111,7 @@ Name | Type | Description  | Notes
 
 ### Authorization
 
-No authorization required
+[BearerApiKey](../README.md#BearerApiKey)
 
 ### HTTP request headers
 
@@ -109,6 +125,8 @@ No authorization required
 
 List Agent Runs
 
+List hosted runs for one agent, optionally filtered by status, type, session, or reporting window. Use the returned run UUIDs with `/runs`.
+
 ### Example
 ```python
 from __future__ import print_function
@@ -117,15 +135,21 @@ import hyperstruck
 from hyperstruck.rest import ApiException
 from pprint import pprint
 
+# Configure API key authorization: BearerApiKey
+configuration = hyperstruck.Configuration()
+configuration.api_key['Authorization'] = 'YOUR_API_KEY'
+# Uncomment below to setup prefix (e.g. Bearer) for API key, if needed
+# configuration.api_key_prefix['Authorization'] = 'Bearer'
+
 # create an instance of the API class
-api_instance = hyperstruck.RunsApi()
-agent_id = NULL # object | 
+api_instance = hyperstruck.RunsApi(hyperstruck.ApiClient(configuration))
+agent_id = NULL # object | Hosted agent UUID returned by the agent create or list endpoint.
 status = [] # object | Filter by one or more run statuses. (optional) (default to [])
 run_type = [] # object | Filter by one or more run types (goal|resume). (optional) (default to [])
 session_id = NULL # object | Filter to a single session. (optional)
 window = hyperstruck.UsageTimeWindow() # UsageTimeWindow | Window bounding which runs are returned. (optional) (default to last_30_days)
-limit = 25 # object | Page size. (optional) (default to 25)
-cursor = NULL # object | Opaque string from the previous page's `next_cursor`. (optional)
+limit = 25 # object | Maximum number of items to return on this page. (optional) (default to 25)
+cursor = NULL # object | Opaque pagination token from the previous response's `next_cursor`. Pass it back unchanged; omit it to start again from the first page. (optional)
 
 try:
     # List Agent Runs
@@ -139,13 +163,13 @@ except ApiException as e:
 
 Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
- **agent_id** | [**object**](.md)|  | 
+ **agent_id** | [**object**](.md)| Hosted agent UUID returned by the agent create or list endpoint. |
  **status** | [**object**](.md)| Filter by one or more run statuses. | [optional] [default to []]
  **run_type** | [**object**](.md)| Filter by one or more run types (goal|resume). | [optional] [default to []]
- **session_id** | [**object**](.md)| Filter to a single session. | [optional] 
+ **session_id** | [**object**](.md)| Filter to a single session. | [optional]
  **window** | [**UsageTimeWindow**](.md)| Window bounding which runs are returned. | [optional] [default to last_30_days]
- **limit** | [**object**](.md)| Page size. | [optional] [default to 25]
- **cursor** | [**object**](.md)| Opaque string from the previous page&#x27;s &#x60;next_cursor&#x60;. | [optional] 
+ **limit** | [**object**](.md)| Maximum number of items to return on this page. | [optional] [default to 25]
+ **cursor** | [**object**](.md)| Opaque pagination token from the previous response&#x27;s &#x60;next_cursor&#x60;. Pass it back unchanged; omit it to start again from the first page. | [optional]
 
 ### Return type
 
@@ -153,7 +177,7 @@ Name | Type | Description  | Notes
 
 ### Authorization
 
-No authorization required
+[BearerApiKey](../README.md#BearerApiKey)
 
 ### HTTP request headers
 
@@ -167,7 +191,7 @@ No authorization required
 
 List Session Runs
 
-List runs in a session (newest first), keyset-paginated.
+List the hosted runs associated with one conversation session, newest first. Use the returned run UUIDs to inspect individual run details.
 
 ### Example
 ```python
@@ -177,11 +201,17 @@ import hyperstruck
 from hyperstruck.rest import ApiException
 from pprint import pprint
 
+# Configure API key authorization: BearerApiKey
+configuration = hyperstruck.Configuration()
+configuration.api_key['Authorization'] = 'YOUR_API_KEY'
+# Uncomment below to setup prefix (e.g. Bearer) for API key, if needed
+# configuration.api_key_prefix['Authorization'] = 'Bearer'
+
 # create an instance of the API class
-api_instance = hyperstruck.RunsApi()
-session_id = NULL # object | 
-limit = 20 # object | Page size. (optional) (default to 20)
-cursor = NULL # object | Opaque string from the previous page's `next_cursor`. (optional)
+api_instance = hyperstruck.RunsApi(hyperstruck.ApiClient(configuration))
+session_id = NULL # object | Conversation session UUID associated with an agent.
+limit = 20 # object | Maximum number of items to return on this page. (optional) (default to 20)
+cursor = NULL # object | Opaque pagination token from the previous response's `next_cursor`. Pass it back unchanged; omit it to start again from the first page. (optional)
 
 try:
     # List Session Runs
@@ -195,9 +225,9 @@ except ApiException as e:
 
 Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
- **session_id** | [**object**](.md)|  | 
- **limit** | [**object**](.md)| Page size. | [optional] [default to 20]
- **cursor** | [**object**](.md)| Opaque string from the previous page&#x27;s &#x60;next_cursor&#x60;. | [optional] 
+ **session_id** | [**object**](.md)| Conversation session UUID associated with an agent. |
+ **limit** | [**object**](.md)| Maximum number of items to return on this page. | [optional] [default to 20]
+ **cursor** | [**object**](.md)| Opaque pagination token from the previous response&#x27;s &#x60;next_cursor&#x60;. Pass it back unchanged; omit it to start again from the first page. | [optional]
 
 ### Return type
 
@@ -205,7 +235,7 @@ Name | Type | Description  | Notes
 
 ### Authorization
 
-No authorization required
+[BearerApiKey](../README.md#BearerApiKey)
 
 ### HTTP request headers
 
@@ -219,7 +249,7 @@ No authorization required
 
 Resume Run
 
-Resume a suspended run with a human decision.
+Continue a suspended hosted run with the requested human decision. A 202 response contains the accepted child run; follow it with `GET /runs/{run_id}`.
 
 ### Example
 ```python
@@ -229,10 +259,16 @@ import hyperstruck
 from hyperstruck.rest import ApiException
 from pprint import pprint
 
+# Configure API key authorization: BearerApiKey
+configuration = hyperstruck.Configuration()
+configuration.api_key['Authorization'] = 'YOUR_API_KEY'
+# Uncomment below to setup prefix (e.g. Bearer) for API key, if needed
+# configuration.api_key_prefix['Authorization'] = 'Bearer'
+
 # create an instance of the API class
-api_instance = hyperstruck.RunsApi()
-body = hyperstruck.ResumeRunRequest() # ResumeRunRequest | 
-run_id = NULL # object | 
+api_instance = hyperstruck.RunsApi(hyperstruck.ApiClient(configuration))
+body = hyperstruck.ResumeRunRequest() # ResumeRunRequest |
+run_id = NULL # object | Server-issued hosted run UUID returned when a run is accepted.
 
 try:
     # Resume Run
@@ -246,8 +282,8 @@ except ApiException as e:
 
 Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
- **body** | [**ResumeRunRequest**](ResumeRunRequest.md)|  | 
- **run_id** | [**object**](.md)|  | 
+ **body** | [**ResumeRunRequest**](ResumeRunRequest.md)|  |
+ **run_id** | [**object**](.md)| Server-issued hosted run UUID returned when a run is accepted. |
 
 ### Return type
 
@@ -255,7 +291,7 @@ Name | Type | Description  | Notes
 
 ### Authorization
 
-No authorization required
+[BearerApiKey](../README.md#BearerApiKey)
 
 ### HTTP request headers
 

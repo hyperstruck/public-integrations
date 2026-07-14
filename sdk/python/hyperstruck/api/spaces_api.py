@@ -3,7 +3,7 @@
 """
     Hyperstruck Core
 
-    Hyperstruck Core management API  # noqa: E501
+    Create and operate hosted agents, runs, learnings, and integrations. Authenticate resource requests with a Bearer API key unless an endpoint explicitly requires a portal session.  # noqa: E501
 
     OpenAPI spec version: 0.1.0
     
@@ -35,14 +35,15 @@ class SpacesApi(object):
     def list_spaces_endpoint_spaces_get(self, **kwargs):  # noqa: E501
         """List Spaces  # noqa: E501
 
+        List spaces the caller can read in the active tenant. Use these UUIDs when selecting an agent home space or filtering accessible agents.  # noqa: E501
         This method makes a synchronous HTTP request by default. To make an
         asynchronous HTTP request, please pass async_req=True
         >>> thread = api.list_spaces_endpoint_spaces_get(async_req=True)
         >>> result = thread.get()
 
         :param async_req bool
-        :param object limit: Page size.
-        :param object cursor: Opaque string from the previous page's `next_cursor`.
+        :param object limit: Maximum number of items to return on this page.
+        :param object cursor: Opaque pagination token from the previous response's `next_cursor`. Pass it back unchanged; omit it to start again from the first page.
         :return: SpaceListResponse
                  If the method is called asynchronously,
                  returns the request thread.
@@ -57,14 +58,15 @@ class SpacesApi(object):
     def list_spaces_endpoint_spaces_get_with_http_info(self, **kwargs):  # noqa: E501
         """List Spaces  # noqa: E501
 
+        List spaces the caller can read in the active tenant. Use these UUIDs when selecting an agent home space or filtering accessible agents.  # noqa: E501
         This method makes a synchronous HTTP request by default. To make an
         asynchronous HTTP request, please pass async_req=True
         >>> thread = api.list_spaces_endpoint_spaces_get_with_http_info(async_req=True)
         >>> result = thread.get()
 
         :param async_req bool
-        :param object limit: Page size.
-        :param object cursor: Opaque string from the previous page's `next_cursor`.
+        :param object limit: Maximum number of items to return on this page.
+        :param object cursor: Opaque pagination token from the previous response's `next_cursor`. Pass it back unchanged; omit it to start again from the first page.
         :return: SpaceListResponse
                  If the method is called asynchronously,
                  returns the request thread.
@@ -107,7 +109,7 @@ class SpacesApi(object):
             ['application/json'])  # noqa: E501
 
         # Authentication setting
-        auth_settings = []  # noqa: E501
+        auth_settings = ['BearerApiKey']  # noqa: E501
 
         return self.api_client.call_api(
             '/spaces', 'GET',

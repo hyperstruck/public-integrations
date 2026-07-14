@@ -12,6 +12,8 @@ Method | HTTP request | Description
 
 Search similar plans for one agent
 
+Search one agent's prior plans for approaches relevant to a new goal. Use this read-only endpoint when planning should benefit from that agent's previous experience.
+
 ### Example
 ```python
 from __future__ import print_function
@@ -20,9 +22,15 @@ import hyperstruck
 from hyperstruck.rest import ApiException
 from pprint import pprint
 
+# Configure API key authorization: BearerApiKey
+configuration = hyperstruck.Configuration()
+configuration.api_key['Authorization'] = 'YOUR_API_KEY'
+# Uncomment below to setup prefix (e.g. Bearer) for API key, if needed
+# configuration.api_key_prefix['Authorization'] = 'Bearer'
+
 # create an instance of the API class
-api_instance = hyperstruck.PlansApi()
-agent_id = NULL # object | 
+api_instance = hyperstruck.PlansApi(hyperstruck.ApiClient(configuration))
+agent_id = NULL # object | Hosted agent UUID returned by the agent create or list endpoint.
 q = NULL # object | Search query text used to retrieve similar plans.
 limit = NULL # object | Optional max results; capped at 10 per agent. (optional)
 
@@ -38,9 +46,9 @@ except ApiException as e:
 
 Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
- **agent_id** | [**object**](.md)|  | 
- **q** | [**object**](.md)| Search query text used to retrieve similar plans. | 
- **limit** | [**object**](.md)| Optional max results; capped at 10 per agent. | [optional] 
+ **agent_id** | [**object**](.md)| Hosted agent UUID returned by the agent create or list endpoint. |
+ **q** | [**object**](.md)| Search query text used to retrieve similar plans. |
+ **limit** | [**object**](.md)| Optional max results; capped at 10 per agent. | [optional]
 
 ### Return type
 
@@ -48,7 +56,7 @@ Name | Type | Description  | Notes
 
 ### Authorization
 
-No authorization required
+[BearerApiKey](../README.md#BearerApiKey)
 
 ### HTTP request headers
 
@@ -62,6 +70,8 @@ No authorization required
 
 Search similar plans across multiple agents
 
+Search prior plans across several accessible agents in one request. Use this for coordination or routing when experience may be distributed across agents.
+
 ### Example
 ```python
 from __future__ import print_function
@@ -70,9 +80,15 @@ import hyperstruck
 from hyperstruck.rest import ApiException
 from pprint import pprint
 
+# Configure API key authorization: BearerApiKey
+configuration = hyperstruck.Configuration()
+configuration.api_key['Authorization'] = 'YOUR_API_KEY'
+# Uncomment below to setup prefix (e.g. Bearer) for API key, if needed
+# configuration.api_key_prefix['Authorization'] = 'Bearer'
+
 # create an instance of the API class
-api_instance = hyperstruck.PlansApi()
-body = hyperstruck.MultiAgentPlanSearchRequest() # MultiAgentPlanSearchRequest | 
+api_instance = hyperstruck.PlansApi(hyperstruck.ApiClient(configuration))
+body = hyperstruck.MultiAgentPlanSearchRequest() # MultiAgentPlanSearchRequest |
 
 try:
     # Search similar plans across multiple agents
@@ -86,7 +102,7 @@ except ApiException as e:
 
 Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
- **body** | [**MultiAgentPlanSearchRequest**](MultiAgentPlanSearchRequest.md)|  | 
+ **body** | [**MultiAgentPlanSearchRequest**](MultiAgentPlanSearchRequest.md)|  |
 
 ### Return type
 
@@ -94,7 +110,7 @@ Name | Type | Description  | Notes
 
 ### Authorization
 
-No authorization required
+[BearerApiKey](../README.md#BearerApiKey)
 
 ### HTTP request headers
 

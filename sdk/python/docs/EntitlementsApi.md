@@ -21,8 +21,14 @@ import hyperstruck
 from hyperstruck.rest import ApiException
 from pprint import pprint
 
+# Configure API key authorization: BearerApiKey
+configuration = hyperstruck.Configuration()
+configuration.api_key['Authorization'] = 'YOUR_API_KEY'
+# Uncomment below to setup prefix (e.g. Bearer) for API key, if needed
+# configuration.api_key_prefix['Authorization'] = 'Bearer'
+
 # create an instance of the API class
-api_instance = hyperstruck.EntitlementsApi()
+api_instance = hyperstruck.EntitlementsApi(hyperstruck.ApiClient(configuration))
 
 try:
     # The calling principal's plan entitlements
@@ -41,7 +47,7 @@ This endpoint does not need any parameter.
 
 ### Authorization
 
-No authorization required
+[BearerApiKey](../README.md#BearerApiKey)
 
 ### HTTP request headers
 

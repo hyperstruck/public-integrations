@@ -3,7 +3,7 @@
 """
     Hyperstruck Core
 
-    Hyperstruck Core management API  # noqa: E501
+    Create and operate hosted agents, runs, learnings, and integrations. Authenticate resource requests with a Bearer API key unless an endpoint explicitly requires a portal session.  # noqa: E501
 
     OpenAPI spec version: 0.1.0
     
@@ -35,13 +35,14 @@ class PlansApi(object):
     def search_agent_similar_plans_endpoint_agents_agent_id_plans_similar_get(self, agent_id, q, **kwargs):  # noqa: E501
         """Search similar plans for one agent  # noqa: E501
 
+        Search one agent's prior plans for approaches relevant to a new goal. Use this read-only endpoint when planning should benefit from that agent's previous experience.  # noqa: E501
         This method makes a synchronous HTTP request by default. To make an
         asynchronous HTTP request, please pass async_req=True
         >>> thread = api.search_agent_similar_plans_endpoint_agents_agent_id_plans_similar_get(agent_id, q, async_req=True)
         >>> result = thread.get()
 
         :param async_req bool
-        :param object agent_id: (required)
+        :param object agent_id: Hosted agent UUID returned by the agent create or list endpoint. (required)
         :param object q: Search query text used to retrieve similar plans. (required)
         :param object limit: Optional max results; capped at 10 per agent.
         :return: SimilarPlansResponse
@@ -58,13 +59,14 @@ class PlansApi(object):
     def search_agent_similar_plans_endpoint_agents_agent_id_plans_similar_get_with_http_info(self, agent_id, q, **kwargs):  # noqa: E501
         """Search similar plans for one agent  # noqa: E501
 
+        Search one agent's prior plans for approaches relevant to a new goal. Use this read-only endpoint when planning should benefit from that agent's previous experience.  # noqa: E501
         This method makes a synchronous HTTP request by default. To make an
         asynchronous HTTP request, please pass async_req=True
         >>> thread = api.search_agent_similar_plans_endpoint_agents_agent_id_plans_similar_get_with_http_info(agent_id, q, async_req=True)
         >>> result = thread.get()
 
         :param async_req bool
-        :param object agent_id: (required)
+        :param object agent_id: Hosted agent UUID returned by the agent create or list endpoint. (required)
         :param object q: Search query text used to retrieve similar plans. (required)
         :param object limit: Optional max results; capped at 10 per agent.
         :return: SimilarPlansResponse
@@ -119,7 +121,7 @@ class PlansApi(object):
             ['application/json'])  # noqa: E501
 
         # Authentication setting
-        auth_settings = []  # noqa: E501
+        auth_settings = ['BearerApiKey']  # noqa: E501
 
         return self.api_client.call_api(
             '/agents/{agent_id}/plans/similar', 'GET',
@@ -140,6 +142,7 @@ class PlansApi(object):
     def search_multi_agent_similar_plans_endpoint_plans_similar_post(self, body, **kwargs):  # noqa: E501
         """Search similar plans across multiple agents  # noqa: E501
 
+        Search prior plans across several accessible agents in one request. Use this for coordination or routing when experience may be distributed across agents.  # noqa: E501
         This method makes a synchronous HTTP request by default. To make an
         asynchronous HTTP request, please pass async_req=True
         >>> thread = api.search_multi_agent_similar_plans_endpoint_plans_similar_post(body, async_req=True)
@@ -161,6 +164,7 @@ class PlansApi(object):
     def search_multi_agent_similar_plans_endpoint_plans_similar_post_with_http_info(self, body, **kwargs):  # noqa: E501
         """Search similar plans across multiple agents  # noqa: E501
 
+        Search prior plans across several accessible agents in one request. Use this for coordination or routing when experience may be distributed across agents.  # noqa: E501
         This method makes a synchronous HTTP request by default. To make an
         asynchronous HTTP request, please pass async_req=True
         >>> thread = api.search_multi_agent_similar_plans_endpoint_plans_similar_post_with_http_info(body, async_req=True)
@@ -216,7 +220,7 @@ class PlansApi(object):
             ['application/json'])  # noqa: E501
 
         # Authentication setting
-        auth_settings = []  # noqa: E501
+        auth_settings = ['BearerApiKey']  # noqa: E501
 
         return self.api_client.call_api(
             '/plans/similar', 'POST',

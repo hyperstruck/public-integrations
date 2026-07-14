@@ -3,7 +3,7 @@
 """
     Hyperstruck Core
 
-    Hyperstruck Core management API  # noqa: E501
+    Create and operate hosted agents, runs, learnings, and integrations. Authenticate resource requests with a Bearer API key unless an endpoint explicitly requires a portal session.  # noqa: E501
 
     OpenAPI spec version: 0.1.0
     
@@ -117,6 +117,7 @@ class RunDetailResponse(object):
     def id(self):
         """Gets the id of this RunDetailResponse.  # noqa: E501
 
+        Server-issued hosted run UUID used by `/runs/{run_id}`.  # noqa: E501
 
         :return: The id of this RunDetailResponse.  # noqa: E501
         :rtype: object
@@ -127,6 +128,7 @@ class RunDetailResponse(object):
     def id(self, id):
         """Sets the id of this RunDetailResponse.
 
+        Server-issued hosted run UUID used by `/runs/{run_id}`.  # noqa: E501
 
         :param id: The id of this RunDetailResponse.  # noqa: E501
         :type: object
@@ -140,6 +142,7 @@ class RunDetailResponse(object):
     def agent_id(self):
         """Gets the agent_id of this RunDetailResponse.  # noqa: E501
 
+        Hosted agent UUID associated with this run.  # noqa: E501
 
         :return: The agent_id of this RunDetailResponse.  # noqa: E501
         :rtype: object
@@ -150,6 +153,7 @@ class RunDetailResponse(object):
     def agent_id(self, agent_id):
         """Sets the agent_id of this RunDetailResponse.
 
+        Hosted agent UUID associated with this run.  # noqa: E501
 
         :param agent_id: The agent_id of this RunDetailResponse.  # noqa: E501
         :type: object
@@ -161,6 +165,7 @@ class RunDetailResponse(object):
     def session_id(self):
         """Gets the session_id of this RunDetailResponse.  # noqa: E501
 
+        Conversation session UUID, when the run belongs to a session.  # noqa: E501
 
         :return: The session_id of this RunDetailResponse.  # noqa: E501
         :rtype: object
@@ -171,6 +176,7 @@ class RunDetailResponse(object):
     def session_id(self, session_id):
         """Sets the session_id of this RunDetailResponse.
 
+        Conversation session UUID, when the run belongs to a session.  # noqa: E501
 
         :param session_id: The session_id of this RunDetailResponse.  # noqa: E501
         :type: object
@@ -184,6 +190,7 @@ class RunDetailResponse(object):
     def parent_run_id(self):
         """Gets the parent_run_id of this RunDetailResponse.  # noqa: E501
 
+        Parent hosted run UUID when this run resumed a suspension.  # noqa: E501
 
         :return: The parent_run_id of this RunDetailResponse.  # noqa: E501
         :rtype: object
@@ -194,6 +201,7 @@ class RunDetailResponse(object):
     def parent_run_id(self, parent_run_id):
         """Sets the parent_run_id of this RunDetailResponse.
 
+        Parent hosted run UUID when this run resumed a suspension.  # noqa: E501
 
         :param parent_run_id: The parent_run_id of this RunDetailResponse.  # noqa: E501
         :type: object

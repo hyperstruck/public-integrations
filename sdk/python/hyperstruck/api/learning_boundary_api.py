@@ -3,7 +3,7 @@
 """
     Hyperstruck Core
 
-    Hyperstruck Core management API  # noqa: E501
+    Create and operate hosted agents, runs, learnings, and integrations. Authenticate resource requests with a Bearer API key unless an endpoint explicitly requires a portal session.  # noqa: E501
 
     OpenAPI spec version: 0.1.0
     
@@ -33,9 +33,9 @@ class LearningBoundaryApi(object):
         self.api_client = api_client
 
     def distill_endpoint_distill_post(self, body, **kwargs):  # noqa: E501
-        """Distil learnings from a corpus of evidence  # noqa: E501
+        """Distill learnings from a corpus of evidence  # noqa: E501
 
-        Distil durable learnings from a corpus (post-mortems, docs, diffs, analysis output) by submitting a distillation goal plus evidence items, instead of a tool-step episode. Runs the same server-side extraction as observe on a background worker (202), but stands outside the resolve/observe/reinforce loop. Requires at least two evidence items with enough content to ground a learning, a declared contrast signal (differing status/role, a role='contrast' item, or an evaluation note), and a 'distill:'-prefixed run_id. A corpus that declares contrast but carries none is still accepted and simply yields nothing (a valid 202). Evidence content is stored verbatim where grounded, so callers must pre-redact secrets.  # noqa: E501
+        Distill durable learnings from post-mortems, documents, diffs, or analysis without inventing tool steps. Submit at least two evidence items and a contrast signal. `run_id` is a caller-created idempotency and tracing value, must begin with `distill:`, and does not reference `GET /runs/{run_id}`. A valid request may yield no learning. Pre-redact secrets from evidence.  # noqa: E501
         This method makes a synchronous HTTP request by default. To make an
         asynchronous HTTP request, please pass async_req=True
         >>> thread = api.distill_endpoint_distill_post(body, async_req=True)
@@ -55,9 +55,9 @@ class LearningBoundaryApi(object):
             return data
 
     def distill_endpoint_distill_post_with_http_info(self, body, **kwargs):  # noqa: E501
-        """Distil learnings from a corpus of evidence  # noqa: E501
+        """Distill learnings from a corpus of evidence  # noqa: E501
 
-        Distil durable learnings from a corpus (post-mortems, docs, diffs, analysis output) by submitting a distillation goal plus evidence items, instead of a tool-step episode. Runs the same server-side extraction as observe on a background worker (202), but stands outside the resolve/observe/reinforce loop. Requires at least two evidence items with enough content to ground a learning, a declared contrast signal (differing status/role, a role='contrast' item, or an evaluation note), and a 'distill:'-prefixed run_id. A corpus that declares contrast but carries none is still accepted and simply yields nothing (a valid 202). Evidence content is stored verbatim where grounded, so callers must pre-redact secrets.  # noqa: E501
+        Distill durable learnings from post-mortems, documents, diffs, or analysis without inventing tool steps. Submit at least two evidence items and a contrast signal. `run_id` is a caller-created idempotency and tracing value, must begin with `distill:`, and does not reference `GET /runs/{run_id}`. A valid request may yield no learning. Pre-redact secrets from evidence.  # noqa: E501
         This method makes a synchronous HTTP request by default. To make an
         asynchronous HTTP request, please pass async_req=True
         >>> thread = api.distill_endpoint_distill_post_with_http_info(body, async_req=True)
@@ -113,7 +113,7 @@ class LearningBoundaryApi(object):
             ['application/json'])  # noqa: E501
 
         # Authentication setting
-        auth_settings = []  # noqa: E501
+        auth_settings = ['BearerApiKey']  # noqa: E501
 
         return self.api_client.call_api(
             '/distill', 'POST',
@@ -141,8 +141,8 @@ class LearningBoundaryApi(object):
         >>> result = thread.get()
 
         :param async_req bool
-        :param object window_hours:
-        :param object grace_minutes:
+        :param object window_hours: Recent lookback window in hours; values are capped at 90 days.
+        :param object grace_minutes: Minutes allowed for asynchronous write-back before a resolved run is counted as half-open.
         :return: LoopClosureFunnelResponse
                  If the method is called asynchronously,
                  returns the request thread.
@@ -164,8 +164,8 @@ class LearningBoundaryApi(object):
         >>> result = thread.get()
 
         :param async_req bool
-        :param object window_hours:
-        :param object grace_minutes:
+        :param object window_hours: Recent lookback window in hours; values are capped at 90 days.
+        :param object grace_minutes: Minutes allowed for asynchronous write-back before a resolved run is counted as half-open.
         :return: LoopClosureFunnelResponse
                  If the method is called asynchronously,
                  returns the request thread.
@@ -208,7 +208,7 @@ class LearningBoundaryApi(object):
             ['application/json'])  # noqa: E501
 
         # Authentication setting
-        auth_settings = []  # noqa: E501
+        auth_settings = ['BearerApiKey']  # noqa: E501
 
         return self.api_client.call_api(
             '/funnel', 'GET',
@@ -229,7 +229,7 @@ class LearningBoundaryApi(object):
     def observe_endpoint_observe_post(self, body, **kwargs):  # noqa: E501
         """Observe a finished episode  # noqa: E501
 
-        Submit a finished run for server-side learning extraction. Processed on a background worker, so the request returns immediately. Idempotent by run id.  # noqa: E501
+        Submit a completed episode for asynchronous learning extraction. Direct API callers may construct the episode themselves; LangGraph is not required. Use a meaningful execution trace rather than documents or invented tool steps—use `/distill` for corpus evidence. The caller-owned episode `run_id` is an idempotency and correlation key, not a hosted run UUID.  # noqa: E501
         This method makes a synchronous HTTP request by default. To make an
         asynchronous HTTP request, please pass async_req=True
         >>> thread = api.observe_endpoint_observe_post(body, async_req=True)
@@ -251,7 +251,7 @@ class LearningBoundaryApi(object):
     def observe_endpoint_observe_post_with_http_info(self, body, **kwargs):  # noqa: E501
         """Observe a finished episode  # noqa: E501
 
-        Submit a finished run for server-side learning extraction. Processed on a background worker, so the request returns immediately. Idempotent by run id.  # noqa: E501
+        Submit a completed episode for asynchronous learning extraction. Direct API callers may construct the episode themselves; LangGraph is not required. Use a meaningful execution trace rather than documents or invented tool steps—use `/distill` for corpus evidence. The caller-owned episode `run_id` is an idempotency and correlation key, not a hosted run UUID.  # noqa: E501
         This method makes a synchronous HTTP request by default. To make an
         asynchronous HTTP request, please pass async_req=True
         >>> thread = api.observe_endpoint_observe_post_with_http_info(body, async_req=True)
@@ -307,7 +307,7 @@ class LearningBoundaryApi(object):
             ['application/json'])  # noqa: E501
 
         # Authentication setting
-        auth_settings = []  # noqa: E501
+        auth_settings = ['BearerApiKey']  # noqa: E501
 
         return self.api_client.call_api(
             '/observe', 'POST',
@@ -328,7 +328,7 @@ class LearningBoundaryApi(object):
     def reinforce_endpoint_reinforce_post(self, body, **kwargs):  # noqa: E501
         """Reinforce the learnings a run used  # noqa: E501
 
-        Credit the learnings a finished run used. The eligible union and attribution are derived server-side from the run's offer log. Processed on a background worker; idempotent by run id.  # noqa: E501
+        Submit the completed outcome used to credit or correct learnings previously offered by resolve. Reuse the same caller-owned `run_id`; it is an idempotency and attribution key, not a hosted run UUID. Processing is asynchronous and the endpoint returns 202 when accepted.  # noqa: E501
         This method makes a synchronous HTTP request by default. To make an
         asynchronous HTTP request, please pass async_req=True
         >>> thread = api.reinforce_endpoint_reinforce_post(body, async_req=True)
@@ -350,7 +350,7 @@ class LearningBoundaryApi(object):
     def reinforce_endpoint_reinforce_post_with_http_info(self, body, **kwargs):  # noqa: E501
         """Reinforce the learnings a run used  # noqa: E501
 
-        Credit the learnings a finished run used. The eligible union and attribution are derived server-side from the run's offer log. Processed on a background worker; idempotent by run id.  # noqa: E501
+        Submit the completed outcome used to credit or correct learnings previously offered by resolve. Reuse the same caller-owned `run_id`; it is an idempotency and attribution key, not a hosted run UUID. Processing is asynchronous and the endpoint returns 202 when accepted.  # noqa: E501
         This method makes a synchronous HTTP request by default. To make an
         asynchronous HTTP request, please pass async_req=True
         >>> thread = api.reinforce_endpoint_reinforce_post_with_http_info(body, async_req=True)
@@ -406,7 +406,7 @@ class LearningBoundaryApi(object):
             ['application/json'])  # noqa: E501
 
         # Authentication setting
-        auth_settings = []  # noqa: E501
+        auth_settings = ['BearerApiKey']  # noqa: E501
 
         return self.api_client.call_api(
             '/reinforce', 'POST',
@@ -427,7 +427,7 @@ class LearningBoundaryApi(object):
     def resolve_endpoint_resolve_post(self, body, **kwargs):  # noqa: E501
         """Resolve the learnings bound to a goal  # noqa: E501
 
-        Return the learnings bound to a run's goal, as a rendered injection block plus the offered learning IDs. Records the offer server-side so a later reinforce can credit the learnings the run used.  # noqa: E501
+        Retrieve relevant learnings before external work begins. `run_id` is a caller-created correlation identifier, not a hosted run UUID. Reuse the same value with observe and reinforce so feedback can be attributed to the learnings offered here.  # noqa: E501
         This method makes a synchronous HTTP request by default. To make an
         asynchronous HTTP request, please pass async_req=True
         >>> thread = api.resolve_endpoint_resolve_post(body, async_req=True)
@@ -449,7 +449,7 @@ class LearningBoundaryApi(object):
     def resolve_endpoint_resolve_post_with_http_info(self, body, **kwargs):  # noqa: E501
         """Resolve the learnings bound to a goal  # noqa: E501
 
-        Return the learnings bound to a run's goal, as a rendered injection block plus the offered learning IDs. Records the offer server-side so a later reinforce can credit the learnings the run used.  # noqa: E501
+        Retrieve relevant learnings before external work begins. `run_id` is a caller-created correlation identifier, not a hosted run UUID. Reuse the same value with observe and reinforce so feedback can be attributed to the learnings offered here.  # noqa: E501
         This method makes a synchronous HTTP request by default. To make an
         asynchronous HTTP request, please pass async_req=True
         >>> thread = api.resolve_endpoint_resolve_post_with_http_info(body, async_req=True)
@@ -505,7 +505,7 @@ class LearningBoundaryApi(object):
             ['application/json'])  # noqa: E501
 
         # Authentication setting
-        auth_settings = []  # noqa: E501
+        auth_settings = ['BearerApiKey']  # noqa: E501
 
         return self.api_client.call_api(
             '/resolve', 'POST',

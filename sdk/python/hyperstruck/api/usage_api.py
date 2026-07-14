@@ -3,7 +3,7 @@
 """
     Hyperstruck Core
 
-    Hyperstruck Core management API  # noqa: E501
+    Create and operate hosted agents, runs, learnings, and integrations. Authenticate resource requests with a Bearer API key unless an endpoint explicitly requires a portal session.  # noqa: E501
 
     OpenAPI spec version: 0.1.0
     
@@ -35,13 +35,14 @@ class UsageApi(object):
     def get_agent_usage_summary_endpoint_agents_agent_id_usage_summary_get(self, agent_id, **kwargs):  # noqa: E501
         """Get Agent Usage Summary  # noqa: E501
 
+        Return metered usage for one agent over a preset reporting window. Use tenant-level `/usage` endpoints when an all-agent total is required.  # noqa: E501
         This method makes a synchronous HTTP request by default. To make an
         asynchronous HTTP request, please pass async_req=True
         >>> thread = api.get_agent_usage_summary_endpoint_agents_agent_id_usage_summary_get(agent_id, async_req=True)
         >>> result = thread.get()
 
         :param async_req bool
-        :param object agent_id: (required)
+        :param object agent_id: Hosted agent UUID returned by the agent create or list endpoint. (required)
         :param UsageTimeWindow window: Preset reporting window.
         :return: AgentUsageSummaryResponse
                  If the method is called asynchronously,
@@ -57,13 +58,14 @@ class UsageApi(object):
     def get_agent_usage_summary_endpoint_agents_agent_id_usage_summary_get_with_http_info(self, agent_id, **kwargs):  # noqa: E501
         """Get Agent Usage Summary  # noqa: E501
 
+        Return metered usage for one agent over a preset reporting window. Use tenant-level `/usage` endpoints when an all-agent total is required.  # noqa: E501
         This method makes a synchronous HTTP request by default. To make an
         asynchronous HTTP request, please pass async_req=True
         >>> thread = api.get_agent_usage_summary_endpoint_agents_agent_id_usage_summary_get_with_http_info(agent_id, async_req=True)
         >>> result = thread.get()
 
         :param async_req bool
-        :param object agent_id: (required)
+        :param object agent_id: Hosted agent UUID returned by the agent create or list endpoint. (required)
         :param UsageTimeWindow window: Preset reporting window.
         :return: AgentUsageSummaryResponse
                  If the method is called asynchronously,
@@ -111,7 +113,7 @@ class UsageApi(object):
             ['application/json'])  # noqa: E501
 
         # Authentication setting
-        auth_settings = []  # noqa: E501
+        auth_settings = ['BearerApiKey']  # noqa: E501
 
         return self.api_client.call_api(
             '/agents/{agent_id}/usage/summary', 'GET',
@@ -130,15 +132,16 @@ class UsageApi(object):
             collection_formats=collection_formats)
 
     def get_own_claim_assists_usage_claim_assists_get(self, **kwargs):  # noqa: E501
-        """Get Own Claim Assists  # noqa: E501
+        """Get Claim Assist Counts  # noqa: E501
 
+        Return recent counts of duplicate work avoided by idempotent claim handling. Use this operational usage indicator to understand retry and concurrency savings.  # noqa: E501
         This method makes a synchronous HTTP request by default. To make an
         asynchronous HTTP request, please pass async_req=True
         >>> thread = api.get_own_claim_assists_usage_claim_assists_get(async_req=True)
         >>> result = thread.get()
 
         :param async_req bool
-        :param object window_hours:
+        :param object window_hours: Recent lookback window in hours; values are capped at 90 days.
         :return: ClaimAssistsResponse
                  If the method is called asynchronously,
                  returns the request thread.
@@ -151,15 +154,16 @@ class UsageApi(object):
             return data
 
     def get_own_claim_assists_usage_claim_assists_get_with_http_info(self, **kwargs):  # noqa: E501
-        """Get Own Claim Assists  # noqa: E501
+        """Get Claim Assist Counts  # noqa: E501
 
+        Return recent counts of duplicate work avoided by idempotent claim handling. Use this operational usage indicator to understand retry and concurrency savings.  # noqa: E501
         This method makes a synchronous HTTP request by default. To make an
         asynchronous HTTP request, please pass async_req=True
         >>> thread = api.get_own_claim_assists_usage_claim_assists_get_with_http_info(async_req=True)
         >>> result = thread.get()
 
         :param async_req bool
-        :param object window_hours:
+        :param object window_hours: Recent lookback window in hours; values are capped at 90 days.
         :return: ClaimAssistsResponse
                  If the method is called asynchronously,
                  returns the request thread.
@@ -200,7 +204,7 @@ class UsageApi(object):
             ['application/json'])  # noqa: E501
 
         # Authentication setting
-        auth_settings = []  # noqa: E501
+        auth_settings = ['BearerApiKey']  # noqa: E501
 
         return self.api_client.call_api(
             '/usage/claim-assists', 'GET',
@@ -219,8 +223,9 @@ class UsageApi(object):
             collection_formats=collection_formats)
 
     def get_own_usage_summary_usage_summary_get(self, **kwargs):  # noqa: E501
-        """Get Own Usage Summary  # noqa: E501
+        """Get Usage Summary  # noqa: E501
 
+        Return tenant-wide metered usage for a preset reporting window. Use the same `as_of` value with `/usage/runs` to keep totals and pages aligned.  # noqa: E501
         This method makes a synchronous HTTP request by default. To make an
         asynchronous HTTP request, please pass async_req=True
         >>> thread = api.get_own_usage_summary_usage_summary_get(async_req=True)
@@ -241,8 +246,9 @@ class UsageApi(object):
             return data
 
     def get_own_usage_summary_usage_summary_get_with_http_info(self, **kwargs):  # noqa: E501
-        """Get Own Usage Summary  # noqa: E501
+        """Get Usage Summary  # noqa: E501
 
+        Return tenant-wide metered usage for a preset reporting window. Use the same `as_of` value with `/usage/runs` to keep totals and pages aligned.  # noqa: E501
         This method makes a synchronous HTTP request by default. To make an
         asynchronous HTTP request, please pass async_req=True
         >>> thread = api.get_own_usage_summary_usage_summary_get_with_http_info(async_req=True)
@@ -293,7 +299,7 @@ class UsageApi(object):
             ['application/json'])  # noqa: E501
 
         # Authentication setting
-        auth_settings = []  # noqa: E501
+        auth_settings = ['BearerApiKey']  # noqa: E501
 
         return self.api_client.call_api(
             '/usage/summary', 'GET',
@@ -312,8 +318,9 @@ class UsageApi(object):
             collection_formats=collection_formats)
 
     def list_own_usage_runs_usage_runs_get(self, **kwargs):  # noqa: E501
-        """List Own Usage Runs  # noqa: E501
+        """List Usage by Run  # noqa: E501
 
+        List hosted runs contributing to tenant usage in the selected reporting window. Results are cursor-paginated for reconciliation and audit views.  # noqa: E501
         This method makes a synchronous HTTP request by default. To make an
         asynchronous HTTP request, please pass async_req=True
         >>> thread = api.list_own_usage_runs_usage_runs_get(async_req=True)
@@ -322,8 +329,8 @@ class UsageApi(object):
         :param async_req bool
         :param UsageTimeWindow window: Preset reporting window (custom date range not supported in this API version).
         :param object as_of: Optional UTC timestamp used to anchor the reporting window so summary and paginated run pages stay aligned across requests.
-        :param object limit: Page size.
-        :param object cursor: Opaque string from the previous page's `next_cursor`.
+        :param object limit: Maximum number of items to return on this page.
+        :param object cursor: Opaque pagination token from the previous response's `next_cursor`. Pass it back unchanged; omit it to start again from the first page.
         :return: UsageRunListResponse
                  If the method is called asynchronously,
                  returns the request thread.
@@ -336,8 +343,9 @@ class UsageApi(object):
             return data
 
     def list_own_usage_runs_usage_runs_get_with_http_info(self, **kwargs):  # noqa: E501
-        """List Own Usage Runs  # noqa: E501
+        """List Usage by Run  # noqa: E501
 
+        List hosted runs contributing to tenant usage in the selected reporting window. Results are cursor-paginated for reconciliation and audit views.  # noqa: E501
         This method makes a synchronous HTTP request by default. To make an
         asynchronous HTTP request, please pass async_req=True
         >>> thread = api.list_own_usage_runs_usage_runs_get_with_http_info(async_req=True)
@@ -346,8 +354,8 @@ class UsageApi(object):
         :param async_req bool
         :param UsageTimeWindow window: Preset reporting window (custom date range not supported in this API version).
         :param object as_of: Optional UTC timestamp used to anchor the reporting window so summary and paginated run pages stay aligned across requests.
-        :param object limit: Page size.
-        :param object cursor: Opaque string from the previous page's `next_cursor`.
+        :param object limit: Maximum number of items to return on this page.
+        :param object cursor: Opaque pagination token from the previous response's `next_cursor`. Pass it back unchanged; omit it to start again from the first page.
         :return: UsageRunListResponse
                  If the method is called asynchronously,
                  returns the request thread.
@@ -394,7 +402,7 @@ class UsageApi(object):
             ['application/json'])  # noqa: E501
 
         # Authentication setting
-        auth_settings = []  # noqa: E501
+        auth_settings = ['BearerApiKey']  # noqa: E501
 
         return self.api_client.call_api(
             '/usage/runs', 'GET',

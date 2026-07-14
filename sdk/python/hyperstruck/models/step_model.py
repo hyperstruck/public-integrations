@@ -3,7 +3,7 @@
 """
     Hyperstruck Core
 
-    Hyperstruck Core management API  # noqa: E501
+    Create and operate hosted agents, runs, learnings, and integrations. Authenticate resource requests with a Bearer API key unless an endpoint explicitly requires a portal session.  # noqa: E501
 
     OpenAPI spec version: 0.1.0
     
@@ -74,6 +74,7 @@ class StepModel(object):
     def id(self):
         """Gets the id of this StepModel.  # noqa: E501
 
+        Step identifier unique within this episode.  # noqa: E501
 
         :return: The id of this StepModel.  # noqa: E501
         :rtype: object
@@ -84,6 +85,7 @@ class StepModel(object):
     def id(self, id):
         """Sets the id of this StepModel.
 
+        Step identifier unique within this episode.  # noqa: E501
 
         :param id: The id of this StepModel.  # noqa: E501
         :type: object
@@ -97,6 +99,7 @@ class StepModel(object):
     def name(self):
         """Gets the name of this StepModel.  # noqa: E501
 
+        Tool or action name executed by the external agent.  # noqa: E501
 
         :return: The name of this StepModel.  # noqa: E501
         :rtype: object
@@ -107,6 +110,7 @@ class StepModel(object):
     def name(self, name):
         """Sets the name of this StepModel.
 
+        Tool or action name executed by the external agent.  # noqa: E501
 
         :param name: The name of this StepModel.  # noqa: E501
         :type: object
@@ -120,6 +124,7 @@ class StepModel(object):
     def args(self):
         """Gets the args of this StepModel.  # noqa: E501
 
+        Arguments supplied to the tool or action.  # noqa: E501
 
         :return: The args of this StepModel.  # noqa: E501
         :rtype: object
@@ -130,6 +135,7 @@ class StepModel(object):
     def args(self, args):
         """Sets the args of this StepModel.
 
+        Arguments supplied to the tool or action.  # noqa: E501
 
         :param args: The args of this StepModel.  # noqa: E501
         :type: object
@@ -141,6 +147,7 @@ class StepModel(object):
     def status(self):
         """Gets the status of this StepModel.  # noqa: E501
 
+        Whether this step completed or failed.  # noqa: E501
 
         :return: The status of this StepModel.  # noqa: E501
         :rtype: object
@@ -151,6 +158,7 @@ class StepModel(object):
     def status(self, status):
         """Sets the status of this StepModel.
 
+        Whether this step completed or failed.  # noqa: E501
 
         :param status: The status of this StepModel.  # noqa: E501
         :type: object
@@ -162,6 +170,7 @@ class StepModel(object):
     def result(self):
         """Gets the result of this StepModel.  # noqa: E501
 
+        Caller-supplied step result. Pre-redact secrets and personal data.  # noqa: E501
 
         :return: The result of this StepModel.  # noqa: E501
         :rtype: object
@@ -172,6 +181,7 @@ class StepModel(object):
     def result(self, result):
         """Sets the result of this StepModel.
 
+        Caller-supplied step result. Pre-redact secrets and personal data.  # noqa: E501
 
         :param result: The result of this StepModel.  # noqa: E501
         :type: object
@@ -183,6 +193,7 @@ class StepModel(object):
     def error(self):
         """Gets the error of this StepModel.  # noqa: E501
 
+        Human-readable failure detail when `status` is `failed`.  # noqa: E501
 
         :return: The error of this StepModel.  # noqa: E501
         :rtype: object
@@ -193,6 +204,7 @@ class StepModel(object):
     def error(self, error):
         """Sets the error of this StepModel.
 
+        Human-readable failure detail when `status` is `failed`.  # noqa: E501
 
         :param error: The error of this StepModel.  # noqa: E501
         :type: object
@@ -204,6 +216,7 @@ class StepModel(object):
     def declared_sensitivity(self):
         """Gets the declared_sensitivity of this StepModel.  # noqa: E501
 
+        Optional caller-declared sensitivity metadata for step fields.  # noqa: E501
 
         :return: The declared_sensitivity of this StepModel.  # noqa: E501
         :rtype: object
@@ -214,6 +227,7 @@ class StepModel(object):
     def declared_sensitivity(self, declared_sensitivity):
         """Sets the declared_sensitivity of this StepModel.
 
+        Optional caller-declared sensitivity metadata for step fields.  # noqa: E501
 
         :param declared_sensitivity: The declared_sensitivity of this StepModel.  # noqa: E501
         :type: object

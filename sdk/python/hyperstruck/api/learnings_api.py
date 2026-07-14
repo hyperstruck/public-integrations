@@ -3,7 +3,7 @@
 """
     Hyperstruck Core
 
-    Hyperstruck Core management API  # noqa: E501
+    Create and operate hosted agents, runs, learnings, and integrations. Authenticate resource requests with a Bearer API key unless an endpoint explicitly requires a portal session.  # noqa: E501
 
     OpenAPI spec version: 0.1.0
     
@@ -42,7 +42,7 @@ class LearningsApi(object):
         >>> result = thread.get()
 
         :param async_req bool
-        :param object agent_id: (required)
+        :param object agent_id: Hosted agent UUID returned by the agent create or list endpoint. (required)
         :return: DeleteLearningsResponse
                  If the method is called asynchronously,
                  returns the request thread.
@@ -64,7 +64,7 @@ class LearningsApi(object):
         >>> result = thread.get()
 
         :param async_req bool
-        :param object agent_id: (required)
+        :param object agent_id: Hosted agent UUID returned by the agent create or list endpoint. (required)
         :return: DeleteLearningsResponse
                  If the method is called asynchronously,
                  returns the request thread.
@@ -109,7 +109,7 @@ class LearningsApi(object):
             ['application/json'])  # noqa: E501
 
         # Authentication setting
-        auth_settings = []  # noqa: E501
+        auth_settings = ['BearerApiKey']  # noqa: E501
 
         return self.api_client.call_api(
             '/agents/{agent_id}/learnings', 'DELETE',
@@ -130,15 +130,15 @@ class LearningsApi(object):
     def get_agent_learnings_graph_endpoint_agents_agent_id_learnings_graph_get(self, agent_id, learning_id, **kwargs):  # noqa: E501
         """Agent learning evidence graph  # noqa: E501
 
-        Graph of the agent's reasoning topology around a learning: the learning plus the learnings it is connected to within `depth` lineage hops, each enriched with Qdrant detail and evidence. The Neo4j graph is the primary product — if it can't be read the request fails (503). Declared before /{learning_id} so the static path is not captured as a learning id.  # noqa: E501
+        Return a learning and related learnings within the requested lineage depth, including available evidence. Use this endpoint to explain relationships during audit or curation; a temporarily unavailable relationship service returns 503.  # noqa: E501
         This method makes a synchronous HTTP request by default. To make an
         asynchronous HTTP request, please pass async_req=True
         >>> thread = api.get_agent_learnings_graph_endpoint_agents_agent_id_learnings_graph_get(agent_id, learning_id, async_req=True)
         >>> result = thread.get()
 
         :param async_req bool
-        :param object agent_id: (required)
-        :param object learning_id: The learning to build the graph around. (required)
+        :param object agent_id: Hosted agent UUID returned by the agent create or list endpoint. (required)
+        :param object learning_id: Learning identifier to place at the centre of the graph. (required)
         :param object depth: Lineage hops from the learning (1-2).
         :return: LearningAuditGraphResponse
                  If the method is called asynchronously,
@@ -154,15 +154,15 @@ class LearningsApi(object):
     def get_agent_learnings_graph_endpoint_agents_agent_id_learnings_graph_get_with_http_info(self, agent_id, learning_id, **kwargs):  # noqa: E501
         """Agent learning evidence graph  # noqa: E501
 
-        Graph of the agent's reasoning topology around a learning: the learning plus the learnings it is connected to within `depth` lineage hops, each enriched with Qdrant detail and evidence. The Neo4j graph is the primary product — if it can't be read the request fails (503). Declared before /{learning_id} so the static path is not captured as a learning id.  # noqa: E501
+        Return a learning and related learnings within the requested lineage depth, including available evidence. Use this endpoint to explain relationships during audit or curation; a temporarily unavailable relationship service returns 503.  # noqa: E501
         This method makes a synchronous HTTP request by default. To make an
         asynchronous HTTP request, please pass async_req=True
         >>> thread = api.get_agent_learnings_graph_endpoint_agents_agent_id_learnings_graph_get_with_http_info(agent_id, learning_id, async_req=True)
         >>> result = thread.get()
 
         :param async_req bool
-        :param object agent_id: (required)
-        :param object learning_id: The learning to build the graph around. (required)
+        :param object agent_id: Hosted agent UUID returned by the agent create or list endpoint. (required)
+        :param object learning_id: Learning identifier to place at the centre of the graph. (required)
         :param object depth: Lineage hops from the learning (1-2).
         :return: LearningAuditGraphResponse
                  If the method is called asynchronously,
@@ -216,7 +216,7 @@ class LearningsApi(object):
             ['application/json'])  # noqa: E501
 
         # Authentication setting
-        auth_settings = []  # noqa: E501
+        auth_settings = ['BearerApiKey']  # noqa: E501
 
         return self.api_client.call_api(
             '/agents/{agent_id}/learnings/graph', 'GET',
@@ -244,8 +244,8 @@ class LearningsApi(object):
         >>> result = thread.get()
 
         :param async_req bool
-        :param object agent_id: (required)
-        :param object learning_id: (required)
+        :param object agent_id: Hosted agent UUID returned by the agent create or list endpoint. (required)
+        :param object learning_id: Learning identifier returned by a learning list or search endpoint. (required)
         :return: LearningResponse
                  If the method is called asynchronously,
                  returns the request thread.
@@ -267,8 +267,8 @@ class LearningsApi(object):
         >>> result = thread.get()
 
         :param async_req bool
-        :param object agent_id: (required)
-        :param object learning_id: (required)
+        :param object agent_id: Hosted agent UUID returned by the agent create or list endpoint. (required)
+        :param object learning_id: Learning identifier returned by a learning list or search endpoint. (required)
         :return: LearningResponse
                  If the method is called asynchronously,
                  returns the request thread.
@@ -319,7 +319,7 @@ class LearningsApi(object):
             ['application/json'])  # noqa: E501
 
         # Authentication setting
-        auth_settings = []  # noqa: E501
+        auth_settings = ['BearerApiKey']  # noqa: E501
 
         return self.api_client.call_api(
             '/agents/{agent_id}/learnings/{learning_id}', 'GET',
@@ -347,10 +347,10 @@ class LearningsApi(object):
         >>> result = thread.get()
 
         :param async_req bool
-        :param object agent_id: (required)
+        :param object agent_id: Hosted agent UUID returned by the agent create or list endpoint. (required)
         :param object include_instances: Include evidence instances on each item.
-        :param object limit: Page size.
-        :param object cursor: Opaque string from the previous page's `next_cursor`.
+        :param object limit: Maximum number of items to return on this page.
+        :param object cursor: Opaque pagination token from the previous response's `next_cursor`. Pass it back unchanged; omit it to start again from the first page.
         :param LearningStateFilter state: Review bucket: active (default), needs_review, archived, superseded, or all.
         :return: LearningAuditListResponse
                  If the method is called asynchronously,
@@ -373,10 +373,10 @@ class LearningsApi(object):
         >>> result = thread.get()
 
         :param async_req bool
-        :param object agent_id: (required)
+        :param object agent_id: Hosted agent UUID returned by the agent create or list endpoint. (required)
         :param object include_instances: Include evidence instances on each item.
-        :param object limit: Page size.
-        :param object cursor: Opaque string from the previous page's `next_cursor`.
+        :param object limit: Maximum number of items to return on this page.
+        :param object cursor: Opaque pagination token from the previous response's `next_cursor`. Pass it back unchanged; omit it to start again from the first page.
         :param LearningStateFilter state: Review bucket: active (default), needs_review, archived, superseded, or all.
         :return: LearningAuditListResponse
                  If the method is called asynchronously,
@@ -430,7 +430,7 @@ class LearningsApi(object):
             ['application/json'])  # noqa: E501
 
         # Authentication setting
-        auth_settings = []  # noqa: E501
+        auth_settings = ['BearerApiKey']  # noqa: E501
 
         return self.api_client.call_api(
             '/agents/{agent_id}/learnings', 'GET',
@@ -459,8 +459,8 @@ class LearningsApi(object):
 
         :param async_req bool
         :param ReinforceLearningRequest body: (required)
-        :param object agent_id: (required)
-        :param object learning_id: (required)
+        :param object agent_id: Hosted agent UUID returned by the agent create or list endpoint. (required)
+        :param object learning_id: Learning identifier returned by a learning list or search endpoint. (required)
         :return: ReinforceLearningResponse
                  If the method is called asynchronously,
                  returns the request thread.
@@ -483,8 +483,8 @@ class LearningsApi(object):
 
         :param async_req bool
         :param ReinforceLearningRequest body: (required)
-        :param object agent_id: (required)
-        :param object learning_id: (required)
+        :param object agent_id: Hosted agent UUID returned by the agent create or list endpoint. (required)
+        :param object learning_id: Learning identifier returned by a learning list or search endpoint. (required)
         :return: ReinforceLearningResponse
                  If the method is called asynchronously,
                  returns the request thread.
@@ -545,7 +545,7 @@ class LearningsApi(object):
             ['application/json'])  # noqa: E501
 
         # Authentication setting
-        auth_settings = []  # noqa: E501
+        auth_settings = ['BearerApiKey']  # noqa: E501
 
         return self.api_client.call_api(
             '/agents/{agent_id}/learnings/{learning_id}/reinforce', 'POST',
@@ -574,8 +574,8 @@ class LearningsApi(object):
 
         :param async_req bool
         :param RejectLearningRequest body: (required)
-        :param object agent_id: (required)
-        :param object learning_id: (required)
+        :param object agent_id: Hosted agent UUID returned by the agent create or list endpoint. (required)
+        :param object learning_id: Learning identifier returned by a learning list or search endpoint. (required)
         :return: RejectLearningResponse
                  If the method is called asynchronously,
                  returns the request thread.
@@ -598,8 +598,8 @@ class LearningsApi(object):
 
         :param async_req bool
         :param RejectLearningRequest body: (required)
-        :param object agent_id: (required)
-        :param object learning_id: (required)
+        :param object agent_id: Hosted agent UUID returned by the agent create or list endpoint. (required)
+        :param object learning_id: Learning identifier returned by a learning list or search endpoint. (required)
         :return: RejectLearningResponse
                  If the method is called asynchronously,
                  returns the request thread.
@@ -660,7 +660,7 @@ class LearningsApi(object):
             ['application/json'])  # noqa: E501
 
         # Authentication setting
-        auth_settings = []  # noqa: E501
+        auth_settings = ['BearerApiKey']  # noqa: E501
 
         return self.api_client.call_api(
             '/agents/{agent_id}/learnings/{learning_id}/reject', 'POST',
@@ -688,7 +688,7 @@ class LearningsApi(object):
         >>> result = thread.get()
 
         :param async_req bool
-        :param object agent_id: (required)
+        :param object agent_id: Hosted agent UUID returned by the agent create or list endpoint. (required)
         :param object q: Search query text. (required)
         :param object limit: Maximum number of results to return.
         :param object min_utility: Minimum utility threshold for results.
@@ -714,7 +714,7 @@ class LearningsApi(object):
         >>> result = thread.get()
 
         :param async_req bool
-        :param object agent_id: (required)
+        :param object agent_id: Hosted agent UUID returned by the agent create or list endpoint. (required)
         :param object q: Search query text. (required)
         :param object limit: Maximum number of results to return.
         :param object min_utility: Minimum utility threshold for results.
@@ -775,7 +775,7 @@ class LearningsApi(object):
             ['application/json'])  # noqa: E501
 
         # Authentication setting
-        auth_settings = []  # noqa: E501
+        auth_settings = ['BearerApiKey']  # noqa: E501
 
         return self.api_client.call_api(
             '/agents/{agent_id}/learnings/search', 'GET',
@@ -796,7 +796,7 @@ class LearningsApi(object):
     def store_learning_endpoint_agents_agent_id_learnings_post(self, body, agent_id, **kwargs):  # noqa: E501
         """Store a learning  # noqa: E501
 
-        Store a new learning for the agent. The learning is processed through the platform's deduplication and conflict prevention pipeline on a background worker so the request returns immediately.  # noqa: E501
+        Submit a caller-authored learning for one hosted agent. Processing is asynchronous, so a 202 response confirms acceptance rather than completion. Use `/distill` instead when the caller has evidence but not final learning text.  # noqa: E501
         This method makes a synchronous HTTP request by default. To make an
         asynchronous HTTP request, please pass async_req=True
         >>> thread = api.store_learning_endpoint_agents_agent_id_learnings_post(body, agent_id, async_req=True)
@@ -804,7 +804,7 @@ class LearningsApi(object):
 
         :param async_req bool
         :param StoreLearningRequest body: (required)
-        :param object agent_id: (required)
+        :param object agent_id: Hosted agent UUID returned by the agent create or list endpoint. (required)
         :return: StoreLearningAcceptedResponse
                  If the method is called asynchronously,
                  returns the request thread.
@@ -819,7 +819,7 @@ class LearningsApi(object):
     def store_learning_endpoint_agents_agent_id_learnings_post_with_http_info(self, body, agent_id, **kwargs):  # noqa: E501
         """Store a learning  # noqa: E501
 
-        Store a new learning for the agent. The learning is processed through the platform's deduplication and conflict prevention pipeline on a background worker so the request returns immediately.  # noqa: E501
+        Submit a caller-authored learning for one hosted agent. Processing is asynchronous, so a 202 response confirms acceptance rather than completion. Use `/distill` instead when the caller has evidence but not final learning text.  # noqa: E501
         This method makes a synchronous HTTP request by default. To make an
         asynchronous HTTP request, please pass async_req=True
         >>> thread = api.store_learning_endpoint_agents_agent_id_learnings_post_with_http_info(body, agent_id, async_req=True)
@@ -827,7 +827,7 @@ class LearningsApi(object):
 
         :param async_req bool
         :param StoreLearningRequest body: (required)
-        :param object agent_id: (required)
+        :param object agent_id: Hosted agent UUID returned by the agent create or list endpoint. (required)
         :return: StoreLearningAcceptedResponse
                  If the method is called asynchronously,
                  returns the request thread.
@@ -882,7 +882,7 @@ class LearningsApi(object):
             ['application/json'])  # noqa: E501
 
         # Authentication setting
-        auth_settings = []  # noqa: E501
+        auth_settings = ['BearerApiKey']  # noqa: E501
 
         return self.api_client.call_api(
             '/agents/{agent_id}/learnings', 'POST',

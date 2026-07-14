@@ -4,7 +4,7 @@ All URIs are relative to */*
 
 Method | HTTP request | Description
 ------------- | ------------- | -------------
-[**distill_endpoint_distill_post**](LearningBoundaryApi.md#distill_endpoint_distill_post) | **POST** /distill | Distil learnings from a corpus of evidence
+[**distill_endpoint_distill_post**](LearningBoundaryApi.md#distill_endpoint_distill_post) | **POST** /distill | Distill learnings from a corpus of evidence
 [**funnel_endpoint_funnel_get**](LearningBoundaryApi.md#funnel_endpoint_funnel_get) | **GET** /funnel | Per-host loop-closure funnel
 [**observe_endpoint_observe_post**](LearningBoundaryApi.md#observe_endpoint_observe_post) | **POST** /observe | Observe a finished episode
 [**reinforce_endpoint_reinforce_post**](LearningBoundaryApi.md#reinforce_endpoint_reinforce_post) | **POST** /reinforce | Reinforce the learnings a run used
@@ -13,9 +13,9 @@ Method | HTTP request | Description
 # **distill_endpoint_distill_post**
 > BoundaryAcceptedResponse distill_endpoint_distill_post(body)
 
-Distil learnings from a corpus of evidence
+Distill learnings from a corpus of evidence
 
-Distil durable learnings from a corpus (post-mortems, docs, diffs, analysis output) by submitting a distillation goal plus evidence items, instead of a tool-step episode. Runs the same server-side extraction as observe on a background worker (202), but stands outside the resolve/observe/reinforce loop. Requires at least two evidence items with enough content to ground a learning, a declared contrast signal (differing status/role, a role='contrast' item, or an evaluation note), and a 'distill:'-prefixed run_id. A corpus that declares contrast but carries none is still accepted and simply yields nothing (a valid 202). Evidence content is stored verbatim where grounded, so callers must pre-redact secrets.
+Distill durable learnings from post-mortems, documents, diffs, or analysis without inventing tool steps. Submit at least two evidence items and a contrast signal. `run_id` is a caller-created idempotency and tracing value, must begin with `distill:`, and does not reference `GET /runs/{run_id}`. A valid request may yield no learning. Pre-redact secrets from evidence.
 
 ### Example
 ```python
@@ -25,12 +25,18 @@ import hyperstruck
 from hyperstruck.rest import ApiException
 from pprint import pprint
 
+# Configure API key authorization: BearerApiKey
+configuration = hyperstruck.Configuration()
+configuration.api_key['Authorization'] = 'YOUR_API_KEY'
+# Uncomment below to setup prefix (e.g. Bearer) for API key, if needed
+# configuration.api_key_prefix['Authorization'] = 'Bearer'
+
 # create an instance of the API class
-api_instance = hyperstruck.LearningBoundaryApi()
-body = hyperstruck.DistillRequest() # DistillRequest | 
+api_instance = hyperstruck.LearningBoundaryApi(hyperstruck.ApiClient(configuration))
+body = hyperstruck.DistillRequest() # DistillRequest |
 
 try:
-    # Distil learnings from a corpus of evidence
+    # Distill learnings from a corpus of evidence
     api_response = api_instance.distill_endpoint_distill_post(body)
     pprint(api_response)
 except ApiException as e:
@@ -41,7 +47,7 @@ except ApiException as e:
 
 Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
- **body** | [**DistillRequest**](DistillRequest.md)|  | 
+ **body** | [**DistillRequest**](DistillRequest.md)|  |
 
 ### Return type
 
@@ -49,7 +55,7 @@ Name | Type | Description  | Notes
 
 ### Authorization
 
-No authorization required
+[BearerApiKey](../README.md#BearerApiKey)
 
 ### HTTP request headers
 
@@ -73,10 +79,16 @@ import hyperstruck
 from hyperstruck.rest import ApiException
 from pprint import pprint
 
+# Configure API key authorization: BearerApiKey
+configuration = hyperstruck.Configuration()
+configuration.api_key['Authorization'] = 'YOUR_API_KEY'
+# Uncomment below to setup prefix (e.g. Bearer) for API key, if needed
+# configuration.api_key_prefix['Authorization'] = 'Bearer'
+
 # create an instance of the API class
-api_instance = hyperstruck.LearningBoundaryApi()
-window_hours = 24 # object |  (optional) (default to 24)
-grace_minutes = 15 # object |  (optional) (default to 15)
+api_instance = hyperstruck.LearningBoundaryApi(hyperstruck.ApiClient(configuration))
+window_hours = 24 # object | Recent lookback window in hours; values are capped at 90 days. (optional) (default to 24)
+grace_minutes = 15 # object | Minutes allowed for asynchronous write-back before a resolved run is counted as half-open. (optional) (default to 15)
 
 try:
     # Per-host loop-closure funnel
@@ -90,8 +102,8 @@ except ApiException as e:
 
 Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
- **window_hours** | [**object**](.md)|  | [optional] [default to 24]
- **grace_minutes** | [**object**](.md)|  | [optional] [default to 15]
+ **window_hours** | [**object**](.md)| Recent lookback window in hours; values are capped at 90 days. | [optional] [default to 24]
+ **grace_minutes** | [**object**](.md)| Minutes allowed for asynchronous write-back before a resolved run is counted as half-open. | [optional] [default to 15]
 
 ### Return type
 
@@ -99,7 +111,7 @@ Name | Type | Description  | Notes
 
 ### Authorization
 
-No authorization required
+[BearerApiKey](../README.md#BearerApiKey)
 
 ### HTTP request headers
 
@@ -113,7 +125,7 @@ No authorization required
 
 Observe a finished episode
 
-Submit a finished run for server-side learning extraction. Processed on a background worker, so the request returns immediately. Idempotent by run id.
+Submit a completed episode for asynchronous learning extraction. Direct API callers may construct the episode themselves; LangGraph is not required. Use a meaningful execution trace rather than documents or invented tool steps—use `/distill` for corpus evidence. The caller-owned episode `run_id` is an idempotency and correlation key, not a hosted run UUID.
 
 ### Example
 ```python
@@ -123,9 +135,15 @@ import hyperstruck
 from hyperstruck.rest import ApiException
 from pprint import pprint
 
+# Configure API key authorization: BearerApiKey
+configuration = hyperstruck.Configuration()
+configuration.api_key['Authorization'] = 'YOUR_API_KEY'
+# Uncomment below to setup prefix (e.g. Bearer) for API key, if needed
+# configuration.api_key_prefix['Authorization'] = 'Bearer'
+
 # create an instance of the API class
-api_instance = hyperstruck.LearningBoundaryApi()
-body = hyperstruck.ObserveRequest() # ObserveRequest | 
+api_instance = hyperstruck.LearningBoundaryApi(hyperstruck.ApiClient(configuration))
+body = hyperstruck.ObserveRequest() # ObserveRequest |
 
 try:
     # Observe a finished episode
@@ -139,7 +157,7 @@ except ApiException as e:
 
 Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
- **body** | [**ObserveRequest**](ObserveRequest.md)|  | 
+ **body** | [**ObserveRequest**](ObserveRequest.md)|  |
 
 ### Return type
 
@@ -147,7 +165,7 @@ Name | Type | Description  | Notes
 
 ### Authorization
 
-No authorization required
+[BearerApiKey](../README.md#BearerApiKey)
 
 ### HTTP request headers
 
@@ -161,7 +179,7 @@ No authorization required
 
 Reinforce the learnings a run used
 
-Credit the learnings a finished run used. The eligible union and attribution are derived server-side from the run's offer log. Processed on a background worker; idempotent by run id.
+Submit the completed outcome used to credit or correct learnings previously offered by resolve. Reuse the same caller-owned `run_id`; it is an idempotency and attribution key, not a hosted run UUID. Processing is asynchronous and the endpoint returns 202 when accepted.
 
 ### Example
 ```python
@@ -171,9 +189,15 @@ import hyperstruck
 from hyperstruck.rest import ApiException
 from pprint import pprint
 
+# Configure API key authorization: BearerApiKey
+configuration = hyperstruck.Configuration()
+configuration.api_key['Authorization'] = 'YOUR_API_KEY'
+# Uncomment below to setup prefix (e.g. Bearer) for API key, if needed
+# configuration.api_key_prefix['Authorization'] = 'Bearer'
+
 # create an instance of the API class
-api_instance = hyperstruck.LearningBoundaryApi()
-body = hyperstruck.ReinforceRequest() # ReinforceRequest | 
+api_instance = hyperstruck.LearningBoundaryApi(hyperstruck.ApiClient(configuration))
+body = hyperstruck.ReinforceRequest() # ReinforceRequest |
 
 try:
     # Reinforce the learnings a run used
@@ -187,7 +211,7 @@ except ApiException as e:
 
 Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
- **body** | [**ReinforceRequest**](ReinforceRequest.md)|  | 
+ **body** | [**ReinforceRequest**](ReinforceRequest.md)|  |
 
 ### Return type
 
@@ -195,7 +219,7 @@ Name | Type | Description  | Notes
 
 ### Authorization
 
-No authorization required
+[BearerApiKey](../README.md#BearerApiKey)
 
 ### HTTP request headers
 
@@ -209,7 +233,7 @@ No authorization required
 
 Resolve the learnings bound to a goal
 
-Return the learnings bound to a run's goal, as a rendered injection block plus the offered learning IDs. Records the offer server-side so a later reinforce can credit the learnings the run used.
+Retrieve relevant learnings before external work begins. `run_id` is a caller-created correlation identifier, not a hosted run UUID. Reuse the same value with observe and reinforce so feedback can be attributed to the learnings offered here.
 
 ### Example
 ```python
@@ -219,9 +243,15 @@ import hyperstruck
 from hyperstruck.rest import ApiException
 from pprint import pprint
 
+# Configure API key authorization: BearerApiKey
+configuration = hyperstruck.Configuration()
+configuration.api_key['Authorization'] = 'YOUR_API_KEY'
+# Uncomment below to setup prefix (e.g. Bearer) for API key, if needed
+# configuration.api_key_prefix['Authorization'] = 'Bearer'
+
 # create an instance of the API class
-api_instance = hyperstruck.LearningBoundaryApi()
-body = hyperstruck.ResolveRequest() # ResolveRequest | 
+api_instance = hyperstruck.LearningBoundaryApi(hyperstruck.ApiClient(configuration))
+body = hyperstruck.ResolveRequest() # ResolveRequest |
 
 try:
     # Resolve the learnings bound to a goal
@@ -235,7 +265,7 @@ except ApiException as e:
 
 Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
- **body** | [**ResolveRequest**](ResolveRequest.md)|  | 
+ **body** | [**ResolveRequest**](ResolveRequest.md)|  |
 
 ### Return type
 
@@ -243,7 +273,7 @@ Name | Type | Description  | Notes
 
 ### Authorization
 
-No authorization required
+[BearerApiKey](../README.md#BearerApiKey)
 
 ### HTTP request headers
 

@@ -3,7 +3,7 @@
 """
     Hyperstruck Core
 
-    Hyperstruck Core management API  # noqa: E501
+    Create and operate hosted agents, runs, learnings, and integrations. Authenticate resource requests with a Bearer API key unless an endpoint explicitly requires a portal session.  # noqa: E501
 
     OpenAPI spec version: 0.1.0
     
@@ -311,7 +311,7 @@ class AgentDetailResponse(object):
     def home_space_id(self):
         """Gets the home_space_id of this AgentDetailResponse.  # noqa: E501
 
-        Home space (`public.spaces`) for this agent, if any.  # noqa: E501
+        Home space UUID for this agent, if any.  # noqa: E501
 
         :return: The home_space_id of this AgentDetailResponse.  # noqa: E501
         :rtype: object
@@ -322,7 +322,7 @@ class AgentDetailResponse(object):
     def home_space_id(self, home_space_id):
         """Sets the home_space_id of this AgentDetailResponse.
 
-        Home space (`public.spaces`) for this agent, if any.  # noqa: E501
+        Home space UUID for this agent, if any.  # noqa: E501
 
         :param home_space_id: The home_space_id of this AgentDetailResponse.  # noqa: E501
         :type: object

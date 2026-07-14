@@ -3,7 +3,7 @@
 """
     Hyperstruck Core
 
-    Hyperstruck Core management API  # noqa: E501
+    Create and operate hosted agents, runs, learnings, and integrations. Authenticate resource requests with a Bearer API key unless an endpoint explicitly requires a portal session.  # noqa: E501
 
     OpenAPI spec version: 0.1.0
     
@@ -162,6 +162,7 @@ class ProviderCredentialCreateRequest(object):
     def secret(self):
         """Gets the secret of this ProviderCredentialCreateRequest.  # noqa: E501
 
+        Provider secret. This value is write-only and never returned.  # noqa: E501
 
         :return: The secret of this ProviderCredentialCreateRequest.  # noqa: E501
         :rtype: object
@@ -172,6 +173,7 @@ class ProviderCredentialCreateRequest(object):
     def secret(self, secret):
         """Sets the secret of this ProviderCredentialCreateRequest.
 
+        Provider secret. This value is write-only and never returned.  # noqa: E501
 
         :param secret: The secret of this ProviderCredentialCreateRequest.  # noqa: E501
         :type: object

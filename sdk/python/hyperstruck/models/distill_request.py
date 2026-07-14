@@ -3,7 +3,7 @@
 """
     Hyperstruck Core
 
-    Hyperstruck Core management API  # noqa: E501
+    Create and operate hosted agents, runs, learnings, and integrations. Authenticate resource requests with a Bearer API key unless an endpoint explicitly requires a portal session.  # noqa: E501
 
     OpenAPI spec version: 0.1.0
     
@@ -87,6 +87,7 @@ class DistillRequest(object):
     def agent_id(self):
         """Gets the agent_id of this DistillRequest.  # noqa: E501
 
+        Caller-defined agent identifier. This is a string, not the hosted agent UUID used in `/agents/{agent_id}` paths.  # noqa: E501
 
         :return: The agent_id of this DistillRequest.  # noqa: E501
         :rtype: object
@@ -97,6 +98,7 @@ class DistillRequest(object):
     def agent_id(self, agent_id):
         """Sets the agent_id of this DistillRequest.
 
+        Caller-defined agent identifier. This is a string, not the hosted agent UUID used in `/agents/{agent_id}` paths.  # noqa: E501
 
         :param agent_id: The agent_id of this DistillRequest.  # noqa: E501
         :type: object
@@ -110,6 +112,7 @@ class DistillRequest(object):
     def org_id(self):
         """Gets the org_id of this DistillRequest.  # noqa: E501
 
+        Optional caller-owned organisation reference.  # noqa: E501
 
         :return: The org_id of this DistillRequest.  # noqa: E501
         :rtype: object
@@ -120,6 +123,7 @@ class DistillRequest(object):
     def org_id(self, org_id):
         """Sets the org_id of this DistillRequest.
 
+        Optional caller-owned organisation reference.  # noqa: E501
 
         :param org_id: The org_id of this DistillRequest.  # noqa: E501
         :type: object
@@ -131,6 +135,7 @@ class DistillRequest(object):
     def run_id(self):
         """Gets the run_id of this DistillRequest.  # noqa: E501
 
+        Caller-created idempotency and tracing identifier. It must start with `distill:` and does not reference a hosted run.  # noqa: E501
 
         :return: The run_id of this DistillRequest.  # noqa: E501
         :rtype: object
@@ -141,6 +146,7 @@ class DistillRequest(object):
     def run_id(self, run_id):
         """Sets the run_id of this DistillRequest.
 
+        Caller-created idempotency and tracing identifier. It must start with `distill:` and does not reference a hosted run.  # noqa: E501
 
         :param run_id: The run_id of this DistillRequest.  # noqa: E501
         :type: object

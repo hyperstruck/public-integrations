@@ -4,14 +4,16 @@ All URIs are relative to */*
 
 Method | HTTP request | Description
 ------------- | ------------- | -------------
-[**create_api_key_endpoint_api_keys_post**](ApiKeysApi.md#create_api_key_endpoint_api_keys_post) | **POST** /api-keys | Create Api Key Endpoint
-[**list_api_keys_endpoint_api_keys_get**](ApiKeysApi.md#list_api_keys_endpoint_api_keys_get) | **GET** /api-keys | List Api Keys Endpoint
-[**revoke_api_key_endpoint_api_keys_api_key_id_revoke_post**](ApiKeysApi.md#revoke_api_key_endpoint_api_keys_api_key_id_revoke_post) | **POST** /api-keys/{api_key_id}/revoke | Revoke Api Key Endpoint
+[**create_api_key_endpoint_api_keys_post**](ApiKeysApi.md#create_api_key_endpoint_api_keys_post) | **POST** /api-keys | Create API Key
+[**list_api_keys_endpoint_api_keys_get**](ApiKeysApi.md#list_api_keys_endpoint_api_keys_get) | **GET** /api-keys | List API Keys
+[**revoke_api_key_endpoint_api_keys_api_key_id_revoke_post**](ApiKeysApi.md#revoke_api_key_endpoint_api_keys_api_key_id_revoke_post) | **POST** /api-keys/{api_key_id}/revoke | Revoke API Key
 
 # **create_api_key_endpoint_api_keys_post**
 > ApiKeyCreateResponse create_api_key_endpoint_api_keys_post(body)
 
-Create Api Key Endpoint
+Create API Key
+
+Create a tenant API key with explicit scopes. The complete Bearer token is returned only once, so store it securely before leaving the response.
 
 ### Example
 ```python
@@ -21,12 +23,18 @@ import hyperstruck
 from hyperstruck.rest import ApiException
 from pprint import pprint
 
+# Configure API key authorization: PortalSessionCookie
+configuration = hyperstruck.Configuration()
+configuration.api_key['Cookie'] = 'YOUR_API_KEY'
+# Uncomment below to setup prefix (e.g. Bearer) for API key, if needed
+# configuration.api_key_prefix['Cookie'] = 'Bearer'
+
 # create an instance of the API class
-api_instance = hyperstruck.ApiKeysApi()
-body = hyperstruck.ApiKeyCreateRequest() # ApiKeyCreateRequest | 
+api_instance = hyperstruck.ApiKeysApi(hyperstruck.ApiClient(configuration))
+body = hyperstruck.ApiKeyCreateRequest() # ApiKeyCreateRequest |
 
 try:
-    # Create Api Key Endpoint
+    # Create API Key
     api_response = api_instance.create_api_key_endpoint_api_keys_post(body)
     pprint(api_response)
 except ApiException as e:
@@ -37,7 +45,7 @@ except ApiException as e:
 
 Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
- **body** | [**ApiKeyCreateRequest**](ApiKeyCreateRequest.md)|  | 
+ **body** | [**ApiKeyCreateRequest**](ApiKeyCreateRequest.md)|  |
 
 ### Return type
 
@@ -45,7 +53,7 @@ Name | Type | Description  | Notes
 
 ### Authorization
 
-No authorization required
+[PortalSessionCookie](../README.md#PortalSessionCookie)
 
 ### HTTP request headers
 
@@ -57,7 +65,9 @@ No authorization required
 # **list_api_keys_endpoint_api_keys_get**
 > ApiKeyListResponse list_api_keys_endpoint_api_keys_get()
 
-List Api Keys Endpoint
+List API Keys
+
+List API keys for the active tenant without revealing their secret values. Use this portal-session endpoint to review key names, prefixes, scopes, and revocation state.
 
 ### Example
 ```python
@@ -67,11 +77,17 @@ import hyperstruck
 from hyperstruck.rest import ApiException
 from pprint import pprint
 
+# Configure API key authorization: PortalSessionCookie
+configuration = hyperstruck.Configuration()
+configuration.api_key['Cookie'] = 'YOUR_API_KEY'
+# Uncomment below to setup prefix (e.g. Bearer) for API key, if needed
+# configuration.api_key_prefix['Cookie'] = 'Bearer'
+
 # create an instance of the API class
-api_instance = hyperstruck.ApiKeysApi()
+api_instance = hyperstruck.ApiKeysApi(hyperstruck.ApiClient(configuration))
 
 try:
-    # List Api Keys Endpoint
+    # List API Keys
     api_response = api_instance.list_api_keys_endpoint_api_keys_get()
     pprint(api_response)
 except ApiException as e:
@@ -87,7 +103,7 @@ This endpoint does not need any parameter.
 
 ### Authorization
 
-No authorization required
+[PortalSessionCookie](../README.md#PortalSessionCookie)
 
 ### HTTP request headers
 
@@ -99,7 +115,9 @@ No authorization required
 # **revoke_api_key_endpoint_api_keys_api_key_id_revoke_post**
 > ApiKeyRevokeResponse revoke_api_key_endpoint_api_keys_api_key_id_revoke_post(api_key_id)
 
-Revoke Api Key Endpoint
+Revoke API Key
+
+Permanently revoke an API key so it can no longer authenticate requests. Use the key UUID returned by the list or create endpoint.
 
 ### Example
 ```python
@@ -109,12 +127,18 @@ import hyperstruck
 from hyperstruck.rest import ApiException
 from pprint import pprint
 
+# Configure API key authorization: PortalSessionCookie
+configuration = hyperstruck.Configuration()
+configuration.api_key['Cookie'] = 'YOUR_API_KEY'
+# Uncomment below to setup prefix (e.g. Bearer) for API key, if needed
+# configuration.api_key_prefix['Cookie'] = 'Bearer'
+
 # create an instance of the API class
-api_instance = hyperstruck.ApiKeysApi()
-api_key_id = NULL # object | 
+api_instance = hyperstruck.ApiKeysApi(hyperstruck.ApiClient(configuration))
+api_key_id = NULL # object | API key UUID returned by the create or list endpoint.
 
 try:
-    # Revoke Api Key Endpoint
+    # Revoke API Key
     api_response = api_instance.revoke_api_key_endpoint_api_keys_api_key_id_revoke_post(api_key_id)
     pprint(api_response)
 except ApiException as e:
@@ -125,7 +149,7 @@ except ApiException as e:
 
 Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
- **api_key_id** | [**object**](.md)|  | 
+ **api_key_id** | [**object**](.md)| API key UUID returned by the create or list endpoint. |
 
 ### Return type
 
@@ -133,7 +157,7 @@ Name | Type | Description  | Notes
 
 ### Authorization
 
-No authorization required
+[PortalSessionCookie](../README.md#PortalSessionCookie)
 
 ### HTTP request headers
 

@@ -3,7 +3,7 @@
 """
     Hyperstruck Core
 
-    Hyperstruck Core management API  # noqa: E501
+    Create and operate hosted agents, runs, learnings, and integrations. Authenticate resource requests with a Bearer API key unless an endpoint explicitly requires a portal session.  # noqa: E501
 
     OpenAPI spec version: 0.1.0
     
@@ -83,7 +83,7 @@ class ResolveRequest(object):
     def agent_id(self):
         """Gets the agent_id of this ResolveRequest.  # noqa: E501
 
-        The customer's agent identifier (a string).  # noqa: E501
+        Caller-defined agent identifier. This is a string, not the hosted agent UUID used in `/agents/{agent_id}` paths.  # noqa: E501
 
         :return: The agent_id of this ResolveRequest.  # noqa: E501
         :rtype: object
@@ -94,7 +94,7 @@ class ResolveRequest(object):
     def agent_id(self, agent_id):
         """Sets the agent_id of this ResolveRequest.
 
-        The customer's agent identifier (a string).  # noqa: E501
+        Caller-defined agent identifier. This is a string, not the hosted agent UUID used in `/agents/{agent_id}` paths.  # noqa: E501
 
         :param agent_id: The agent_id of this ResolveRequest.  # noqa: E501
         :type: object
@@ -108,6 +108,7 @@ class ResolveRequest(object):
     def org_id(self):
         """Gets the org_id of this ResolveRequest.  # noqa: E501
 
+        Optional caller-owned organisation reference.  # noqa: E501
 
         :return: The org_id of this ResolveRequest.  # noqa: E501
         :rtype: object
@@ -118,6 +119,7 @@ class ResolveRequest(object):
     def org_id(self, org_id):
         """Sets the org_id of this ResolveRequest.
 
+        Optional caller-owned organisation reference.  # noqa: E501
 
         :param org_id: The org_id of this ResolveRequest.  # noqa: E501
         :type: object
@@ -129,6 +131,7 @@ class ResolveRequest(object):
     def run_id(self):
         """Gets the run_id of this ResolveRequest.  # noqa: E501
 
+        Caller-created correlation key. Reuse it with observe and reinforce; it does not reference a hosted `/runs/{run_id}` resource.  # noqa: E501
 
         :return: The run_id of this ResolveRequest.  # noqa: E501
         :rtype: object
@@ -139,6 +142,7 @@ class ResolveRequest(object):
     def run_id(self, run_id):
         """Sets the run_id of this ResolveRequest.
 
+        Caller-created correlation key. Reuse it with observe and reinforce; it does not reference a hosted `/runs/{run_id}` resource.  # noqa: E501
 
         :param run_id: The run_id of this ResolveRequest.  # noqa: E501
         :type: object
@@ -152,6 +156,7 @@ class ResolveRequest(object):
     def goal(self):
         """Gets the goal of this ResolveRequest.  # noqa: E501
 
+        Goal about to be attempted by the external agent.  # noqa: E501
 
         :return: The goal of this ResolveRequest.  # noqa: E501
         :rtype: object
@@ -162,6 +167,7 @@ class ResolveRequest(object):
     def goal(self, goal):
         """Sets the goal of this ResolveRequest.
 
+        Goal about to be attempted by the external agent.  # noqa: E501
 
         :param goal: The goal of this ResolveRequest.  # noqa: E501
         :type: object
@@ -261,7 +267,7 @@ class ResolveRequest(object):
     def retrieval(self):
         """Gets the retrieval of this ResolveRequest.  # noqa: E501
 
-        Retrieval depth. 'fast' (default): one ranked vector search, no graph. 'full': graph-enriched, heavier but richer.  # noqa: E501
+        Retrieval depth. `fast` prioritises response time; `full` may return richer contextual relationships at higher latency.  # noqa: E501
 
         :return: The retrieval of this ResolveRequest.  # noqa: E501
         :rtype: object
@@ -272,7 +278,7 @@ class ResolveRequest(object):
     def retrieval(self, retrieval):
         """Sets the retrieval of this ResolveRequest.
 
-        Retrieval depth. 'fast' (default): one ranked vector search, no graph. 'full': graph-enriched, heavier but richer.  # noqa: E501
+        Retrieval depth. `fast` prioritises response time; `full` may return richer contextual relationships at higher latency.  # noqa: E501
 
         :param retrieval: The retrieval of this ResolveRequest.  # noqa: E501
         :type: object

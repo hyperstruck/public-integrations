@@ -3,7 +3,7 @@
 """
     Hyperstruck Core
 
-    Hyperstruck Core management API  # noqa: E501
+    Create and operate hosted agents, runs, learnings, and integrations. Authenticate resource requests with a Bearer API key unless an endpoint explicitly requires a portal session.  # noqa: E501
 
     OpenAPI spec version: 0.1.0
     
@@ -33,8 +33,9 @@ class BillingApi(object):
         self.api_client = api_client
 
     def get_billing_summary_endpoint_billing_summary_get(self, **kwargs):  # noqa: E501
-        """Get Billing Summary Endpoint  # noqa: E501
+        """Get Billing Summary  # noqa: E501
 
+        Return the active tenant's spend limit, billed amount, reserved amount, remaining capacity, and enforcement window. Use it before dispatching optional work when the integration needs to display budget status.  # noqa: E501
         This method makes a synchronous HTTP request by default. To make an
         asynchronous HTTP request, please pass async_req=True
         >>> thread = api.get_billing_summary_endpoint_billing_summary_get(async_req=True)
@@ -53,8 +54,9 @@ class BillingApi(object):
             return data
 
     def get_billing_summary_endpoint_billing_summary_get_with_http_info(self, **kwargs):  # noqa: E501
-        """Get Billing Summary Endpoint  # noqa: E501
+        """Get Billing Summary  # noqa: E501
 
+        Return the active tenant's spend limit, billed amount, reserved amount, remaining capacity, and enforcement window. Use it before dispatching optional work when the integration needs to display budget status.  # noqa: E501
         This method makes a synchronous HTTP request by default. To make an
         asynchronous HTTP request, please pass async_req=True
         >>> thread = api.get_billing_summary_endpoint_billing_summary_get_with_http_info(async_req=True)
@@ -99,7 +101,7 @@ class BillingApi(object):
             ['application/json'])  # noqa: E501
 
         # Authentication setting
-        auth_settings = []  # noqa: E501
+        auth_settings = ['BearerApiKey']  # noqa: E501
 
         return self.api_client.call_api(
             '/billing/summary', 'GET',

@@ -3,7 +3,7 @@
 """
     Hyperstruck Core
 
-    Hyperstruck Core management API  # noqa: E501
+    Create and operate hosted agents, runs, learnings, and integrations. Authenticate resource requests with a Bearer API key unless an endpoint explicitly requires a portal session.  # noqa: E501
 
     OpenAPI spec version: 0.1.0
     
@@ -169,7 +169,7 @@ class GoalRunRequest(object):
     def metadata(self):
         """Gets the metadata of this GoalRunRequest.  # noqa: E501
 
-        Optional caller-defined metadata persisted onto the run row.  # noqa: E501
+        Optional caller-defined metadata attached to the run.  # noqa: E501
 
         :return: The metadata of this GoalRunRequest.  # noqa: E501
         :rtype: object
@@ -180,7 +180,7 @@ class GoalRunRequest(object):
     def metadata(self, metadata):
         """Sets the metadata of this GoalRunRequest.
 
-        Optional caller-defined metadata persisted onto the run row.  # noqa: E501
+        Optional caller-defined metadata attached to the run.  # noqa: E501
 
         :param metadata: The metadata of this GoalRunRequest.  # noqa: E501
         :type: object
@@ -192,7 +192,7 @@ class GoalRunRequest(object):
     def sources(self):
         """Gets the sources of this GoalRunRequest.  # noqa: E501
 
-        Typed source-of-truth blocks (a transcript, a record set). The only request text the grounding gate admits as evidence; declaring any also activates the read-only faithfulness check so example text cannot be laundered into a claim.  # noqa: E501
+        Source-of-truth text, such as a transcript or record set, that the response may rely on as evidence.  # noqa: E501
 
         :return: The sources of this GoalRunRequest.  # noqa: E501
         :rtype: object
@@ -203,7 +203,7 @@ class GoalRunRequest(object):
     def sources(self, sources):
         """Sets the sources of this GoalRunRequest.
 
-        Typed source-of-truth blocks (a transcript, a record set). The only request text the grounding gate admits as evidence; declaring any also activates the read-only faithfulness check so example text cannot be laundered into a claim.  # noqa: E501
+        Source-of-truth text, such as a transcript or record set, that the response may rely on as evidence.  # noqa: E501
 
         :param sources: The sources of this GoalRunRequest.  # noqa: E501
         :type: object

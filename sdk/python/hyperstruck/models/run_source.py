@@ -3,7 +3,7 @@
 """
     Hyperstruck Core
 
-    Hyperstruck Core management API  # noqa: E501
+    Create and operate hosted agents, runs, learnings, and integrations. Authenticate resource requests with a Bearer API key unless an endpoint explicitly requires a portal session.  # noqa: E501
 
     OpenAPI spec version: 0.1.0
     
@@ -55,7 +55,7 @@ class RunSource(object):
     def text(self):
         """Gets the text of this RunSource.  # noqa: E501
 
-        Source-of-truth text a claim may be grounded against, exactly like a tool read.  # noqa: E501
+        Source-of-truth text that a response may rely on as evidence.  # noqa: E501
 
         :return: The text of this RunSource.  # noqa: E501
         :rtype: object
@@ -66,7 +66,7 @@ class RunSource(object):
     def text(self, text):
         """Sets the text of this RunSource.
 
-        Source-of-truth text a claim may be grounded against, exactly like a tool read.  # noqa: E501
+        Source-of-truth text that a response may rely on as evidence.  # noqa: E501
 
         :param text: The text of this RunSource.  # noqa: E501
         :type: object

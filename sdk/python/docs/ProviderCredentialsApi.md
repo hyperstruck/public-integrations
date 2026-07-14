@@ -4,18 +4,18 @@ All URIs are relative to */*
 
 Method | HTTP request | Description
 ------------- | ------------- | -------------
-[**create_credential_credentials_providers_post**](ProviderCredentialsApi.md#create_credential_credentials_providers_post) | **POST** /credentials/providers | Create Credential
-[**delete_credential_credentials_providers_credential_id_delete**](ProviderCredentialsApi.md#delete_credential_credentials_providers_credential_id_delete) | **DELETE** /credentials/providers/{credential_id} | Delete Credential
-[**get_credential_credentials_providers_credential_id_get**](ProviderCredentialsApi.md#get_credential_credentials_providers_credential_id_get) | **GET** /credentials/providers/{credential_id} | Get Credential
-[**list_credentials_credentials_providers_get**](ProviderCredentialsApi.md#list_credentials_credentials_providers_get) | **GET** /credentials/providers | List Credentials
-[**update_credential_credentials_providers_credential_id_patch**](ProviderCredentialsApi.md#update_credential_credentials_providers_credential_id_patch) | **PATCH** /credentials/providers/{credential_id} | Update Credential
+[**create_credential_credentials_providers_post**](ProviderCredentialsApi.md#create_credential_credentials_providers_post) | **POST** /credentials/providers | Create Provider Credential
+[**delete_credential_credentials_providers_credential_id_delete**](ProviderCredentialsApi.md#delete_credential_credentials_providers_credential_id_delete) | **DELETE** /credentials/providers/{credential_id} | Delete Provider Credential
+[**get_credential_credentials_providers_credential_id_get**](ProviderCredentialsApi.md#get_credential_credentials_providers_credential_id_get) | **GET** /credentials/providers/{credential_id} | Get Provider Credential
+[**list_credentials_credentials_providers_get**](ProviderCredentialsApi.md#list_credentials_credentials_providers_get) | **GET** /credentials/providers | List Provider Credentials
+[**update_credential_credentials_providers_credential_id_patch**](ProviderCredentialsApi.md#update_credential_credentials_providers_credential_id_patch) | **PATCH** /credentials/providers/{credential_id} | Update Provider Credential
 
 # **create_credential_credentials_providers_post**
 > ProviderCredentialResponse create_credential_credentials_providers_post(body)
 
-Create Credential
+Create Provider Credential
 
-Create an encrypted provider credential. Use `metadata.base_url` to override the provider endpoint. If omitted, the API stores a sane provider default for Anthropic, Groq, Ollama, and OpenAI.
+Store a provider credential for tenant-wide or agent-specific use. The secret is write-only and is not returned. Use `metadata.base_url` only when the provider should use a non-default compatible endpoint.
 
 ### Example
 ```python
@@ -25,12 +25,18 @@ import hyperstruck
 from hyperstruck.rest import ApiException
 from pprint import pprint
 
+# Configure API key authorization: BearerApiKey
+configuration = hyperstruck.Configuration()
+configuration.api_key['Authorization'] = 'YOUR_API_KEY'
+# Uncomment below to setup prefix (e.g. Bearer) for API key, if needed
+# configuration.api_key_prefix['Authorization'] = 'Bearer'
+
 # create an instance of the API class
-api_instance = hyperstruck.ProviderCredentialsApi()
-body = hyperstruck.ProviderCredentialCreateRequest() # ProviderCredentialCreateRequest | 
+api_instance = hyperstruck.ProviderCredentialsApi(hyperstruck.ApiClient(configuration))
+body = hyperstruck.ProviderCredentialCreateRequest() # ProviderCredentialCreateRequest |
 
 try:
-    # Create Credential
+    # Create Provider Credential
     api_response = api_instance.create_credential_credentials_providers_post(body)
     pprint(api_response)
 except ApiException as e:
@@ -41,7 +47,7 @@ except ApiException as e:
 
 Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
- **body** | [**ProviderCredentialCreateRequest**](ProviderCredentialCreateRequest.md)|  | 
+ **body** | [**ProviderCredentialCreateRequest**](ProviderCredentialCreateRequest.md)|  |
 
 ### Return type
 
@@ -49,7 +55,7 @@ Name | Type | Description  | Notes
 
 ### Authorization
 
-No authorization required
+[BearerApiKey](../README.md#BearerApiKey)
 
 ### HTTP request headers
 
@@ -61,7 +67,9 @@ No authorization required
 # **delete_credential_credentials_providers_credential_id_delete**
 > delete_credential_credentials_providers_credential_id_delete(credential_id)
 
-Delete Credential
+Delete Provider Credential
+
+Permanently remove a provider credential. Confirm dependent agents have another usable credential before deleting it.
 
 ### Example
 ```python
@@ -71,12 +79,18 @@ import hyperstruck
 from hyperstruck.rest import ApiException
 from pprint import pprint
 
+# Configure API key authorization: BearerApiKey
+configuration = hyperstruck.Configuration()
+configuration.api_key['Authorization'] = 'YOUR_API_KEY'
+# Uncomment below to setup prefix (e.g. Bearer) for API key, if needed
+# configuration.api_key_prefix['Authorization'] = 'Bearer'
+
 # create an instance of the API class
-api_instance = hyperstruck.ProviderCredentialsApi()
-credential_id = NULL # object | 
+api_instance = hyperstruck.ProviderCredentialsApi(hyperstruck.ApiClient(configuration))
+credential_id = NULL # object | Provider credential UUID returned by the create or list endpoint.
 
 try:
-    # Delete Credential
+    # Delete Provider Credential
     api_instance.delete_credential_credentials_providers_credential_id_delete(credential_id)
 except ApiException as e:
     print("Exception when calling ProviderCredentialsApi->delete_credential_credentials_providers_credential_id_delete: %s\n" % e)
@@ -86,7 +100,7 @@ except ApiException as e:
 
 Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
- **credential_id** | [**object**](.md)|  | 
+ **credential_id** | [**object**](.md)| Provider credential UUID returned by the create or list endpoint. |
 
 ### Return type
 
@@ -94,7 +108,7 @@ void (empty response body)
 
 ### Authorization
 
-No authorization required
+[BearerApiKey](../README.md#BearerApiKey)
 
 ### HTTP request headers
 
@@ -106,7 +120,9 @@ No authorization required
 # **get_credential_credentials_providers_credential_id_get**
 > ProviderCredentialResponse get_credential_credentials_providers_credential_id_get(credential_id)
 
-Get Credential
+Get Provider Credential
+
+Retrieve one provider credential's provider, binding, metadata, and active state. Secret material is never included.
 
 ### Example
 ```python
@@ -116,12 +132,18 @@ import hyperstruck
 from hyperstruck.rest import ApiException
 from pprint import pprint
 
+# Configure API key authorization: BearerApiKey
+configuration = hyperstruck.Configuration()
+configuration.api_key['Authorization'] = 'YOUR_API_KEY'
+# Uncomment below to setup prefix (e.g. Bearer) for API key, if needed
+# configuration.api_key_prefix['Authorization'] = 'Bearer'
+
 # create an instance of the API class
-api_instance = hyperstruck.ProviderCredentialsApi()
-credential_id = NULL # object | 
+api_instance = hyperstruck.ProviderCredentialsApi(hyperstruck.ApiClient(configuration))
+credential_id = NULL # object | Provider credential UUID returned by the create or list endpoint.
 
 try:
-    # Get Credential
+    # Get Provider Credential
     api_response = api_instance.get_credential_credentials_providers_credential_id_get(credential_id)
     pprint(api_response)
 except ApiException as e:
@@ -132,7 +154,7 @@ except ApiException as e:
 
 Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
- **credential_id** | [**object**](.md)|  | 
+ **credential_id** | [**object**](.md)| Provider credential UUID returned by the create or list endpoint. |
 
 ### Return type
 
@@ -140,7 +162,7 @@ Name | Type | Description  | Notes
 
 ### Authorization
 
-No authorization required
+[BearerApiKey](../README.md#BearerApiKey)
 
 ### HTTP request headers
 
@@ -152,7 +174,9 @@ No authorization required
 # **list_credentials_credentials_providers_get**
 > ProviderCredentialListResponse list_credentials_credentials_providers_get(provider=provider, binding_type=binding_type, agent_id=agent_id, include_inactive=include_inactive)
 
-List Credentials
+List Provider Credentials
+
+List configured model-provider credentials without secret values. Filter by provider, binding type, agent, or active state when selecting a credential for an agent.
 
 ### Example
 ```python
@@ -162,15 +186,21 @@ import hyperstruck
 from hyperstruck.rest import ApiException
 from pprint import pprint
 
+# Configure API key authorization: BearerApiKey
+configuration = hyperstruck.Configuration()
+configuration.api_key['Authorization'] = 'YOUR_API_KEY'
+# Uncomment below to setup prefix (e.g. Bearer) for API key, if needed
+# configuration.api_key_prefix['Authorization'] = 'Bearer'
+
 # create an instance of the API class
-api_instance = hyperstruck.ProviderCredentialsApi()
+api_instance = hyperstruck.ProviderCredentialsApi(hyperstruck.ApiClient(configuration))
 provider = NULL # object |  (optional)
 binding_type = NULL # object |  (optional)
 agent_id = NULL # object |  (optional)
 include_inactive = false # object |  (optional) (default to false)
 
 try:
-    # List Credentials
+    # List Provider Credentials
     api_response = api_instance.list_credentials_credentials_providers_get(provider=provider, binding_type=binding_type, agent_id=agent_id, include_inactive=include_inactive)
     pprint(api_response)
 except ApiException as e:
@@ -181,9 +211,9 @@ except ApiException as e:
 
 Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
- **provider** | [**object**](.md)|  | [optional] 
- **binding_type** | [**object**](.md)|  | [optional] 
- **agent_id** | [**object**](.md)|  | [optional] 
+ **provider** | [**object**](.md)|  | [optional]
+ **binding_type** | [**object**](.md)|  | [optional]
+ **agent_id** | [**object**](.md)|  | [optional]
  **include_inactive** | [**object**](.md)|  | [optional] [default to false]
 
 ### Return type
@@ -192,7 +222,7 @@ Name | Type | Description  | Notes
 
 ### Authorization
 
-No authorization required
+[BearerApiKey](../README.md#BearerApiKey)
 
 ### HTTP request headers
 
@@ -204,9 +234,9 @@ No authorization required
 # **update_credential_credentials_providers_credential_id_patch**
 > ProviderCredentialResponse update_credential_credentials_providers_credential_id_patch(body, credential_id)
 
-Update Credential
+Update Provider Credential
 
-Update an encrypted provider credential. If `metadata` is omitted, the existing endpoint is preserved; if the provider changes without explicit metadata, or metadata is provided without a base URL, the endpoint resets to a sane provider default.
+Update selected fields on a provider credential. Omit the secret to keep the current value. Omitted metadata is preserved; provider changes use that provider's default endpoint unless a base URL is supplied.
 
 ### Example
 ```python
@@ -216,13 +246,19 @@ import hyperstruck
 from hyperstruck.rest import ApiException
 from pprint import pprint
 
+# Configure API key authorization: BearerApiKey
+configuration = hyperstruck.Configuration()
+configuration.api_key['Authorization'] = 'YOUR_API_KEY'
+# Uncomment below to setup prefix (e.g. Bearer) for API key, if needed
+# configuration.api_key_prefix['Authorization'] = 'Bearer'
+
 # create an instance of the API class
-api_instance = hyperstruck.ProviderCredentialsApi()
-body = hyperstruck.ProviderCredentialUpdateRequest() # ProviderCredentialUpdateRequest | 
-credential_id = NULL # object | 
+api_instance = hyperstruck.ProviderCredentialsApi(hyperstruck.ApiClient(configuration))
+body = hyperstruck.ProviderCredentialUpdateRequest() # ProviderCredentialUpdateRequest |
+credential_id = NULL # object | Provider credential UUID returned by the create or list endpoint.
 
 try:
-    # Update Credential
+    # Update Provider Credential
     api_response = api_instance.update_credential_credentials_providers_credential_id_patch(body, credential_id)
     pprint(api_response)
 except ApiException as e:
@@ -233,8 +269,8 @@ except ApiException as e:
 
 Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
- **body** | [**ProviderCredentialUpdateRequest**](ProviderCredentialUpdateRequest.md)|  | 
- **credential_id** | [**object**](.md)|  | 
+ **body** | [**ProviderCredentialUpdateRequest**](ProviderCredentialUpdateRequest.md)|  |
+ **credential_id** | [**object**](.md)| Provider credential UUID returned by the create or list endpoint. |
 
 ### Return type
 
@@ -242,7 +278,7 @@ Name | Type | Description  | Notes
 
 ### Authorization
 
-No authorization required
+[BearerApiKey](../README.md#BearerApiKey)
 
 ### HTTP request headers
 

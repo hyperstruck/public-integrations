@@ -3,7 +3,7 @@
 """
     Hyperstruck Core
 
-    Hyperstruck Core management API  # noqa: E501
+    Create and operate hosted agents, runs, learnings, and integrations. Authenticate resource requests with a Bearer API key unless an endpoint explicitly requires a portal session.  # noqa: E501
 
     OpenAPI spec version: 0.1.0
     
@@ -50,7 +50,7 @@ class RunReference(object):
     def text(self):
         """Gets the text of this RunReference.  # noqa: E501
 
-        Exemplar/calibration text shown to the model; never admitted as grounding evidence.  # noqa: E501
+        Example text used for style or format, not as factual evidence.  # noqa: E501
 
         :return: The text of this RunReference.  # noqa: E501
         :rtype: object
@@ -61,7 +61,7 @@ class RunReference(object):
     def text(self, text):
         """Sets the text of this RunReference.
 
-        Exemplar/calibration text shown to the model; never admitted as grounding evidence.  # noqa: E501
+        Example text used for style or format, not as factual evidence.  # noqa: E501
 
         :param text: The text of this RunReference.  # noqa: E501
         :type: object

@@ -4,14 +4,14 @@ All URIs are relative to */*
 
 Method | HTTP request | Description
 ------------- | ------------- | -------------
-[**me_me_get**](AuthApi.md#me_me_get) | **GET** /me | Me
+[**me_me_get**](AuthApi.md#me_me_get) | **GET** /me | Get Current Portal Identity
 
 # **me_me_get**
 > MeResponse me_me_get()
 
-Me
+Get Current Portal Identity
 
-Return the current portal session: user, active tenant, memberships, scopes.  Portal-session only. API-key callers have no portal identity and are rejected with 403 — they should use the resource APIs directly, not `/me`. A valid session without an active membership surfaces as 403 from the middleware.
+Return the signed-in portal user's identity, active tenant, memberships, role, and effective scopes. This endpoint requires a portal session; Bearer API keys should call resource endpoints directly.
 
 ### Example
 ```python
@@ -21,11 +21,17 @@ import hyperstruck
 from hyperstruck.rest import ApiException
 from pprint import pprint
 
+# Configure API key authorization: PortalSessionCookie
+configuration = hyperstruck.Configuration()
+configuration.api_key['Cookie'] = 'YOUR_API_KEY'
+# Uncomment below to setup prefix (e.g. Bearer) for API key, if needed
+# configuration.api_key_prefix['Cookie'] = 'Bearer'
+
 # create an instance of the API class
-api_instance = hyperstruck.AuthApi()
+api_instance = hyperstruck.AuthApi(hyperstruck.ApiClient(configuration))
 
 try:
-    # Me
+    # Get Current Portal Identity
     api_response = api_instance.me_me_get()
     pprint(api_response)
 except ApiException as e:
@@ -41,7 +47,7 @@ This endpoint does not need any parameter.
 
 ### Authorization
 
-No authorization required
+[PortalSessionCookie](../README.md#PortalSessionCookie)
 
 ### HTTP request headers
 

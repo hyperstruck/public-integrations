@@ -21,10 +21,16 @@ import hyperstruck
 from hyperstruck.rest import ApiException
 from pprint import pprint
 
+# Configure API key authorization: BearerApiKey
+configuration = hyperstruck.Configuration()
+configuration.api_key['Authorization'] = 'YOUR_API_KEY'
+# Uncomment below to setup prefix (e.g. Bearer) for API key, if needed
+# configuration.api_key_prefix['Authorization'] = 'Bearer'
+
 # create an instance of the API class
-api_instance = hyperstruck.OrgLearningsApi()
-limit = 50 # object | Page size. (optional) (default to 50)
-cursor = NULL # object | Opaque string from the previous page's `next_cursor`. (optional)
+api_instance = hyperstruck.OrgLearningsApi(hyperstruck.ApiClient(configuration))
+limit = 50 # object | Maximum number of items to return on this page. (optional) (default to 50)
+cursor = NULL # object | Opaque pagination token from the previous response's `next_cursor`. Pass it back unchanged; omit it to start again from the first page. (optional)
 
 try:
     # List org-shared learnings
@@ -38,8 +44,8 @@ except ApiException as e:
 
 Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
- **limit** | [**object**](.md)| Page size. | [optional] [default to 50]
- **cursor** | [**object**](.md)| Opaque string from the previous page&#x27;s &#x60;next_cursor&#x60;. | [optional] 
+ **limit** | [**object**](.md)| Maximum number of items to return on this page. | [optional] [default to 50]
+ **cursor** | [**object**](.md)| Opaque pagination token from the previous response&#x27;s &#x60;next_cursor&#x60;. Pass it back unchanged; omit it to start again from the first page. | [optional]
 
 ### Return type
 
@@ -47,7 +53,7 @@ Name | Type | Description  | Notes
 
 ### Authorization
 
-No authorization required
+[BearerApiKey](../README.md#BearerApiKey)
 
 ### HTTP request headers
 

@@ -3,7 +3,7 @@
 """
     Hyperstruck Core
 
-    Hyperstruck Core management API  # noqa: E501
+    Create and operate hosted agents, runs, learnings, and integrations. Authenticate resource requests with a Bearer API key unless an endpoint explicitly requires a portal session.  # noqa: E501
 
     OpenAPI spec version: 0.1.0
     
@@ -35,6 +35,7 @@ class RunsApi(object):
     def dispatch_goal_run_endpoint_agents_agent_id_goals_post(self, body, agent_id, **kwargs):  # noqa: E501
         """Create Goal Run  # noqa: E501
 
+        Start asynchronous work for a hosted agent. A 202 response contains the server-issued run UUID; use `GET /runs/{run_id}` to follow its status and resume it if human input is requested.  # noqa: E501
         This method makes a synchronous HTTP request by default. To make an
         asynchronous HTTP request, please pass async_req=True
         >>> thread = api.dispatch_goal_run_endpoint_agents_agent_id_goals_post(body, agent_id, async_req=True)
@@ -42,7 +43,7 @@ class RunsApi(object):
 
         :param async_req bool
         :param GoalRunRequest body: (required)
-        :param object agent_id: (required)
+        :param object agent_id: Hosted agent UUID returned by the agent create or list endpoint. (required)
         :return: GoalRunAcceptedResponse
                  If the method is called asynchronously,
                  returns the request thread.
@@ -57,6 +58,7 @@ class RunsApi(object):
     def dispatch_goal_run_endpoint_agents_agent_id_goals_post_with_http_info(self, body, agent_id, **kwargs):  # noqa: E501
         """Create Goal Run  # noqa: E501
 
+        Start asynchronous work for a hosted agent. A 202 response contains the server-issued run UUID; use `GET /runs/{run_id}` to follow its status and resume it if human input is requested.  # noqa: E501
         This method makes a synchronous HTTP request by default. To make an
         asynchronous HTTP request, please pass async_req=True
         >>> thread = api.dispatch_goal_run_endpoint_agents_agent_id_goals_post_with_http_info(body, agent_id, async_req=True)
@@ -64,7 +66,7 @@ class RunsApi(object):
 
         :param async_req bool
         :param GoalRunRequest body: (required)
-        :param object agent_id: (required)
+        :param object agent_id: Hosted agent UUID returned by the agent create or list endpoint. (required)
         :return: GoalRunAcceptedResponse
                  If the method is called asynchronously,
                  returns the request thread.
@@ -119,7 +121,7 @@ class RunsApi(object):
             ['application/json'])  # noqa: E501
 
         # Authentication setting
-        auth_settings = []  # noqa: E501
+        auth_settings = ['BearerApiKey']  # noqa: E501
 
         return self.api_client.call_api(
             '/agents/{agent_id}/goals', 'POST',
@@ -140,13 +142,14 @@ class RunsApi(object):
     def get_run_endpoint_runs_run_id_get(self, run_id, **kwargs):  # noqa: E501
         """Get Run  # noqa: E501
 
+        Retrieve the latest state and result of a hosted run by its server-issued UUID. Poll this endpoint after starting or resuming a run until it reaches a terminal state or requests human input.  # noqa: E501
         This method makes a synchronous HTTP request by default. To make an
         asynchronous HTTP request, please pass async_req=True
         >>> thread = api.get_run_endpoint_runs_run_id_get(run_id, async_req=True)
         >>> result = thread.get()
 
         :param async_req bool
-        :param object run_id: (required)
+        :param object run_id: Server-issued hosted run UUID returned when a run is accepted. (required)
         :return: RunDetailResponse
                  If the method is called asynchronously,
                  returns the request thread.
@@ -161,13 +164,14 @@ class RunsApi(object):
     def get_run_endpoint_runs_run_id_get_with_http_info(self, run_id, **kwargs):  # noqa: E501
         """Get Run  # noqa: E501
 
+        Retrieve the latest state and result of a hosted run by its server-issued UUID. Poll this endpoint after starting or resuming a run until it reaches a terminal state or requests human input.  # noqa: E501
         This method makes a synchronous HTTP request by default. To make an
         asynchronous HTTP request, please pass async_req=True
         >>> thread = api.get_run_endpoint_runs_run_id_get_with_http_info(run_id, async_req=True)
         >>> result = thread.get()
 
         :param async_req bool
-        :param object run_id: (required)
+        :param object run_id: Server-issued hosted run UUID returned when a run is accepted. (required)
         :return: RunDetailResponse
                  If the method is called asynchronously,
                  returns the request thread.
@@ -212,7 +216,7 @@ class RunsApi(object):
             ['application/json'])  # noqa: E501
 
         # Authentication setting
-        auth_settings = []  # noqa: E501
+        auth_settings = ['BearerApiKey']  # noqa: E501
 
         return self.api_client.call_api(
             '/runs/{run_id}', 'GET',
@@ -233,19 +237,20 @@ class RunsApi(object):
     def list_agent_runs_endpoint_agents_agent_id_runs_get(self, agent_id, **kwargs):  # noqa: E501
         """List Agent Runs  # noqa: E501
 
+        List hosted runs for one agent, optionally filtered by status, type, session, or reporting window. Use the returned run UUIDs with `/runs`.  # noqa: E501
         This method makes a synchronous HTTP request by default. To make an
         asynchronous HTTP request, please pass async_req=True
         >>> thread = api.list_agent_runs_endpoint_agents_agent_id_runs_get(agent_id, async_req=True)
         >>> result = thread.get()
 
         :param async_req bool
-        :param object agent_id: (required)
+        :param object agent_id: Hosted agent UUID returned by the agent create or list endpoint. (required)
         :param object status: Filter by one or more run statuses.
         :param object run_type: Filter by one or more run types (goal|resume).
         :param object session_id: Filter to a single session.
         :param UsageTimeWindow window: Window bounding which runs are returned.
-        :param object limit: Page size.
-        :param object cursor: Opaque string from the previous page's `next_cursor`.
+        :param object limit: Maximum number of items to return on this page.
+        :param object cursor: Opaque pagination token from the previous response's `next_cursor`. Pass it back unchanged; omit it to start again from the first page.
         :return: AgentRunListResponse
                  If the method is called asynchronously,
                  returns the request thread.
@@ -260,19 +265,20 @@ class RunsApi(object):
     def list_agent_runs_endpoint_agents_agent_id_runs_get_with_http_info(self, agent_id, **kwargs):  # noqa: E501
         """List Agent Runs  # noqa: E501
 
+        List hosted runs for one agent, optionally filtered by status, type, session, or reporting window. Use the returned run UUIDs with `/runs`.  # noqa: E501
         This method makes a synchronous HTTP request by default. To make an
         asynchronous HTTP request, please pass async_req=True
         >>> thread = api.list_agent_runs_endpoint_agents_agent_id_runs_get_with_http_info(agent_id, async_req=True)
         >>> result = thread.get()
 
         :param async_req bool
-        :param object agent_id: (required)
+        :param object agent_id: Hosted agent UUID returned by the agent create or list endpoint. (required)
         :param object status: Filter by one or more run statuses.
         :param object run_type: Filter by one or more run types (goal|resume).
         :param object session_id: Filter to a single session.
         :param UsageTimeWindow window: Window bounding which runs are returned.
-        :param object limit: Page size.
-        :param object cursor: Opaque string from the previous page's `next_cursor`.
+        :param object limit: Maximum number of items to return on this page.
+        :param object cursor: Opaque pagination token from the previous response's `next_cursor`. Pass it back unchanged; omit it to start again from the first page.
         :return: AgentRunListResponse
                  If the method is called asynchronously,
                  returns the request thread.
@@ -329,7 +335,7 @@ class RunsApi(object):
             ['application/json'])  # noqa: E501
 
         # Authentication setting
-        auth_settings = []  # noqa: E501
+        auth_settings = ['BearerApiKey']  # noqa: E501
 
         return self.api_client.call_api(
             '/agents/{agent_id}/runs', 'GET',
@@ -350,16 +356,16 @@ class RunsApi(object):
     def list_session_runs_endpoint_sessions_session_id_runs_get(self, session_id, **kwargs):  # noqa: E501
         """List Session Runs  # noqa: E501
 
-        List runs in a session (newest first), keyset-paginated.  # noqa: E501
+        List the hosted runs associated with one conversation session, newest first. Use the returned run UUIDs to inspect individual run details.  # noqa: E501
         This method makes a synchronous HTTP request by default. To make an
         asynchronous HTTP request, please pass async_req=True
         >>> thread = api.list_session_runs_endpoint_sessions_session_id_runs_get(session_id, async_req=True)
         >>> result = thread.get()
 
         :param async_req bool
-        :param object session_id: (required)
-        :param object limit: Page size.
-        :param object cursor: Opaque string from the previous page's `next_cursor`.
+        :param object session_id: Conversation session UUID associated with an agent. (required)
+        :param object limit: Maximum number of items to return on this page.
+        :param object cursor: Opaque pagination token from the previous response's `next_cursor`. Pass it back unchanged; omit it to start again from the first page.
         :return: RunListResponse
                  If the method is called asynchronously,
                  returns the request thread.
@@ -374,16 +380,16 @@ class RunsApi(object):
     def list_session_runs_endpoint_sessions_session_id_runs_get_with_http_info(self, session_id, **kwargs):  # noqa: E501
         """List Session Runs  # noqa: E501
 
-        List runs in a session (newest first), keyset-paginated.  # noqa: E501
+        List the hosted runs associated with one conversation session, newest first. Use the returned run UUIDs to inspect individual run details.  # noqa: E501
         This method makes a synchronous HTTP request by default. To make an
         asynchronous HTTP request, please pass async_req=True
         >>> thread = api.list_session_runs_endpoint_sessions_session_id_runs_get_with_http_info(session_id, async_req=True)
         >>> result = thread.get()
 
         :param async_req bool
-        :param object session_id: (required)
-        :param object limit: Page size.
-        :param object cursor: Opaque string from the previous page's `next_cursor`.
+        :param object session_id: Conversation session UUID associated with an agent. (required)
+        :param object limit: Maximum number of items to return on this page.
+        :param object cursor: Opaque pagination token from the previous response's `next_cursor`. Pass it back unchanged; omit it to start again from the first page.
         :return: RunListResponse
                  If the method is called asynchronously,
                  returns the request thread.
@@ -432,7 +438,7 @@ class RunsApi(object):
             ['application/json'])  # noqa: E501
 
         # Authentication setting
-        auth_settings = []  # noqa: E501
+        auth_settings = ['BearerApiKey']  # noqa: E501
 
         return self.api_client.call_api(
             '/sessions/{session_id}/runs', 'GET',
@@ -453,7 +459,7 @@ class RunsApi(object):
     def resume_run_endpoint_runs_run_id_resume_post(self, body, run_id, **kwargs):  # noqa: E501
         """Resume Run  # noqa: E501
 
-        Resume a suspended run with a human decision.  # noqa: E501
+        Continue a suspended hosted run with the requested human decision. A 202 response contains the accepted child run; follow it with `GET /runs/{run_id}`.  # noqa: E501
         This method makes a synchronous HTTP request by default. To make an
         asynchronous HTTP request, please pass async_req=True
         >>> thread = api.resume_run_endpoint_runs_run_id_resume_post(body, run_id, async_req=True)
@@ -461,7 +467,7 @@ class RunsApi(object):
 
         :param async_req bool
         :param ResumeRunRequest body: (required)
-        :param object run_id: (required)
+        :param object run_id: Server-issued hosted run UUID returned when a run is accepted. (required)
         :return: GoalRunAcceptedResponse
                  If the method is called asynchronously,
                  returns the request thread.
@@ -476,7 +482,7 @@ class RunsApi(object):
     def resume_run_endpoint_runs_run_id_resume_post_with_http_info(self, body, run_id, **kwargs):  # noqa: E501
         """Resume Run  # noqa: E501
 
-        Resume a suspended run with a human decision.  # noqa: E501
+        Continue a suspended hosted run with the requested human decision. A 202 response contains the accepted child run; follow it with `GET /runs/{run_id}`.  # noqa: E501
         This method makes a synchronous HTTP request by default. To make an
         asynchronous HTTP request, please pass async_req=True
         >>> thread = api.resume_run_endpoint_runs_run_id_resume_post_with_http_info(body, run_id, async_req=True)
@@ -484,7 +490,7 @@ class RunsApi(object):
 
         :param async_req bool
         :param ResumeRunRequest body: (required)
-        :param object run_id: (required)
+        :param object run_id: Server-issued hosted run UUID returned when a run is accepted. (required)
         :return: GoalRunAcceptedResponse
                  If the method is called asynchronously,
                  returns the request thread.
@@ -539,7 +545,7 @@ class RunsApi(object):
             ['application/json'])  # noqa: E501
 
         # Authentication setting
-        auth_settings = []  # noqa: E501
+        auth_settings = ['BearerApiKey']  # noqa: E501
 
         return self.api_client.call_api(
             '/runs/{run_id}/resume', 'POST',

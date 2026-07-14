@@ -3,7 +3,7 @@
 """
     Hyperstruck Core
 
-    Hyperstruck Core management API  # noqa: E501
+    Create and operate hosted agents, runs, learnings, and integrations. Authenticate resource requests with a Bearer API key unless an endpoint explicitly requires a portal session.  # noqa: E501
 
     OpenAPI spec version: 0.1.0
     
@@ -33,9 +33,9 @@ class ProviderCredentialsApi(object):
         self.api_client = api_client
 
     def create_credential_credentials_providers_post(self, body, **kwargs):  # noqa: E501
-        """Create Credential  # noqa: E501
+        """Create Provider Credential  # noqa: E501
 
-        Create an encrypted provider credential. Use `metadata.base_url` to override the provider endpoint. If omitted, the API stores a sane provider default for Anthropic, Groq, Ollama, and OpenAI.  # noqa: E501
+        Store a provider credential for tenant-wide or agent-specific use. The secret is write-only and is not returned. Use `metadata.base_url` only when the provider should use a non-default compatible endpoint.  # noqa: E501
         This method makes a synchronous HTTP request by default. To make an
         asynchronous HTTP request, please pass async_req=True
         >>> thread = api.create_credential_credentials_providers_post(body, async_req=True)
@@ -55,9 +55,9 @@ class ProviderCredentialsApi(object):
             return data
 
     def create_credential_credentials_providers_post_with_http_info(self, body, **kwargs):  # noqa: E501
-        """Create Credential  # noqa: E501
+        """Create Provider Credential  # noqa: E501
 
-        Create an encrypted provider credential. Use `metadata.base_url` to override the provider endpoint. If omitted, the API stores a sane provider default for Anthropic, Groq, Ollama, and OpenAI.  # noqa: E501
+        Store a provider credential for tenant-wide or agent-specific use. The secret is write-only and is not returned. Use `metadata.base_url` only when the provider should use a non-default compatible endpoint.  # noqa: E501
         This method makes a synchronous HTTP request by default. To make an
         asynchronous HTTP request, please pass async_req=True
         >>> thread = api.create_credential_credentials_providers_post_with_http_info(body, async_req=True)
@@ -113,7 +113,7 @@ class ProviderCredentialsApi(object):
             ['application/json'])  # noqa: E501
 
         # Authentication setting
-        auth_settings = []  # noqa: E501
+        auth_settings = ['BearerApiKey']  # noqa: E501
 
         return self.api_client.call_api(
             '/credentials/providers', 'POST',
@@ -132,15 +132,16 @@ class ProviderCredentialsApi(object):
             collection_formats=collection_formats)
 
     def delete_credential_credentials_providers_credential_id_delete(self, credential_id, **kwargs):  # noqa: E501
-        """Delete Credential  # noqa: E501
+        """Delete Provider Credential  # noqa: E501
 
+        Permanently remove a provider credential. Confirm dependent agents have another usable credential before deleting it.  # noqa: E501
         This method makes a synchronous HTTP request by default. To make an
         asynchronous HTTP request, please pass async_req=True
         >>> thread = api.delete_credential_credentials_providers_credential_id_delete(credential_id, async_req=True)
         >>> result = thread.get()
 
         :param async_req bool
-        :param object credential_id: (required)
+        :param object credential_id: Provider credential UUID returned by the create or list endpoint. (required)
         :return: None
                  If the method is called asynchronously,
                  returns the request thread.
@@ -153,15 +154,16 @@ class ProviderCredentialsApi(object):
             return data
 
     def delete_credential_credentials_providers_credential_id_delete_with_http_info(self, credential_id, **kwargs):  # noqa: E501
-        """Delete Credential  # noqa: E501
+        """Delete Provider Credential  # noqa: E501
 
+        Permanently remove a provider credential. Confirm dependent agents have another usable credential before deleting it.  # noqa: E501
         This method makes a synchronous HTTP request by default. To make an
         asynchronous HTTP request, please pass async_req=True
         >>> thread = api.delete_credential_credentials_providers_credential_id_delete_with_http_info(credential_id, async_req=True)
         >>> result = thread.get()
 
         :param async_req bool
-        :param object credential_id: (required)
+        :param object credential_id: Provider credential UUID returned by the create or list endpoint. (required)
         :return: None
                  If the method is called asynchronously,
                  returns the request thread.
@@ -206,7 +208,7 @@ class ProviderCredentialsApi(object):
             ['application/json'])  # noqa: E501
 
         # Authentication setting
-        auth_settings = []  # noqa: E501
+        auth_settings = ['BearerApiKey']  # noqa: E501
 
         return self.api_client.call_api(
             '/credentials/providers/{credential_id}', 'DELETE',
@@ -225,15 +227,16 @@ class ProviderCredentialsApi(object):
             collection_formats=collection_formats)
 
     def get_credential_credentials_providers_credential_id_get(self, credential_id, **kwargs):  # noqa: E501
-        """Get Credential  # noqa: E501
+        """Get Provider Credential  # noqa: E501
 
+        Retrieve one provider credential's provider, binding, metadata, and active state. Secret material is never included.  # noqa: E501
         This method makes a synchronous HTTP request by default. To make an
         asynchronous HTTP request, please pass async_req=True
         >>> thread = api.get_credential_credentials_providers_credential_id_get(credential_id, async_req=True)
         >>> result = thread.get()
 
         :param async_req bool
-        :param object credential_id: (required)
+        :param object credential_id: Provider credential UUID returned by the create or list endpoint. (required)
         :return: ProviderCredentialResponse
                  If the method is called asynchronously,
                  returns the request thread.
@@ -246,15 +249,16 @@ class ProviderCredentialsApi(object):
             return data
 
     def get_credential_credentials_providers_credential_id_get_with_http_info(self, credential_id, **kwargs):  # noqa: E501
-        """Get Credential  # noqa: E501
+        """Get Provider Credential  # noqa: E501
 
+        Retrieve one provider credential's provider, binding, metadata, and active state. Secret material is never included.  # noqa: E501
         This method makes a synchronous HTTP request by default. To make an
         asynchronous HTTP request, please pass async_req=True
         >>> thread = api.get_credential_credentials_providers_credential_id_get_with_http_info(credential_id, async_req=True)
         >>> result = thread.get()
 
         :param async_req bool
-        :param object credential_id: (required)
+        :param object credential_id: Provider credential UUID returned by the create or list endpoint. (required)
         :return: ProviderCredentialResponse
                  If the method is called asynchronously,
                  returns the request thread.
@@ -299,7 +303,7 @@ class ProviderCredentialsApi(object):
             ['application/json'])  # noqa: E501
 
         # Authentication setting
-        auth_settings = []  # noqa: E501
+        auth_settings = ['BearerApiKey']  # noqa: E501
 
         return self.api_client.call_api(
             '/credentials/providers/{credential_id}', 'GET',
@@ -318,8 +322,9 @@ class ProviderCredentialsApi(object):
             collection_formats=collection_formats)
 
     def list_credentials_credentials_providers_get(self, **kwargs):  # noqa: E501
-        """List Credentials  # noqa: E501
+        """List Provider Credentials  # noqa: E501
 
+        List configured model-provider credentials without secret values. Filter by provider, binding type, agent, or active state when selecting a credential for an agent.  # noqa: E501
         This method makes a synchronous HTTP request by default. To make an
         asynchronous HTTP request, please pass async_req=True
         >>> thread = api.list_credentials_credentials_providers_get(async_req=True)
@@ -342,8 +347,9 @@ class ProviderCredentialsApi(object):
             return data
 
     def list_credentials_credentials_providers_get_with_http_info(self, **kwargs):  # noqa: E501
-        """List Credentials  # noqa: E501
+        """List Provider Credentials  # noqa: E501
 
+        List configured model-provider credentials without secret values. Filter by provider, binding type, agent, or active state when selecting a credential for an agent.  # noqa: E501
         This method makes a synchronous HTTP request by default. To make an
         asynchronous HTTP request, please pass async_req=True
         >>> thread = api.list_credentials_credentials_providers_get_with_http_info(async_req=True)
@@ -400,7 +406,7 @@ class ProviderCredentialsApi(object):
             ['application/json'])  # noqa: E501
 
         # Authentication setting
-        auth_settings = []  # noqa: E501
+        auth_settings = ['BearerApiKey']  # noqa: E501
 
         return self.api_client.call_api(
             '/credentials/providers', 'GET',
@@ -419,9 +425,9 @@ class ProviderCredentialsApi(object):
             collection_formats=collection_formats)
 
     def update_credential_credentials_providers_credential_id_patch(self, body, credential_id, **kwargs):  # noqa: E501
-        """Update Credential  # noqa: E501
+        """Update Provider Credential  # noqa: E501
 
-        Update an encrypted provider credential. If `metadata` is omitted, the existing endpoint is preserved; if the provider changes without explicit metadata, or metadata is provided without a base URL, the endpoint resets to a sane provider default.  # noqa: E501
+        Update selected fields on a provider credential. Omit the secret to keep the current value. Omitted metadata is preserved; provider changes use that provider's default endpoint unless a base URL is supplied.  # noqa: E501
         This method makes a synchronous HTTP request by default. To make an
         asynchronous HTTP request, please pass async_req=True
         >>> thread = api.update_credential_credentials_providers_credential_id_patch(body, credential_id, async_req=True)
@@ -429,7 +435,7 @@ class ProviderCredentialsApi(object):
 
         :param async_req bool
         :param ProviderCredentialUpdateRequest body: (required)
-        :param object credential_id: (required)
+        :param object credential_id: Provider credential UUID returned by the create or list endpoint. (required)
         :return: ProviderCredentialResponse
                  If the method is called asynchronously,
                  returns the request thread.
@@ -442,9 +448,9 @@ class ProviderCredentialsApi(object):
             return data
 
     def update_credential_credentials_providers_credential_id_patch_with_http_info(self, body, credential_id, **kwargs):  # noqa: E501
-        """Update Credential  # noqa: E501
+        """Update Provider Credential  # noqa: E501
 
-        Update an encrypted provider credential. If `metadata` is omitted, the existing endpoint is preserved; if the provider changes without explicit metadata, or metadata is provided without a base URL, the endpoint resets to a sane provider default.  # noqa: E501
+        Update selected fields on a provider credential. Omit the secret to keep the current value. Omitted metadata is preserved; provider changes use that provider's default endpoint unless a base URL is supplied.  # noqa: E501
         This method makes a synchronous HTTP request by default. To make an
         asynchronous HTTP request, please pass async_req=True
         >>> thread = api.update_credential_credentials_providers_credential_id_patch_with_http_info(body, credential_id, async_req=True)
@@ -452,7 +458,7 @@ class ProviderCredentialsApi(object):
 
         :param async_req bool
         :param ProviderCredentialUpdateRequest body: (required)
-        :param object credential_id: (required)
+        :param object credential_id: Provider credential UUID returned by the create or list endpoint. (required)
         :return: ProviderCredentialResponse
                  If the method is called asynchronously,
                  returns the request thread.
@@ -507,7 +513,7 @@ class ProviderCredentialsApi(object):
             ['application/json'])  # noqa: E501
 
         # Authentication setting
-        auth_settings = []  # noqa: E501
+        auth_settings = ['BearerApiKey']  # noqa: E501
 
         return self.api_client.call_api(
             '/credentials/providers/{credential_id}', 'PATCH',

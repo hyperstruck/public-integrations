@@ -3,7 +3,7 @@
 """
     Hyperstruck Core
 
-    Hyperstruck Core management API  # noqa: E501
+    Create and operate hosted agents, runs, learnings, and integrations. Authenticate resource requests with a Bearer API key unless an endpoint explicitly requires a portal session.  # noqa: E501
 
     OpenAPI spec version: 0.1.0
     
@@ -60,6 +60,7 @@ class OutcomeModel(object):
     def is_success(self):
         """Gets the is_success of this OutcomeModel.  # noqa: E501
 
+        Whether the episode achieved its goal.  # noqa: E501
 
         :return: The is_success of this OutcomeModel.  # noqa: E501
         :rtype: object
@@ -70,6 +71,7 @@ class OutcomeModel(object):
     def is_success(self, is_success):
         """Sets the is_success of this OutcomeModel.
 
+        Whether the episode achieved its goal.  # noqa: E501
 
         :param is_success: The is_success of this OutcomeModel.  # noqa: E501
         :type: object
@@ -83,6 +85,7 @@ class OutcomeModel(object):
     def total_steps(self):
         """Gets the total_steps of this OutcomeModel.  # noqa: E501
 
+        Total number of attempted steps.  # noqa: E501
 
         :return: The total_steps of this OutcomeModel.  # noqa: E501
         :rtype: object
@@ -93,6 +96,7 @@ class OutcomeModel(object):
     def total_steps(self, total_steps):
         """Sets the total_steps of this OutcomeModel.
 
+        Total number of attempted steps.  # noqa: E501
 
         :param total_steps: The total_steps of this OutcomeModel.  # noqa: E501
         :type: object
@@ -104,6 +108,7 @@ class OutcomeModel(object):
     def completed_steps(self):
         """Gets the completed_steps of this OutcomeModel.  # noqa: E501
 
+        Number of completed steps.  # noqa: E501
 
         :return: The completed_steps of this OutcomeModel.  # noqa: E501
         :rtype: object
@@ -114,6 +119,7 @@ class OutcomeModel(object):
     def completed_steps(self, completed_steps):
         """Sets the completed_steps of this OutcomeModel.
 
+        Number of completed steps.  # noqa: E501
 
         :param completed_steps: The completed_steps of this OutcomeModel.  # noqa: E501
         :type: object
@@ -125,6 +131,7 @@ class OutcomeModel(object):
     def failed_steps(self):
         """Gets the failed_steps of this OutcomeModel.  # noqa: E501
 
+        Number of failed steps.  # noqa: E501
 
         :return: The failed_steps of this OutcomeModel.  # noqa: E501
         :rtype: object
@@ -135,6 +142,7 @@ class OutcomeModel(object):
     def failed_steps(self, failed_steps):
         """Sets the failed_steps of this OutcomeModel.
 
+        Number of failed steps.  # noqa: E501
 
         :param failed_steps: The failed_steps of this OutcomeModel.  # noqa: E501
         :type: object

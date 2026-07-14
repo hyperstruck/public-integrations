@@ -20,6 +20,8 @@ Method | HTTP request | Description
 
 Create Agent
 
+Create a hosted agent from its name, model configuration, instructions, and optional home space. Use the returned agent UUID for agent-scoped resource paths.
+
 ### Example
 ```python
 from __future__ import print_function
@@ -28,9 +30,15 @@ import hyperstruck
 from hyperstruck.rest import ApiException
 from pprint import pprint
 
+# Configure API key authorization: BearerApiKey
+configuration = hyperstruck.Configuration()
+configuration.api_key['Authorization'] = 'YOUR_API_KEY'
+# Uncomment below to setup prefix (e.g. Bearer) for API key, if needed
+# configuration.api_key_prefix['Authorization'] = 'Bearer'
+
 # create an instance of the API class
-api_instance = hyperstruck.AgentsApi()
-body = hyperstruck.AgentCreateRequest() # AgentCreateRequest | 
+api_instance = hyperstruck.AgentsApi(hyperstruck.ApiClient(configuration))
+body = hyperstruck.AgentCreateRequest() # AgentCreateRequest |
 
 try:
     # Create Agent
@@ -44,7 +52,7 @@ except ApiException as e:
 
 Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
- **body** | [**AgentCreateRequest**](AgentCreateRequest.md)|  | 
+ **body** | [**AgentCreateRequest**](AgentCreateRequest.md)|  |
 
 ### Return type
 
@@ -52,7 +60,7 @@ Name | Type | Description  | Notes
 
 ### Authorization
 
-No authorization required
+[BearerApiKey](../README.md#BearerApiKey)
 
 ### HTTP request headers
 
@@ -66,6 +74,8 @@ No authorization required
 
 Delete Agent
 
+Permanently delete a hosted agent. Use only when the agent and its configuration are no longer needed; the operation cannot be undone.
+
 ### Example
 ```python
 from __future__ import print_function
@@ -74,9 +84,15 @@ import hyperstruck
 from hyperstruck.rest import ApiException
 from pprint import pprint
 
+# Configure API key authorization: BearerApiKey
+configuration = hyperstruck.Configuration()
+configuration.api_key['Authorization'] = 'YOUR_API_KEY'
+# Uncomment below to setup prefix (e.g. Bearer) for API key, if needed
+# configuration.api_key_prefix['Authorization'] = 'Bearer'
+
 # create an instance of the API class
-api_instance = hyperstruck.AgentsApi()
-agent_id = NULL # object | 
+api_instance = hyperstruck.AgentsApi(hyperstruck.ApiClient(configuration))
+agent_id = NULL # object | Hosted agent UUID returned by the agent create or list endpoint.
 
 try:
     # Delete Agent
@@ -89,7 +105,7 @@ except ApiException as e:
 
 Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
- **agent_id** | [**object**](.md)|  | 
+ **agent_id** | [**object**](.md)| Hosted agent UUID returned by the agent create or list endpoint. |
 
 ### Return type
 
@@ -97,7 +113,7 @@ void (empty response body)
 
 ### Authorization
 
-No authorization required
+[BearerApiKey](../README.md#BearerApiKey)
 
 ### HTTP request headers
 
@@ -111,6 +127,8 @@ No authorization required
 
 Create Goal Run
 
+Start asynchronous work for a hosted agent. A 202 response contains the server-issued run UUID; use `GET /runs/{run_id}` to follow its status and resume it if human input is requested.
+
 ### Example
 ```python
 from __future__ import print_function
@@ -119,10 +137,16 @@ import hyperstruck
 from hyperstruck.rest import ApiException
 from pprint import pprint
 
+# Configure API key authorization: BearerApiKey
+configuration = hyperstruck.Configuration()
+configuration.api_key['Authorization'] = 'YOUR_API_KEY'
+# Uncomment below to setup prefix (e.g. Bearer) for API key, if needed
+# configuration.api_key_prefix['Authorization'] = 'Bearer'
+
 # create an instance of the API class
-api_instance = hyperstruck.AgentsApi()
-body = hyperstruck.GoalRunRequest() # GoalRunRequest | 
-agent_id = NULL # object | 
+api_instance = hyperstruck.AgentsApi(hyperstruck.ApiClient(configuration))
+body = hyperstruck.GoalRunRequest() # GoalRunRequest |
+agent_id = NULL # object | Hosted agent UUID returned by the agent create or list endpoint.
 
 try:
     # Create Goal Run
@@ -136,8 +160,8 @@ except ApiException as e:
 
 Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
- **body** | [**GoalRunRequest**](GoalRunRequest.md)|  | 
- **agent_id** | [**object**](.md)|  | 
+ **body** | [**GoalRunRequest**](GoalRunRequest.md)|  |
+ **agent_id** | [**object**](.md)| Hosted agent UUID returned by the agent create or list endpoint. |
 
 ### Return type
 
@@ -145,7 +169,7 @@ Name | Type | Description  | Notes
 
 ### Authorization
 
-No authorization required
+[BearerApiKey](../README.md#BearerApiKey)
 
 ### HTTP request headers
 
@@ -159,6 +183,8 @@ No authorization required
 
 Get Agent
 
+Retrieve one hosted agent and its effective configuration. Optional query flags can include usage or non-secret provider-credential metadata.
+
 ### Example
 ```python
 from __future__ import print_function
@@ -167,12 +193,18 @@ import hyperstruck
 from hyperstruck.rest import ApiException
 from pprint import pprint
 
+# Configure API key authorization: BearerApiKey
+configuration = hyperstruck.Configuration()
+configuration.api_key['Authorization'] = 'YOUR_API_KEY'
+# Uncomment below to setup prefix (e.g. Bearer) for API key, if needed
+# configuration.api_key_prefix['Authorization'] = 'Bearer'
+
 # create an instance of the API class
-api_instance = hyperstruck.AgentsApi()
-agent_id = NULL # object | 
+api_instance = hyperstruck.AgentsApi(hyperstruck.ApiClient(configuration))
+agent_id = NULL # object | Hosted agent UUID returned by the agent create or list endpoint.
 include_llm_credential = true # object | When true (default), resolve effective provider credential metadata for this agent's `model_provider` without exposing secrets. (optional) (default to true)
 include_summary = false # object | When true, include a per-agent usage summary. (optional) (default to false)
-include_access = false # object | Reserved: home-space operators / FGA access. Not yet populated (Fibery #122); accepted as a no-op for forward compatibility. (optional) (default to false)
+include_access = false # object | Reserved for future access details. Currently accepted as a no-op for forward compatibility. (optional) (default to false)
 window = hyperstruck.UsageTimeWindow() # UsageTimeWindow | Window applied when `include_summary` is true. (optional) (default to last_30_days)
 
 try:
@@ -187,10 +219,10 @@ except ApiException as e:
 
 Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
- **agent_id** | [**object**](.md)|  | 
+ **agent_id** | [**object**](.md)| Hosted agent UUID returned by the agent create or list endpoint. |
  **include_llm_credential** | [**object**](.md)| When true (default), resolve effective provider credential metadata for this agent&#x27;s &#x60;model_provider&#x60; without exposing secrets. | [optional] [default to true]
  **include_summary** | [**object**](.md)| When true, include a per-agent usage summary. | [optional] [default to false]
- **include_access** | [**object**](.md)| Reserved: home-space operators / FGA access. Not yet populated (Fibery #122); accepted as a no-op for forward compatibility. | [optional] [default to false]
+ **include_access** | [**object**](.md)| Reserved for future access details. Currently accepted as a no-op for forward compatibility. | [optional] [default to false]
  **window** | [**UsageTimeWindow**](.md)| Window applied when &#x60;include_summary&#x60; is true. | [optional] [default to last_30_days]
 
 ### Return type
@@ -199,7 +231,7 @@ Name | Type | Description  | Notes
 
 ### Authorization
 
-No authorization required
+[BearerApiKey](../README.md#BearerApiKey)
 
 ### HTTP request headers
 
@@ -213,6 +245,8 @@ No authorization required
 
 Get Agent Usage Summary
 
+Return metered usage for one agent over a preset reporting window. Use tenant-level `/usage` endpoints when an all-agent total is required.
+
 ### Example
 ```python
 from __future__ import print_function
@@ -221,9 +255,15 @@ import hyperstruck
 from hyperstruck.rest import ApiException
 from pprint import pprint
 
+# Configure API key authorization: BearerApiKey
+configuration = hyperstruck.Configuration()
+configuration.api_key['Authorization'] = 'YOUR_API_KEY'
+# Uncomment below to setup prefix (e.g. Bearer) for API key, if needed
+# configuration.api_key_prefix['Authorization'] = 'Bearer'
+
 # create an instance of the API class
-api_instance = hyperstruck.AgentsApi()
-agent_id = NULL # object | 
+api_instance = hyperstruck.AgentsApi(hyperstruck.ApiClient(configuration))
+agent_id = NULL # object | Hosted agent UUID returned by the agent create or list endpoint.
 window = hyperstruck.UsageTimeWindow() # UsageTimeWindow | Preset reporting window. (optional) (default to last_30_days)
 
 try:
@@ -238,7 +278,7 @@ except ApiException as e:
 
 Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
- **agent_id** | [**object**](.md)|  | 
+ **agent_id** | [**object**](.md)| Hosted agent UUID returned by the agent create or list endpoint. |
  **window** | [**UsageTimeWindow**](.md)| Preset reporting window. | [optional] [default to last_30_days]
 
 ### Return type
@@ -247,7 +287,7 @@ Name | Type | Description  | Notes
 
 ### Authorization
 
-No authorization required
+[BearerApiKey](../README.md#BearerApiKey)
 
 ### HTTP request headers
 
@@ -261,6 +301,8 @@ No authorization required
 
 List Agent Runs
 
+List hosted runs for one agent, optionally filtered by status, type, session, or reporting window. Use the returned run UUIDs with `/runs`.
+
 ### Example
 ```python
 from __future__ import print_function
@@ -269,15 +311,21 @@ import hyperstruck
 from hyperstruck.rest import ApiException
 from pprint import pprint
 
+# Configure API key authorization: BearerApiKey
+configuration = hyperstruck.Configuration()
+configuration.api_key['Authorization'] = 'YOUR_API_KEY'
+# Uncomment below to setup prefix (e.g. Bearer) for API key, if needed
+# configuration.api_key_prefix['Authorization'] = 'Bearer'
+
 # create an instance of the API class
-api_instance = hyperstruck.AgentsApi()
-agent_id = NULL # object | 
+api_instance = hyperstruck.AgentsApi(hyperstruck.ApiClient(configuration))
+agent_id = NULL # object | Hosted agent UUID returned by the agent create or list endpoint.
 status = [] # object | Filter by one or more run statuses. (optional) (default to [])
 run_type = [] # object | Filter by one or more run types (goal|resume). (optional) (default to [])
 session_id = NULL # object | Filter to a single session. (optional)
 window = hyperstruck.UsageTimeWindow() # UsageTimeWindow | Window bounding which runs are returned. (optional) (default to last_30_days)
-limit = 25 # object | Page size. (optional) (default to 25)
-cursor = NULL # object | Opaque string from the previous page's `next_cursor`. (optional)
+limit = 25 # object | Maximum number of items to return on this page. (optional) (default to 25)
+cursor = NULL # object | Opaque pagination token from the previous response's `next_cursor`. Pass it back unchanged; omit it to start again from the first page. (optional)
 
 try:
     # List Agent Runs
@@ -291,13 +339,13 @@ except ApiException as e:
 
 Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
- **agent_id** | [**object**](.md)|  | 
+ **agent_id** | [**object**](.md)| Hosted agent UUID returned by the agent create or list endpoint. |
  **status** | [**object**](.md)| Filter by one or more run statuses. | [optional] [default to []]
  **run_type** | [**object**](.md)| Filter by one or more run types (goal|resume). | [optional] [default to []]
- **session_id** | [**object**](.md)| Filter to a single session. | [optional] 
+ **session_id** | [**object**](.md)| Filter to a single session. | [optional]
  **window** | [**UsageTimeWindow**](.md)| Window bounding which runs are returned. | [optional] [default to last_30_days]
- **limit** | [**object**](.md)| Page size. | [optional] [default to 25]
- **cursor** | [**object**](.md)| Opaque string from the previous page&#x27;s &#x60;next_cursor&#x60;. | [optional] 
+ **limit** | [**object**](.md)| Maximum number of items to return on this page. | [optional] [default to 25]
+ **cursor** | [**object**](.md)| Opaque pagination token from the previous response&#x27;s &#x60;next_cursor&#x60;. Pass it back unchanged; omit it to start again from the first page. | [optional]
 
 ### Return type
 
@@ -305,7 +353,7 @@ Name | Type | Description  | Notes
 
 ### Authorization
 
-No authorization required
+[BearerApiKey](../README.md#BearerApiKey)
 
 ### HTTP request headers
 
@@ -319,6 +367,8 @@ No authorization required
 
 List Agent Sessions
 
+List conversation sessions associated with one agent. Results are cursor-paginated; pass `next_cursor` back unchanged to continue.
+
 ### Example
 ```python
 from __future__ import print_function
@@ -327,11 +377,17 @@ import hyperstruck
 from hyperstruck.rest import ApiException
 from pprint import pprint
 
+# Configure API key authorization: BearerApiKey
+configuration = hyperstruck.Configuration()
+configuration.api_key['Authorization'] = 'YOUR_API_KEY'
+# Uncomment below to setup prefix (e.g. Bearer) for API key, if needed
+# configuration.api_key_prefix['Authorization'] = 'Bearer'
+
 # create an instance of the API class
-api_instance = hyperstruck.AgentsApi()
-agent_id = NULL # object | 
-limit = 20 # object | Page size. (optional) (default to 20)
-cursor = NULL # object | Opaque string from the previous page's `next_cursor`. (optional)
+api_instance = hyperstruck.AgentsApi(hyperstruck.ApiClient(configuration))
+agent_id = NULL # object | Hosted agent UUID returned by the agent create or list endpoint.
+limit = 20 # object | Maximum number of items to return on this page. (optional) (default to 20)
+cursor = NULL # object | Opaque pagination token from the previous response's `next_cursor`. Pass it back unchanged; omit it to start again from the first page. (optional)
 
 try:
     # List Agent Sessions
@@ -345,9 +401,9 @@ except ApiException as e:
 
 Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
- **agent_id** | [**object**](.md)|  | 
- **limit** | [**object**](.md)| Page size. | [optional] [default to 20]
- **cursor** | [**object**](.md)| Opaque string from the previous page&#x27;s &#x60;next_cursor&#x60;. | [optional] 
+ **agent_id** | [**object**](.md)| Hosted agent UUID returned by the agent create or list endpoint. |
+ **limit** | [**object**](.md)| Maximum number of items to return on this page. | [optional] [default to 20]
+ **cursor** | [**object**](.md)| Opaque pagination token from the previous response&#x27;s &#x60;next_cursor&#x60;. Pass it back unchanged; omit it to start again from the first page. | [optional]
 
 ### Return type
 
@@ -355,7 +411,7 @@ Name | Type | Description  | Notes
 
 ### Authorization
 
-No authorization required
+[BearerApiKey](../README.md#BearerApiKey)
 
 ### HTTP request headers
 
@@ -369,6 +425,8 @@ No authorization required
 
 List Agents
 
+Find agents available to the caller. Use filters and cursor pagination for inventory screens or agent selection; request summaries only when usage metrics are needed.
+
 ### Example
 ```python
 from __future__ import print_function
@@ -377,8 +435,14 @@ import hyperstruck
 from hyperstruck.rest import ApiException
 from pprint import pprint
 
+# Configure API key authorization: BearerApiKey
+configuration = hyperstruck.Configuration()
+configuration.api_key['Authorization'] = 'YOUR_API_KEY'
+# Uncomment below to setup prefix (e.g. Bearer) for API key, if needed
+# configuration.api_key_prefix['Authorization'] = 'Bearer'
+
 # create an instance of the API class
-api_instance = hyperstruck.AgentsApi()
+api_instance = hyperstruck.AgentsApi(hyperstruck.ApiClient(configuration))
 q = NULL # object | Case-insensitive search over name and description. (optional)
 status = [] # object | Filter by one or more agent statuses. (optional) (default to [])
 space_id = NULL # object | Filter to agents homed in this space. (optional)
@@ -386,8 +450,8 @@ reasoning_profile = [] # object | Filter by one or more reasoning profiles. (opt
 sort = created_desc # object | Sort mode: created_desc|created_asc|name_asc|name_desc|last_run_desc|run_count_desc|spend_desc. (optional) (default to created_desc)
 window = hyperstruck.UsageTimeWindow() # UsageTimeWindow | Window for metric sorts and per-agent summaries. (optional) (default to last_30_days)
 include_summary = false # object | When true, include a per-agent usage summary. (optional) (default to false)
-limit = 20 # object | Page size. (optional) (default to 20)
-cursor = NULL # object | Opaque string from the previous page's `next_cursor`. (optional)
+limit = 20 # object | Maximum number of items to return on this page. (optional) (default to 20)
+cursor = NULL # object | Opaque pagination token from the previous response's `next_cursor`. Pass it back unchanged; omit it to start again from the first page. (optional)
 
 try:
     # List Agents
@@ -401,15 +465,15 @@ except ApiException as e:
 
 Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
- **q** | [**object**](.md)| Case-insensitive search over name and description. | [optional] 
+ **q** | [**object**](.md)| Case-insensitive search over name and description. | [optional]
  **status** | [**object**](.md)| Filter by one or more agent statuses. | [optional] [default to []]
- **space_id** | [**object**](.md)| Filter to agents homed in this space. | [optional] 
+ **space_id** | [**object**](.md)| Filter to agents homed in this space. | [optional]
  **reasoning_profile** | [**object**](.md)| Filter by one or more reasoning profiles. | [optional] [default to []]
  **sort** | [**object**](.md)| Sort mode: created_desc|created_asc|name_asc|name_desc|last_run_desc|run_count_desc|spend_desc. | [optional] [default to created_desc]
  **window** | [**UsageTimeWindow**](.md)| Window for metric sorts and per-agent summaries. | [optional] [default to last_30_days]
  **include_summary** | [**object**](.md)| When true, include a per-agent usage summary. | [optional] [default to false]
- **limit** | [**object**](.md)| Page size. | [optional] [default to 20]
- **cursor** | [**object**](.md)| Opaque string from the previous page&#x27;s &#x60;next_cursor&#x60;. | [optional] 
+ **limit** | [**object**](.md)| Maximum number of items to return on this page. | [optional] [default to 20]
+ **cursor** | [**object**](.md)| Opaque pagination token from the previous response&#x27;s &#x60;next_cursor&#x60;. Pass it back unchanged; omit it to start again from the first page. | [optional]
 
 ### Return type
 
@@ -417,7 +481,7 @@ Name | Type | Description  | Notes
 
 ### Authorization
 
-No authorization required
+[BearerApiKey](../README.md#BearerApiKey)
 
 ### HTTP request headers
 
@@ -431,6 +495,8 @@ No authorization required
 
 List Definition Suggestions
 
+Return curated templates or traits that can help construct an agent definition. Use this before creating or editing an agent when the caller needs discoverable starting values.
+
 ### Example
 ```python
 from __future__ import print_function
@@ -439,8 +505,14 @@ import hyperstruck
 from hyperstruck.rest import ApiException
 from pprint import pprint
 
+# Configure API key authorization: BearerApiKey
+configuration = hyperstruck.Configuration()
+configuration.api_key['Authorization'] = 'YOUR_API_KEY'
+# Uncomment below to setup prefix (e.g. Bearer) for API key, if needed
+# configuration.api_key_prefix['Authorization'] = 'Bearer'
+
 # create an instance of the API class
-api_instance = hyperstruck.AgentsApi()
+api_instance = hyperstruck.AgentsApi(hyperstruck.ApiClient(configuration))
 kind = hyperstruck.AgentDefinitionSuggestionKind() # AgentDefinitionSuggestionKind | Suggestion catalog to return. (optional) (default to template)
 q = NULL # object | Optional case-insensitive filter over label/description. (optional)
 
@@ -457,7 +529,7 @@ except ApiException as e:
 Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
  **kind** | [**AgentDefinitionSuggestionKind**](.md)| Suggestion catalog to return. | [optional] [default to template]
- **q** | [**object**](.md)| Optional case-insensitive filter over label/description. | [optional] 
+ **q** | [**object**](.md)| Optional case-insensitive filter over label/description. | [optional]
 
 ### Return type
 
@@ -465,7 +537,7 @@ Name | Type | Description  | Notes
 
 ### Authorization
 
-No authorization required
+[BearerApiKey](../README.md#BearerApiKey)
 
 ### HTTP request headers
 
@@ -479,6 +551,8 @@ No authorization required
 
 Update Agent
 
+Update the supplied fields on an existing hosted agent. Omitted fields retain their current values.
+
 ### Example
 ```python
 from __future__ import print_function
@@ -487,10 +561,16 @@ import hyperstruck
 from hyperstruck.rest import ApiException
 from pprint import pprint
 
+# Configure API key authorization: BearerApiKey
+configuration = hyperstruck.Configuration()
+configuration.api_key['Authorization'] = 'YOUR_API_KEY'
+# Uncomment below to setup prefix (e.g. Bearer) for API key, if needed
+# configuration.api_key_prefix['Authorization'] = 'Bearer'
+
 # create an instance of the API class
-api_instance = hyperstruck.AgentsApi()
-body = hyperstruck.AgentUpdateRequest() # AgentUpdateRequest | 
-agent_id = NULL # object | 
+api_instance = hyperstruck.AgentsApi(hyperstruck.ApiClient(configuration))
+body = hyperstruck.AgentUpdateRequest() # AgentUpdateRequest |
+agent_id = NULL # object | Hosted agent UUID returned by the agent create or list endpoint.
 
 try:
     # Update Agent
@@ -504,8 +584,8 @@ except ApiException as e:
 
 Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
- **body** | [**AgentUpdateRequest**](AgentUpdateRequest.md)|  | 
- **agent_id** | [**object**](.md)|  | 
+ **body** | [**AgentUpdateRequest**](AgentUpdateRequest.md)|  |
+ **agent_id** | [**object**](.md)| Hosted agent UUID returned by the agent create or list endpoint. |
 
 ### Return type
 
@@ -513,7 +593,7 @@ Name | Type | Description  | Notes
 
 ### Authorization
 
-No authorization required
+[BearerApiKey](../README.md#BearerApiKey)
 
 ### HTTP request headers
 

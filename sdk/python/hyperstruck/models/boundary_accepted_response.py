@@ -3,7 +3,7 @@
 """
     Hyperstruck Core
 
-    Hyperstruck Core management API  # noqa: E501
+    Create and operate hosted agents, runs, learnings, and integrations. Authenticate resource requests with a Bearer API key unless an endpoint explicitly requires a portal session.  # noqa: E501
 
     OpenAPI spec version: 0.1.0
     
@@ -76,6 +76,7 @@ class BoundaryAcceptedResponse(object):
     def run_id(self):
         """Gets the run_id of this BoundaryAcceptedResponse.  # noqa: E501
 
+        Echo of the caller-owned idempotency and correlation identifier; not a hosted run UUID.  # noqa: E501
 
         :return: The run_id of this BoundaryAcceptedResponse.  # noqa: E501
         :rtype: object
@@ -86,6 +87,7 @@ class BoundaryAcceptedResponse(object):
     def run_id(self, run_id):
         """Sets the run_id of this BoundaryAcceptedResponse.
 
+        Echo of the caller-owned idempotency and correlation identifier; not a hosted run UUID.  # noqa: E501
 
         :param run_id: The run_id of this BoundaryAcceptedResponse.  # noqa: E501
         :type: object
@@ -99,7 +101,7 @@ class BoundaryAcceptedResponse(object):
     def worker_payload_version(self):
         """Gets the worker_payload_version of this BoundaryAcceptedResponse.  # noqa: E501
 
-        Versioned payload contract used for the worker dispatch.  # noqa: E501
+        Compatibility version returned with the acceptance receipt.  # noqa: E501
 
         :return: The worker_payload_version of this BoundaryAcceptedResponse.  # noqa: E501
         :rtype: object
@@ -110,7 +112,7 @@ class BoundaryAcceptedResponse(object):
     def worker_payload_version(self, worker_payload_version):
         """Sets the worker_payload_version of this BoundaryAcceptedResponse.
 
-        Versioned payload contract used for the worker dispatch.  # noqa: E501
+        Compatibility version returned with the acceptance receipt.  # noqa: E501
 
         :param worker_payload_version: The worker_payload_version of this BoundaryAcceptedResponse.  # noqa: E501
         :type: object

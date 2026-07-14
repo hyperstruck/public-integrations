@@ -3,7 +3,7 @@
 """
     Hyperstruck Core
 
-    Hyperstruck Core management API  # noqa: E501
+    Create and operate hosted agents, runs, learnings, and integrations. Authenticate resource requests with a Bearer API key unless an endpoint explicitly requires a portal session.  # noqa: E501
 
     OpenAPI spec version: 0.1.0
     
@@ -50,6 +50,7 @@ class ToolSpecModel(object):
     def name(self):
         """Gets the name of this ToolSpecModel.  # noqa: E501
 
+        Caller-visible tool name.  # noqa: E501
 
         :return: The name of this ToolSpecModel.  # noqa: E501
         :rtype: object
@@ -60,6 +61,7 @@ class ToolSpecModel(object):
     def name(self, name):
         """Sets the name of this ToolSpecModel.
 
+        Caller-visible tool name.  # noqa: E501
 
         :param name: The name of this ToolSpecModel.  # noqa: E501
         :type: object
@@ -73,6 +75,7 @@ class ToolSpecModel(object):
     def description(self):
         """Gets the description of this ToolSpecModel.  # noqa: E501
 
+        Short explanation of what the tool can do.  # noqa: E501
 
         :return: The description of this ToolSpecModel.  # noqa: E501
         :rtype: object
@@ -83,6 +86,7 @@ class ToolSpecModel(object):
     def description(self, description):
         """Sets the description of this ToolSpecModel.
 
+        Short explanation of what the tool can do.  # noqa: E501
 
         :param description: The description of this ToolSpecModel.  # noqa: E501
         :type: object

@@ -3,7 +3,7 @@
 """
     Hyperstruck Core
 
-    Hyperstruck Core management API  # noqa: E501
+    Create and operate hosted agents, runs, learnings, and integrations. Authenticate resource requests with a Bearer API key unless an endpoint explicitly requires a portal session.  # noqa: E501
 
     OpenAPI spec version: 0.1.0
     
@@ -35,15 +35,16 @@ class SessionsApi(object):
     def list_agent_sessions_endpoint_agents_agent_id_sessions_get(self, agent_id, **kwargs):  # noqa: E501
         """List Agent Sessions  # noqa: E501
 
+        List conversation sessions associated with one agent. Results are cursor-paginated; pass `next_cursor` back unchanged to continue.  # noqa: E501
         This method makes a synchronous HTTP request by default. To make an
         asynchronous HTTP request, please pass async_req=True
         >>> thread = api.list_agent_sessions_endpoint_agents_agent_id_sessions_get(agent_id, async_req=True)
         >>> result = thread.get()
 
         :param async_req bool
-        :param object agent_id: (required)
-        :param object limit: Page size.
-        :param object cursor: Opaque string from the previous page's `next_cursor`.
+        :param object agent_id: Hosted agent UUID returned by the agent create or list endpoint. (required)
+        :param object limit: Maximum number of items to return on this page.
+        :param object cursor: Opaque pagination token from the previous response's `next_cursor`. Pass it back unchanged; omit it to start again from the first page.
         :return: SessionListResponse
                  If the method is called asynchronously,
                  returns the request thread.
@@ -58,15 +59,16 @@ class SessionsApi(object):
     def list_agent_sessions_endpoint_agents_agent_id_sessions_get_with_http_info(self, agent_id, **kwargs):  # noqa: E501
         """List Agent Sessions  # noqa: E501
 
+        List conversation sessions associated with one agent. Results are cursor-paginated; pass `next_cursor` back unchanged to continue.  # noqa: E501
         This method makes a synchronous HTTP request by default. To make an
         asynchronous HTTP request, please pass async_req=True
         >>> thread = api.list_agent_sessions_endpoint_agents_agent_id_sessions_get_with_http_info(agent_id, async_req=True)
         >>> result = thread.get()
 
         :param async_req bool
-        :param object agent_id: (required)
-        :param object limit: Page size.
-        :param object cursor: Opaque string from the previous page's `next_cursor`.
+        :param object agent_id: Hosted agent UUID returned by the agent create or list endpoint. (required)
+        :param object limit: Maximum number of items to return on this page.
+        :param object cursor: Opaque pagination token from the previous response's `next_cursor`. Pass it back unchanged; omit it to start again from the first page.
         :return: SessionListResponse
                  If the method is called asynchronously,
                  returns the request thread.
@@ -115,7 +117,7 @@ class SessionsApi(object):
             ['application/json'])  # noqa: E501
 
         # Authentication setting
-        auth_settings = []  # noqa: E501
+        auth_settings = ['BearerApiKey']  # noqa: E501
 
         return self.api_client.call_api(
             '/agents/{agent_id}/sessions', 'GET',
@@ -136,15 +138,16 @@ class SessionsApi(object):
     def list_session_messages_endpoint_sessions_session_id_messages_get(self, session_id, **kwargs):  # noqa: E501
         """List Session Messages  # noqa: E501
 
+        Read the messages in one conversation session. Results are ordered for transcript consumption and cursor-paginated for long sessions.  # noqa: E501
         This method makes a synchronous HTTP request by default. To make an
         asynchronous HTTP request, please pass async_req=True
         >>> thread = api.list_session_messages_endpoint_sessions_session_id_messages_get(session_id, async_req=True)
         >>> result = thread.get()
 
         :param async_req bool
-        :param object session_id: (required)
-        :param object limit: Page size.
-        :param object cursor: Opaque string from the previous page's `next_cursor`.
+        :param object session_id: Conversation session UUID associated with an agent. (required)
+        :param object limit: Maximum number of items to return on this page.
+        :param object cursor: Opaque pagination token from the previous response's `next_cursor`. Pass it back unchanged; omit it to start again from the first page.
         :return: SessionMessageListResponse
                  If the method is called asynchronously,
                  returns the request thread.
@@ -159,15 +162,16 @@ class SessionsApi(object):
     def list_session_messages_endpoint_sessions_session_id_messages_get_with_http_info(self, session_id, **kwargs):  # noqa: E501
         """List Session Messages  # noqa: E501
 
+        Read the messages in one conversation session. Results are ordered for transcript consumption and cursor-paginated for long sessions.  # noqa: E501
         This method makes a synchronous HTTP request by default. To make an
         asynchronous HTTP request, please pass async_req=True
         >>> thread = api.list_session_messages_endpoint_sessions_session_id_messages_get_with_http_info(session_id, async_req=True)
         >>> result = thread.get()
 
         :param async_req bool
-        :param object session_id: (required)
-        :param object limit: Page size.
-        :param object cursor: Opaque string from the previous page's `next_cursor`.
+        :param object session_id: Conversation session UUID associated with an agent. (required)
+        :param object limit: Maximum number of items to return on this page.
+        :param object cursor: Opaque pagination token from the previous response's `next_cursor`. Pass it back unchanged; omit it to start again from the first page.
         :return: SessionMessageListResponse
                  If the method is called asynchronously,
                  returns the request thread.
@@ -216,7 +220,7 @@ class SessionsApi(object):
             ['application/json'])  # noqa: E501
 
         # Authentication setting
-        auth_settings = []  # noqa: E501
+        auth_settings = ['BearerApiKey']  # noqa: E501
 
         return self.api_client.call_api(
             '/sessions/{session_id}/messages', 'GET',
@@ -237,16 +241,16 @@ class SessionsApi(object):
     def list_session_runs_endpoint_sessions_session_id_runs_get(self, session_id, **kwargs):  # noqa: E501
         """List Session Runs  # noqa: E501
 
-        List runs in a session (newest first), keyset-paginated.  # noqa: E501
+        List the hosted runs associated with one conversation session, newest first. Use the returned run UUIDs to inspect individual run details.  # noqa: E501
         This method makes a synchronous HTTP request by default. To make an
         asynchronous HTTP request, please pass async_req=True
         >>> thread = api.list_session_runs_endpoint_sessions_session_id_runs_get(session_id, async_req=True)
         >>> result = thread.get()
 
         :param async_req bool
-        :param object session_id: (required)
-        :param object limit: Page size.
-        :param object cursor: Opaque string from the previous page's `next_cursor`.
+        :param object session_id: Conversation session UUID associated with an agent. (required)
+        :param object limit: Maximum number of items to return on this page.
+        :param object cursor: Opaque pagination token from the previous response's `next_cursor`. Pass it back unchanged; omit it to start again from the first page.
         :return: RunListResponse
                  If the method is called asynchronously,
                  returns the request thread.
@@ -261,16 +265,16 @@ class SessionsApi(object):
     def list_session_runs_endpoint_sessions_session_id_runs_get_with_http_info(self, session_id, **kwargs):  # noqa: E501
         """List Session Runs  # noqa: E501
 
-        List runs in a session (newest first), keyset-paginated.  # noqa: E501
+        List the hosted runs associated with one conversation session, newest first. Use the returned run UUIDs to inspect individual run details.  # noqa: E501
         This method makes a synchronous HTTP request by default. To make an
         asynchronous HTTP request, please pass async_req=True
         >>> thread = api.list_session_runs_endpoint_sessions_session_id_runs_get_with_http_info(session_id, async_req=True)
         >>> result = thread.get()
 
         :param async_req bool
-        :param object session_id: (required)
-        :param object limit: Page size.
-        :param object cursor: Opaque string from the previous page's `next_cursor`.
+        :param object session_id: Conversation session UUID associated with an agent. (required)
+        :param object limit: Maximum number of items to return on this page.
+        :param object cursor: Opaque pagination token from the previous response's `next_cursor`. Pass it back unchanged; omit it to start again from the first page.
         :return: RunListResponse
                  If the method is called asynchronously,
                  returns the request thread.
@@ -319,7 +323,7 @@ class SessionsApi(object):
             ['application/json'])  # noqa: E501
 
         # Authentication setting
-        auth_settings = []  # noqa: E501
+        auth_settings = ['BearerApiKey']  # noqa: E501
 
         return self.api_client.call_api(
             '/sessions/{session_id}/runs', 'GET',

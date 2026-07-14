@@ -3,7 +3,7 @@
 """
     Hyperstruck Core
 
-    Hyperstruck Core management API  # noqa: E501
+    Create and operate hosted agents, runs, learnings, and integrations. Authenticate resource requests with a Bearer API key unless an endpoint explicitly requires a portal session.  # noqa: E501
 
     OpenAPI spec version: 0.1.0
     
@@ -31,7 +31,7 @@ class LearningAuditListResponse(object):
         'items': 'object',
         'next_cursor': 'object',
         'facets': 'object',
-        'omitted_learning_count': 'int',
+        'omitted_learning_count': 'object',
         'partial_failures': 'object',
         'retrieved_at': 'object'
     }
@@ -141,7 +141,7 @@ class LearningAuditListResponse(object):
         Unreadable learnings omitted while building this page. This count is authoritative even if partial_failures are aggregated or truncated.  # noqa: E501
 
         :return: The omitted_learning_count of this LearningAuditListResponse.  # noqa: E501
-        :rtype: int
+        :rtype: object
         """
         return self._omitted_learning_count
 
@@ -152,7 +152,7 @@ class LearningAuditListResponse(object):
         Unreadable learnings omitted while building this page. This count is authoritative even if partial_failures are aggregated or truncated.  # noqa: E501
 
         :param omitted_learning_count: The omitted_learning_count of this LearningAuditListResponse.  # noqa: E501
-        :type: int
+        :type: object
         """
 
         self._omitted_learning_count = omitted_learning_count

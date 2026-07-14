@@ -3,7 +3,7 @@
 """
     Hyperstruck Core
 
-    Hyperstruck Core management API  # noqa: E501
+    Create and operate hosted agents, runs, learnings, and integrations. Authenticate resource requests with a Bearer API key unless an endpoint explicitly requires a portal session.  # noqa: E501
 
     OpenAPI spec version: 0.1.0
     
@@ -49,7 +49,7 @@ class LearningAuditPartialFailure(object):
     def source(self):
         """Gets the source of this LearningAuditPartialFailure.  # noqa: E501
 
-        Degraded source, e.g. 'neo4j_topology'.  # noqa: E501
+        Stable name of the unavailable data source.  # noqa: E501
 
         :return: The source of this LearningAuditPartialFailure.  # noqa: E501
         :rtype: object
@@ -60,7 +60,7 @@ class LearningAuditPartialFailure(object):
     def source(self, source):
         """Sets the source of this LearningAuditPartialFailure.
 
-        Degraded source, e.g. 'neo4j_topology'.  # noqa: E501
+        Stable name of the unavailable data source.  # noqa: E501
 
         :param source: The source of this LearningAuditPartialFailure.  # noqa: E501
         :type: object

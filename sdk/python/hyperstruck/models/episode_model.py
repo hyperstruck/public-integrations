@@ -3,7 +3,7 @@
 """
     Hyperstruck Core
 
-    Hyperstruck Core management API  # noqa: E501
+    Create and operate hosted agents, runs, learnings, and integrations. Authenticate resource requests with a Bearer API key unless an endpoint explicitly requires a portal session.  # noqa: E501
 
     OpenAPI spec version: 0.1.0
     
@@ -68,6 +68,7 @@ class EpisodeModel(object):
     def run_id(self):
         """Gets the run_id of this EpisodeModel.  # noqa: E501
 
+        Caller-created correlation and idempotency identifier. It does not reference a hosted `/runs/{run_id}` resource.  # noqa: E501
 
         :return: The run_id of this EpisodeModel.  # noqa: E501
         :rtype: object
@@ -78,6 +79,7 @@ class EpisodeModel(object):
     def run_id(self, run_id):
         """Sets the run_id of this EpisodeModel.
 
+        Caller-created correlation and idempotency identifier. It does not reference a hosted `/runs/{run_id}` resource.  # noqa: E501
 
         :param run_id: The run_id of this EpisodeModel.  # noqa: E501
         :type: object
@@ -91,6 +93,7 @@ class EpisodeModel(object):
     def goal(self):
         """Gets the goal of this EpisodeModel.  # noqa: E501
 
+        Goal attempted by the external agent.  # noqa: E501
 
         :return: The goal of this EpisodeModel.  # noqa: E501
         :rtype: object
@@ -101,6 +104,7 @@ class EpisodeModel(object):
     def goal(self, goal):
         """Sets the goal of this EpisodeModel.
 
+        Goal attempted by the external agent.  # noqa: E501
 
         :param goal: The goal of this EpisodeModel.  # noqa: E501
         :type: object
@@ -114,6 +118,7 @@ class EpisodeModel(object):
     def steps(self):
         """Gets the steps of this EpisodeModel.  # noqa: E501
 
+        Ordered actions and results from the completed episode.  # noqa: E501
 
         :return: The steps of this EpisodeModel.  # noqa: E501
         :rtype: object
@@ -124,6 +129,7 @@ class EpisodeModel(object):
     def steps(self, steps):
         """Sets the steps of this EpisodeModel.
 
+        Ordered actions and results from the completed episode.  # noqa: E501
 
         :param steps: The steps of this EpisodeModel.  # noqa: E501
         :type: object
@@ -135,6 +141,7 @@ class EpisodeModel(object):
     def outcome(self):
         """Gets the outcome of this EpisodeModel.  # noqa: E501
 
+        Terminal outcome of the episode.  # noqa: E501
 
         :return: The outcome of this EpisodeModel.  # noqa: E501
         :rtype: OutcomeModel
@@ -145,6 +152,7 @@ class EpisodeModel(object):
     def outcome(self, outcome):
         """Sets the outcome of this EpisodeModel.
 
+        Terminal outcome of the episode.  # noqa: E501
 
         :param outcome: The outcome of this EpisodeModel.  # noqa: E501
         :type: OutcomeModel
@@ -158,6 +166,7 @@ class EpisodeModel(object):
     def source_framework(self):
         """Gets the source_framework of this EpisodeModel.  # noqa: E501
 
+        Optional external framework or host identifier.  # noqa: E501
 
         :return: The source_framework of this EpisodeModel.  # noqa: E501
         :rtype: object
@@ -168,6 +177,7 @@ class EpisodeModel(object):
     def source_framework(self, source_framework):
         """Sets the source_framework of this EpisodeModel.
 
+        Optional external framework or host identifier.  # noqa: E501
 
         :param source_framework: The source_framework of this EpisodeModel.  # noqa: E501
         :type: object
@@ -179,6 +189,7 @@ class EpisodeModel(object):
     def thread_id(self):
         """Gets the thread_id of this EpisodeModel.  # noqa: E501
 
+        Optional caller-owned conversation or thread identifier.  # noqa: E501
 
         :return: The thread_id of this EpisodeModel.  # noqa: E501
         :rtype: object
@@ -189,6 +200,7 @@ class EpisodeModel(object):
     def thread_id(self, thread_id):
         """Sets the thread_id of this EpisodeModel.
 
+        Optional caller-owned conversation or thread identifier.  # noqa: E501
 
         :param thread_id: The thread_id of this EpisodeModel.  # noqa: E501
         :type: object

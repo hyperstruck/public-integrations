@@ -97,7 +97,7 @@ class LearningClient(Protocol):
         source_framework: str = "api:distill",
         occurred_at: str | None = None,
     ) -> None:
-        """Distil learnings from a corpus of evidence. Non-blocking."""
+        """Distill learnings from a corpus of evidence. Non-blocking."""
         ...
 
     async def drain(self, timeout: float = 30.0) -> None:

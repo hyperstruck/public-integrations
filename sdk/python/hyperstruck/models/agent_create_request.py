@@ -3,7 +3,7 @@
 """
     Hyperstruck Core
 
-    Hyperstruck Core management API  # noqa: E501
+    Create and operate hosted agents, runs, learnings, and integrations. Authenticate resource requests with a Bearer API key unless an endpoint explicitly requires a portal session.  # noqa: E501
 
     OpenAPI spec version: 0.1.0
     
@@ -89,6 +89,7 @@ class AgentCreateRequest(object):
     def name(self):
         """Gets the name of this AgentCreateRequest.  # noqa: E501
 
+        Human-readable agent name, unique within the tenant.  # noqa: E501
 
         :return: The name of this AgentCreateRequest.  # noqa: E501
         :rtype: object
@@ -99,6 +100,7 @@ class AgentCreateRequest(object):
     def name(self, name):
         """Sets the name of this AgentCreateRequest.
 
+        Human-readable agent name, unique within the tenant.  # noqa: E501
 
         :param name: The name of this AgentCreateRequest.  # noqa: E501
         :type: object
@@ -273,7 +275,7 @@ class AgentCreateRequest(object):
     def home_space_id(self):
         """Gets the home_space_id of this AgentCreateRequest.  # noqa: E501
 
-        Optional home space (`public.spaces`) for this agent. The composite FK `(tenant_id, home_space_id)` pins it to the caller's tenant.  # noqa: E501
+        Optional UUID of the accessible space that owns this agent.  # noqa: E501
 
         :return: The home_space_id of this AgentCreateRequest.  # noqa: E501
         :rtype: object
@@ -284,7 +286,7 @@ class AgentCreateRequest(object):
     def home_space_id(self, home_space_id):
         """Sets the home_space_id of this AgentCreateRequest.
 
-        Optional home space (`public.spaces`) for this agent. The composite FK `(tenant_id, home_space_id)` pins it to the caller's tenant.  # noqa: E501
+        Optional UUID of the accessible space that owns this agent.  # noqa: E501
 
         :param home_space_id: The home_space_id of this AgentCreateRequest.  # noqa: E501
         :type: object
@@ -296,7 +298,7 @@ class AgentCreateRequest(object):
     def core_config(self):
         """Gets the core_config of this AgentCreateRequest.  # noqa: E501
 
-        hyperstruck-core-aligned configuration blob. Required on create so every agent has explicit instructions.  # noqa: E501
+        Runtime instructions and optional execution settings.  # noqa: E501
 
         :return: The core_config of this AgentCreateRequest.  # noqa: E501
         :rtype: AgentCoreConfigInput
@@ -307,7 +309,7 @@ class AgentCreateRequest(object):
     def core_config(self, core_config):
         """Sets the core_config of this AgentCreateRequest.
 
-        hyperstruck-core-aligned configuration blob. Required on create so every agent has explicit instructions.  # noqa: E501
+        Runtime instructions and optional execution settings.  # noqa: E501
 
         :param core_config: The core_config of this AgentCreateRequest.  # noqa: E501
         :type: AgentCoreConfigInput

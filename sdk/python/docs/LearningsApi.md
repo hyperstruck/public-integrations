@@ -28,9 +28,15 @@ import hyperstruck
 from hyperstruck.rest import ApiException
 from pprint import pprint
 
+# Configure API key authorization: BearerApiKey
+configuration = hyperstruck.Configuration()
+configuration.api_key['Authorization'] = 'YOUR_API_KEY'
+# Uncomment below to setup prefix (e.g. Bearer) for API key, if needed
+# configuration.api_key_prefix['Authorization'] = 'Bearer'
+
 # create an instance of the API class
-api_instance = hyperstruck.LearningsApi()
-agent_id = NULL # object | 
+api_instance = hyperstruck.LearningsApi(hyperstruck.ApiClient(configuration))
+agent_id = NULL # object | Hosted agent UUID returned by the agent create or list endpoint.
 
 try:
     # Delete all learnings for an agent
@@ -44,7 +50,7 @@ except ApiException as e:
 
 Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
- **agent_id** | [**object**](.md)|  | 
+ **agent_id** | [**object**](.md)| Hosted agent UUID returned by the agent create or list endpoint. |
 
 ### Return type
 
@@ -52,7 +58,7 @@ Name | Type | Description  | Notes
 
 ### Authorization
 
-No authorization required
+[BearerApiKey](../README.md#BearerApiKey)
 
 ### HTTP request headers
 
@@ -66,7 +72,7 @@ No authorization required
 
 Agent learning evidence graph
 
-Graph of the agent's reasoning topology around a learning: the learning plus the learnings it is connected to within `depth` lineage hops, each enriched with Qdrant detail and evidence. The Neo4j graph is the primary product — if it can't be read the request fails (503). Declared before /{learning_id} so the static path is not captured as a learning id.
+Return a learning and related learnings within the requested lineage depth, including available evidence. Use this endpoint to explain relationships during audit or curation; a temporarily unavailable relationship service returns 503.
 
 ### Example
 ```python
@@ -76,10 +82,16 @@ import hyperstruck
 from hyperstruck.rest import ApiException
 from pprint import pprint
 
+# Configure API key authorization: BearerApiKey
+configuration = hyperstruck.Configuration()
+configuration.api_key['Authorization'] = 'YOUR_API_KEY'
+# Uncomment below to setup prefix (e.g. Bearer) for API key, if needed
+# configuration.api_key_prefix['Authorization'] = 'Bearer'
+
 # create an instance of the API class
-api_instance = hyperstruck.LearningsApi()
-agent_id = NULL # object | 
-learning_id = NULL # object | The learning to build the graph around.
+api_instance = hyperstruck.LearningsApi(hyperstruck.ApiClient(configuration))
+agent_id = NULL # object | Hosted agent UUID returned by the agent create or list endpoint.
+learning_id = NULL # object | Learning identifier to place at the centre of the graph.
 depth = 1 # object | Lineage hops from the learning (1-2). (optional) (default to 1)
 
 try:
@@ -94,8 +106,8 @@ except ApiException as e:
 
 Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
- **agent_id** | [**object**](.md)|  | 
- **learning_id** | [**object**](.md)| The learning to build the graph around. | 
+ **agent_id** | [**object**](.md)| Hosted agent UUID returned by the agent create or list endpoint. |
+ **learning_id** | [**object**](.md)| Learning identifier to place at the centre of the graph. |
  **depth** | [**object**](.md)| Lineage hops from the learning (1-2). | [optional] [default to 1]
 
 ### Return type
@@ -104,7 +116,7 @@ Name | Type | Description  | Notes
 
 ### Authorization
 
-No authorization required
+[BearerApiKey](../README.md#BearerApiKey)
 
 ### HTTP request headers
 
@@ -128,10 +140,16 @@ import hyperstruck
 from hyperstruck.rest import ApiException
 from pprint import pprint
 
+# Configure API key authorization: BearerApiKey
+configuration = hyperstruck.Configuration()
+configuration.api_key['Authorization'] = 'YOUR_API_KEY'
+# Uncomment below to setup prefix (e.g. Bearer) for API key, if needed
+# configuration.api_key_prefix['Authorization'] = 'Bearer'
+
 # create an instance of the API class
-api_instance = hyperstruck.LearningsApi()
-agent_id = NULL # object | 
-learning_id = NULL # object | 
+api_instance = hyperstruck.LearningsApi(hyperstruck.ApiClient(configuration))
+agent_id = NULL # object | Hosted agent UUID returned by the agent create or list endpoint.
+learning_id = NULL # object | Learning identifier returned by a learning list or search endpoint.
 
 try:
     # Get a learning
@@ -145,8 +163,8 @@ except ApiException as e:
 
 Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
- **agent_id** | [**object**](.md)|  | 
- **learning_id** | [**object**](.md)|  | 
+ **agent_id** | [**object**](.md)| Hosted agent UUID returned by the agent create or list endpoint. |
+ **learning_id** | [**object**](.md)| Learning identifier returned by a learning list or search endpoint. |
 
 ### Return type
 
@@ -154,7 +172,7 @@ Name | Type | Description  | Notes
 
 ### Authorization
 
-No authorization required
+[BearerApiKey](../README.md#BearerApiKey)
 
 ### HTTP request headers
 
@@ -170,12 +188,6 @@ List agent learnings (audit inventory)
 
 Paginated, filterable inventory of an agent's learnings for the curation workbench. Non-semantic (unlike /search). Defaults to the active bucket (excludes archived/superseded); use `state` for other buckets. Pagination is created_at keyset via the opaque cursor.
 
-The response's `omitted_learning_count` reports unreadable learnings omitted from
-the current page. Treat this page-scoped count as the authoritative degraded
-visibility signal; `partial_failures` provides diagnostic detail but may be
-aggregated or truncated. A value of `0` means no learnings were omitted while
-building that page.
-
 ### Example
 ```python
 from __future__ import print_function
@@ -184,12 +196,18 @@ import hyperstruck
 from hyperstruck.rest import ApiException
 from pprint import pprint
 
+# Configure API key authorization: BearerApiKey
+configuration = hyperstruck.Configuration()
+configuration.api_key['Authorization'] = 'YOUR_API_KEY'
+# Uncomment below to setup prefix (e.g. Bearer) for API key, if needed
+# configuration.api_key_prefix['Authorization'] = 'Bearer'
+
 # create an instance of the API class
-api_instance = hyperstruck.LearningsApi()
-agent_id = NULL # object | 
+api_instance = hyperstruck.LearningsApi(hyperstruck.ApiClient(configuration))
+agent_id = NULL # object | Hosted agent UUID returned by the agent create or list endpoint.
 include_instances = true # object | Include evidence instances on each item. (optional) (default to true)
-limit = 50 # object | Page size. (optional) (default to 50)
-cursor = NULL # object | Opaque string from the previous page's `next_cursor`. (optional)
+limit = 50 # object | Maximum number of items to return on this page. (optional) (default to 50)
+cursor = NULL # object | Opaque pagination token from the previous response's `next_cursor`. Pass it back unchanged; omit it to start again from the first page. (optional)
 state = hyperstruck.LearningStateFilter() # LearningStateFilter | Review bucket: active (default), needs_review, archived, superseded, or all. (optional) (default to active)
 
 try:
@@ -204,10 +222,10 @@ except ApiException as e:
 
 Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
- **agent_id** | [**object**](.md)|  | 
+ **agent_id** | [**object**](.md)| Hosted agent UUID returned by the agent create or list endpoint. |
  **include_instances** | [**object**](.md)| Include evidence instances on each item. | [optional] [default to true]
- **limit** | [**object**](.md)| Page size. | [optional] [default to 50]
- **cursor** | [**object**](.md)| Opaque string from the previous page&#x27;s &#x60;next_cursor&#x60;. | [optional] 
+ **limit** | [**object**](.md)| Maximum number of items to return on this page. | [optional] [default to 50]
+ **cursor** | [**object**](.md)| Opaque pagination token from the previous response&#x27;s &#x60;next_cursor&#x60;. Pass it back unchanged; omit it to start again from the first page. | [optional]
  **state** | [**LearningStateFilter**](.md)| Review bucket: active (default), needs_review, archived, superseded, or all. | [optional] [default to active]
 
 ### Return type
@@ -216,7 +234,7 @@ Name | Type | Description  | Notes
 
 ### Authorization
 
-No authorization required
+[BearerApiKey](../README.md#BearerApiKey)
 
 ### HTTP request headers
 
@@ -240,11 +258,17 @@ import hyperstruck
 from hyperstruck.rest import ApiException
 from pprint import pprint
 
+# Configure API key authorization: BearerApiKey
+configuration = hyperstruck.Configuration()
+configuration.api_key['Authorization'] = 'YOUR_API_KEY'
+# Uncomment below to setup prefix (e.g. Bearer) for API key, if needed
+# configuration.api_key_prefix['Authorization'] = 'Bearer'
+
 # create an instance of the API class
-api_instance = hyperstruck.LearningsApi()
-body = hyperstruck.ReinforceLearningRequest() # ReinforceLearningRequest | 
-agent_id = NULL # object | 
-learning_id = NULL # object | 
+api_instance = hyperstruck.LearningsApi(hyperstruck.ApiClient(configuration))
+body = hyperstruck.ReinforceLearningRequest() # ReinforceLearningRequest |
+agent_id = NULL # object | Hosted agent UUID returned by the agent create or list endpoint.
+learning_id = NULL # object | Learning identifier returned by a learning list or search endpoint.
 
 try:
     # Reinforce a learning
@@ -258,9 +282,9 @@ except ApiException as e:
 
 Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
- **body** | [**ReinforceLearningRequest**](ReinforceLearningRequest.md)|  | 
- **agent_id** | [**object**](.md)|  | 
- **learning_id** | [**object**](.md)|  | 
+ **body** | [**ReinforceLearningRequest**](ReinforceLearningRequest.md)|  |
+ **agent_id** | [**object**](.md)| Hosted agent UUID returned by the agent create or list endpoint. |
+ **learning_id** | [**object**](.md)| Learning identifier returned by a learning list or search endpoint. |
 
 ### Return type
 
@@ -268,7 +292,7 @@ Name | Type | Description  | Notes
 
 ### Authorization
 
-No authorization required
+[BearerApiKey](../README.md#BearerApiKey)
 
 ### HTTP request headers
 
@@ -292,11 +316,17 @@ import hyperstruck
 from hyperstruck.rest import ApiException
 from pprint import pprint
 
+# Configure API key authorization: BearerApiKey
+configuration = hyperstruck.Configuration()
+configuration.api_key['Authorization'] = 'YOUR_API_KEY'
+# Uncomment below to setup prefix (e.g. Bearer) for API key, if needed
+# configuration.api_key_prefix['Authorization'] = 'Bearer'
+
 # create an instance of the API class
-api_instance = hyperstruck.LearningsApi()
-body = hyperstruck.RejectLearningRequest() # RejectLearningRequest | 
-agent_id = NULL # object | 
-learning_id = NULL # object | 
+api_instance = hyperstruck.LearningsApi(hyperstruck.ApiClient(configuration))
+body = hyperstruck.RejectLearningRequest() # RejectLearningRequest |
+agent_id = NULL # object | Hosted agent UUID returned by the agent create or list endpoint.
+learning_id = NULL # object | Learning identifier returned by a learning list or search endpoint.
 
 try:
     # Reject (archive) a learning
@@ -310,9 +340,9 @@ except ApiException as e:
 
 Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
- **body** | [**RejectLearningRequest**](RejectLearningRequest.md)|  | 
- **agent_id** | [**object**](.md)|  | 
- **learning_id** | [**object**](.md)|  | 
+ **body** | [**RejectLearningRequest**](RejectLearningRequest.md)|  |
+ **agent_id** | [**object**](.md)| Hosted agent UUID returned by the agent create or list endpoint. |
+ **learning_id** | [**object**](.md)| Learning identifier returned by a learning list or search endpoint. |
 
 ### Return type
 
@@ -320,7 +350,7 @@ Name | Type | Description  | Notes
 
 ### Authorization
 
-No authorization required
+[BearerApiKey](../README.md#BearerApiKey)
 
 ### HTTP request headers
 
@@ -344,9 +374,15 @@ import hyperstruck
 from hyperstruck.rest import ApiException
 from pprint import pprint
 
+# Configure API key authorization: BearerApiKey
+configuration = hyperstruck.Configuration()
+configuration.api_key['Authorization'] = 'YOUR_API_KEY'
+# Uncomment below to setup prefix (e.g. Bearer) for API key, if needed
+# configuration.api_key_prefix['Authorization'] = 'Bearer'
+
 # create an instance of the API class
-api_instance = hyperstruck.LearningsApi()
-agent_id = NULL # object | 
+api_instance = hyperstruck.LearningsApi(hyperstruck.ApiClient(configuration))
+agent_id = NULL # object | Hosted agent UUID returned by the agent create or list endpoint.
 q = NULL # object | Search query text.
 limit = 10 # object | Maximum number of results to return. (optional) (default to 10)
 min_utility = NULL # object | Minimum utility threshold for results. (optional)
@@ -364,10 +400,10 @@ except ApiException as e:
 
 Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
- **agent_id** | [**object**](.md)|  | 
- **q** | [**object**](.md)| Search query text. | 
+ **agent_id** | [**object**](.md)| Hosted agent UUID returned by the agent create or list endpoint. |
+ **q** | [**object**](.md)| Search query text. |
  **limit** | [**object**](.md)| Maximum number of results to return. | [optional] [default to 10]
- **min_utility** | [**object**](.md)| Minimum utility threshold for results. | [optional] 
+ **min_utility** | [**object**](.md)| Minimum utility threshold for results. | [optional]
  **scope** | [**LearningScope**](.md)| Search scope. &#x27;agent&#x27; searches the agent&#x27;s private learnings. &#x27;org&#x27; searches shared learnings across agents (Enterprise only). | [optional] [default to agent]
 
 ### Return type
@@ -376,7 +412,7 @@ Name | Type | Description  | Notes
 
 ### Authorization
 
-No authorization required
+[BearerApiKey](../README.md#BearerApiKey)
 
 ### HTTP request headers
 
@@ -390,7 +426,7 @@ No authorization required
 
 Store a learning
 
-Store a new learning for the agent. The learning is processed through the platform's deduplication and conflict prevention pipeline on a background worker so the request returns immediately.
+Submit a caller-authored learning for one hosted agent. Processing is asynchronous, so a 202 response confirms acceptance rather than completion. Use `/distill` instead when the caller has evidence but not final learning text.
 
 ### Example
 ```python
@@ -400,10 +436,16 @@ import hyperstruck
 from hyperstruck.rest import ApiException
 from pprint import pprint
 
+# Configure API key authorization: BearerApiKey
+configuration = hyperstruck.Configuration()
+configuration.api_key['Authorization'] = 'YOUR_API_KEY'
+# Uncomment below to setup prefix (e.g. Bearer) for API key, if needed
+# configuration.api_key_prefix['Authorization'] = 'Bearer'
+
 # create an instance of the API class
-api_instance = hyperstruck.LearningsApi()
-body = hyperstruck.StoreLearningRequest() # StoreLearningRequest | 
-agent_id = NULL # object | 
+api_instance = hyperstruck.LearningsApi(hyperstruck.ApiClient(configuration))
+body = hyperstruck.StoreLearningRequest() # StoreLearningRequest |
+agent_id = NULL # object | Hosted agent UUID returned by the agent create or list endpoint.
 
 try:
     # Store a learning
@@ -417,8 +459,8 @@ except ApiException as e:
 
 Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
- **body** | [**StoreLearningRequest**](StoreLearningRequest.md)|  | 
- **agent_id** | [**object**](.md)|  | 
+ **body** | [**StoreLearningRequest**](StoreLearningRequest.md)|  |
+ **agent_id** | [**object**](.md)| Hosted agent UUID returned by the agent create or list endpoint. |
 
 ### Return type
 
@@ -426,7 +468,7 @@ Name | Type | Description  | Notes
 
 ### Authorization
 
-No authorization required
+[BearerApiKey](../README.md#BearerApiKey)
 
 ### HTTP request headers
 

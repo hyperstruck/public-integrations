@@ -3,12 +3,12 @@
 ## Properties
 Name | Type | Description | Notes
 ------------ | ------------- | ------------- | -------------
-**id** | **object** |  | 
-**node_type** | [**LearningGraphNodeType**](LearningGraphNodeType.md) |  | 
-**label** | **object** |  | 
-**learning_id** | **object** | Set on learning nodes so a list row maps to its graph node. | [optional] 
-**review_state** | **object** | Status hint for client tone (learning nodes only). | [optional] 
-**utility** | **object** |  | [optional] 
+**id** | **object** |  |
+**node_type** | [**LearningGraphNodeType**](LearningGraphNodeType.md) |  |
+**label** | **object** |  |
+**learning_id** | **object** | Set on learning nodes so a list row maps to its graph node. | [optional]
+**review_state** | **object** | Status hint for client tone (learning nodes only). | [optional]
+**utility** | **object** |  | [optional]
 
 [[Back to Model list]](../README.md#documentation-for-models) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to README]](../README.md)
 

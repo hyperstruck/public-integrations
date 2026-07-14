@@ -3,7 +3,7 @@
 """
     Hyperstruck Core
 
-    Hyperstruck Core management API  # noqa: E501
+    Create and operate hosted agents, runs, learnings, and integrations. Authenticate resource requests with a Bearer API key unless an endpoint explicitly requires a portal session.  # noqa: E501
 
     OpenAPI spec version: 0.1.0
     
@@ -35,6 +35,7 @@ class AgentsApi(object):
     def create_agent_endpoint_agents_post(self, body, **kwargs):  # noqa: E501
         """Create Agent  # noqa: E501
 
+        Create a hosted agent from its name, model configuration, instructions, and optional home space. Use the returned agent UUID for agent-scoped resource paths.  # noqa: E501
         This method makes a synchronous HTTP request by default. To make an
         asynchronous HTTP request, please pass async_req=True
         >>> thread = api.create_agent_endpoint_agents_post(body, async_req=True)
@@ -56,6 +57,7 @@ class AgentsApi(object):
     def create_agent_endpoint_agents_post_with_http_info(self, body, **kwargs):  # noqa: E501
         """Create Agent  # noqa: E501
 
+        Create a hosted agent from its name, model configuration, instructions, and optional home space. Use the returned agent UUID for agent-scoped resource paths.  # noqa: E501
         This method makes a synchronous HTTP request by default. To make an
         asynchronous HTTP request, please pass async_req=True
         >>> thread = api.create_agent_endpoint_agents_post_with_http_info(body, async_req=True)
@@ -111,7 +113,7 @@ class AgentsApi(object):
             ['application/json'])  # noqa: E501
 
         # Authentication setting
-        auth_settings = []  # noqa: E501
+        auth_settings = ['BearerApiKey']  # noqa: E501
 
         return self.api_client.call_api(
             '/agents', 'POST',
@@ -132,13 +134,14 @@ class AgentsApi(object):
     def delete_agent_endpoint_agents_agent_id_delete(self, agent_id, **kwargs):  # noqa: E501
         """Delete Agent  # noqa: E501
 
+        Permanently delete a hosted agent. Use only when the agent and its configuration are no longer needed; the operation cannot be undone.  # noqa: E501
         This method makes a synchronous HTTP request by default. To make an
         asynchronous HTTP request, please pass async_req=True
         >>> thread = api.delete_agent_endpoint_agents_agent_id_delete(agent_id, async_req=True)
         >>> result = thread.get()
 
         :param async_req bool
-        :param object agent_id: (required)
+        :param object agent_id: Hosted agent UUID returned by the agent create or list endpoint. (required)
         :return: None
                  If the method is called asynchronously,
                  returns the request thread.
@@ -153,13 +156,14 @@ class AgentsApi(object):
     def delete_agent_endpoint_agents_agent_id_delete_with_http_info(self, agent_id, **kwargs):  # noqa: E501
         """Delete Agent  # noqa: E501
 
+        Permanently delete a hosted agent. Use only when the agent and its configuration are no longer needed; the operation cannot be undone.  # noqa: E501
         This method makes a synchronous HTTP request by default. To make an
         asynchronous HTTP request, please pass async_req=True
         >>> thread = api.delete_agent_endpoint_agents_agent_id_delete_with_http_info(agent_id, async_req=True)
         >>> result = thread.get()
 
         :param async_req bool
-        :param object agent_id: (required)
+        :param object agent_id: Hosted agent UUID returned by the agent create or list endpoint. (required)
         :return: None
                  If the method is called asynchronously,
                  returns the request thread.
@@ -204,7 +208,7 @@ class AgentsApi(object):
             ['application/json'])  # noqa: E501
 
         # Authentication setting
-        auth_settings = []  # noqa: E501
+        auth_settings = ['BearerApiKey']  # noqa: E501
 
         return self.api_client.call_api(
             '/agents/{agent_id}', 'DELETE',
@@ -225,6 +229,7 @@ class AgentsApi(object):
     def dispatch_goal_run_endpoint_agents_agent_id_goals_post(self, body, agent_id, **kwargs):  # noqa: E501
         """Create Goal Run  # noqa: E501
 
+        Start asynchronous work for a hosted agent. A 202 response contains the server-issued run UUID; use `GET /runs/{run_id}` to follow its status and resume it if human input is requested.  # noqa: E501
         This method makes a synchronous HTTP request by default. To make an
         asynchronous HTTP request, please pass async_req=True
         >>> thread = api.dispatch_goal_run_endpoint_agents_agent_id_goals_post(body, agent_id, async_req=True)
@@ -232,7 +237,7 @@ class AgentsApi(object):
 
         :param async_req bool
         :param GoalRunRequest body: (required)
-        :param object agent_id: (required)
+        :param object agent_id: Hosted agent UUID returned by the agent create or list endpoint. (required)
         :return: GoalRunAcceptedResponse
                  If the method is called asynchronously,
                  returns the request thread.
@@ -247,6 +252,7 @@ class AgentsApi(object):
     def dispatch_goal_run_endpoint_agents_agent_id_goals_post_with_http_info(self, body, agent_id, **kwargs):  # noqa: E501
         """Create Goal Run  # noqa: E501
 
+        Start asynchronous work for a hosted agent. A 202 response contains the server-issued run UUID; use `GET /runs/{run_id}` to follow its status and resume it if human input is requested.  # noqa: E501
         This method makes a synchronous HTTP request by default. To make an
         asynchronous HTTP request, please pass async_req=True
         >>> thread = api.dispatch_goal_run_endpoint_agents_agent_id_goals_post_with_http_info(body, agent_id, async_req=True)
@@ -254,7 +260,7 @@ class AgentsApi(object):
 
         :param async_req bool
         :param GoalRunRequest body: (required)
-        :param object agent_id: (required)
+        :param object agent_id: Hosted agent UUID returned by the agent create or list endpoint. (required)
         :return: GoalRunAcceptedResponse
                  If the method is called asynchronously,
                  returns the request thread.
@@ -309,7 +315,7 @@ class AgentsApi(object):
             ['application/json'])  # noqa: E501
 
         # Authentication setting
-        auth_settings = []  # noqa: E501
+        auth_settings = ['BearerApiKey']  # noqa: E501
 
         return self.api_client.call_api(
             '/agents/{agent_id}/goals', 'POST',
@@ -330,16 +336,17 @@ class AgentsApi(object):
     def get_agent_endpoint_agents_agent_id_get(self, agent_id, **kwargs):  # noqa: E501
         """Get Agent  # noqa: E501
 
+        Retrieve one hosted agent and its effective configuration. Optional query flags can include usage or non-secret provider-credential metadata.  # noqa: E501
         This method makes a synchronous HTTP request by default. To make an
         asynchronous HTTP request, please pass async_req=True
         >>> thread = api.get_agent_endpoint_agents_agent_id_get(agent_id, async_req=True)
         >>> result = thread.get()
 
         :param async_req bool
-        :param object agent_id: (required)
+        :param object agent_id: Hosted agent UUID returned by the agent create or list endpoint. (required)
         :param object include_llm_credential: When true (default), resolve effective provider credential metadata for this agent's `model_provider` without exposing secrets.
         :param object include_summary: When true, include a per-agent usage summary.
-        :param object include_access: Reserved: home-space operators / FGA access. Not yet populated (Fibery #122); accepted as a no-op for forward compatibility.
+        :param object include_access: Reserved for future access details. Currently accepted as a no-op for forward compatibility.
         :param UsageTimeWindow window: Window applied when `include_summary` is true.
         :return: AgentDetailResponse
                  If the method is called asynchronously,
@@ -355,16 +362,17 @@ class AgentsApi(object):
     def get_agent_endpoint_agents_agent_id_get_with_http_info(self, agent_id, **kwargs):  # noqa: E501
         """Get Agent  # noqa: E501
 
+        Retrieve one hosted agent and its effective configuration. Optional query flags can include usage or non-secret provider-credential metadata.  # noqa: E501
         This method makes a synchronous HTTP request by default. To make an
         asynchronous HTTP request, please pass async_req=True
         >>> thread = api.get_agent_endpoint_agents_agent_id_get_with_http_info(agent_id, async_req=True)
         >>> result = thread.get()
 
         :param async_req bool
-        :param object agent_id: (required)
+        :param object agent_id: Hosted agent UUID returned by the agent create or list endpoint. (required)
         :param object include_llm_credential: When true (default), resolve effective provider credential metadata for this agent's `model_provider` without exposing secrets.
         :param object include_summary: When true, include a per-agent usage summary.
-        :param object include_access: Reserved: home-space operators / FGA access. Not yet populated (Fibery #122); accepted as a no-op for forward compatibility.
+        :param object include_access: Reserved for future access details. Currently accepted as a no-op for forward compatibility.
         :param UsageTimeWindow window: Window applied when `include_summary` is true.
         :return: AgentDetailResponse
                  If the method is called asynchronously,
@@ -418,7 +426,7 @@ class AgentsApi(object):
             ['application/json'])  # noqa: E501
 
         # Authentication setting
-        auth_settings = []  # noqa: E501
+        auth_settings = ['BearerApiKey']  # noqa: E501
 
         return self.api_client.call_api(
             '/agents/{agent_id}', 'GET',
@@ -439,13 +447,14 @@ class AgentsApi(object):
     def get_agent_usage_summary_endpoint_agents_agent_id_usage_summary_get(self, agent_id, **kwargs):  # noqa: E501
         """Get Agent Usage Summary  # noqa: E501
 
+        Return metered usage for one agent over a preset reporting window. Use tenant-level `/usage` endpoints when an all-agent total is required.  # noqa: E501
         This method makes a synchronous HTTP request by default. To make an
         asynchronous HTTP request, please pass async_req=True
         >>> thread = api.get_agent_usage_summary_endpoint_agents_agent_id_usage_summary_get(agent_id, async_req=True)
         >>> result = thread.get()
 
         :param async_req bool
-        :param object agent_id: (required)
+        :param object agent_id: Hosted agent UUID returned by the agent create or list endpoint. (required)
         :param UsageTimeWindow window: Preset reporting window.
         :return: AgentUsageSummaryResponse
                  If the method is called asynchronously,
@@ -461,13 +470,14 @@ class AgentsApi(object):
     def get_agent_usage_summary_endpoint_agents_agent_id_usage_summary_get_with_http_info(self, agent_id, **kwargs):  # noqa: E501
         """Get Agent Usage Summary  # noqa: E501
 
+        Return metered usage for one agent over a preset reporting window. Use tenant-level `/usage` endpoints when an all-agent total is required.  # noqa: E501
         This method makes a synchronous HTTP request by default. To make an
         asynchronous HTTP request, please pass async_req=True
         >>> thread = api.get_agent_usage_summary_endpoint_agents_agent_id_usage_summary_get_with_http_info(agent_id, async_req=True)
         >>> result = thread.get()
 
         :param async_req bool
-        :param object agent_id: (required)
+        :param object agent_id: Hosted agent UUID returned by the agent create or list endpoint. (required)
         :param UsageTimeWindow window: Preset reporting window.
         :return: AgentUsageSummaryResponse
                  If the method is called asynchronously,
@@ -515,7 +525,7 @@ class AgentsApi(object):
             ['application/json'])  # noqa: E501
 
         # Authentication setting
-        auth_settings = []  # noqa: E501
+        auth_settings = ['BearerApiKey']  # noqa: E501
 
         return self.api_client.call_api(
             '/agents/{agent_id}/usage/summary', 'GET',
@@ -536,19 +546,20 @@ class AgentsApi(object):
     def list_agent_runs_endpoint_agents_agent_id_runs_get(self, agent_id, **kwargs):  # noqa: E501
         """List Agent Runs  # noqa: E501
 
+        List hosted runs for one agent, optionally filtered by status, type, session, or reporting window. Use the returned run UUIDs with `/runs`.  # noqa: E501
         This method makes a synchronous HTTP request by default. To make an
         asynchronous HTTP request, please pass async_req=True
         >>> thread = api.list_agent_runs_endpoint_agents_agent_id_runs_get(agent_id, async_req=True)
         >>> result = thread.get()
 
         :param async_req bool
-        :param object agent_id: (required)
+        :param object agent_id: Hosted agent UUID returned by the agent create or list endpoint. (required)
         :param object status: Filter by one or more run statuses.
         :param object run_type: Filter by one or more run types (goal|resume).
         :param object session_id: Filter to a single session.
         :param UsageTimeWindow window: Window bounding which runs are returned.
-        :param object limit: Page size.
-        :param object cursor: Opaque string from the previous page's `next_cursor`.
+        :param object limit: Maximum number of items to return on this page.
+        :param object cursor: Opaque pagination token from the previous response's `next_cursor`. Pass it back unchanged; omit it to start again from the first page.
         :return: AgentRunListResponse
                  If the method is called asynchronously,
                  returns the request thread.
@@ -563,19 +574,20 @@ class AgentsApi(object):
     def list_agent_runs_endpoint_agents_agent_id_runs_get_with_http_info(self, agent_id, **kwargs):  # noqa: E501
         """List Agent Runs  # noqa: E501
 
+        List hosted runs for one agent, optionally filtered by status, type, session, or reporting window. Use the returned run UUIDs with `/runs`.  # noqa: E501
         This method makes a synchronous HTTP request by default. To make an
         asynchronous HTTP request, please pass async_req=True
         >>> thread = api.list_agent_runs_endpoint_agents_agent_id_runs_get_with_http_info(agent_id, async_req=True)
         >>> result = thread.get()
 
         :param async_req bool
-        :param object agent_id: (required)
+        :param object agent_id: Hosted agent UUID returned by the agent create or list endpoint. (required)
         :param object status: Filter by one or more run statuses.
         :param object run_type: Filter by one or more run types (goal|resume).
         :param object session_id: Filter to a single session.
         :param UsageTimeWindow window: Window bounding which runs are returned.
-        :param object limit: Page size.
-        :param object cursor: Opaque string from the previous page's `next_cursor`.
+        :param object limit: Maximum number of items to return on this page.
+        :param object cursor: Opaque pagination token from the previous response's `next_cursor`. Pass it back unchanged; omit it to start again from the first page.
         :return: AgentRunListResponse
                  If the method is called asynchronously,
                  returns the request thread.
@@ -632,7 +644,7 @@ class AgentsApi(object):
             ['application/json'])  # noqa: E501
 
         # Authentication setting
-        auth_settings = []  # noqa: E501
+        auth_settings = ['BearerApiKey']  # noqa: E501
 
         return self.api_client.call_api(
             '/agents/{agent_id}/runs', 'GET',
@@ -653,15 +665,16 @@ class AgentsApi(object):
     def list_agent_sessions_endpoint_agents_agent_id_sessions_get(self, agent_id, **kwargs):  # noqa: E501
         """List Agent Sessions  # noqa: E501
 
+        List conversation sessions associated with one agent. Results are cursor-paginated; pass `next_cursor` back unchanged to continue.  # noqa: E501
         This method makes a synchronous HTTP request by default. To make an
         asynchronous HTTP request, please pass async_req=True
         >>> thread = api.list_agent_sessions_endpoint_agents_agent_id_sessions_get(agent_id, async_req=True)
         >>> result = thread.get()
 
         :param async_req bool
-        :param object agent_id: (required)
-        :param object limit: Page size.
-        :param object cursor: Opaque string from the previous page's `next_cursor`.
+        :param object agent_id: Hosted agent UUID returned by the agent create or list endpoint. (required)
+        :param object limit: Maximum number of items to return on this page.
+        :param object cursor: Opaque pagination token from the previous response's `next_cursor`. Pass it back unchanged; omit it to start again from the first page.
         :return: SessionListResponse
                  If the method is called asynchronously,
                  returns the request thread.
@@ -676,15 +689,16 @@ class AgentsApi(object):
     def list_agent_sessions_endpoint_agents_agent_id_sessions_get_with_http_info(self, agent_id, **kwargs):  # noqa: E501
         """List Agent Sessions  # noqa: E501
 
+        List conversation sessions associated with one agent. Results are cursor-paginated; pass `next_cursor` back unchanged to continue.  # noqa: E501
         This method makes a synchronous HTTP request by default. To make an
         asynchronous HTTP request, please pass async_req=True
         >>> thread = api.list_agent_sessions_endpoint_agents_agent_id_sessions_get_with_http_info(agent_id, async_req=True)
         >>> result = thread.get()
 
         :param async_req bool
-        :param object agent_id: (required)
-        :param object limit: Page size.
-        :param object cursor: Opaque string from the previous page's `next_cursor`.
+        :param object agent_id: Hosted agent UUID returned by the agent create or list endpoint. (required)
+        :param object limit: Maximum number of items to return on this page.
+        :param object cursor: Opaque pagination token from the previous response's `next_cursor`. Pass it back unchanged; omit it to start again from the first page.
         :return: SessionListResponse
                  If the method is called asynchronously,
                  returns the request thread.
@@ -733,7 +747,7 @@ class AgentsApi(object):
             ['application/json'])  # noqa: E501
 
         # Authentication setting
-        auth_settings = []  # noqa: E501
+        auth_settings = ['BearerApiKey']  # noqa: E501
 
         return self.api_client.call_api(
             '/agents/{agent_id}/sessions', 'GET',
@@ -754,6 +768,7 @@ class AgentsApi(object):
     def list_agents_endpoint_agents_get(self, **kwargs):  # noqa: E501
         """List Agents  # noqa: E501
 
+        Find agents available to the caller. Use filters and cursor pagination for inventory screens or agent selection; request summaries only when usage metrics are needed.  # noqa: E501
         This method makes a synchronous HTTP request by default. To make an
         asynchronous HTTP request, please pass async_req=True
         >>> thread = api.list_agents_endpoint_agents_get(async_req=True)
@@ -767,8 +782,8 @@ class AgentsApi(object):
         :param object sort: Sort mode: created_desc|created_asc|name_asc|name_desc|last_run_desc|run_count_desc|spend_desc.
         :param UsageTimeWindow window: Window for metric sorts and per-agent summaries.
         :param object include_summary: When true, include a per-agent usage summary.
-        :param object limit: Page size.
-        :param object cursor: Opaque string from the previous page's `next_cursor`.
+        :param object limit: Maximum number of items to return on this page.
+        :param object cursor: Opaque pagination token from the previous response's `next_cursor`. Pass it back unchanged; omit it to start again from the first page.
         :return: AgentInventoryResponse
                  If the method is called asynchronously,
                  returns the request thread.
@@ -783,6 +798,7 @@ class AgentsApi(object):
     def list_agents_endpoint_agents_get_with_http_info(self, **kwargs):  # noqa: E501
         """List Agents  # noqa: E501
 
+        Find agents available to the caller. Use filters and cursor pagination for inventory screens or agent selection; request summaries only when usage metrics are needed.  # noqa: E501
         This method makes a synchronous HTTP request by default. To make an
         asynchronous HTTP request, please pass async_req=True
         >>> thread = api.list_agents_endpoint_agents_get_with_http_info(async_req=True)
@@ -796,8 +812,8 @@ class AgentsApi(object):
         :param object sort: Sort mode: created_desc|created_asc|name_asc|name_desc|last_run_desc|run_count_desc|spend_desc.
         :param UsageTimeWindow window: Window for metric sorts and per-agent summaries.
         :param object include_summary: When true, include a per-agent usage summary.
-        :param object limit: Page size.
-        :param object cursor: Opaque string from the previous page's `next_cursor`.
+        :param object limit: Maximum number of items to return on this page.
+        :param object cursor: Opaque pagination token from the previous response's `next_cursor`. Pass it back unchanged; omit it to start again from the first page.
         :return: AgentInventoryResponse
                  If the method is called asynchronously,
                  returns the request thread.
@@ -854,7 +870,7 @@ class AgentsApi(object):
             ['application/json'])  # noqa: E501
 
         # Authentication setting
-        auth_settings = []  # noqa: E501
+        auth_settings = ['BearerApiKey']  # noqa: E501
 
         return self.api_client.call_api(
             '/agents', 'GET',
@@ -875,6 +891,7 @@ class AgentsApi(object):
     def list_definition_suggestions_endpoint_agents_definition_suggestions_get(self, **kwargs):  # noqa: E501
         """List Definition Suggestions  # noqa: E501
 
+        Return curated templates or traits that can help construct an agent definition. Use this before creating or editing an agent when the caller needs discoverable starting values.  # noqa: E501
         This method makes a synchronous HTTP request by default. To make an
         asynchronous HTTP request, please pass async_req=True
         >>> thread = api.list_definition_suggestions_endpoint_agents_definition_suggestions_get(async_req=True)
@@ -897,6 +914,7 @@ class AgentsApi(object):
     def list_definition_suggestions_endpoint_agents_definition_suggestions_get_with_http_info(self, **kwargs):  # noqa: E501
         """List Definition Suggestions  # noqa: E501
 
+        Return curated templates or traits that can help construct an agent definition. Use this before creating or editing an agent when the caller needs discoverable starting values.  # noqa: E501
         This method makes a synchronous HTTP request by default. To make an
         asynchronous HTTP request, please pass async_req=True
         >>> thread = api.list_definition_suggestions_endpoint_agents_definition_suggestions_get_with_http_info(async_req=True)
@@ -947,7 +965,7 @@ class AgentsApi(object):
             ['application/json'])  # noqa: E501
 
         # Authentication setting
-        auth_settings = []  # noqa: E501
+        auth_settings = ['BearerApiKey']  # noqa: E501
 
         return self.api_client.call_api(
             '/agents/definition-suggestions', 'GET',
@@ -968,6 +986,7 @@ class AgentsApi(object):
     def update_agent_endpoint_agents_agent_id_patch(self, body, agent_id, **kwargs):  # noqa: E501
         """Update Agent  # noqa: E501
 
+        Update the supplied fields on an existing hosted agent. Omitted fields retain their current values.  # noqa: E501
         This method makes a synchronous HTTP request by default. To make an
         asynchronous HTTP request, please pass async_req=True
         >>> thread = api.update_agent_endpoint_agents_agent_id_patch(body, agent_id, async_req=True)
@@ -975,7 +994,7 @@ class AgentsApi(object):
 
         :param async_req bool
         :param AgentUpdateRequest body: (required)
-        :param object agent_id: (required)
+        :param object agent_id: Hosted agent UUID returned by the agent create or list endpoint. (required)
         :return: AgentResponse
                  If the method is called asynchronously,
                  returns the request thread.
@@ -990,6 +1009,7 @@ class AgentsApi(object):
     def update_agent_endpoint_agents_agent_id_patch_with_http_info(self, body, agent_id, **kwargs):  # noqa: E501
         """Update Agent  # noqa: E501
 
+        Update the supplied fields on an existing hosted agent. Omitted fields retain their current values.  # noqa: E501
         This method makes a synchronous HTTP request by default. To make an
         asynchronous HTTP request, please pass async_req=True
         >>> thread = api.update_agent_endpoint_agents_agent_id_patch_with_http_info(body, agent_id, async_req=True)
@@ -997,7 +1017,7 @@ class AgentsApi(object):
 
         :param async_req bool
         :param AgentUpdateRequest body: (required)
-        :param object agent_id: (required)
+        :param object agent_id: Hosted agent UUID returned by the agent create or list endpoint. (required)
         :return: AgentResponse
                  If the method is called asynchronously,
                  returns the request thread.
@@ -1052,7 +1072,7 @@ class AgentsApi(object):
             ['application/json'])  # noqa: E501
 
         # Authentication setting
-        auth_settings = []  # noqa: E501
+        auth_settings = ['BearerApiKey']  # noqa: E501
 
         return self.api_client.call_api(
             '/agents/{agent_id}', 'PATCH',

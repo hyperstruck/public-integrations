@@ -3,7 +3,7 @@
 """
     Hyperstruck Core
 
-    Hyperstruck Core management API  # noqa: E501
+    Create and operate hosted agents, runs, learnings, and integrations. Authenticate resource requests with a Bearer API key unless an endpoint explicitly requires a portal session.  # noqa: E501
 
     OpenAPI spec version: 0.1.0
     
@@ -33,8 +33,9 @@ class ApiKeysApi(object):
         self.api_client = api_client
 
     def create_api_key_endpoint_api_keys_post(self, body, **kwargs):  # noqa: E501
-        """Create Api Key Endpoint  # noqa: E501
+        """Create API Key  # noqa: E501
 
+        Create a tenant API key with explicit scopes. The complete Bearer token is returned only once, so store it securely before leaving the response.  # noqa: E501
         This method makes a synchronous HTTP request by default. To make an
         asynchronous HTTP request, please pass async_req=True
         >>> thread = api.create_api_key_endpoint_api_keys_post(body, async_req=True)
@@ -54,8 +55,9 @@ class ApiKeysApi(object):
             return data
 
     def create_api_key_endpoint_api_keys_post_with_http_info(self, body, **kwargs):  # noqa: E501
-        """Create Api Key Endpoint  # noqa: E501
+        """Create API Key  # noqa: E501
 
+        Create a tenant API key with explicit scopes. The complete Bearer token is returned only once, so store it securely before leaving the response.  # noqa: E501
         This method makes a synchronous HTTP request by default. To make an
         asynchronous HTTP request, please pass async_req=True
         >>> thread = api.create_api_key_endpoint_api_keys_post_with_http_info(body, async_req=True)
@@ -111,7 +113,7 @@ class ApiKeysApi(object):
             ['application/json'])  # noqa: E501
 
         # Authentication setting
-        auth_settings = []  # noqa: E501
+        auth_settings = ['PortalSessionCookie']  # noqa: E501
 
         return self.api_client.call_api(
             '/api-keys', 'POST',
@@ -130,8 +132,9 @@ class ApiKeysApi(object):
             collection_formats=collection_formats)
 
     def list_api_keys_endpoint_api_keys_get(self, **kwargs):  # noqa: E501
-        """List Api Keys Endpoint  # noqa: E501
+        """List API Keys  # noqa: E501
 
+        List API keys for the active tenant without revealing their secret values. Use this portal-session endpoint to review key names, prefixes, scopes, and revocation state.  # noqa: E501
         This method makes a synchronous HTTP request by default. To make an
         asynchronous HTTP request, please pass async_req=True
         >>> thread = api.list_api_keys_endpoint_api_keys_get(async_req=True)
@@ -150,8 +153,9 @@ class ApiKeysApi(object):
             return data
 
     def list_api_keys_endpoint_api_keys_get_with_http_info(self, **kwargs):  # noqa: E501
-        """List Api Keys Endpoint  # noqa: E501
+        """List API Keys  # noqa: E501
 
+        List API keys for the active tenant without revealing their secret values. Use this portal-session endpoint to review key names, prefixes, scopes, and revocation state.  # noqa: E501
         This method makes a synchronous HTTP request by default. To make an
         asynchronous HTTP request, please pass async_req=True
         >>> thread = api.list_api_keys_endpoint_api_keys_get_with_http_info(async_req=True)
@@ -196,7 +200,7 @@ class ApiKeysApi(object):
             ['application/json'])  # noqa: E501
 
         # Authentication setting
-        auth_settings = []  # noqa: E501
+        auth_settings = ['PortalSessionCookie']  # noqa: E501
 
         return self.api_client.call_api(
             '/api-keys', 'GET',
@@ -215,15 +219,16 @@ class ApiKeysApi(object):
             collection_formats=collection_formats)
 
     def revoke_api_key_endpoint_api_keys_api_key_id_revoke_post(self, api_key_id, **kwargs):  # noqa: E501
-        """Revoke Api Key Endpoint  # noqa: E501
+        """Revoke API Key  # noqa: E501
 
+        Permanently revoke an API key so it can no longer authenticate requests. Use the key UUID returned by the list or create endpoint.  # noqa: E501
         This method makes a synchronous HTTP request by default. To make an
         asynchronous HTTP request, please pass async_req=True
         >>> thread = api.revoke_api_key_endpoint_api_keys_api_key_id_revoke_post(api_key_id, async_req=True)
         >>> result = thread.get()
 
         :param async_req bool
-        :param object api_key_id: (required)
+        :param object api_key_id: API key UUID returned by the create or list endpoint. (required)
         :return: ApiKeyRevokeResponse
                  If the method is called asynchronously,
                  returns the request thread.
@@ -236,15 +241,16 @@ class ApiKeysApi(object):
             return data
 
     def revoke_api_key_endpoint_api_keys_api_key_id_revoke_post_with_http_info(self, api_key_id, **kwargs):  # noqa: E501
-        """Revoke Api Key Endpoint  # noqa: E501
+        """Revoke API Key  # noqa: E501
 
+        Permanently revoke an API key so it can no longer authenticate requests. Use the key UUID returned by the list or create endpoint.  # noqa: E501
         This method makes a synchronous HTTP request by default. To make an
         asynchronous HTTP request, please pass async_req=True
         >>> thread = api.revoke_api_key_endpoint_api_keys_api_key_id_revoke_post_with_http_info(api_key_id, async_req=True)
         >>> result = thread.get()
 
         :param async_req bool
-        :param object api_key_id: (required)
+        :param object api_key_id: API key UUID returned by the create or list endpoint. (required)
         :return: ApiKeyRevokeResponse
                  If the method is called asynchronously,
                  returns the request thread.
@@ -289,7 +295,7 @@ class ApiKeysApi(object):
             ['application/json'])  # noqa: E501
 
         # Authentication setting
-        auth_settings = []  # noqa: E501
+        auth_settings = ['PortalSessionCookie']  # noqa: E501
 
         return self.api_client.call_api(
             '/api-keys/{api_key_id}/revoke', 'POST',

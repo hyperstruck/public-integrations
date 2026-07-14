@@ -3,7 +3,7 @@
 """
     Hyperstruck Core
 
-    Hyperstruck Core management API  # noqa: E501
+    Create and operate hosted agents, runs, learnings, and integrations. Authenticate resource requests with a Bearer API key unless an endpoint explicitly requires a portal session.  # noqa: E501
 
     OpenAPI spec version: 0.1.0
     
@@ -124,7 +124,7 @@ class ResumeRunRequest(object):
     def data(self):
         """Gets the data of this ResumeRunRequest.  # noqa: E501
 
-        Optional decision payload (e.g. modified plan or tool args). Interpreted by hyperstruck-core per ``decision_type`` (e.g. ``provide_input`` merges into scratchpad metadata).  # noqa: E501
+        Optional decision payload, such as modified instructions, selected items, or additional human input.  # noqa: E501
 
         :return: The data of this ResumeRunRequest.  # noqa: E501
         :rtype: object
@@ -135,7 +135,7 @@ class ResumeRunRequest(object):
     def data(self, data):
         """Sets the data of this ResumeRunRequest.
 
-        Optional decision payload (e.g. modified plan or tool args). Interpreted by hyperstruck-core per ``decision_type`` (e.g. ``provide_input`` merges into scratchpad metadata).  # noqa: E501
+        Optional decision payload, such as modified instructions, selected items, or additional human input.  # noqa: E501
 
         :param data: The data of this ResumeRunRequest.  # noqa: E501
         :type: object

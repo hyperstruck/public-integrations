@@ -13,6 +13,8 @@ Method | HTTP request | Description
 
 List Agent Sessions
 
+List conversation sessions associated with one agent. Results are cursor-paginated; pass `next_cursor` back unchanged to continue.
+
 ### Example
 ```python
 from __future__ import print_function
@@ -21,11 +23,17 @@ import hyperstruck
 from hyperstruck.rest import ApiException
 from pprint import pprint
 
+# Configure API key authorization: BearerApiKey
+configuration = hyperstruck.Configuration()
+configuration.api_key['Authorization'] = 'YOUR_API_KEY'
+# Uncomment below to setup prefix (e.g. Bearer) for API key, if needed
+# configuration.api_key_prefix['Authorization'] = 'Bearer'
+
 # create an instance of the API class
-api_instance = hyperstruck.SessionsApi()
-agent_id = NULL # object | 
-limit = 20 # object | Page size. (optional) (default to 20)
-cursor = NULL # object | Opaque string from the previous page's `next_cursor`. (optional)
+api_instance = hyperstruck.SessionsApi(hyperstruck.ApiClient(configuration))
+agent_id = NULL # object | Hosted agent UUID returned by the agent create or list endpoint.
+limit = 20 # object | Maximum number of items to return on this page. (optional) (default to 20)
+cursor = NULL # object | Opaque pagination token from the previous response's `next_cursor`. Pass it back unchanged; omit it to start again from the first page. (optional)
 
 try:
     # List Agent Sessions
@@ -39,9 +47,9 @@ except ApiException as e:
 
 Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
- **agent_id** | [**object**](.md)|  | 
- **limit** | [**object**](.md)| Page size. | [optional] [default to 20]
- **cursor** | [**object**](.md)| Opaque string from the previous page&#x27;s &#x60;next_cursor&#x60;. | [optional] 
+ **agent_id** | [**object**](.md)| Hosted agent UUID returned by the agent create or list endpoint. |
+ **limit** | [**object**](.md)| Maximum number of items to return on this page. | [optional] [default to 20]
+ **cursor** | [**object**](.md)| Opaque pagination token from the previous response&#x27;s &#x60;next_cursor&#x60;. Pass it back unchanged; omit it to start again from the first page. | [optional]
 
 ### Return type
 
@@ -49,7 +57,7 @@ Name | Type | Description  | Notes
 
 ### Authorization
 
-No authorization required
+[BearerApiKey](../README.md#BearerApiKey)
 
 ### HTTP request headers
 
@@ -63,6 +71,8 @@ No authorization required
 
 List Session Messages
 
+Read the messages in one conversation session. Results are ordered for transcript consumption and cursor-paginated for long sessions.
+
 ### Example
 ```python
 from __future__ import print_function
@@ -71,11 +81,17 @@ import hyperstruck
 from hyperstruck.rest import ApiException
 from pprint import pprint
 
+# Configure API key authorization: BearerApiKey
+configuration = hyperstruck.Configuration()
+configuration.api_key['Authorization'] = 'YOUR_API_KEY'
+# Uncomment below to setup prefix (e.g. Bearer) for API key, if needed
+# configuration.api_key_prefix['Authorization'] = 'Bearer'
+
 # create an instance of the API class
-api_instance = hyperstruck.SessionsApi()
-session_id = NULL # object | 
-limit = 20 # object | Page size. (optional) (default to 20)
-cursor = NULL # object | Opaque string from the previous page's `next_cursor`. (optional)
+api_instance = hyperstruck.SessionsApi(hyperstruck.ApiClient(configuration))
+session_id = NULL # object | Conversation session UUID associated with an agent.
+limit = 20 # object | Maximum number of items to return on this page. (optional) (default to 20)
+cursor = NULL # object | Opaque pagination token from the previous response's `next_cursor`. Pass it back unchanged; omit it to start again from the first page. (optional)
 
 try:
     # List Session Messages
@@ -89,9 +105,9 @@ except ApiException as e:
 
 Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
- **session_id** | [**object**](.md)|  | 
- **limit** | [**object**](.md)| Page size. | [optional] [default to 20]
- **cursor** | [**object**](.md)| Opaque string from the previous page&#x27;s &#x60;next_cursor&#x60;. | [optional] 
+ **session_id** | [**object**](.md)| Conversation session UUID associated with an agent. |
+ **limit** | [**object**](.md)| Maximum number of items to return on this page. | [optional] [default to 20]
+ **cursor** | [**object**](.md)| Opaque pagination token from the previous response&#x27;s &#x60;next_cursor&#x60;. Pass it back unchanged; omit it to start again from the first page. | [optional]
 
 ### Return type
 
@@ -99,7 +115,7 @@ Name | Type | Description  | Notes
 
 ### Authorization
 
-No authorization required
+[BearerApiKey](../README.md#BearerApiKey)
 
 ### HTTP request headers
 
@@ -113,7 +129,7 @@ No authorization required
 
 List Session Runs
 
-List runs in a session (newest first), keyset-paginated.
+List the hosted runs associated with one conversation session, newest first. Use the returned run UUIDs to inspect individual run details.
 
 ### Example
 ```python
@@ -123,11 +139,17 @@ import hyperstruck
 from hyperstruck.rest import ApiException
 from pprint import pprint
 
+# Configure API key authorization: BearerApiKey
+configuration = hyperstruck.Configuration()
+configuration.api_key['Authorization'] = 'YOUR_API_KEY'
+# Uncomment below to setup prefix (e.g. Bearer) for API key, if needed
+# configuration.api_key_prefix['Authorization'] = 'Bearer'
+
 # create an instance of the API class
-api_instance = hyperstruck.SessionsApi()
-session_id = NULL # object | 
-limit = 20 # object | Page size. (optional) (default to 20)
-cursor = NULL # object | Opaque string from the previous page's `next_cursor`. (optional)
+api_instance = hyperstruck.SessionsApi(hyperstruck.ApiClient(configuration))
+session_id = NULL # object | Conversation session UUID associated with an agent.
+limit = 20 # object | Maximum number of items to return on this page. (optional) (default to 20)
+cursor = NULL # object | Opaque pagination token from the previous response's `next_cursor`. Pass it back unchanged; omit it to start again from the first page. (optional)
 
 try:
     # List Session Runs
@@ -141,9 +163,9 @@ except ApiException as e:
 
 Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
- **session_id** | [**object**](.md)|  | 
- **limit** | [**object**](.md)| Page size. | [optional] [default to 20]
- **cursor** | [**object**](.md)| Opaque string from the previous page&#x27;s &#x60;next_cursor&#x60;. | [optional] 
+ **session_id** | [**object**](.md)| Conversation session UUID associated with an agent. |
+ **limit** | [**object**](.md)| Maximum number of items to return on this page. | [optional] [default to 20]
+ **cursor** | [**object**](.md)| Opaque pagination token from the previous response&#x27;s &#x60;next_cursor&#x60;. Pass it back unchanged; omit it to start again from the first page. | [optional]
 
 ### Return type
 
@@ -151,7 +173,7 @@ Name | Type | Description  | Notes
 
 ### Authorization
 
-No authorization required
+[BearerApiKey](../README.md#BearerApiKey)
 
 ### HTTP request headers
 

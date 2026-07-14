@@ -2,7 +2,7 @@
 // tslint:disable
 /**
  * Hyperstruck Core
- * Hyperstruck Core management API
+ * Create and operate hosted agents, runs, learnings, and integrations. Authenticate resource requests with a Bearer API key unless an endpoint explicitly requires a portal session.
  *
  * OpenAPI spec version: 0.1.0
  * 
@@ -78,7 +78,7 @@ export class RequiredError extends Error {
 }
 
 /**
- * Fields persisted in `agents.config_jsonb`, aligned with `AgentConfig`.
+ * Runtime instructions and optional execution settings for a hosted agent.
  * @export
  * @interface AgentCoreConfigInput
  */
@@ -145,7 +145,7 @@ export interface AgentCoreConfigInput {
     metadata?: any;
 }
 /**
- * Fields persisted in `agents.config_jsonb`, aligned with `AgentConfig`.
+ * Runtime instructions and optional execution settings for a hosted agent.
  * @export
  * @interface AgentCoreConfigOutput
  */
@@ -285,7 +285,7 @@ export interface AgentCoreConfigPatch {
  */
 export interface AgentCreateRequest {
     /**
-     * 
+     * Human-readable agent name, unique within the tenant.
      * @type {any}
      * @memberof AgentCreateRequest
      */
@@ -333,13 +333,13 @@ export interface AgentCreateRequest {
      */
     knowledgeScope?: any;
     /**
-     * Optional home space (`public.spaces`) for this agent. The composite FK `(tenant_id, home_space_id)` pins it to the caller's tenant.
+     * Optional UUID of the accessible space that owns this agent.
      * @type {any}
      * @memberof AgentCreateRequest
      */
     homeSpaceId?: any;
     /**
-     * hyperstruck-core-aligned configuration blob. Required on create so every agent has explicit instructions.
+     * Runtime instructions and optional execution settings.
      * @type {AgentCoreConfigInput}
      * @memberof AgentCreateRequest
      */
@@ -416,7 +416,7 @@ export interface AgentDefinitionSuggestionListResponse {
     nextCursor?: any;
 }
 /**
- * Agent detail: inventory row fields plus the optional summary.  The ``access`` block (home-space operators / FGA checks) is intentionally not populated yet — see Fibery #122 (owned by the FGA/authz surface). The base ``core_config`` field already carries the compiled config blob.
+ * Agent detail with optional usage summary and non-secret credential metadata.
  * @export
  * @interface AgentDetailResponse
  */
@@ -476,7 +476,7 @@ export interface AgentDetailResponse {
      */
     knowledgeScope: any;
     /**
-     * Home space (`public.spaces`) for this agent, if any.
+     * Home space UUID for this agent, if any.
      * @type {any}
      * @memberof AgentDetailResponse
      */
@@ -604,7 +604,7 @@ export interface AgentListItem {
      */
     knowledgeScope: any;
     /**
-     * Home space (`public.spaces`) for this agent, if any.
+     * Home space UUID for this agent, if any.
      * @type {any}
      * @memberof AgentListItem
      */
@@ -762,7 +762,7 @@ export interface AgentResponse {
      */
     knowledgeScope: any;
     /**
-     * Home space (`public.spaces`) for this agent, if any.
+     * Home space UUID for this agent, if any.
      * @type {any}
      * @memberof AgentResponse
      */
@@ -891,7 +891,7 @@ export interface AgentRunStatusAggregates {
     lastRunAt?: any;
 }
 /**
- * Per-agent run rollups for inventory cards and the detail summary.  Computed from ``public.agent_runs`` within the window keyed on ``created_at``. ``learning_count`` / ``needs_review_learning_count`` are owned by the learning-audit surface and are ``null`` here until that surface populates them.
+ * Per-agent activity totals for the requested reporting window.
  * @export
  * @interface AgentSummaryMetrics
  */
@@ -1086,13 +1086,13 @@ export interface AgentUsageSummaryResponse {
  */
 export interface ApiKeyCreateRequest {
     /**
-     * 
+     * Human-readable label describing where the key is used.
      * @type {any}
      * @memberof ApiKeyCreateRequest
      */
     name: any;
     /**
-     * 
+     * Least-privilege capabilities granted to the key.
      * @type {any}
      * @memberof ApiKeyCreateRequest
      */
@@ -1346,13 +1346,13 @@ export interface BoundaryAcceptedResponse {
      */
     status?: any;
     /**
-     * 
+     * Echo of the caller-owned idempotency and correlation identifier; not a hosted run UUID.
      * @type {any}
      * @memberof BoundaryAcceptedResponse
      */
     runId: any;
     /**
-     * Versioned payload contract used for the worker dispatch.
+     * Compatibility version returned with the acceptance receipt.
      * @type {any}
      * @memberof BoundaryAcceptedResponse
      */
@@ -1478,25 +1478,25 @@ export interface DistillOutcomeModel {
     summary?: any;
 }
 /**
- * Extract learnings from a corpus of evidence, without fabricating tool steps.  A developer-friendly twin of observe for post-mortems, docs, diffs, and analysis output. It reuses Core's extraction pipeline (contrast, grounding, critic) but sits outside the resolve -> observe -> reinforce loop: an extract job never resolves or reinforces, and is metered on its own ``is_distilled`` funnel so it does not pollute loop-closure attribution.
+ * Extract learnings from a corpus of evidence, without fabricating tool steps.  Use for post-mortems, documents, diffs, and analysis output. A distillation job is standalone and does not participate in the resolve, observe, and reinforce loop.
  * @export
  * @interface DistillRequest
  */
 export interface DistillRequest {
     /**
-     * 
+     * Caller-defined agent identifier. This is a string, not the hosted agent UUID used in `/agents/{agent_id}` paths.
      * @type {any}
      * @memberof DistillRequest
      */
     agentId: any;
     /**
-     * 
+     * Optional caller-owned organisation reference.
      * @type {any}
      * @memberof DistillRequest
      */
     orgId?: any;
     /**
-     * 
+     * Caller-created idempotency and tracing identifier. It must start with `distill:` and does not reference a hosted run.
      * @type {any}
      * @memberof DistillRequest
      */
@@ -1576,37 +1576,37 @@ export interface EntitlementsResponse {
  */
 export interface EpisodeModel {
     /**
-     * 
+     * Caller-created correlation and idempotency identifier. It does not reference a hosted `/runs/{run_id}` resource.
      * @type {any}
      * @memberof EpisodeModel
      */
     runId: any;
     /**
-     * 
+     * Goal attempted by the external agent.
      * @type {any}
      * @memberof EpisodeModel
      */
     goal: any;
     /**
-     * 
+     * Ordered actions and results from the completed episode.
      * @type {any}
      * @memberof EpisodeModel
      */
     steps?: any;
     /**
-     * 
+     * Terminal outcome of the episode.
      * @type {OutcomeModel}
      * @memberof EpisodeModel
      */
     outcome: OutcomeModel;
     /**
-     * 
+     * Optional external framework or host identifier.
      * @type {any}
      * @memberof EpisodeModel
      */
     sourceFramework?: any;
     /**
-     * 
+     * Optional caller-owned conversation or thread identifier.
      * @type {any}
      * @memberof EpisodeModel
      */
@@ -1624,7 +1624,7 @@ export enum EvidenceAvailability {
     Truncated = <any> 'truncated'
 }
 /**
- * One piece of corpus evidence to extract learnings from.  The developer-friendly twin of a tool ``StepModel``: instead of fabricating a tool call, a caller supplies the primary text (``content``, the grounding source) and a light label/role so the extractor can mine contrast across items (baseline vs fix, success vs failure) rather than summarise a single document.
+ * One piece of corpus evidence to distill learnings from.  Supply primary text plus a light label and role so contrasting items can be compared, such as a baseline and fix or a failure and success.
  * @export
  * @interface EvidenceItemModel
  */
@@ -1679,7 +1679,7 @@ export interface GoalRunAcceptedResponse {
      */
     run: RunResponse;
     /**
-     * Versioned payload contract used for the worker dispatch.
+     * Compatibility version returned with the acceptance receipt.
      * @type {any}
      * @memberof GoalRunAcceptedResponse
      */
@@ -1716,13 +1716,13 @@ export interface GoalRunRequest {
      */
     workerProfile?: any;
     /**
-     * Optional caller-defined metadata persisted onto the run row.
+     * Optional caller-defined metadata attached to the run.
      * @type {any}
      * @memberof GoalRunRequest
      */
     metadata?: any;
     /**
-     * Typed source-of-truth blocks (a transcript, a record set). The only request text the grounding gate admits as evidence; declaring any also activates the read-only faithfulness check so example text cannot be laundered into a claim.
+     * Source-of-truth text, such as a transcript or record set, that the response may rely on as evidence.
      * @type {any}
      * @memberof GoalRunRequest
      */
@@ -1839,7 +1839,7 @@ export interface HTTPValidationError {
     detail?: any;
 }
 /**
- * Hosted mapping from API config to hyperstruck-core ``HITLConfig`` policies.
+ * Supported human-in-the-loop policy presets.
  * @export
  * @enum {string}
  */
@@ -1915,7 +1915,7 @@ export interface HostLoopClosure {
     avgSecondsToClose?: any;
 }
 /**
- * Model providers returned by agent inventory, including learning-boundary stubs.
+ * Model providers returned by agent inventory, including external agents.
  * @export
  * @enum {string}
  */
@@ -1952,7 +1952,7 @@ export interface IdentityUserModel {
     displayName?: any;
 }
 /**
- * Corpus-wide counts for the metric strip, from indexed Qdrant counts only.  The four live/terminal buckets are mutually exclusive and sum to ``total``; ``needs_review`` counts live-but-unverified learnings (trust is indexed, so no scan is needed).
+ * Corpus-wide counts for mutually exclusive review-state buckets.
  * @export
  * @interface LearningAuditFacets
  */
@@ -2276,10 +2276,10 @@ export interface LearningAuditListResponse {
     facets?: any;
     /**
      * Unreadable learnings omitted while building this page. This count is authoritative even if partial_failures are aggregated or truncated.
-     * @type {number}
+     * @type {any}
      * @memberof LearningAuditListResponse
      */
-    omitted_learning_count?: number;
+    omittedLearningCount?: any;
     /**
      * 
      * @type {any}
@@ -2300,7 +2300,7 @@ export interface LearningAuditListResponse {
  */
 export interface LearningAuditPartialFailure {
     /**
-     * Degraded source, e.g. 'neo4j_topology'.
+     * Stable name of the unavailable data source.
      * @type {any}
      * @memberof LearningAuditPartialFailure
      */
@@ -2313,7 +2313,7 @@ export interface LearningAuditPartialFailure {
     detail: any;
 }
 /**
- * Edge kinds in the evidence graph (mirror Neo4j relationship types).
+ * Relationship kinds returned by the learning evidence graph.
  * @export
  * @enum {string}
  */
@@ -2864,19 +2864,19 @@ export interface MultiAgentPlanSearchRequest {
  */
 export interface ObserveRequest {
     /**
-     * 
+     * Caller-defined string identifying the external agent.
      * @type {any}
      * @memberof ObserveRequest
      */
     agentId: any;
     /**
-     * 
+     * Optional caller-owned organisation reference.
      * @type {any}
      * @memberof ObserveRequest
      */
     orgId?: any;
     /**
-     * 
+     * Caller-supplied completed episode. Direct API clients may construct it without LangGraph.
      * @type {EpisodeModel}
      * @memberof ObserveRequest
      */
@@ -3005,25 +3005,25 @@ export interface OrgLearningListResponse {
  */
 export interface OutcomeModel {
     /**
-     * 
+     * Whether the episode achieved its goal.
      * @type {any}
      * @memberof OutcomeModel
      */
     isSuccess: any;
     /**
-     * 
+     * Total number of attempted steps.
      * @type {any}
      * @memberof OutcomeModel
      */
     totalSteps?: any;
     /**
-     * 
+     * Number of completed steps.
      * @type {any}
      * @memberof OutcomeModel
      */
     completedSteps?: any;
     /**
-     * 
+     * Number of failed steps.
      * @type {any}
      * @memberof OutcomeModel
      */
@@ -3263,7 +3263,7 @@ export interface ProviderCredentialCreateRequest {
      */
     agentId?: any;
     /**
-     * 
+     * Provider secret. This value is write-only and never returned.
      * @type {any}
      * @memberof ProviderCredentialCreateRequest
      */
@@ -3471,25 +3471,25 @@ export interface ReinforceLearningResponse {
  */
 export interface ReinforceRequest {
     /**
-     * 
+     * Caller-defined string identifying the external agent.
      * @type {any}
      * @memberof ReinforceRequest
      */
     agentId: any;
     /**
-     * 
+     * Optional caller-owned organisation reference.
      * @type {any}
      * @memberof ReinforceRequest
      */
     orgId?: any;
     /**
-     * 
+     * Completed episode using the same caller-owned `run_id` supplied to resolve.
      * @type {EpisodeModel}
      * @memberof ReinforceRequest
      */
     episode: EpisodeModel;
     /**
-     * 
+     * Whether eligible learnings may be considered for organisation sharing.
      * @type {any}
      * @memberof ReinforceRequest
      */
@@ -3571,25 +3571,25 @@ export interface RejectLearningResponse {
  */
 export interface ResolveRequest {
     /**
-     * The customer's agent identifier (a string).
+     * Caller-defined agent identifier. This is a string, not the hosted agent UUID used in `/agents/{agent_id}` paths.
      * @type {any}
      * @memberof ResolveRequest
      */
     agentId: any;
     /**
-     * 
+     * Optional caller-owned organisation reference.
      * @type {any}
      * @memberof ResolveRequest
      */
     orgId?: any;
     /**
-     * 
+     * Caller-created correlation key. Reuse it with observe and reinforce; it does not reference a hosted `/runs/{run_id}` resource.
      * @type {any}
      * @memberof ResolveRequest
      */
     runId: any;
     /**
-     * 
+     * Goal about to be attempted by the external agent.
      * @type {any}
      * @memberof ResolveRequest
      */
@@ -3619,7 +3619,7 @@ export interface ResolveRequest {
      */
     modelContextWindow?: any;
     /**
-     * Retrieval depth. 'fast' (default): one ranked vector search, no graph. 'full': graph-enriched, heavier but richer.
+     * Retrieval depth. `fast` prioritises response time; `full` may return richer contextual relationships at higher latency.
      * @type {any}
      * @memberof ResolveRequest
      */
@@ -3663,7 +3663,7 @@ export interface ResumeRunRequest {
      */
     decisionType: DecisionType;
     /**
-     * Optional decision payload (e.g. modified plan or tool args). Interpreted by hyperstruck-core per ``decision_type`` (e.g. ``provide_input`` merges into scratchpad metadata).
+     * Optional decision payload, such as modified instructions, selected items, or additional human input.
      * @type {any}
      * @memberof ResumeRunRequest
      */
@@ -3713,7 +3713,7 @@ export interface ReviewReason {
     detail: any;
 }
 /**
- * Curation status for a learning, derived from stored signals.  Derivation lives server-side (one rule, all clients agree). ``needs_review`` from the list/facets path flags unverified trust (an indexed Qdrant signal); the graph endpoint additionally raises a *live* node to ``needs_review`` when Neo4j topology reveals a CONTRADICTS edge. That asymmetry is intentional: the list/facets path is indexed-count-only and contradictions have no indexed Qdrant mirror, so a verified-but-contradicted learning reads ``active`` in the inventory and ``needs_review`` in the evidence graph (where conflicts surface). Age and reuse are surfaced as raw fields, not a label.
+ * Curation status derived from verification, archive, and supersession signals.
  * @export
  * @enum {string}
  */
@@ -3730,25 +3730,25 @@ export enum ReviewState {
  */
 export interface RunDetailResponse {
     /**
-     * 
+     * Server-issued hosted run UUID used by `/runs/{run_id}`.
      * @type {any}
      * @memberof RunDetailResponse
      */
     id: any;
     /**
-     * 
+     * Hosted agent UUID associated with this run.
      * @type {any}
      * @memberof RunDetailResponse
      */
     agentId?: any;
     /**
-     * 
+     * Conversation session UUID, when the run belongs to a session.
      * @type {any}
      * @memberof RunDetailResponse
      */
     sessionId: any;
     /**
-     * 
+     * Parent hosted run UUID when this run resumed a suspension.
      * @type {any}
      * @memberof RunDetailResponse
      */
@@ -3902,13 +3902,13 @@ export interface RunOutputSummary {
     suspension?: any;
 }
 /**
- * Exemplar / calibration material: shown to the model to calibrate tone/format, never groundable.  Mirrors the CORE ``Reference`` wire shape (``text``/``label``).
+ * Optional example material used to communicate preferred tone or format.
  * @export
  * @interface RunReference
  */
 export interface RunReference {
     /**
-     * Exemplar/calibration text shown to the model; never admitted as grounding evidence.
+     * Example text used for style or format, not as factual evidence.
      * @type {any}
      * @memberof RunReference
      */
@@ -3927,25 +3927,25 @@ export interface RunReference {
  */
 export interface RunResponse {
     /**
-     * 
+     * Server-issued hosted run UUID used by `/runs/{run_id}`.
      * @type {any}
      * @memberof RunResponse
      */
     id: any;
     /**
-     * 
+     * Hosted agent UUID associated with this run.
      * @type {any}
      * @memberof RunResponse
      */
     agentId?: any;
     /**
-     * 
+     * Conversation session UUID, when the run belongs to a session.
      * @type {any}
      * @memberof RunResponse
      */
     sessionId: any;
     /**
-     * 
+     * Parent hosted run UUID when this run resumed a suspension.
      * @type {any}
      * @memberof RunResponse
      */
@@ -4024,13 +4024,13 @@ export interface RunResponse {
     createdAt: any;
 }
 /**
- * Caller-supplied source-of-truth: the only request text the grounding gate admits as evidence.  Mirrors the CORE ``Source`` wire shape (``text``/``id``/``label``) so the worker rebuilds it without translation loss. ``id`` is an optional stable provenance handle; CORE assigns ``source-<index>`` when omitted, so callers may leave it blank.
+ * Caller-supplied source-of-truth text that a response may cite as evidence.
  * @export
  * @interface RunSource
  */
 export interface RunSource {
     /**
-     * Source-of-truth text a claim may be grounded against, exactly like a tool read.
+     * Source-of-truth text that a response may rely on as evidence.
      * @type {any}
      * @memberof RunSource
      */
@@ -4049,7 +4049,7 @@ export interface RunSource {
     label?: any;
 }
 /**
- * Canonical status values persisted in `public.agent_runs.status`.
+ * Lifecycle states returned for hosted runs.
  * @export
  * @enum {string}
  */
@@ -4061,7 +4061,7 @@ export enum RunStatus {
     Failed = <any> 'failed'
 }
 /**
- * Canonical run type values persisted in `public.agent_runs.run_type`.
+ * Whether a hosted run starts a goal or resumes prior work.
  * @export
  * @enum {string}
  */
@@ -4378,43 +4378,43 @@ export interface SpaceResponse {
  */
 export interface StepModel {
     /**
-     * 
+     * Step identifier unique within this episode.
      * @type {any}
      * @memberof StepModel
      */
     id: any;
     /**
-     * 
+     * Tool or action name executed by the external agent.
      * @type {any}
      * @memberof StepModel
      */
     name: any;
     /**
-     * 
+     * Arguments supplied to the tool or action.
      * @type {any}
      * @memberof StepModel
      */
     args?: any;
     /**
-     * 
+     * Whether this step completed or failed.
      * @type {any}
      * @memberof StepModel
      */
     status?: any;
     /**
-     * 
+     * Caller-supplied step result. Pre-redact secrets and personal data.
      * @type {any}
      * @memberof StepModel
      */
     result?: any;
     /**
-     * 
+     * Human-readable failure detail when `status` is `failed`.
      * @type {any}
      * @memberof StepModel
      */
     error?: any;
     /**
-     * 
+     * Optional caller-declared sensitivity metadata for step fields.
      * @type {any}
      * @memberof StepModel
      */
@@ -4433,7 +4433,7 @@ export interface StoreLearningAcceptedResponse {
      */
     requestId: any;
     /**
-     * Versioned payload contract used for the learning worker dispatch.
+     * Compatibility version returned with the acceptance receipt.
      * @type {any}
      * @memberof StoreLearningAcceptedResponse
      */
@@ -4482,7 +4482,7 @@ export interface StoreLearningRequest {
      */
     privacy?: PrivacyClassification;
     /**
-     * Specific evidence instances that support the learning. API-sourced instances are content-addressed for deduplication by entity values and outcome.
+     * Specific structured examples that support the learning, expressed as entity values and observed outcomes.
      * @type {any}
      * @memberof StoreLearningRequest
      */
@@ -4526,13 +4526,13 @@ export interface TenantModel {
  */
 export interface ToolSpecModel {
     /**
-     * 
+     * Caller-visible tool name.
      * @type {any}
      * @memberof ToolSpecModel
      */
     name: any;
     /**
-     * 
+     * Short explanation of what the tool can do.
      * @type {any}
      * @memberof ToolSpecModel
      */
@@ -4856,7 +4856,7 @@ export interface ValidationError {
 export const AgentsApiFetchParamCreator = function (configuration?: Configuration) {
     return {
         /**
-         * 
+         * Create a hosted agent from its name, model configuration, instructions, and optional home space. Use the returned agent UUID for agent-scoped resource paths.
          * @summary Create Agent
          * @param {AgentCreateRequest} body 
          * @param {*} [options] Override http request option.
@@ -4873,6 +4873,14 @@ export const AgentsApiFetchParamCreator = function (configuration?: Configuratio
             const localVarHeaderParameter = {} as any;
             const localVarQueryParameter = {} as any;
 
+            // authentication BearerApiKey required
+            if (configuration && configuration.apiKey) {
+                const localVarApiKeyValue = typeof configuration.apiKey === 'function'
+					? configuration.apiKey("Authorization")
+					: configuration.apiKey;
+                localVarHeaderParameter["Authorization"] = localVarApiKeyValue;
+            }
+
             localVarHeaderParameter['Content-Type'] = 'application/json';
 
             localVarUrlObj.query = Object.assign({}, localVarUrlObj.query, localVarQueryParameter, options.query);
@@ -4888,9 +4896,9 @@ export const AgentsApiFetchParamCreator = function (configuration?: Configuratio
             };
         },
         /**
-         * 
+         * Permanently delete a hosted agent. Use only when the agent and its configuration are no longer needed; the operation cannot be undone.
          * @summary Delete Agent
-         * @param {any} agentId 
+         * @param {any} agentId Hosted agent UUID returned by the agent create or list endpoint.
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
@@ -4906,6 +4914,14 @@ export const AgentsApiFetchParamCreator = function (configuration?: Configuratio
             const localVarHeaderParameter = {} as any;
             const localVarQueryParameter = {} as any;
 
+            // authentication BearerApiKey required
+            if (configuration && configuration.apiKey) {
+                const localVarApiKeyValue = typeof configuration.apiKey === 'function'
+					? configuration.apiKey("Authorization")
+					: configuration.apiKey;
+                localVarHeaderParameter["Authorization"] = localVarApiKeyValue;
+            }
+
             localVarUrlObj.query = Object.assign({}, localVarUrlObj.query, localVarQueryParameter, options.query);
             // fix override query string Detail: https://stackoverflow.com/a/7517673/1077943
             localVarUrlObj.search = null;
@@ -4917,10 +4933,10 @@ export const AgentsApiFetchParamCreator = function (configuration?: Configuratio
             };
         },
         /**
-         * 
+         * Start asynchronous work for a hosted agent. A 202 response contains the server-issued run UUID; use `GET /runs/{run_id}` to follow its status and resume it if human input is requested.
          * @summary Create Goal Run
          * @param {GoalRunRequest} body 
-         * @param {any} agentId 
+         * @param {any} agentId Hosted agent UUID returned by the agent create or list endpoint.
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
@@ -4940,6 +4956,14 @@ export const AgentsApiFetchParamCreator = function (configuration?: Configuratio
             const localVarHeaderParameter = {} as any;
             const localVarQueryParameter = {} as any;
 
+            // authentication BearerApiKey required
+            if (configuration && configuration.apiKey) {
+                const localVarApiKeyValue = typeof configuration.apiKey === 'function'
+					? configuration.apiKey("Authorization")
+					: configuration.apiKey;
+                localVarHeaderParameter["Authorization"] = localVarApiKeyValue;
+            }
+
             localVarHeaderParameter['Content-Type'] = 'application/json';
 
             localVarUrlObj.query = Object.assign({}, localVarUrlObj.query, localVarQueryParameter, options.query);
@@ -4955,12 +4979,12 @@ export const AgentsApiFetchParamCreator = function (configuration?: Configuratio
             };
         },
         /**
-         * 
+         * Retrieve one hosted agent and its effective configuration. Optional query flags can include usage or non-secret provider-credential metadata.
          * @summary Get Agent
-         * @param {any} agentId 
+         * @param {any} agentId Hosted agent UUID returned by the agent create or list endpoint.
          * @param {any} [includeLlmCredential] When true (default), resolve effective provider credential metadata for this agent&#x27;s &#x60;model_provider&#x60; without exposing secrets.
          * @param {any} [includeSummary] When true, include a per-agent usage summary.
-         * @param {any} [includeAccess] Reserved: home-space operators / FGA access. Not yet populated (Fibery #122); accepted as a no-op for forward compatibility.
+         * @param {any} [includeAccess] Reserved for future access details. Currently accepted as a no-op for forward compatibility.
          * @param {UsageTimeWindow} [window] Window applied when &#x60;include_summary&#x60; is true.
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
@@ -4976,6 +5000,14 @@ export const AgentsApiFetchParamCreator = function (configuration?: Configuratio
             const localVarRequestOptions = Object.assign({ method: 'GET' }, options);
             const localVarHeaderParameter = {} as any;
             const localVarQueryParameter = {} as any;
+
+            // authentication BearerApiKey required
+            if (configuration && configuration.apiKey) {
+                const localVarApiKeyValue = typeof configuration.apiKey === 'function'
+					? configuration.apiKey("Authorization")
+					: configuration.apiKey;
+                localVarHeaderParameter["Authorization"] = localVarApiKeyValue;
+            }
 
             if (includeLlmCredential !== undefined) {
                 localVarQueryParameter['include_llm_credential'] = includeLlmCredential;
@@ -5004,9 +5036,9 @@ export const AgentsApiFetchParamCreator = function (configuration?: Configuratio
             };
         },
         /**
-         * 
+         * Return metered usage for one agent over a preset reporting window. Use tenant-level `/usage` endpoints when an all-agent total is required.
          * @summary Get Agent Usage Summary
-         * @param {any} agentId 
+         * @param {any} agentId Hosted agent UUID returned by the agent create or list endpoint.
          * @param {UsageTimeWindow} [window] Preset reporting window.
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
@@ -5023,6 +5055,14 @@ export const AgentsApiFetchParamCreator = function (configuration?: Configuratio
             const localVarHeaderParameter = {} as any;
             const localVarQueryParameter = {} as any;
 
+            // authentication BearerApiKey required
+            if (configuration && configuration.apiKey) {
+                const localVarApiKeyValue = typeof configuration.apiKey === 'function'
+					? configuration.apiKey("Authorization")
+					: configuration.apiKey;
+                localVarHeaderParameter["Authorization"] = localVarApiKeyValue;
+            }
+
             if (window !== undefined) {
                 localVarQueryParameter['window'] = window;
             }
@@ -5038,15 +5078,15 @@ export const AgentsApiFetchParamCreator = function (configuration?: Configuratio
             };
         },
         /**
-         * 
+         * List hosted runs for one agent, optionally filtered by status, type, session, or reporting window. Use the returned run UUIDs with `/runs`.
          * @summary List Agent Runs
-         * @param {any} agentId 
+         * @param {any} agentId Hosted agent UUID returned by the agent create or list endpoint.
          * @param {any} [status] Filter by one or more run statuses.
          * @param {any} [runType] Filter by one or more run types (goal|resume).
          * @param {any} [sessionId] Filter to a single session.
          * @param {UsageTimeWindow} [window] Window bounding which runs are returned.
-         * @param {any} [limit] Page size.
-         * @param {any} [cursor] Opaque string from the previous page&#x27;s &#x60;next_cursor&#x60;.
+         * @param {any} [limit] Maximum number of items to return on this page.
+         * @param {any} [cursor] Opaque pagination token from the previous response&#x27;s &#x60;next_cursor&#x60;. Pass it back unchanged; omit it to start again from the first page.
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
@@ -5061,6 +5101,14 @@ export const AgentsApiFetchParamCreator = function (configuration?: Configuratio
             const localVarRequestOptions = Object.assign({ method: 'GET' }, options);
             const localVarHeaderParameter = {} as any;
             const localVarQueryParameter = {} as any;
+
+            // authentication BearerApiKey required
+            if (configuration && configuration.apiKey) {
+                const localVarApiKeyValue = typeof configuration.apiKey === 'function'
+					? configuration.apiKey("Authorization")
+					: configuration.apiKey;
+                localVarHeaderParameter["Authorization"] = localVarApiKeyValue;
+            }
 
             if (status !== undefined) {
                 localVarQueryParameter['status'] = status;
@@ -5097,11 +5145,11 @@ export const AgentsApiFetchParamCreator = function (configuration?: Configuratio
             };
         },
         /**
-         * 
+         * List conversation sessions associated with one agent. Results are cursor-paginated; pass `next_cursor` back unchanged to continue.
          * @summary List Agent Sessions
-         * @param {any} agentId 
-         * @param {any} [limit] Page size.
-         * @param {any} [cursor] Opaque string from the previous page&#x27;s &#x60;next_cursor&#x60;.
+         * @param {any} agentId Hosted agent UUID returned by the agent create or list endpoint.
+         * @param {any} [limit] Maximum number of items to return on this page.
+         * @param {any} [cursor] Opaque pagination token from the previous response&#x27;s &#x60;next_cursor&#x60;. Pass it back unchanged; omit it to start again from the first page.
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
@@ -5116,6 +5164,14 @@ export const AgentsApiFetchParamCreator = function (configuration?: Configuratio
             const localVarRequestOptions = Object.assign({ method: 'GET' }, options);
             const localVarHeaderParameter = {} as any;
             const localVarQueryParameter = {} as any;
+
+            // authentication BearerApiKey required
+            if (configuration && configuration.apiKey) {
+                const localVarApiKeyValue = typeof configuration.apiKey === 'function'
+					? configuration.apiKey("Authorization")
+					: configuration.apiKey;
+                localVarHeaderParameter["Authorization"] = localVarApiKeyValue;
+            }
 
             if (limit !== undefined) {
                 localVarQueryParameter['limit'] = limit;
@@ -5136,7 +5192,7 @@ export const AgentsApiFetchParamCreator = function (configuration?: Configuratio
             };
         },
         /**
-         * 
+         * Find agents available to the caller. Use filters and cursor pagination for inventory screens or agent selection; request summaries only when usage metrics are needed.
          * @summary List Agents
          * @param {any} [q] Case-insensitive search over name and description.
          * @param {any} [status] Filter by one or more agent statuses.
@@ -5145,8 +5201,8 @@ export const AgentsApiFetchParamCreator = function (configuration?: Configuratio
          * @param {any} [sort] Sort mode: created_desc|created_asc|name_asc|name_desc|last_run_desc|run_count_desc|spend_desc.
          * @param {UsageTimeWindow} [window] Window for metric sorts and per-agent summaries.
          * @param {any} [includeSummary] When true, include a per-agent usage summary.
-         * @param {any} [limit] Page size.
-         * @param {any} [cursor] Opaque string from the previous page&#x27;s &#x60;next_cursor&#x60;.
+         * @param {any} [limit] Maximum number of items to return on this page.
+         * @param {any} [cursor] Opaque pagination token from the previous response&#x27;s &#x60;next_cursor&#x60;. Pass it back unchanged; omit it to start again from the first page.
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
@@ -5156,6 +5212,14 @@ export const AgentsApiFetchParamCreator = function (configuration?: Configuratio
             const localVarRequestOptions = Object.assign({ method: 'GET' }, options);
             const localVarHeaderParameter = {} as any;
             const localVarQueryParameter = {} as any;
+
+            // authentication BearerApiKey required
+            if (configuration && configuration.apiKey) {
+                const localVarApiKeyValue = typeof configuration.apiKey === 'function'
+					? configuration.apiKey("Authorization")
+					: configuration.apiKey;
+                localVarHeaderParameter["Authorization"] = localVarApiKeyValue;
+            }
 
             if (q !== undefined) {
                 localVarQueryParameter['q'] = q;
@@ -5204,7 +5268,7 @@ export const AgentsApiFetchParamCreator = function (configuration?: Configuratio
             };
         },
         /**
-         * 
+         * Return curated templates or traits that can help construct an agent definition. Use this before creating or editing an agent when the caller needs discoverable starting values.
          * @summary List Definition Suggestions
          * @param {AgentDefinitionSuggestionKind} [kind] Suggestion catalog to return.
          * @param {any} [q] Optional case-insensitive filter over label/description.
@@ -5217,6 +5281,14 @@ export const AgentsApiFetchParamCreator = function (configuration?: Configuratio
             const localVarRequestOptions = Object.assign({ method: 'GET' }, options);
             const localVarHeaderParameter = {} as any;
             const localVarQueryParameter = {} as any;
+
+            // authentication BearerApiKey required
+            if (configuration && configuration.apiKey) {
+                const localVarApiKeyValue = typeof configuration.apiKey === 'function'
+					? configuration.apiKey("Authorization")
+					: configuration.apiKey;
+                localVarHeaderParameter["Authorization"] = localVarApiKeyValue;
+            }
 
             if (kind !== undefined) {
                 localVarQueryParameter['kind'] = kind;
@@ -5237,10 +5309,10 @@ export const AgentsApiFetchParamCreator = function (configuration?: Configuratio
             };
         },
         /**
-         * 
+         * Update the supplied fields on an existing hosted agent. Omitted fields retain their current values.
          * @summary Update Agent
          * @param {AgentUpdateRequest} body 
-         * @param {any} agentId 
+         * @param {any} agentId Hosted agent UUID returned by the agent create or list endpoint.
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
@@ -5259,6 +5331,14 @@ export const AgentsApiFetchParamCreator = function (configuration?: Configuratio
             const localVarRequestOptions = Object.assign({ method: 'PATCH' }, options);
             const localVarHeaderParameter = {} as any;
             const localVarQueryParameter = {} as any;
+
+            // authentication BearerApiKey required
+            if (configuration && configuration.apiKey) {
+                const localVarApiKeyValue = typeof configuration.apiKey === 'function'
+					? configuration.apiKey("Authorization")
+					: configuration.apiKey;
+                localVarHeaderParameter["Authorization"] = localVarApiKeyValue;
+            }
 
             localVarHeaderParameter['Content-Type'] = 'application/json';
 
@@ -5284,7 +5364,7 @@ export const AgentsApiFetchParamCreator = function (configuration?: Configuratio
 export const AgentsApiFp = function(configuration?: Configuration) {
     return {
         /**
-         * 
+         * Create a hosted agent from its name, model configuration, instructions, and optional home space. Use the returned agent UUID for agent-scoped resource paths.
          * @summary Create Agent
          * @param {AgentCreateRequest} body 
          * @param {*} [options] Override http request option.
@@ -5303,9 +5383,9 @@ export const AgentsApiFp = function(configuration?: Configuration) {
             };
         },
         /**
-         * 
+         * Permanently delete a hosted agent. Use only when the agent and its configuration are no longer needed; the operation cannot be undone.
          * @summary Delete Agent
-         * @param {any} agentId 
+         * @param {any} agentId Hosted agent UUID returned by the agent create or list endpoint.
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
@@ -5322,10 +5402,10 @@ export const AgentsApiFp = function(configuration?: Configuration) {
             };
         },
         /**
-         * 
+         * Start asynchronous work for a hosted agent. A 202 response contains the server-issued run UUID; use `GET /runs/{run_id}` to follow its status and resume it if human input is requested.
          * @summary Create Goal Run
          * @param {GoalRunRequest} body 
-         * @param {any} agentId 
+         * @param {any} agentId Hosted agent UUID returned by the agent create or list endpoint.
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
@@ -5342,12 +5422,12 @@ export const AgentsApiFp = function(configuration?: Configuration) {
             };
         },
         /**
-         * 
+         * Retrieve one hosted agent and its effective configuration. Optional query flags can include usage or non-secret provider-credential metadata.
          * @summary Get Agent
-         * @param {any} agentId 
+         * @param {any} agentId Hosted agent UUID returned by the agent create or list endpoint.
          * @param {any} [includeLlmCredential] When true (default), resolve effective provider credential metadata for this agent&#x27;s &#x60;model_provider&#x60; without exposing secrets.
          * @param {any} [includeSummary] When true, include a per-agent usage summary.
-         * @param {any} [includeAccess] Reserved: home-space operators / FGA access. Not yet populated (Fibery #122); accepted as a no-op for forward compatibility.
+         * @param {any} [includeAccess] Reserved for future access details. Currently accepted as a no-op for forward compatibility.
          * @param {UsageTimeWindow} [window] Window applied when &#x60;include_summary&#x60; is true.
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
@@ -5365,9 +5445,9 @@ export const AgentsApiFp = function(configuration?: Configuration) {
             };
         },
         /**
-         * 
+         * Return metered usage for one agent over a preset reporting window. Use tenant-level `/usage` endpoints when an all-agent total is required.
          * @summary Get Agent Usage Summary
-         * @param {any} agentId 
+         * @param {any} agentId Hosted agent UUID returned by the agent create or list endpoint.
          * @param {UsageTimeWindow} [window] Preset reporting window.
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
@@ -5385,15 +5465,15 @@ export const AgentsApiFp = function(configuration?: Configuration) {
             };
         },
         /**
-         * 
+         * List hosted runs for one agent, optionally filtered by status, type, session, or reporting window. Use the returned run UUIDs with `/runs`.
          * @summary List Agent Runs
-         * @param {any} agentId 
+         * @param {any} agentId Hosted agent UUID returned by the agent create or list endpoint.
          * @param {any} [status] Filter by one or more run statuses.
          * @param {any} [runType] Filter by one or more run types (goal|resume).
          * @param {any} [sessionId] Filter to a single session.
          * @param {UsageTimeWindow} [window] Window bounding which runs are returned.
-         * @param {any} [limit] Page size.
-         * @param {any} [cursor] Opaque string from the previous page&#x27;s &#x60;next_cursor&#x60;.
+         * @param {any} [limit] Maximum number of items to return on this page.
+         * @param {any} [cursor] Opaque pagination token from the previous response&#x27;s &#x60;next_cursor&#x60;. Pass it back unchanged; omit it to start again from the first page.
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
@@ -5410,11 +5490,11 @@ export const AgentsApiFp = function(configuration?: Configuration) {
             };
         },
         /**
-         * 
+         * List conversation sessions associated with one agent. Results are cursor-paginated; pass `next_cursor` back unchanged to continue.
          * @summary List Agent Sessions
-         * @param {any} agentId 
-         * @param {any} [limit] Page size.
-         * @param {any} [cursor] Opaque string from the previous page&#x27;s &#x60;next_cursor&#x60;.
+         * @param {any} agentId Hosted agent UUID returned by the agent create or list endpoint.
+         * @param {any} [limit] Maximum number of items to return on this page.
+         * @param {any} [cursor] Opaque pagination token from the previous response&#x27;s &#x60;next_cursor&#x60;. Pass it back unchanged; omit it to start again from the first page.
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
@@ -5431,7 +5511,7 @@ export const AgentsApiFp = function(configuration?: Configuration) {
             };
         },
         /**
-         * 
+         * Find agents available to the caller. Use filters and cursor pagination for inventory screens or agent selection; request summaries only when usage metrics are needed.
          * @summary List Agents
          * @param {any} [q] Case-insensitive search over name and description.
          * @param {any} [status] Filter by one or more agent statuses.
@@ -5440,8 +5520,8 @@ export const AgentsApiFp = function(configuration?: Configuration) {
          * @param {any} [sort] Sort mode: created_desc|created_asc|name_asc|name_desc|last_run_desc|run_count_desc|spend_desc.
          * @param {UsageTimeWindow} [window] Window for metric sorts and per-agent summaries.
          * @param {any} [includeSummary] When true, include a per-agent usage summary.
-         * @param {any} [limit] Page size.
-         * @param {any} [cursor] Opaque string from the previous page&#x27;s &#x60;next_cursor&#x60;.
+         * @param {any} [limit] Maximum number of items to return on this page.
+         * @param {any} [cursor] Opaque pagination token from the previous response&#x27;s &#x60;next_cursor&#x60;. Pass it back unchanged; omit it to start again from the first page.
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
@@ -5458,7 +5538,7 @@ export const AgentsApiFp = function(configuration?: Configuration) {
             };
         },
         /**
-         * 
+         * Return curated templates or traits that can help construct an agent definition. Use this before creating or editing an agent when the caller needs discoverable starting values.
          * @summary List Definition Suggestions
          * @param {AgentDefinitionSuggestionKind} [kind] Suggestion catalog to return.
          * @param {any} [q] Optional case-insensitive filter over label/description.
@@ -5478,10 +5558,10 @@ export const AgentsApiFp = function(configuration?: Configuration) {
             };
         },
         /**
-         * 
+         * Update the supplied fields on an existing hosted agent. Omitted fields retain their current values.
          * @summary Update Agent
          * @param {AgentUpdateRequest} body 
-         * @param {any} agentId 
+         * @param {any} agentId Hosted agent UUID returned by the agent create or list endpoint.
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
@@ -5507,7 +5587,7 @@ export const AgentsApiFp = function(configuration?: Configuration) {
 export const AgentsApiFactory = function (configuration?: Configuration, fetch?: FetchAPI, basePath?: string) {
     return {
         /**
-         * 
+         * Create a hosted agent from its name, model configuration, instructions, and optional home space. Use the returned agent UUID for agent-scoped resource paths.
          * @summary Create Agent
          * @param {AgentCreateRequest} body 
          * @param {*} [options] Override http request option.
@@ -5517,9 +5597,9 @@ export const AgentsApiFactory = function (configuration?: Configuration, fetch?:
             return AgentsApiFp(configuration).createAgentEndpointAgentsPost(body, options)(fetch, basePath);
         },
         /**
-         * 
+         * Permanently delete a hosted agent. Use only when the agent and its configuration are no longer needed; the operation cannot be undone.
          * @summary Delete Agent
-         * @param {any} agentId 
+         * @param {any} agentId Hosted agent UUID returned by the agent create or list endpoint.
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
@@ -5527,10 +5607,10 @@ export const AgentsApiFactory = function (configuration?: Configuration, fetch?:
             return AgentsApiFp(configuration).deleteAgentEndpointAgentsAgentIdDelete(agentId, options)(fetch, basePath);
         },
         /**
-         * 
+         * Start asynchronous work for a hosted agent. A 202 response contains the server-issued run UUID; use `GET /runs/{run_id}` to follow its status and resume it if human input is requested.
          * @summary Create Goal Run
          * @param {GoalRunRequest} body 
-         * @param {any} agentId 
+         * @param {any} agentId Hosted agent UUID returned by the agent create or list endpoint.
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
@@ -5538,12 +5618,12 @@ export const AgentsApiFactory = function (configuration?: Configuration, fetch?:
             return AgentsApiFp(configuration).dispatchGoalRunEndpointAgentsAgentIdGoalsPost(body, agentId, options)(fetch, basePath);
         },
         /**
-         * 
+         * Retrieve one hosted agent and its effective configuration. Optional query flags can include usage or non-secret provider-credential metadata.
          * @summary Get Agent
-         * @param {any} agentId 
+         * @param {any} agentId Hosted agent UUID returned by the agent create or list endpoint.
          * @param {any} [includeLlmCredential] When true (default), resolve effective provider credential metadata for this agent&#x27;s &#x60;model_provider&#x60; without exposing secrets.
          * @param {any} [includeSummary] When true, include a per-agent usage summary.
-         * @param {any} [includeAccess] Reserved: home-space operators / FGA access. Not yet populated (Fibery #122); accepted as a no-op for forward compatibility.
+         * @param {any} [includeAccess] Reserved for future access details. Currently accepted as a no-op for forward compatibility.
          * @param {UsageTimeWindow} [window] Window applied when &#x60;include_summary&#x60; is true.
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
@@ -5552,9 +5632,9 @@ export const AgentsApiFactory = function (configuration?: Configuration, fetch?:
             return AgentsApiFp(configuration).getAgentEndpointAgentsAgentIdGet(agentId, includeLlmCredential, includeSummary, includeAccess, window, options)(fetch, basePath);
         },
         /**
-         * 
+         * Return metered usage for one agent over a preset reporting window. Use tenant-level `/usage` endpoints when an all-agent total is required.
          * @summary Get Agent Usage Summary
-         * @param {any} agentId 
+         * @param {any} agentId Hosted agent UUID returned by the agent create or list endpoint.
          * @param {UsageTimeWindow} [window] Preset reporting window.
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
@@ -5563,15 +5643,15 @@ export const AgentsApiFactory = function (configuration?: Configuration, fetch?:
             return AgentsApiFp(configuration).getAgentUsageSummaryEndpointAgentsAgentIdUsageSummaryGet(agentId, window, options)(fetch, basePath);
         },
         /**
-         * 
+         * List hosted runs for one agent, optionally filtered by status, type, session, or reporting window. Use the returned run UUIDs with `/runs`.
          * @summary List Agent Runs
-         * @param {any} agentId 
+         * @param {any} agentId Hosted agent UUID returned by the agent create or list endpoint.
          * @param {any} [status] Filter by one or more run statuses.
          * @param {any} [runType] Filter by one or more run types (goal|resume).
          * @param {any} [sessionId] Filter to a single session.
          * @param {UsageTimeWindow} [window] Window bounding which runs are returned.
-         * @param {any} [limit] Page size.
-         * @param {any} [cursor] Opaque string from the previous page&#x27;s &#x60;next_cursor&#x60;.
+         * @param {any} [limit] Maximum number of items to return on this page.
+         * @param {any} [cursor] Opaque pagination token from the previous response&#x27;s &#x60;next_cursor&#x60;. Pass it back unchanged; omit it to start again from the first page.
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
@@ -5579,11 +5659,11 @@ export const AgentsApiFactory = function (configuration?: Configuration, fetch?:
             return AgentsApiFp(configuration).listAgentRunsEndpointAgentsAgentIdRunsGet(agentId, status, runType, sessionId, window, limit, cursor, options)(fetch, basePath);
         },
         /**
-         * 
+         * List conversation sessions associated with one agent. Results are cursor-paginated; pass `next_cursor` back unchanged to continue.
          * @summary List Agent Sessions
-         * @param {any} agentId 
-         * @param {any} [limit] Page size.
-         * @param {any} [cursor] Opaque string from the previous page&#x27;s &#x60;next_cursor&#x60;.
+         * @param {any} agentId Hosted agent UUID returned by the agent create or list endpoint.
+         * @param {any} [limit] Maximum number of items to return on this page.
+         * @param {any} [cursor] Opaque pagination token from the previous response&#x27;s &#x60;next_cursor&#x60;. Pass it back unchanged; omit it to start again from the first page.
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
@@ -5591,7 +5671,7 @@ export const AgentsApiFactory = function (configuration?: Configuration, fetch?:
             return AgentsApiFp(configuration).listAgentSessionsEndpointAgentsAgentIdSessionsGet(agentId, limit, cursor, options)(fetch, basePath);
         },
         /**
-         * 
+         * Find agents available to the caller. Use filters and cursor pagination for inventory screens or agent selection; request summaries only when usage metrics are needed.
          * @summary List Agents
          * @param {any} [q] Case-insensitive search over name and description.
          * @param {any} [status] Filter by one or more agent statuses.
@@ -5600,8 +5680,8 @@ export const AgentsApiFactory = function (configuration?: Configuration, fetch?:
          * @param {any} [sort] Sort mode: created_desc|created_asc|name_asc|name_desc|last_run_desc|run_count_desc|spend_desc.
          * @param {UsageTimeWindow} [window] Window for metric sorts and per-agent summaries.
          * @param {any} [includeSummary] When true, include a per-agent usage summary.
-         * @param {any} [limit] Page size.
-         * @param {any} [cursor] Opaque string from the previous page&#x27;s &#x60;next_cursor&#x60;.
+         * @param {any} [limit] Maximum number of items to return on this page.
+         * @param {any} [cursor] Opaque pagination token from the previous response&#x27;s &#x60;next_cursor&#x60;. Pass it back unchanged; omit it to start again from the first page.
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
@@ -5609,7 +5689,7 @@ export const AgentsApiFactory = function (configuration?: Configuration, fetch?:
             return AgentsApiFp(configuration).listAgentsEndpointAgentsGet(q, status, spaceId, reasoningProfile, sort, window, includeSummary, limit, cursor, options)(fetch, basePath);
         },
         /**
-         * 
+         * Return curated templates or traits that can help construct an agent definition. Use this before creating or editing an agent when the caller needs discoverable starting values.
          * @summary List Definition Suggestions
          * @param {AgentDefinitionSuggestionKind} [kind] Suggestion catalog to return.
          * @param {any} [q] Optional case-insensitive filter over label/description.
@@ -5620,10 +5700,10 @@ export const AgentsApiFactory = function (configuration?: Configuration, fetch?:
             return AgentsApiFp(configuration).listDefinitionSuggestionsEndpointAgentsDefinitionSuggestionsGet(kind, q, options)(fetch, basePath);
         },
         /**
-         * 
+         * Update the supplied fields on an existing hosted agent. Omitted fields retain their current values.
          * @summary Update Agent
          * @param {AgentUpdateRequest} body 
-         * @param {any} agentId 
+         * @param {any} agentId Hosted agent UUID returned by the agent create or list endpoint.
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
@@ -5641,7 +5721,7 @@ export const AgentsApiFactory = function (configuration?: Configuration, fetch?:
  */
 export class AgentsApi extends BaseAPI {
     /**
-     * 
+     * Create a hosted agent from its name, model configuration, instructions, and optional home space. Use the returned agent UUID for agent-scoped resource paths.
      * @summary Create Agent
      * @param {AgentCreateRequest} body 
      * @param {*} [options] Override http request option.
@@ -5653,9 +5733,9 @@ export class AgentsApi extends BaseAPI {
     }
 
     /**
-     * 
+     * Permanently delete a hosted agent. Use only when the agent and its configuration are no longer needed; the operation cannot be undone.
      * @summary Delete Agent
-     * @param {any} agentId 
+     * @param {any} agentId Hosted agent UUID returned by the agent create or list endpoint.
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      * @memberof AgentsApi
@@ -5665,10 +5745,10 @@ export class AgentsApi extends BaseAPI {
     }
 
     /**
-     * 
+     * Start asynchronous work for a hosted agent. A 202 response contains the server-issued run UUID; use `GET /runs/{run_id}` to follow its status and resume it if human input is requested.
      * @summary Create Goal Run
      * @param {GoalRunRequest} body 
-     * @param {any} agentId 
+     * @param {any} agentId Hosted agent UUID returned by the agent create or list endpoint.
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      * @memberof AgentsApi
@@ -5678,12 +5758,12 @@ export class AgentsApi extends BaseAPI {
     }
 
     /**
-     * 
+     * Retrieve one hosted agent and its effective configuration. Optional query flags can include usage or non-secret provider-credential metadata.
      * @summary Get Agent
-     * @param {any} agentId 
+     * @param {any} agentId Hosted agent UUID returned by the agent create or list endpoint.
      * @param {any} [includeLlmCredential] When true (default), resolve effective provider credential metadata for this agent&#x27;s &#x60;model_provider&#x60; without exposing secrets.
      * @param {any} [includeSummary] When true, include a per-agent usage summary.
-     * @param {any} [includeAccess] Reserved: home-space operators / FGA access. Not yet populated (Fibery #122); accepted as a no-op for forward compatibility.
+     * @param {any} [includeAccess] Reserved for future access details. Currently accepted as a no-op for forward compatibility.
      * @param {UsageTimeWindow} [window] Window applied when &#x60;include_summary&#x60; is true.
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
@@ -5694,9 +5774,9 @@ export class AgentsApi extends BaseAPI {
     }
 
     /**
-     * 
+     * Return metered usage for one agent over a preset reporting window. Use tenant-level `/usage` endpoints when an all-agent total is required.
      * @summary Get Agent Usage Summary
-     * @param {any} agentId 
+     * @param {any} agentId Hosted agent UUID returned by the agent create or list endpoint.
      * @param {UsageTimeWindow} [window] Preset reporting window.
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
@@ -5707,15 +5787,15 @@ export class AgentsApi extends BaseAPI {
     }
 
     /**
-     * 
+     * List hosted runs for one agent, optionally filtered by status, type, session, or reporting window. Use the returned run UUIDs with `/runs`.
      * @summary List Agent Runs
-     * @param {any} agentId 
+     * @param {any} agentId Hosted agent UUID returned by the agent create or list endpoint.
      * @param {any} [status] Filter by one or more run statuses.
      * @param {any} [runType] Filter by one or more run types (goal|resume).
      * @param {any} [sessionId] Filter to a single session.
      * @param {UsageTimeWindow} [window] Window bounding which runs are returned.
-     * @param {any} [limit] Page size.
-     * @param {any} [cursor] Opaque string from the previous page&#x27;s &#x60;next_cursor&#x60;.
+     * @param {any} [limit] Maximum number of items to return on this page.
+     * @param {any} [cursor] Opaque pagination token from the previous response&#x27;s &#x60;next_cursor&#x60;. Pass it back unchanged; omit it to start again from the first page.
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      * @memberof AgentsApi
@@ -5725,11 +5805,11 @@ export class AgentsApi extends BaseAPI {
     }
 
     /**
-     * 
+     * List conversation sessions associated with one agent. Results are cursor-paginated; pass `next_cursor` back unchanged to continue.
      * @summary List Agent Sessions
-     * @param {any} agentId 
-     * @param {any} [limit] Page size.
-     * @param {any} [cursor] Opaque string from the previous page&#x27;s &#x60;next_cursor&#x60;.
+     * @param {any} agentId Hosted agent UUID returned by the agent create or list endpoint.
+     * @param {any} [limit] Maximum number of items to return on this page.
+     * @param {any} [cursor] Opaque pagination token from the previous response&#x27;s &#x60;next_cursor&#x60;. Pass it back unchanged; omit it to start again from the first page.
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      * @memberof AgentsApi
@@ -5739,7 +5819,7 @@ export class AgentsApi extends BaseAPI {
     }
 
     /**
-     * 
+     * Find agents available to the caller. Use filters and cursor pagination for inventory screens or agent selection; request summaries only when usage metrics are needed.
      * @summary List Agents
      * @param {any} [q] Case-insensitive search over name and description.
      * @param {any} [status] Filter by one or more agent statuses.
@@ -5748,8 +5828,8 @@ export class AgentsApi extends BaseAPI {
      * @param {any} [sort] Sort mode: created_desc|created_asc|name_asc|name_desc|last_run_desc|run_count_desc|spend_desc.
      * @param {UsageTimeWindow} [window] Window for metric sorts and per-agent summaries.
      * @param {any} [includeSummary] When true, include a per-agent usage summary.
-     * @param {any} [limit] Page size.
-     * @param {any} [cursor] Opaque string from the previous page&#x27;s &#x60;next_cursor&#x60;.
+     * @param {any} [limit] Maximum number of items to return on this page.
+     * @param {any} [cursor] Opaque pagination token from the previous response&#x27;s &#x60;next_cursor&#x60;. Pass it back unchanged; omit it to start again from the first page.
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      * @memberof AgentsApi
@@ -5759,7 +5839,7 @@ export class AgentsApi extends BaseAPI {
     }
 
     /**
-     * 
+     * Return curated templates or traits that can help construct an agent definition. Use this before creating or editing an agent when the caller needs discoverable starting values.
      * @summary List Definition Suggestions
      * @param {AgentDefinitionSuggestionKind} [kind] Suggestion catalog to return.
      * @param {any} [q] Optional case-insensitive filter over label/description.
@@ -5772,10 +5852,10 @@ export class AgentsApi extends BaseAPI {
     }
 
     /**
-     * 
+     * Update the supplied fields on an existing hosted agent. Omitted fields retain their current values.
      * @summary Update Agent
      * @param {AgentUpdateRequest} body 
-     * @param {any} agentId 
+     * @param {any} agentId Hosted agent UUID returned by the agent create or list endpoint.
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      * @memberof AgentsApi
@@ -5792,8 +5872,8 @@ export class AgentsApi extends BaseAPI {
 export const ApiKeysApiFetchParamCreator = function (configuration?: Configuration) {
     return {
         /**
-         * 
-         * @summary Create Api Key Endpoint
+         * Create a tenant API key with explicit scopes. The complete Bearer token is returned only once, so store it securely before leaving the response.
+         * @summary Create API Key
          * @param {ApiKeyCreateRequest} body 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
@@ -5808,6 +5888,14 @@ export const ApiKeysApiFetchParamCreator = function (configuration?: Configurati
             const localVarRequestOptions = Object.assign({ method: 'POST' }, options);
             const localVarHeaderParameter = {} as any;
             const localVarQueryParameter = {} as any;
+
+            // authentication PortalSessionCookie required
+            if (configuration && configuration.apiKey) {
+                const localVarApiKeyValue = typeof configuration.apiKey === 'function'
+					? configuration.apiKey("Cookie")
+					: configuration.apiKey;
+                localVarHeaderParameter["Cookie"] = localVarApiKeyValue;
+            }
 
             localVarHeaderParameter['Content-Type'] = 'application/json';
 
@@ -5824,8 +5912,8 @@ export const ApiKeysApiFetchParamCreator = function (configuration?: Configurati
             };
         },
         /**
-         * 
-         * @summary List Api Keys Endpoint
+         * List API keys for the active tenant without revealing their secret values. Use this portal-session endpoint to review key names, prefixes, scopes, and revocation state.
+         * @summary List API Keys
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
@@ -5835,6 +5923,14 @@ export const ApiKeysApiFetchParamCreator = function (configuration?: Configurati
             const localVarRequestOptions = Object.assign({ method: 'GET' }, options);
             const localVarHeaderParameter = {} as any;
             const localVarQueryParameter = {} as any;
+
+            // authentication PortalSessionCookie required
+            if (configuration && configuration.apiKey) {
+                const localVarApiKeyValue = typeof configuration.apiKey === 'function'
+					? configuration.apiKey("Cookie")
+					: configuration.apiKey;
+                localVarHeaderParameter["Cookie"] = localVarApiKeyValue;
+            }
 
             localVarUrlObj.query = Object.assign({}, localVarUrlObj.query, localVarQueryParameter, options.query);
             // fix override query string Detail: https://stackoverflow.com/a/7517673/1077943
@@ -5847,9 +5943,9 @@ export const ApiKeysApiFetchParamCreator = function (configuration?: Configurati
             };
         },
         /**
-         * 
-         * @summary Revoke Api Key Endpoint
-         * @param {any} apiKeyId 
+         * Permanently revoke an API key so it can no longer authenticate requests. Use the key UUID returned by the list or create endpoint.
+         * @summary Revoke API Key
+         * @param {any} apiKeyId API key UUID returned by the create or list endpoint.
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
@@ -5864,6 +5960,14 @@ export const ApiKeysApiFetchParamCreator = function (configuration?: Configurati
             const localVarRequestOptions = Object.assign({ method: 'POST' }, options);
             const localVarHeaderParameter = {} as any;
             const localVarQueryParameter = {} as any;
+
+            // authentication PortalSessionCookie required
+            if (configuration && configuration.apiKey) {
+                const localVarApiKeyValue = typeof configuration.apiKey === 'function'
+					? configuration.apiKey("Cookie")
+					: configuration.apiKey;
+                localVarHeaderParameter["Cookie"] = localVarApiKeyValue;
+            }
 
             localVarUrlObj.query = Object.assign({}, localVarUrlObj.query, localVarQueryParameter, options.query);
             // fix override query string Detail: https://stackoverflow.com/a/7517673/1077943
@@ -5885,8 +5989,8 @@ export const ApiKeysApiFetchParamCreator = function (configuration?: Configurati
 export const ApiKeysApiFp = function(configuration?: Configuration) {
     return {
         /**
-         * 
-         * @summary Create Api Key Endpoint
+         * Create a tenant API key with explicit scopes. The complete Bearer token is returned only once, so store it securely before leaving the response.
+         * @summary Create API Key
          * @param {ApiKeyCreateRequest} body 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
@@ -5904,8 +6008,8 @@ export const ApiKeysApiFp = function(configuration?: Configuration) {
             };
         },
         /**
-         * 
-         * @summary List Api Keys Endpoint
+         * List API keys for the active tenant without revealing their secret values. Use this portal-session endpoint to review key names, prefixes, scopes, and revocation state.
+         * @summary List API Keys
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
@@ -5922,9 +6026,9 @@ export const ApiKeysApiFp = function(configuration?: Configuration) {
             };
         },
         /**
-         * 
-         * @summary Revoke Api Key Endpoint
-         * @param {any} apiKeyId 
+         * Permanently revoke an API key so it can no longer authenticate requests. Use the key UUID returned by the list or create endpoint.
+         * @summary Revoke API Key
+         * @param {any} apiKeyId API key UUID returned by the create or list endpoint.
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
@@ -5950,8 +6054,8 @@ export const ApiKeysApiFp = function(configuration?: Configuration) {
 export const ApiKeysApiFactory = function (configuration?: Configuration, fetch?: FetchAPI, basePath?: string) {
     return {
         /**
-         * 
-         * @summary Create Api Key Endpoint
+         * Create a tenant API key with explicit scopes. The complete Bearer token is returned only once, so store it securely before leaving the response.
+         * @summary Create API Key
          * @param {ApiKeyCreateRequest} body 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
@@ -5960,8 +6064,8 @@ export const ApiKeysApiFactory = function (configuration?: Configuration, fetch?
             return ApiKeysApiFp(configuration).createApiKeyEndpointApiKeysPost(body, options)(fetch, basePath);
         },
         /**
-         * 
-         * @summary List Api Keys Endpoint
+         * List API keys for the active tenant without revealing their secret values. Use this portal-session endpoint to review key names, prefixes, scopes, and revocation state.
+         * @summary List API Keys
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
@@ -5969,9 +6073,9 @@ export const ApiKeysApiFactory = function (configuration?: Configuration, fetch?
             return ApiKeysApiFp(configuration).listApiKeysEndpointApiKeysGet(options)(fetch, basePath);
         },
         /**
-         * 
-         * @summary Revoke Api Key Endpoint
-         * @param {any} apiKeyId 
+         * Permanently revoke an API key so it can no longer authenticate requests. Use the key UUID returned by the list or create endpoint.
+         * @summary Revoke API Key
+         * @param {any} apiKeyId API key UUID returned by the create or list endpoint.
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
@@ -5989,8 +6093,8 @@ export const ApiKeysApiFactory = function (configuration?: Configuration, fetch?
  */
 export class ApiKeysApi extends BaseAPI {
     /**
-     * 
-     * @summary Create Api Key Endpoint
+     * Create a tenant API key with explicit scopes. The complete Bearer token is returned only once, so store it securely before leaving the response.
+     * @summary Create API Key
      * @param {ApiKeyCreateRequest} body 
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
@@ -6001,8 +6105,8 @@ export class ApiKeysApi extends BaseAPI {
     }
 
     /**
-     * 
-     * @summary List Api Keys Endpoint
+     * List API keys for the active tenant without revealing their secret values. Use this portal-session endpoint to review key names, prefixes, scopes, and revocation state.
+     * @summary List API Keys
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      * @memberof ApiKeysApi
@@ -6012,9 +6116,9 @@ export class ApiKeysApi extends BaseAPI {
     }
 
     /**
-     * 
-     * @summary Revoke Api Key Endpoint
-     * @param {any} apiKeyId 
+     * Permanently revoke an API key so it can no longer authenticate requests. Use the key UUID returned by the list or create endpoint.
+     * @summary Revoke API Key
+     * @param {any} apiKeyId API key UUID returned by the create or list endpoint.
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      * @memberof ApiKeysApi
@@ -6031,8 +6135,8 @@ export class ApiKeysApi extends BaseAPI {
 export const AuthApiFetchParamCreator = function (configuration?: Configuration) {
     return {
         /**
-         * Return the current portal session: user, active tenant, memberships, scopes.  Portal-session only. API-key callers have no portal identity and are rejected with 403 — they should use the resource APIs directly, not `/me`. A valid session without an active membership surfaces as 403 from the middleware.
-         * @summary Me
+         * Return the signed-in portal user's identity, active tenant, memberships, role, and effective scopes. This endpoint requires a portal session; Bearer API keys should call resource endpoints directly.
+         * @summary Get Current Portal Identity
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
@@ -6042,6 +6146,14 @@ export const AuthApiFetchParamCreator = function (configuration?: Configuration)
             const localVarRequestOptions = Object.assign({ method: 'GET' }, options);
             const localVarHeaderParameter = {} as any;
             const localVarQueryParameter = {} as any;
+
+            // authentication PortalSessionCookie required
+            if (configuration && configuration.apiKey) {
+                const localVarApiKeyValue = typeof configuration.apiKey === 'function'
+					? configuration.apiKey("Cookie")
+					: configuration.apiKey;
+                localVarHeaderParameter["Cookie"] = localVarApiKeyValue;
+            }
 
             localVarUrlObj.query = Object.assign({}, localVarUrlObj.query, localVarQueryParameter, options.query);
             // fix override query string Detail: https://stackoverflow.com/a/7517673/1077943
@@ -6063,8 +6175,8 @@ export const AuthApiFetchParamCreator = function (configuration?: Configuration)
 export const AuthApiFp = function(configuration?: Configuration) {
     return {
         /**
-         * Return the current portal session: user, active tenant, memberships, scopes.  Portal-session only. API-key callers have no portal identity and are rejected with 403 — they should use the resource APIs directly, not `/me`. A valid session without an active membership surfaces as 403 from the middleware.
-         * @summary Me
+         * Return the signed-in portal user's identity, active tenant, memberships, role, and effective scopes. This endpoint requires a portal session; Bearer API keys should call resource endpoints directly.
+         * @summary Get Current Portal Identity
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
@@ -6090,8 +6202,8 @@ export const AuthApiFp = function(configuration?: Configuration) {
 export const AuthApiFactory = function (configuration?: Configuration, fetch?: FetchAPI, basePath?: string) {
     return {
         /**
-         * Return the current portal session: user, active tenant, memberships, scopes.  Portal-session only. API-key callers have no portal identity and are rejected with 403 — they should use the resource APIs directly, not `/me`. A valid session without an active membership surfaces as 403 from the middleware.
-         * @summary Me
+         * Return the signed-in portal user's identity, active tenant, memberships, role, and effective scopes. This endpoint requires a portal session; Bearer API keys should call resource endpoints directly.
+         * @summary Get Current Portal Identity
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
@@ -6109,8 +6221,8 @@ export const AuthApiFactory = function (configuration?: Configuration, fetch?: F
  */
 export class AuthApi extends BaseAPI {
     /**
-     * Return the current portal session: user, active tenant, memberships, scopes.  Portal-session only. API-key callers have no portal identity and are rejected with 403 — they should use the resource APIs directly, not `/me`. A valid session without an active membership surfaces as 403 from the middleware.
-     * @summary Me
+     * Return the signed-in portal user's identity, active tenant, memberships, role, and effective scopes. This endpoint requires a portal session; Bearer API keys should call resource endpoints directly.
+     * @summary Get Current Portal Identity
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      * @memberof AuthApi
@@ -6127,8 +6239,8 @@ export class AuthApi extends BaseAPI {
 export const BillingApiFetchParamCreator = function (configuration?: Configuration) {
     return {
         /**
-         * 
-         * @summary Get Billing Summary Endpoint
+         * Return the active tenant's spend limit, billed amount, reserved amount, remaining capacity, and enforcement window. Use it before dispatching optional work when the integration needs to display budget status.
+         * @summary Get Billing Summary
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
@@ -6138,6 +6250,14 @@ export const BillingApiFetchParamCreator = function (configuration?: Configurati
             const localVarRequestOptions = Object.assign({ method: 'GET' }, options);
             const localVarHeaderParameter = {} as any;
             const localVarQueryParameter = {} as any;
+
+            // authentication BearerApiKey required
+            if (configuration && configuration.apiKey) {
+                const localVarApiKeyValue = typeof configuration.apiKey === 'function'
+					? configuration.apiKey("Authorization")
+					: configuration.apiKey;
+                localVarHeaderParameter["Authorization"] = localVarApiKeyValue;
+            }
 
             localVarUrlObj.query = Object.assign({}, localVarUrlObj.query, localVarQueryParameter, options.query);
             // fix override query string Detail: https://stackoverflow.com/a/7517673/1077943
@@ -6159,8 +6279,8 @@ export const BillingApiFetchParamCreator = function (configuration?: Configurati
 export const BillingApiFp = function(configuration?: Configuration) {
     return {
         /**
-         * 
-         * @summary Get Billing Summary Endpoint
+         * Return the active tenant's spend limit, billed amount, reserved amount, remaining capacity, and enforcement window. Use it before dispatching optional work when the integration needs to display budget status.
+         * @summary Get Billing Summary
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
@@ -6186,8 +6306,8 @@ export const BillingApiFp = function(configuration?: Configuration) {
 export const BillingApiFactory = function (configuration?: Configuration, fetch?: FetchAPI, basePath?: string) {
     return {
         /**
-         * 
-         * @summary Get Billing Summary Endpoint
+         * Return the active tenant's spend limit, billed amount, reserved amount, remaining capacity, and enforcement window. Use it before dispatching optional work when the integration needs to display budget status.
+         * @summary Get Billing Summary
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
@@ -6205,8 +6325,8 @@ export const BillingApiFactory = function (configuration?: Configuration, fetch?
  */
 export class BillingApi extends BaseAPI {
     /**
-     * 
-     * @summary Get Billing Summary Endpoint
+     * Return the active tenant's spend limit, billed amount, reserved amount, remaining capacity, and enforcement window. Use it before dispatching optional work when the integration needs to display budget status.
+     * @summary Get Billing Summary
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      * @memberof BillingApi
@@ -6234,6 +6354,14 @@ export const EntitlementsApiFetchParamCreator = function (configuration?: Config
             const localVarRequestOptions = Object.assign({ method: 'GET' }, options);
             const localVarHeaderParameter = {} as any;
             const localVarQueryParameter = {} as any;
+
+            // authentication BearerApiKey required
+            if (configuration && configuration.apiKey) {
+                const localVarApiKeyValue = typeof configuration.apiKey === 'function'
+					? configuration.apiKey("Authorization")
+					: configuration.apiKey;
+                localVarHeaderParameter["Authorization"] = localVarApiKeyValue;
+            }
 
             localVarUrlObj.query = Object.assign({}, localVarUrlObj.query, localVarQueryParameter, options.query);
             // fix override query string Detail: https://stackoverflow.com/a/7517673/1077943
@@ -6319,8 +6447,8 @@ export class EntitlementsApi extends BaseAPI {
 export const LearningBoundaryApiFetchParamCreator = function (configuration?: Configuration) {
     return {
         /**
-         * Distil durable learnings from a corpus (post-mortems, docs, diffs, analysis output) by submitting a distillation goal plus evidence items, instead of a tool-step episode. Runs the same server-side extraction as observe on a background worker (202), but stands outside the resolve/observe/reinforce loop. Requires at least two evidence items with enough content to ground a learning, a declared contrast signal (differing status/role, a role='contrast' item, or an evaluation note), and a 'distill:'-prefixed run_id. A corpus that declares contrast but carries none is still accepted and simply yields nothing (a valid 202). Evidence content is stored verbatim where grounded, so callers must pre-redact secrets.
-         * @summary Distil learnings from a corpus of evidence
+         * Distill durable learnings from post-mortems, documents, diffs, or analysis without inventing tool steps. Submit at least two evidence items and a contrast signal. `run_id` is a caller-created idempotency and tracing value, must begin with `distill:`, and does not reference `GET /runs/{run_id}`. A valid request may yield no learning. Pre-redact secrets from evidence.
+         * @summary Distill learnings from a corpus of evidence
          * @param {DistillRequest} body 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
@@ -6335,6 +6463,14 @@ export const LearningBoundaryApiFetchParamCreator = function (configuration?: Co
             const localVarRequestOptions = Object.assign({ method: 'POST' }, options);
             const localVarHeaderParameter = {} as any;
             const localVarQueryParameter = {} as any;
+
+            // authentication BearerApiKey required
+            if (configuration && configuration.apiKey) {
+                const localVarApiKeyValue = typeof configuration.apiKey === 'function'
+					? configuration.apiKey("Authorization")
+					: configuration.apiKey;
+                localVarHeaderParameter["Authorization"] = localVarApiKeyValue;
+            }
 
             localVarHeaderParameter['Content-Type'] = 'application/json';
 
@@ -6353,8 +6489,8 @@ export const LearningBoundaryApiFetchParamCreator = function (configuration?: Co
         /**
          * Report the loop-closure funnel (resolve -> offered -> observed -> reinforced) per producing host over a recent window. A half-open loop, a run that resolved but whose write-back never arrived, shows as a non-closure rather than a false closure. Scoped to the calling tenant.
          * @summary Per-host loop-closure funnel
-         * @param {any} [windowHours] 
-         * @param {any} [graceMinutes] 
+         * @param {any} [windowHours] Recent lookback window in hours; values are capped at 90 days.
+         * @param {any} [graceMinutes] Minutes allowed for asynchronous write-back before a resolved run is counted as half-open.
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
@@ -6364,6 +6500,14 @@ export const LearningBoundaryApiFetchParamCreator = function (configuration?: Co
             const localVarRequestOptions = Object.assign({ method: 'GET' }, options);
             const localVarHeaderParameter = {} as any;
             const localVarQueryParameter = {} as any;
+
+            // authentication BearerApiKey required
+            if (configuration && configuration.apiKey) {
+                const localVarApiKeyValue = typeof configuration.apiKey === 'function'
+					? configuration.apiKey("Authorization")
+					: configuration.apiKey;
+                localVarHeaderParameter["Authorization"] = localVarApiKeyValue;
+            }
 
             if (windowHours !== undefined) {
                 localVarQueryParameter['window_hours'] = windowHours;
@@ -6384,7 +6528,7 @@ export const LearningBoundaryApiFetchParamCreator = function (configuration?: Co
             };
         },
         /**
-         * Submit a finished run for server-side learning extraction. Processed on a background worker, so the request returns immediately. Idempotent by run id.
+         * Submit a completed episode for asynchronous learning extraction. Direct API callers may construct the episode themselves; LangGraph is not required. Use a meaningful execution trace rather than documents or invented tool steps—use `/distill` for corpus evidence. The caller-owned episode `run_id` is an idempotency and correlation key, not a hosted run UUID.
          * @summary Observe a finished episode
          * @param {ObserveRequest} body 
          * @param {*} [options] Override http request option.
@@ -6401,6 +6545,14 @@ export const LearningBoundaryApiFetchParamCreator = function (configuration?: Co
             const localVarHeaderParameter = {} as any;
             const localVarQueryParameter = {} as any;
 
+            // authentication BearerApiKey required
+            if (configuration && configuration.apiKey) {
+                const localVarApiKeyValue = typeof configuration.apiKey === 'function'
+					? configuration.apiKey("Authorization")
+					: configuration.apiKey;
+                localVarHeaderParameter["Authorization"] = localVarApiKeyValue;
+            }
+
             localVarHeaderParameter['Content-Type'] = 'application/json';
 
             localVarUrlObj.query = Object.assign({}, localVarUrlObj.query, localVarQueryParameter, options.query);
@@ -6416,7 +6568,7 @@ export const LearningBoundaryApiFetchParamCreator = function (configuration?: Co
             };
         },
         /**
-         * Credit the learnings a finished run used. The eligible union and attribution are derived server-side from the run's offer log. Processed on a background worker; idempotent by run id.
+         * Submit the completed outcome used to credit or correct learnings previously offered by resolve. Reuse the same caller-owned `run_id`; it is an idempotency and attribution key, not a hosted run UUID. Processing is asynchronous and the endpoint returns 202 when accepted.
          * @summary Reinforce the learnings a run used
          * @param {ReinforceRequest} body 
          * @param {*} [options] Override http request option.
@@ -6433,6 +6585,14 @@ export const LearningBoundaryApiFetchParamCreator = function (configuration?: Co
             const localVarHeaderParameter = {} as any;
             const localVarQueryParameter = {} as any;
 
+            // authentication BearerApiKey required
+            if (configuration && configuration.apiKey) {
+                const localVarApiKeyValue = typeof configuration.apiKey === 'function'
+					? configuration.apiKey("Authorization")
+					: configuration.apiKey;
+                localVarHeaderParameter["Authorization"] = localVarApiKeyValue;
+            }
+
             localVarHeaderParameter['Content-Type'] = 'application/json';
 
             localVarUrlObj.query = Object.assign({}, localVarUrlObj.query, localVarQueryParameter, options.query);
@@ -6448,7 +6608,7 @@ export const LearningBoundaryApiFetchParamCreator = function (configuration?: Co
             };
         },
         /**
-         * Return the learnings bound to a run's goal, as a rendered injection block plus the offered learning IDs. Records the offer server-side so a later reinforce can credit the learnings the run used.
+         * Retrieve relevant learnings before external work begins. `run_id` is a caller-created correlation identifier, not a hosted run UUID. Reuse the same value with observe and reinforce so feedback can be attributed to the learnings offered here.
          * @summary Resolve the learnings bound to a goal
          * @param {ResolveRequest} body 
          * @param {*} [options] Override http request option.
@@ -6464,6 +6624,14 @@ export const LearningBoundaryApiFetchParamCreator = function (configuration?: Co
             const localVarRequestOptions = Object.assign({ method: 'POST' }, options);
             const localVarHeaderParameter = {} as any;
             const localVarQueryParameter = {} as any;
+
+            // authentication BearerApiKey required
+            if (configuration && configuration.apiKey) {
+                const localVarApiKeyValue = typeof configuration.apiKey === 'function'
+					? configuration.apiKey("Authorization")
+					: configuration.apiKey;
+                localVarHeaderParameter["Authorization"] = localVarApiKeyValue;
+            }
 
             localVarHeaderParameter['Content-Type'] = 'application/json';
 
@@ -6489,8 +6657,8 @@ export const LearningBoundaryApiFetchParamCreator = function (configuration?: Co
 export const LearningBoundaryApiFp = function(configuration?: Configuration) {
     return {
         /**
-         * Distil durable learnings from a corpus (post-mortems, docs, diffs, analysis output) by submitting a distillation goal plus evidence items, instead of a tool-step episode. Runs the same server-side extraction as observe on a background worker (202), but stands outside the resolve/observe/reinforce loop. Requires at least two evidence items with enough content to ground a learning, a declared contrast signal (differing status/role, a role='contrast' item, or an evaluation note), and a 'distill:'-prefixed run_id. A corpus that declares contrast but carries none is still accepted and simply yields nothing (a valid 202). Evidence content is stored verbatim where grounded, so callers must pre-redact secrets.
-         * @summary Distil learnings from a corpus of evidence
+         * Distill durable learnings from post-mortems, documents, diffs, or analysis without inventing tool steps. Submit at least two evidence items and a contrast signal. `run_id` is a caller-created idempotency and tracing value, must begin with `distill:`, and does not reference `GET /runs/{run_id}`. A valid request may yield no learning. Pre-redact secrets from evidence.
+         * @summary Distill learnings from a corpus of evidence
          * @param {DistillRequest} body 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
@@ -6510,8 +6678,8 @@ export const LearningBoundaryApiFp = function(configuration?: Configuration) {
         /**
          * Report the loop-closure funnel (resolve -> offered -> observed -> reinforced) per producing host over a recent window. A half-open loop, a run that resolved but whose write-back never arrived, shows as a non-closure rather than a false closure. Scoped to the calling tenant.
          * @summary Per-host loop-closure funnel
-         * @param {any} [windowHours] 
-         * @param {any} [graceMinutes] 
+         * @param {any} [windowHours] Recent lookback window in hours; values are capped at 90 days.
+         * @param {any} [graceMinutes] Minutes allowed for asynchronous write-back before a resolved run is counted as half-open.
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
@@ -6528,7 +6696,7 @@ export const LearningBoundaryApiFp = function(configuration?: Configuration) {
             };
         },
         /**
-         * Submit a finished run for server-side learning extraction. Processed on a background worker, so the request returns immediately. Idempotent by run id.
+         * Submit a completed episode for asynchronous learning extraction. Direct API callers may construct the episode themselves; LangGraph is not required. Use a meaningful execution trace rather than documents or invented tool steps—use `/distill` for corpus evidence. The caller-owned episode `run_id` is an idempotency and correlation key, not a hosted run UUID.
          * @summary Observe a finished episode
          * @param {ObserveRequest} body 
          * @param {*} [options] Override http request option.
@@ -6547,7 +6715,7 @@ export const LearningBoundaryApiFp = function(configuration?: Configuration) {
             };
         },
         /**
-         * Credit the learnings a finished run used. The eligible union and attribution are derived server-side from the run's offer log. Processed on a background worker; idempotent by run id.
+         * Submit the completed outcome used to credit or correct learnings previously offered by resolve. Reuse the same caller-owned `run_id`; it is an idempotency and attribution key, not a hosted run UUID. Processing is asynchronous and the endpoint returns 202 when accepted.
          * @summary Reinforce the learnings a run used
          * @param {ReinforceRequest} body 
          * @param {*} [options] Override http request option.
@@ -6566,7 +6734,7 @@ export const LearningBoundaryApiFp = function(configuration?: Configuration) {
             };
         },
         /**
-         * Return the learnings bound to a run's goal, as a rendered injection block plus the offered learning IDs. Records the offer server-side so a later reinforce can credit the learnings the run used.
+         * Retrieve relevant learnings before external work begins. `run_id` is a caller-created correlation identifier, not a hosted run UUID. Reuse the same value with observe and reinforce so feedback can be attributed to the learnings offered here.
          * @summary Resolve the learnings bound to a goal
          * @param {ResolveRequest} body 
          * @param {*} [options] Override http request option.
@@ -6594,8 +6762,8 @@ export const LearningBoundaryApiFp = function(configuration?: Configuration) {
 export const LearningBoundaryApiFactory = function (configuration?: Configuration, fetch?: FetchAPI, basePath?: string) {
     return {
         /**
-         * Distil durable learnings from a corpus (post-mortems, docs, diffs, analysis output) by submitting a distillation goal plus evidence items, instead of a tool-step episode. Runs the same server-side extraction as observe on a background worker (202), but stands outside the resolve/observe/reinforce loop. Requires at least two evidence items with enough content to ground a learning, a declared contrast signal (differing status/role, a role='contrast' item, or an evaluation note), and a 'distill:'-prefixed run_id. A corpus that declares contrast but carries none is still accepted and simply yields nothing (a valid 202). Evidence content is stored verbatim where grounded, so callers must pre-redact secrets.
-         * @summary Distil learnings from a corpus of evidence
+         * Distill durable learnings from post-mortems, documents, diffs, or analysis without inventing tool steps. Submit at least two evidence items and a contrast signal. `run_id` is a caller-created idempotency and tracing value, must begin with `distill:`, and does not reference `GET /runs/{run_id}`. A valid request may yield no learning. Pre-redact secrets from evidence.
+         * @summary Distill learnings from a corpus of evidence
          * @param {DistillRequest} body 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
@@ -6606,8 +6774,8 @@ export const LearningBoundaryApiFactory = function (configuration?: Configuratio
         /**
          * Report the loop-closure funnel (resolve -> offered -> observed -> reinforced) per producing host over a recent window. A half-open loop, a run that resolved but whose write-back never arrived, shows as a non-closure rather than a false closure. Scoped to the calling tenant.
          * @summary Per-host loop-closure funnel
-         * @param {any} [windowHours] 
-         * @param {any} [graceMinutes] 
+         * @param {any} [windowHours] Recent lookback window in hours; values are capped at 90 days.
+         * @param {any} [graceMinutes] Minutes allowed for asynchronous write-back before a resolved run is counted as half-open.
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
@@ -6615,7 +6783,7 @@ export const LearningBoundaryApiFactory = function (configuration?: Configuratio
             return LearningBoundaryApiFp(configuration).funnelEndpointFunnelGet(windowHours, graceMinutes, options)(fetch, basePath);
         },
         /**
-         * Submit a finished run for server-side learning extraction. Processed on a background worker, so the request returns immediately. Idempotent by run id.
+         * Submit a completed episode for asynchronous learning extraction. Direct API callers may construct the episode themselves; LangGraph is not required. Use a meaningful execution trace rather than documents or invented tool steps—use `/distill` for corpus evidence. The caller-owned episode `run_id` is an idempotency and correlation key, not a hosted run UUID.
          * @summary Observe a finished episode
          * @param {ObserveRequest} body 
          * @param {*} [options] Override http request option.
@@ -6625,7 +6793,7 @@ export const LearningBoundaryApiFactory = function (configuration?: Configuratio
             return LearningBoundaryApiFp(configuration).observeEndpointObservePost(body, options)(fetch, basePath);
         },
         /**
-         * Credit the learnings a finished run used. The eligible union and attribution are derived server-side from the run's offer log. Processed on a background worker; idempotent by run id.
+         * Submit the completed outcome used to credit or correct learnings previously offered by resolve. Reuse the same caller-owned `run_id`; it is an idempotency and attribution key, not a hosted run UUID. Processing is asynchronous and the endpoint returns 202 when accepted.
          * @summary Reinforce the learnings a run used
          * @param {ReinforceRequest} body 
          * @param {*} [options] Override http request option.
@@ -6635,7 +6803,7 @@ export const LearningBoundaryApiFactory = function (configuration?: Configuratio
             return LearningBoundaryApiFp(configuration).reinforceEndpointReinforcePost(body, options)(fetch, basePath);
         },
         /**
-         * Return the learnings bound to a run's goal, as a rendered injection block plus the offered learning IDs. Records the offer server-side so a later reinforce can credit the learnings the run used.
+         * Retrieve relevant learnings before external work begins. `run_id` is a caller-created correlation identifier, not a hosted run UUID. Reuse the same value with observe and reinforce so feedback can be attributed to the learnings offered here.
          * @summary Resolve the learnings bound to a goal
          * @param {ResolveRequest} body 
          * @param {*} [options] Override http request option.
@@ -6655,8 +6823,8 @@ export const LearningBoundaryApiFactory = function (configuration?: Configuratio
  */
 export class LearningBoundaryApi extends BaseAPI {
     /**
-     * Distil durable learnings from a corpus (post-mortems, docs, diffs, analysis output) by submitting a distillation goal plus evidence items, instead of a tool-step episode. Runs the same server-side extraction as observe on a background worker (202), but stands outside the resolve/observe/reinforce loop. Requires at least two evidence items with enough content to ground a learning, a declared contrast signal (differing status/role, a role='contrast' item, or an evaluation note), and a 'distill:'-prefixed run_id. A corpus that declares contrast but carries none is still accepted and simply yields nothing (a valid 202). Evidence content is stored verbatim where grounded, so callers must pre-redact secrets.
-     * @summary Distil learnings from a corpus of evidence
+     * Distill durable learnings from post-mortems, documents, diffs, or analysis without inventing tool steps. Submit at least two evidence items and a contrast signal. `run_id` is a caller-created idempotency and tracing value, must begin with `distill:`, and does not reference `GET /runs/{run_id}`. A valid request may yield no learning. Pre-redact secrets from evidence.
+     * @summary Distill learnings from a corpus of evidence
      * @param {DistillRequest} body 
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
@@ -6669,8 +6837,8 @@ export class LearningBoundaryApi extends BaseAPI {
     /**
      * Report the loop-closure funnel (resolve -> offered -> observed -> reinforced) per producing host over a recent window. A half-open loop, a run that resolved but whose write-back never arrived, shows as a non-closure rather than a false closure. Scoped to the calling tenant.
      * @summary Per-host loop-closure funnel
-     * @param {any} [windowHours] 
-     * @param {any} [graceMinutes] 
+     * @param {any} [windowHours] Recent lookback window in hours; values are capped at 90 days.
+     * @param {any} [graceMinutes] Minutes allowed for asynchronous write-back before a resolved run is counted as half-open.
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      * @memberof LearningBoundaryApi
@@ -6680,7 +6848,7 @@ export class LearningBoundaryApi extends BaseAPI {
     }
 
     /**
-     * Submit a finished run for server-side learning extraction. Processed on a background worker, so the request returns immediately. Idempotent by run id.
+     * Submit a completed episode for asynchronous learning extraction. Direct API callers may construct the episode themselves; LangGraph is not required. Use a meaningful execution trace rather than documents or invented tool steps—use `/distill` for corpus evidence. The caller-owned episode `run_id` is an idempotency and correlation key, not a hosted run UUID.
      * @summary Observe a finished episode
      * @param {ObserveRequest} body 
      * @param {*} [options] Override http request option.
@@ -6692,7 +6860,7 @@ export class LearningBoundaryApi extends BaseAPI {
     }
 
     /**
-     * Credit the learnings a finished run used. The eligible union and attribution are derived server-side from the run's offer log. Processed on a background worker; idempotent by run id.
+     * Submit the completed outcome used to credit or correct learnings previously offered by resolve. Reuse the same caller-owned `run_id`; it is an idempotency and attribution key, not a hosted run UUID. Processing is asynchronous and the endpoint returns 202 when accepted.
      * @summary Reinforce the learnings a run used
      * @param {ReinforceRequest} body 
      * @param {*} [options] Override http request option.
@@ -6704,7 +6872,7 @@ export class LearningBoundaryApi extends BaseAPI {
     }
 
     /**
-     * Return the learnings bound to a run's goal, as a rendered injection block plus the offered learning IDs. Records the offer server-side so a later reinforce can credit the learnings the run used.
+     * Retrieve relevant learnings before external work begins. `run_id` is a caller-created correlation identifier, not a hosted run UUID. Reuse the same value with observe and reinforce so feedback can be attributed to the learnings offered here.
      * @summary Resolve the learnings bound to a goal
      * @param {ResolveRequest} body 
      * @param {*} [options] Override http request option.
@@ -6725,7 +6893,7 @@ export const LearningsApiFetchParamCreator = function (configuration?: Configura
         /**
          * Delete every learning memory scoped to the agent. This is a destructive operation and does not affect other memory categories.
          * @summary Delete all learnings for an agent
-         * @param {any} agentId 
+         * @param {any} agentId Hosted agent UUID returned by the agent create or list endpoint.
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
@@ -6741,6 +6909,14 @@ export const LearningsApiFetchParamCreator = function (configuration?: Configura
             const localVarHeaderParameter = {} as any;
             const localVarQueryParameter = {} as any;
 
+            // authentication BearerApiKey required
+            if (configuration && configuration.apiKey) {
+                const localVarApiKeyValue = typeof configuration.apiKey === 'function'
+					? configuration.apiKey("Authorization")
+					: configuration.apiKey;
+                localVarHeaderParameter["Authorization"] = localVarApiKeyValue;
+            }
+
             localVarUrlObj.query = Object.assign({}, localVarUrlObj.query, localVarQueryParameter, options.query);
             // fix override query string Detail: https://stackoverflow.com/a/7517673/1077943
             localVarUrlObj.search = null;
@@ -6752,10 +6928,10 @@ export const LearningsApiFetchParamCreator = function (configuration?: Configura
             };
         },
         /**
-         * Graph of the agent's reasoning topology around a learning: the learning plus the learnings it is connected to within `depth` lineage hops, each enriched with Qdrant detail and evidence. The Neo4j graph is the primary product — if it can't be read the request fails (503). Declared before /{learning_id} so the static path is not captured as a learning id.
+         * Return a learning and related learnings within the requested lineage depth, including available evidence. Use this endpoint to explain relationships during audit or curation; a temporarily unavailable relationship service returns 503.
          * @summary Agent learning evidence graph
-         * @param {any} agentId 
-         * @param {any} learningId The learning to build the graph around.
+         * @param {any} agentId Hosted agent UUID returned by the agent create or list endpoint.
+         * @param {any} learningId Learning identifier to place at the centre of the graph.
          * @param {any} [depth] Lineage hops from the learning (1-2).
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
@@ -6775,6 +6951,14 @@ export const LearningsApiFetchParamCreator = function (configuration?: Configura
             const localVarRequestOptions = Object.assign({ method: 'GET' }, options);
             const localVarHeaderParameter = {} as any;
             const localVarQueryParameter = {} as any;
+
+            // authentication BearerApiKey required
+            if (configuration && configuration.apiKey) {
+                const localVarApiKeyValue = typeof configuration.apiKey === 'function'
+					? configuration.apiKey("Authorization")
+					: configuration.apiKey;
+                localVarHeaderParameter["Authorization"] = localVarApiKeyValue;
+            }
 
             if (learningId !== undefined) {
                 localVarQueryParameter['learning_id'] = learningId;
@@ -6797,8 +6981,8 @@ export const LearningsApiFetchParamCreator = function (configuration?: Configura
         /**
          * Retrieve a single learning by its ID.
          * @summary Get a learning
-         * @param {any} agentId 
-         * @param {any} learningId 
+         * @param {any} agentId Hosted agent UUID returned by the agent create or list endpoint.
+         * @param {any} learningId Learning identifier returned by a learning list or search endpoint.
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
@@ -6819,6 +7003,14 @@ export const LearningsApiFetchParamCreator = function (configuration?: Configura
             const localVarHeaderParameter = {} as any;
             const localVarQueryParameter = {} as any;
 
+            // authentication BearerApiKey required
+            if (configuration && configuration.apiKey) {
+                const localVarApiKeyValue = typeof configuration.apiKey === 'function'
+					? configuration.apiKey("Authorization")
+					: configuration.apiKey;
+                localVarHeaderParameter["Authorization"] = localVarApiKeyValue;
+            }
+
             localVarUrlObj.query = Object.assign({}, localVarUrlObj.query, localVarQueryParameter, options.query);
             // fix override query string Detail: https://stackoverflow.com/a/7517673/1077943
             localVarUrlObj.search = null;
@@ -6832,10 +7024,10 @@ export const LearningsApiFetchParamCreator = function (configuration?: Configura
         /**
          * Paginated, filterable inventory of an agent's learnings for the curation workbench. Non-semantic (unlike /search). Defaults to the active bucket (excludes archived/superseded); use `state` for other buckets. Pagination is created_at keyset via the opaque cursor.
          * @summary List agent learnings (audit inventory)
-         * @param {any} agentId 
+         * @param {any} agentId Hosted agent UUID returned by the agent create or list endpoint.
          * @param {any} [includeInstances] Include evidence instances on each item.
-         * @param {any} [limit] Page size.
-         * @param {any} [cursor] Opaque string from the previous page&#x27;s &#x60;next_cursor&#x60;.
+         * @param {any} [limit] Maximum number of items to return on this page.
+         * @param {any} [cursor] Opaque pagination token from the previous response&#x27;s &#x60;next_cursor&#x60;. Pass it back unchanged; omit it to start again from the first page.
          * @param {LearningStateFilter} [state] Review bucket: active (default), needs_review, archived, superseded, or all.
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
@@ -6851,6 +7043,14 @@ export const LearningsApiFetchParamCreator = function (configuration?: Configura
             const localVarRequestOptions = Object.assign({ method: 'GET' }, options);
             const localVarHeaderParameter = {} as any;
             const localVarQueryParameter = {} as any;
+
+            // authentication BearerApiKey required
+            if (configuration && configuration.apiKey) {
+                const localVarApiKeyValue = typeof configuration.apiKey === 'function'
+					? configuration.apiKey("Authorization")
+					: configuration.apiKey;
+                localVarHeaderParameter["Authorization"] = localVarApiKeyValue;
+            }
 
             if (includeInstances !== undefined) {
                 localVarQueryParameter['include_instances'] = includeInstances;
@@ -6882,8 +7082,8 @@ export const LearningsApiFetchParamCreator = function (configuration?: Configura
          * Provide feedback on whether a learning was helpful. Updates the learning's standing (utility and reliability) and trust level based on the feedback signal.
          * @summary Reinforce a learning
          * @param {ReinforceLearningRequest} body 
-         * @param {any} agentId 
-         * @param {any} learningId 
+         * @param {any} agentId Hosted agent UUID returned by the agent create or list endpoint.
+         * @param {any} learningId Learning identifier returned by a learning list or search endpoint.
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
@@ -6908,6 +7108,14 @@ export const LearningsApiFetchParamCreator = function (configuration?: Configura
             const localVarHeaderParameter = {} as any;
             const localVarQueryParameter = {} as any;
 
+            // authentication BearerApiKey required
+            if (configuration && configuration.apiKey) {
+                const localVarApiKeyValue = typeof configuration.apiKey === 'function'
+					? configuration.apiKey("Authorization")
+					: configuration.apiKey;
+                localVarHeaderParameter["Authorization"] = localVarApiKeyValue;
+            }
+
             localVarHeaderParameter['Content-Type'] = 'application/json';
 
             localVarUrlObj.query = Object.assign({}, localVarUrlObj.query, localVarQueryParameter, options.query);
@@ -6926,8 +7134,8 @@ export const LearningsApiFetchParamCreator = function (configuration?: Configura
          * Archive a live learning with curator provenance. Utility and trust are unchanged.
          * @summary Reject (archive) a learning
          * @param {RejectLearningRequest} body 
-         * @param {any} agentId 
-         * @param {any} learningId 
+         * @param {any} agentId Hosted agent UUID returned by the agent create or list endpoint.
+         * @param {any} learningId Learning identifier returned by a learning list or search endpoint.
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
@@ -6952,6 +7160,14 @@ export const LearningsApiFetchParamCreator = function (configuration?: Configura
             const localVarHeaderParameter = {} as any;
             const localVarQueryParameter = {} as any;
 
+            // authentication BearerApiKey required
+            if (configuration && configuration.apiKey) {
+                const localVarApiKeyValue = typeof configuration.apiKey === 'function'
+					? configuration.apiKey("Authorization")
+					: configuration.apiKey;
+                localVarHeaderParameter["Authorization"] = localVarApiKeyValue;
+            }
+
             localVarHeaderParameter['Content-Type'] = 'application/json';
 
             localVarUrlObj.query = Object.assign({}, localVarUrlObj.query, localVarQueryParameter, options.query);
@@ -6969,7 +7185,7 @@ export const LearningsApiFetchParamCreator = function (configuration?: Configura
         /**
          * Semantic search over the agent's learning memories. Results are ranked intelligently by relevance, considering decay of older learnings and diversity filtering to avoid redundant results.
          * @summary Search learnings
-         * @param {any} agentId 
+         * @param {any} agentId Hosted agent UUID returned by the agent create or list endpoint.
          * @param {any} q Search query text.
          * @param {any} [limit] Maximum number of results to return.
          * @param {any} [minUtility] Minimum utility threshold for results.
@@ -6992,6 +7208,14 @@ export const LearningsApiFetchParamCreator = function (configuration?: Configura
             const localVarRequestOptions = Object.assign({ method: 'GET' }, options);
             const localVarHeaderParameter = {} as any;
             const localVarQueryParameter = {} as any;
+
+            // authentication BearerApiKey required
+            if (configuration && configuration.apiKey) {
+                const localVarApiKeyValue = typeof configuration.apiKey === 'function'
+					? configuration.apiKey("Authorization")
+					: configuration.apiKey;
+                localVarHeaderParameter["Authorization"] = localVarApiKeyValue;
+            }
 
             if (q !== undefined) {
                 localVarQueryParameter['q'] = q;
@@ -7020,10 +7244,10 @@ export const LearningsApiFetchParamCreator = function (configuration?: Configura
             };
         },
         /**
-         * Store a new learning for the agent. The learning is processed through the platform's deduplication and conflict prevention pipeline on a background worker so the request returns immediately.
+         * Submit a caller-authored learning for one hosted agent. Processing is asynchronous, so a 202 response confirms acceptance rather than completion. Use `/distill` instead when the caller has evidence but not final learning text.
          * @summary Store a learning
          * @param {StoreLearningRequest} body 
-         * @param {any} agentId 
+         * @param {any} agentId Hosted agent UUID returned by the agent create or list endpoint.
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
@@ -7042,6 +7266,14 @@ export const LearningsApiFetchParamCreator = function (configuration?: Configura
             const localVarRequestOptions = Object.assign({ method: 'POST' }, options);
             const localVarHeaderParameter = {} as any;
             const localVarQueryParameter = {} as any;
+
+            // authentication BearerApiKey required
+            if (configuration && configuration.apiKey) {
+                const localVarApiKeyValue = typeof configuration.apiKey === 'function'
+					? configuration.apiKey("Authorization")
+					: configuration.apiKey;
+                localVarHeaderParameter["Authorization"] = localVarApiKeyValue;
+            }
 
             localVarHeaderParameter['Content-Type'] = 'application/json';
 
@@ -7069,7 +7301,7 @@ export const LearningsApiFp = function(configuration?: Configuration) {
         /**
          * Delete every learning memory scoped to the agent. This is a destructive operation and does not affect other memory categories.
          * @summary Delete all learnings for an agent
-         * @param {any} agentId 
+         * @param {any} agentId Hosted agent UUID returned by the agent create or list endpoint.
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
@@ -7086,10 +7318,10 @@ export const LearningsApiFp = function(configuration?: Configuration) {
             };
         },
         /**
-         * Graph of the agent's reasoning topology around a learning: the learning plus the learnings it is connected to within `depth` lineage hops, each enriched with Qdrant detail and evidence. The Neo4j graph is the primary product — if it can't be read the request fails (503). Declared before /{learning_id} so the static path is not captured as a learning id.
+         * Return a learning and related learnings within the requested lineage depth, including available evidence. Use this endpoint to explain relationships during audit or curation; a temporarily unavailable relationship service returns 503.
          * @summary Agent learning evidence graph
-         * @param {any} agentId 
-         * @param {any} learningId The learning to build the graph around.
+         * @param {any} agentId Hosted agent UUID returned by the agent create or list endpoint.
+         * @param {any} learningId Learning identifier to place at the centre of the graph.
          * @param {any} [depth] Lineage hops from the learning (1-2).
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
@@ -7109,8 +7341,8 @@ export const LearningsApiFp = function(configuration?: Configuration) {
         /**
          * Retrieve a single learning by its ID.
          * @summary Get a learning
-         * @param {any} agentId 
-         * @param {any} learningId 
+         * @param {any} agentId Hosted agent UUID returned by the agent create or list endpoint.
+         * @param {any} learningId Learning identifier returned by a learning list or search endpoint.
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
@@ -7129,10 +7361,10 @@ export const LearningsApiFp = function(configuration?: Configuration) {
         /**
          * Paginated, filterable inventory of an agent's learnings for the curation workbench. Non-semantic (unlike /search). Defaults to the active bucket (excludes archived/superseded); use `state` for other buckets. Pagination is created_at keyset via the opaque cursor.
          * @summary List agent learnings (audit inventory)
-         * @param {any} agentId 
+         * @param {any} agentId Hosted agent UUID returned by the agent create or list endpoint.
          * @param {any} [includeInstances] Include evidence instances on each item.
-         * @param {any} [limit] Page size.
-         * @param {any} [cursor] Opaque string from the previous page&#x27;s &#x60;next_cursor&#x60;.
+         * @param {any} [limit] Maximum number of items to return on this page.
+         * @param {any} [cursor] Opaque pagination token from the previous response&#x27;s &#x60;next_cursor&#x60;. Pass it back unchanged; omit it to start again from the first page.
          * @param {LearningStateFilter} [state] Review bucket: active (default), needs_review, archived, superseded, or all.
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
@@ -7153,8 +7385,8 @@ export const LearningsApiFp = function(configuration?: Configuration) {
          * Provide feedback on whether a learning was helpful. Updates the learning's standing (utility and reliability) and trust level based on the feedback signal.
          * @summary Reinforce a learning
          * @param {ReinforceLearningRequest} body 
-         * @param {any} agentId 
-         * @param {any} learningId 
+         * @param {any} agentId Hosted agent UUID returned by the agent create or list endpoint.
+         * @param {any} learningId Learning identifier returned by a learning list or search endpoint.
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
@@ -7174,8 +7406,8 @@ export const LearningsApiFp = function(configuration?: Configuration) {
          * Archive a live learning with curator provenance. Utility and trust are unchanged.
          * @summary Reject (archive) a learning
          * @param {RejectLearningRequest} body 
-         * @param {any} agentId 
-         * @param {any} learningId 
+         * @param {any} agentId Hosted agent UUID returned by the agent create or list endpoint.
+         * @param {any} learningId Learning identifier returned by a learning list or search endpoint.
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
@@ -7194,7 +7426,7 @@ export const LearningsApiFp = function(configuration?: Configuration) {
         /**
          * Semantic search over the agent's learning memories. Results are ranked intelligently by relevance, considering decay of older learnings and diversity filtering to avoid redundant results.
          * @summary Search learnings
-         * @param {any} agentId 
+         * @param {any} agentId Hosted agent UUID returned by the agent create or list endpoint.
          * @param {any} q Search query text.
          * @param {any} [limit] Maximum number of results to return.
          * @param {any} [minUtility] Minimum utility threshold for results.
@@ -7215,10 +7447,10 @@ export const LearningsApiFp = function(configuration?: Configuration) {
             };
         },
         /**
-         * Store a new learning for the agent. The learning is processed through the platform's deduplication and conflict prevention pipeline on a background worker so the request returns immediately.
+         * Submit a caller-authored learning for one hosted agent. Processing is asynchronous, so a 202 response confirms acceptance rather than completion. Use `/distill` instead when the caller has evidence but not final learning text.
          * @summary Store a learning
          * @param {StoreLearningRequest} body 
-         * @param {any} agentId 
+         * @param {any} agentId Hosted agent UUID returned by the agent create or list endpoint.
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
@@ -7246,7 +7478,7 @@ export const LearningsApiFactory = function (configuration?: Configuration, fetc
         /**
          * Delete every learning memory scoped to the agent. This is a destructive operation and does not affect other memory categories.
          * @summary Delete all learnings for an agent
-         * @param {any} agentId 
+         * @param {any} agentId Hosted agent UUID returned by the agent create or list endpoint.
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
@@ -7254,10 +7486,10 @@ export const LearningsApiFactory = function (configuration?: Configuration, fetc
             return LearningsApiFp(configuration).deleteAgentLearningsEndpointAgentsAgentIdLearningsDelete(agentId, options)(fetch, basePath);
         },
         /**
-         * Graph of the agent's reasoning topology around a learning: the learning plus the learnings it is connected to within `depth` lineage hops, each enriched with Qdrant detail and evidence. The Neo4j graph is the primary product — if it can't be read the request fails (503). Declared before /{learning_id} so the static path is not captured as a learning id.
+         * Return a learning and related learnings within the requested lineage depth, including available evidence. Use this endpoint to explain relationships during audit or curation; a temporarily unavailable relationship service returns 503.
          * @summary Agent learning evidence graph
-         * @param {any} agentId 
-         * @param {any} learningId The learning to build the graph around.
+         * @param {any} agentId Hosted agent UUID returned by the agent create or list endpoint.
+         * @param {any} learningId Learning identifier to place at the centre of the graph.
          * @param {any} [depth] Lineage hops from the learning (1-2).
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
@@ -7268,8 +7500,8 @@ export const LearningsApiFactory = function (configuration?: Configuration, fetc
         /**
          * Retrieve a single learning by its ID.
          * @summary Get a learning
-         * @param {any} agentId 
-         * @param {any} learningId 
+         * @param {any} agentId Hosted agent UUID returned by the agent create or list endpoint.
+         * @param {any} learningId Learning identifier returned by a learning list or search endpoint.
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
@@ -7279,10 +7511,10 @@ export const LearningsApiFactory = function (configuration?: Configuration, fetc
         /**
          * Paginated, filterable inventory of an agent's learnings for the curation workbench. Non-semantic (unlike /search). Defaults to the active bucket (excludes archived/superseded); use `state` for other buckets. Pagination is created_at keyset via the opaque cursor.
          * @summary List agent learnings (audit inventory)
-         * @param {any} agentId 
+         * @param {any} agentId Hosted agent UUID returned by the agent create or list endpoint.
          * @param {any} [includeInstances] Include evidence instances on each item.
-         * @param {any} [limit] Page size.
-         * @param {any} [cursor] Opaque string from the previous page&#x27;s &#x60;next_cursor&#x60;.
+         * @param {any} [limit] Maximum number of items to return on this page.
+         * @param {any} [cursor] Opaque pagination token from the previous response&#x27;s &#x60;next_cursor&#x60;. Pass it back unchanged; omit it to start again from the first page.
          * @param {LearningStateFilter} [state] Review bucket: active (default), needs_review, archived, superseded, or all.
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
@@ -7294,8 +7526,8 @@ export const LearningsApiFactory = function (configuration?: Configuration, fetc
          * Provide feedback on whether a learning was helpful. Updates the learning's standing (utility and reliability) and trust level based on the feedback signal.
          * @summary Reinforce a learning
          * @param {ReinforceLearningRequest} body 
-         * @param {any} agentId 
-         * @param {any} learningId 
+         * @param {any} agentId Hosted agent UUID returned by the agent create or list endpoint.
+         * @param {any} learningId Learning identifier returned by a learning list or search endpoint.
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
@@ -7306,8 +7538,8 @@ export const LearningsApiFactory = function (configuration?: Configuration, fetc
          * Archive a live learning with curator provenance. Utility and trust are unchanged.
          * @summary Reject (archive) a learning
          * @param {RejectLearningRequest} body 
-         * @param {any} agentId 
-         * @param {any} learningId 
+         * @param {any} agentId Hosted agent UUID returned by the agent create or list endpoint.
+         * @param {any} learningId Learning identifier returned by a learning list or search endpoint.
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
@@ -7317,7 +7549,7 @@ export const LearningsApiFactory = function (configuration?: Configuration, fetc
         /**
          * Semantic search over the agent's learning memories. Results are ranked intelligently by relevance, considering decay of older learnings and diversity filtering to avoid redundant results.
          * @summary Search learnings
-         * @param {any} agentId 
+         * @param {any} agentId Hosted agent UUID returned by the agent create or list endpoint.
          * @param {any} q Search query text.
          * @param {any} [limit] Maximum number of results to return.
          * @param {any} [minUtility] Minimum utility threshold for results.
@@ -7329,10 +7561,10 @@ export const LearningsApiFactory = function (configuration?: Configuration, fetc
             return LearningsApiFp(configuration).searchLearningsEndpointAgentsAgentIdLearningsSearchGet(agentId, q, limit, minUtility, scope, options)(fetch, basePath);
         },
         /**
-         * Store a new learning for the agent. The learning is processed through the platform's deduplication and conflict prevention pipeline on a background worker so the request returns immediately.
+         * Submit a caller-authored learning for one hosted agent. Processing is asynchronous, so a 202 response confirms acceptance rather than completion. Use `/distill` instead when the caller has evidence but not final learning text.
          * @summary Store a learning
          * @param {StoreLearningRequest} body 
-         * @param {any} agentId 
+         * @param {any} agentId Hosted agent UUID returned by the agent create or list endpoint.
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
@@ -7352,7 +7584,7 @@ export class LearningsApi extends BaseAPI {
     /**
      * Delete every learning memory scoped to the agent. This is a destructive operation and does not affect other memory categories.
      * @summary Delete all learnings for an agent
-     * @param {any} agentId 
+     * @param {any} agentId Hosted agent UUID returned by the agent create or list endpoint.
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      * @memberof LearningsApi
@@ -7362,10 +7594,10 @@ export class LearningsApi extends BaseAPI {
     }
 
     /**
-     * Graph of the agent's reasoning topology around a learning: the learning plus the learnings it is connected to within `depth` lineage hops, each enriched with Qdrant detail and evidence. The Neo4j graph is the primary product — if it can't be read the request fails (503). Declared before /{learning_id} so the static path is not captured as a learning id.
+     * Return a learning and related learnings within the requested lineage depth, including available evidence. Use this endpoint to explain relationships during audit or curation; a temporarily unavailable relationship service returns 503.
      * @summary Agent learning evidence graph
-     * @param {any} agentId 
-     * @param {any} learningId The learning to build the graph around.
+     * @param {any} agentId Hosted agent UUID returned by the agent create or list endpoint.
+     * @param {any} learningId Learning identifier to place at the centre of the graph.
      * @param {any} [depth] Lineage hops from the learning (1-2).
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
@@ -7378,8 +7610,8 @@ export class LearningsApi extends BaseAPI {
     /**
      * Retrieve a single learning by its ID.
      * @summary Get a learning
-     * @param {any} agentId 
-     * @param {any} learningId 
+     * @param {any} agentId Hosted agent UUID returned by the agent create or list endpoint.
+     * @param {any} learningId Learning identifier returned by a learning list or search endpoint.
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      * @memberof LearningsApi
@@ -7391,10 +7623,10 @@ export class LearningsApi extends BaseAPI {
     /**
      * Paginated, filterable inventory of an agent's learnings for the curation workbench. Non-semantic (unlike /search). Defaults to the active bucket (excludes archived/superseded); use `state` for other buckets. Pagination is created_at keyset via the opaque cursor.
      * @summary List agent learnings (audit inventory)
-     * @param {any} agentId 
+     * @param {any} agentId Hosted agent UUID returned by the agent create or list endpoint.
      * @param {any} [includeInstances] Include evidence instances on each item.
-     * @param {any} [limit] Page size.
-     * @param {any} [cursor] Opaque string from the previous page&#x27;s &#x60;next_cursor&#x60;.
+     * @param {any} [limit] Maximum number of items to return on this page.
+     * @param {any} [cursor] Opaque pagination token from the previous response&#x27;s &#x60;next_cursor&#x60;. Pass it back unchanged; omit it to start again from the first page.
      * @param {LearningStateFilter} [state] Review bucket: active (default), needs_review, archived, superseded, or all.
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
@@ -7408,8 +7640,8 @@ export class LearningsApi extends BaseAPI {
      * Provide feedback on whether a learning was helpful. Updates the learning's standing (utility and reliability) and trust level based on the feedback signal.
      * @summary Reinforce a learning
      * @param {ReinforceLearningRequest} body 
-     * @param {any} agentId 
-     * @param {any} learningId 
+     * @param {any} agentId Hosted agent UUID returned by the agent create or list endpoint.
+     * @param {any} learningId Learning identifier returned by a learning list or search endpoint.
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      * @memberof LearningsApi
@@ -7422,8 +7654,8 @@ export class LearningsApi extends BaseAPI {
      * Archive a live learning with curator provenance. Utility and trust are unchanged.
      * @summary Reject (archive) a learning
      * @param {RejectLearningRequest} body 
-     * @param {any} agentId 
-     * @param {any} learningId 
+     * @param {any} agentId Hosted agent UUID returned by the agent create or list endpoint.
+     * @param {any} learningId Learning identifier returned by a learning list or search endpoint.
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      * @memberof LearningsApi
@@ -7435,7 +7667,7 @@ export class LearningsApi extends BaseAPI {
     /**
      * Semantic search over the agent's learning memories. Results are ranked intelligently by relevance, considering decay of older learnings and diversity filtering to avoid redundant results.
      * @summary Search learnings
-     * @param {any} agentId 
+     * @param {any} agentId Hosted agent UUID returned by the agent create or list endpoint.
      * @param {any} q Search query text.
      * @param {any} [limit] Maximum number of results to return.
      * @param {any} [minUtility] Minimum utility threshold for results.
@@ -7449,10 +7681,10 @@ export class LearningsApi extends BaseAPI {
     }
 
     /**
-     * Store a new learning for the agent. The learning is processed through the platform's deduplication and conflict prevention pipeline on a background worker so the request returns immediately.
+     * Submit a caller-authored learning for one hosted agent. Processing is asynchronous, so a 202 response confirms acceptance rather than completion. Use `/distill` instead when the caller has evidence but not final learning text.
      * @summary Store a learning
      * @param {StoreLearningRequest} body 
-     * @param {any} agentId 
+     * @param {any} agentId Hosted agent UUID returned by the agent create or list endpoint.
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      * @memberof LearningsApi
@@ -7471,8 +7703,8 @@ export const OrgLearningsApiFetchParamCreator = function (configuration?: Config
         /**
          * Tenant-wide library of org-promoted (shared) learnings. Enterprise only. Evidence is stripped at promotion time, so items report org_stripped and summarise cross-agent corroboration. promotion_timestamp keyset pagination.
          * @summary List org-shared learnings
-         * @param {any} [limit] Page size.
-         * @param {any} [cursor] Opaque string from the previous page&#x27;s &#x60;next_cursor&#x60;.
+         * @param {any} [limit] Maximum number of items to return on this page.
+         * @param {any} [cursor] Opaque pagination token from the previous response&#x27;s &#x60;next_cursor&#x60;. Pass it back unchanged; omit it to start again from the first page.
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
@@ -7482,6 +7714,14 @@ export const OrgLearningsApiFetchParamCreator = function (configuration?: Config
             const localVarRequestOptions = Object.assign({ method: 'GET' }, options);
             const localVarHeaderParameter = {} as any;
             const localVarQueryParameter = {} as any;
+
+            // authentication BearerApiKey required
+            if (configuration && configuration.apiKey) {
+                const localVarApiKeyValue = typeof configuration.apiKey === 'function'
+					? configuration.apiKey("Authorization")
+					: configuration.apiKey;
+                localVarHeaderParameter["Authorization"] = localVarApiKeyValue;
+            }
 
             if (limit !== undefined) {
                 localVarQueryParameter['limit'] = limit;
@@ -7513,8 +7753,8 @@ export const OrgLearningsApiFp = function(configuration?: Configuration) {
         /**
          * Tenant-wide library of org-promoted (shared) learnings. Enterprise only. Evidence is stripped at promotion time, so items report org_stripped and summarise cross-agent corroboration. promotion_timestamp keyset pagination.
          * @summary List org-shared learnings
-         * @param {any} [limit] Page size.
-         * @param {any} [cursor] Opaque string from the previous page&#x27;s &#x60;next_cursor&#x60;.
+         * @param {any} [limit] Maximum number of items to return on this page.
+         * @param {any} [cursor] Opaque pagination token from the previous response&#x27;s &#x60;next_cursor&#x60;. Pass it back unchanged; omit it to start again from the first page.
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
@@ -7542,8 +7782,8 @@ export const OrgLearningsApiFactory = function (configuration?: Configuration, f
         /**
          * Tenant-wide library of org-promoted (shared) learnings. Enterprise only. Evidence is stripped at promotion time, so items report org_stripped and summarise cross-agent corroboration. promotion_timestamp keyset pagination.
          * @summary List org-shared learnings
-         * @param {any} [limit] Page size.
-         * @param {any} [cursor] Opaque string from the previous page&#x27;s &#x60;next_cursor&#x60;.
+         * @param {any} [limit] Maximum number of items to return on this page.
+         * @param {any} [cursor] Opaque pagination token from the previous response&#x27;s &#x60;next_cursor&#x60;. Pass it back unchanged; omit it to start again from the first page.
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
@@ -7563,8 +7803,8 @@ export class OrgLearningsApi extends BaseAPI {
     /**
      * Tenant-wide library of org-promoted (shared) learnings. Enterprise only. Evidence is stripped at promotion time, so items report org_stripped and summarise cross-agent corroboration. promotion_timestamp keyset pagination.
      * @summary List org-shared learnings
-     * @param {any} [limit] Page size.
-     * @param {any} [cursor] Opaque string from the previous page&#x27;s &#x60;next_cursor&#x60;.
+     * @param {any} [limit] Maximum number of items to return on this page.
+     * @param {any} [cursor] Opaque pagination token from the previous response&#x27;s &#x60;next_cursor&#x60;. Pass it back unchanged; omit it to start again from the first page.
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      * @memberof OrgLearningsApi
@@ -7581,9 +7821,9 @@ export class OrgLearningsApi extends BaseAPI {
 export const PlansApiFetchParamCreator = function (configuration?: Configuration) {
     return {
         /**
-         * 
+         * Search one agent's prior plans for approaches relevant to a new goal. Use this read-only endpoint when planning should benefit from that agent's previous experience.
          * @summary Search similar plans for one agent
-         * @param {any} agentId 
+         * @param {any} agentId Hosted agent UUID returned by the agent create or list endpoint.
          * @param {any} q Search query text used to retrieve similar plans.
          * @param {any} [limit] Optional max results; capped at 10 per agent.
          * @param {*} [options] Override http request option.
@@ -7605,6 +7845,14 @@ export const PlansApiFetchParamCreator = function (configuration?: Configuration
             const localVarHeaderParameter = {} as any;
             const localVarQueryParameter = {} as any;
 
+            // authentication BearerApiKey required
+            if (configuration && configuration.apiKey) {
+                const localVarApiKeyValue = typeof configuration.apiKey === 'function'
+					? configuration.apiKey("Authorization")
+					: configuration.apiKey;
+                localVarHeaderParameter["Authorization"] = localVarApiKeyValue;
+            }
+
             if (q !== undefined) {
                 localVarQueryParameter['q'] = q;
             }
@@ -7624,7 +7872,7 @@ export const PlansApiFetchParamCreator = function (configuration?: Configuration
             };
         },
         /**
-         * 
+         * Search prior plans across several accessible agents in one request. Use this for coordination or routing when experience may be distributed across agents.
          * @summary Search similar plans across multiple agents
          * @param {MultiAgentPlanSearchRequest} body 
          * @param {*} [options] Override http request option.
@@ -7640,6 +7888,14 @@ export const PlansApiFetchParamCreator = function (configuration?: Configuration
             const localVarRequestOptions = Object.assign({ method: 'POST' }, options);
             const localVarHeaderParameter = {} as any;
             const localVarQueryParameter = {} as any;
+
+            // authentication BearerApiKey required
+            if (configuration && configuration.apiKey) {
+                const localVarApiKeyValue = typeof configuration.apiKey === 'function'
+					? configuration.apiKey("Authorization")
+					: configuration.apiKey;
+                localVarHeaderParameter["Authorization"] = localVarApiKeyValue;
+            }
 
             localVarHeaderParameter['Content-Type'] = 'application/json';
 
@@ -7665,9 +7921,9 @@ export const PlansApiFetchParamCreator = function (configuration?: Configuration
 export const PlansApiFp = function(configuration?: Configuration) {
     return {
         /**
-         * 
+         * Search one agent's prior plans for approaches relevant to a new goal. Use this read-only endpoint when planning should benefit from that agent's previous experience.
          * @summary Search similar plans for one agent
-         * @param {any} agentId 
+         * @param {any} agentId Hosted agent UUID returned by the agent create or list endpoint.
          * @param {any} q Search query text used to retrieve similar plans.
          * @param {any} [limit] Optional max results; capped at 10 per agent.
          * @param {*} [options] Override http request option.
@@ -7686,7 +7942,7 @@ export const PlansApiFp = function(configuration?: Configuration) {
             };
         },
         /**
-         * 
+         * Search prior plans across several accessible agents in one request. Use this for coordination or routing when experience may be distributed across agents.
          * @summary Search similar plans across multiple agents
          * @param {MultiAgentPlanSearchRequest} body 
          * @param {*} [options] Override http request option.
@@ -7714,9 +7970,9 @@ export const PlansApiFp = function(configuration?: Configuration) {
 export const PlansApiFactory = function (configuration?: Configuration, fetch?: FetchAPI, basePath?: string) {
     return {
         /**
-         * 
+         * Search one agent's prior plans for approaches relevant to a new goal. Use this read-only endpoint when planning should benefit from that agent's previous experience.
          * @summary Search similar plans for one agent
-         * @param {any} agentId 
+         * @param {any} agentId Hosted agent UUID returned by the agent create or list endpoint.
          * @param {any} q Search query text used to retrieve similar plans.
          * @param {any} [limit] Optional max results; capped at 10 per agent.
          * @param {*} [options] Override http request option.
@@ -7726,7 +7982,7 @@ export const PlansApiFactory = function (configuration?: Configuration, fetch?: 
             return PlansApiFp(configuration).searchAgentSimilarPlansEndpointAgentsAgentIdPlansSimilarGet(agentId, q, limit, options)(fetch, basePath);
         },
         /**
-         * 
+         * Search prior plans across several accessible agents in one request. Use this for coordination or routing when experience may be distributed across agents.
          * @summary Search similar plans across multiple agents
          * @param {MultiAgentPlanSearchRequest} body 
          * @param {*} [options] Override http request option.
@@ -7746,9 +8002,9 @@ export const PlansApiFactory = function (configuration?: Configuration, fetch?: 
  */
 export class PlansApi extends BaseAPI {
     /**
-     * 
+     * Search one agent's prior plans for approaches relevant to a new goal. Use this read-only endpoint when planning should benefit from that agent's previous experience.
      * @summary Search similar plans for one agent
-     * @param {any} agentId 
+     * @param {any} agentId Hosted agent UUID returned by the agent create or list endpoint.
      * @param {any} q Search query text used to retrieve similar plans.
      * @param {any} [limit] Optional max results; capped at 10 per agent.
      * @param {*} [options] Override http request option.
@@ -7760,7 +8016,7 @@ export class PlansApi extends BaseAPI {
     }
 
     /**
-     * 
+     * Search prior plans across several accessible agents in one request. Use this for coordination or routing when experience may be distributed across agents.
      * @summary Search similar plans across multiple agents
      * @param {MultiAgentPlanSearchRequest} body 
      * @param {*} [options] Override http request option.
@@ -7779,8 +8035,8 @@ export class PlansApi extends BaseAPI {
 export const ProviderCredentialsApiFetchParamCreator = function (configuration?: Configuration) {
     return {
         /**
-         * Create an encrypted provider credential. Use `metadata.base_url` to override the provider endpoint. If omitted, the API stores a sane provider default for Anthropic, Groq, Ollama, and OpenAI.
-         * @summary Create Credential
+         * Store a provider credential for tenant-wide or agent-specific use. The secret is write-only and is not returned. Use `metadata.base_url` only when the provider should use a non-default compatible endpoint.
+         * @summary Create Provider Credential
          * @param {ProviderCredentialCreateRequest} body 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
@@ -7795,6 +8051,14 @@ export const ProviderCredentialsApiFetchParamCreator = function (configuration?:
             const localVarRequestOptions = Object.assign({ method: 'POST' }, options);
             const localVarHeaderParameter = {} as any;
             const localVarQueryParameter = {} as any;
+
+            // authentication BearerApiKey required
+            if (configuration && configuration.apiKey) {
+                const localVarApiKeyValue = typeof configuration.apiKey === 'function'
+					? configuration.apiKey("Authorization")
+					: configuration.apiKey;
+                localVarHeaderParameter["Authorization"] = localVarApiKeyValue;
+            }
 
             localVarHeaderParameter['Content-Type'] = 'application/json';
 
@@ -7811,9 +8075,9 @@ export const ProviderCredentialsApiFetchParamCreator = function (configuration?:
             };
         },
         /**
-         * 
-         * @summary Delete Credential
-         * @param {any} credentialId 
+         * Permanently remove a provider credential. Confirm dependent agents have another usable credential before deleting it.
+         * @summary Delete Provider Credential
+         * @param {any} credentialId Provider credential UUID returned by the create or list endpoint.
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
@@ -7829,6 +8093,14 @@ export const ProviderCredentialsApiFetchParamCreator = function (configuration?:
             const localVarHeaderParameter = {} as any;
             const localVarQueryParameter = {} as any;
 
+            // authentication BearerApiKey required
+            if (configuration && configuration.apiKey) {
+                const localVarApiKeyValue = typeof configuration.apiKey === 'function'
+					? configuration.apiKey("Authorization")
+					: configuration.apiKey;
+                localVarHeaderParameter["Authorization"] = localVarApiKeyValue;
+            }
+
             localVarUrlObj.query = Object.assign({}, localVarUrlObj.query, localVarQueryParameter, options.query);
             // fix override query string Detail: https://stackoverflow.com/a/7517673/1077943
             localVarUrlObj.search = null;
@@ -7840,9 +8112,9 @@ export const ProviderCredentialsApiFetchParamCreator = function (configuration?:
             };
         },
         /**
-         * 
-         * @summary Get Credential
-         * @param {any} credentialId 
+         * Retrieve one provider credential's provider, binding, metadata, and active state. Secret material is never included.
+         * @summary Get Provider Credential
+         * @param {any} credentialId Provider credential UUID returned by the create or list endpoint.
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
@@ -7858,6 +8130,14 @@ export const ProviderCredentialsApiFetchParamCreator = function (configuration?:
             const localVarHeaderParameter = {} as any;
             const localVarQueryParameter = {} as any;
 
+            // authentication BearerApiKey required
+            if (configuration && configuration.apiKey) {
+                const localVarApiKeyValue = typeof configuration.apiKey === 'function'
+					? configuration.apiKey("Authorization")
+					: configuration.apiKey;
+                localVarHeaderParameter["Authorization"] = localVarApiKeyValue;
+            }
+
             localVarUrlObj.query = Object.assign({}, localVarUrlObj.query, localVarQueryParameter, options.query);
             // fix override query string Detail: https://stackoverflow.com/a/7517673/1077943
             localVarUrlObj.search = null;
@@ -7869,8 +8149,8 @@ export const ProviderCredentialsApiFetchParamCreator = function (configuration?:
             };
         },
         /**
-         * 
-         * @summary List Credentials
+         * List configured model-provider credentials without secret values. Filter by provider, binding type, agent, or active state when selecting a credential for an agent.
+         * @summary List Provider Credentials
          * @param {any} [provider] 
          * @param {any} [bindingType] 
          * @param {any} [agentId] 
@@ -7884,6 +8164,14 @@ export const ProviderCredentialsApiFetchParamCreator = function (configuration?:
             const localVarRequestOptions = Object.assign({ method: 'GET' }, options);
             const localVarHeaderParameter = {} as any;
             const localVarQueryParameter = {} as any;
+
+            // authentication BearerApiKey required
+            if (configuration && configuration.apiKey) {
+                const localVarApiKeyValue = typeof configuration.apiKey === 'function'
+					? configuration.apiKey("Authorization")
+					: configuration.apiKey;
+                localVarHeaderParameter["Authorization"] = localVarApiKeyValue;
+            }
 
             if (provider !== undefined) {
                 localVarQueryParameter['provider'] = provider;
@@ -7912,10 +8200,10 @@ export const ProviderCredentialsApiFetchParamCreator = function (configuration?:
             };
         },
         /**
-         * Update an encrypted provider credential. If `metadata` is omitted, the existing endpoint is preserved; if the provider changes without explicit metadata, or metadata is provided without a base URL, the endpoint resets to a sane provider default.
-         * @summary Update Credential
+         * Update selected fields on a provider credential. Omit the secret to keep the current value. Omitted metadata is preserved; provider changes use that provider's default endpoint unless a base URL is supplied.
+         * @summary Update Provider Credential
          * @param {ProviderCredentialUpdateRequest} body 
-         * @param {any} credentialId 
+         * @param {any} credentialId Provider credential UUID returned by the create or list endpoint.
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
@@ -7934,6 +8222,14 @@ export const ProviderCredentialsApiFetchParamCreator = function (configuration?:
             const localVarRequestOptions = Object.assign({ method: 'PATCH' }, options);
             const localVarHeaderParameter = {} as any;
             const localVarQueryParameter = {} as any;
+
+            // authentication BearerApiKey required
+            if (configuration && configuration.apiKey) {
+                const localVarApiKeyValue = typeof configuration.apiKey === 'function'
+					? configuration.apiKey("Authorization")
+					: configuration.apiKey;
+                localVarHeaderParameter["Authorization"] = localVarApiKeyValue;
+            }
 
             localVarHeaderParameter['Content-Type'] = 'application/json';
 
@@ -7959,8 +8255,8 @@ export const ProviderCredentialsApiFetchParamCreator = function (configuration?:
 export const ProviderCredentialsApiFp = function(configuration?: Configuration) {
     return {
         /**
-         * Create an encrypted provider credential. Use `metadata.base_url` to override the provider endpoint. If omitted, the API stores a sane provider default for Anthropic, Groq, Ollama, and OpenAI.
-         * @summary Create Credential
+         * Store a provider credential for tenant-wide or agent-specific use. The secret is write-only and is not returned. Use `metadata.base_url` only when the provider should use a non-default compatible endpoint.
+         * @summary Create Provider Credential
          * @param {ProviderCredentialCreateRequest} body 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
@@ -7978,9 +8274,9 @@ export const ProviderCredentialsApiFp = function(configuration?: Configuration) 
             };
         },
         /**
-         * 
-         * @summary Delete Credential
-         * @param {any} credentialId 
+         * Permanently remove a provider credential. Confirm dependent agents have another usable credential before deleting it.
+         * @summary Delete Provider Credential
+         * @param {any} credentialId Provider credential UUID returned by the create or list endpoint.
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
@@ -7997,9 +8293,9 @@ export const ProviderCredentialsApiFp = function(configuration?: Configuration) 
             };
         },
         /**
-         * 
-         * @summary Get Credential
-         * @param {any} credentialId 
+         * Retrieve one provider credential's provider, binding, metadata, and active state. Secret material is never included.
+         * @summary Get Provider Credential
+         * @param {any} credentialId Provider credential UUID returned by the create or list endpoint.
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
@@ -8016,8 +8312,8 @@ export const ProviderCredentialsApiFp = function(configuration?: Configuration) 
             };
         },
         /**
-         * 
-         * @summary List Credentials
+         * List configured model-provider credentials without secret values. Filter by provider, binding type, agent, or active state when selecting a credential for an agent.
+         * @summary List Provider Credentials
          * @param {any} [provider] 
          * @param {any} [bindingType] 
          * @param {any} [agentId] 
@@ -8038,10 +8334,10 @@ export const ProviderCredentialsApiFp = function(configuration?: Configuration) 
             };
         },
         /**
-         * Update an encrypted provider credential. If `metadata` is omitted, the existing endpoint is preserved; if the provider changes without explicit metadata, or metadata is provided without a base URL, the endpoint resets to a sane provider default.
-         * @summary Update Credential
+         * Update selected fields on a provider credential. Omit the secret to keep the current value. Omitted metadata is preserved; provider changes use that provider's default endpoint unless a base URL is supplied.
+         * @summary Update Provider Credential
          * @param {ProviderCredentialUpdateRequest} body 
-         * @param {any} credentialId 
+         * @param {any} credentialId Provider credential UUID returned by the create or list endpoint.
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
@@ -8067,8 +8363,8 @@ export const ProviderCredentialsApiFp = function(configuration?: Configuration) 
 export const ProviderCredentialsApiFactory = function (configuration?: Configuration, fetch?: FetchAPI, basePath?: string) {
     return {
         /**
-         * Create an encrypted provider credential. Use `metadata.base_url` to override the provider endpoint. If omitted, the API stores a sane provider default for Anthropic, Groq, Ollama, and OpenAI.
-         * @summary Create Credential
+         * Store a provider credential for tenant-wide or agent-specific use. The secret is write-only and is not returned. Use `metadata.base_url` only when the provider should use a non-default compatible endpoint.
+         * @summary Create Provider Credential
          * @param {ProviderCredentialCreateRequest} body 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
@@ -8077,9 +8373,9 @@ export const ProviderCredentialsApiFactory = function (configuration?: Configura
             return ProviderCredentialsApiFp(configuration).createCredentialCredentialsProvidersPost(body, options)(fetch, basePath);
         },
         /**
-         * 
-         * @summary Delete Credential
-         * @param {any} credentialId 
+         * Permanently remove a provider credential. Confirm dependent agents have another usable credential before deleting it.
+         * @summary Delete Provider Credential
+         * @param {any} credentialId Provider credential UUID returned by the create or list endpoint.
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
@@ -8087,9 +8383,9 @@ export const ProviderCredentialsApiFactory = function (configuration?: Configura
             return ProviderCredentialsApiFp(configuration).deleteCredentialCredentialsProvidersCredentialIdDelete(credentialId, options)(fetch, basePath);
         },
         /**
-         * 
-         * @summary Get Credential
-         * @param {any} credentialId 
+         * Retrieve one provider credential's provider, binding, metadata, and active state. Secret material is never included.
+         * @summary Get Provider Credential
+         * @param {any} credentialId Provider credential UUID returned by the create or list endpoint.
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
@@ -8097,8 +8393,8 @@ export const ProviderCredentialsApiFactory = function (configuration?: Configura
             return ProviderCredentialsApiFp(configuration).getCredentialCredentialsProvidersCredentialIdGet(credentialId, options)(fetch, basePath);
         },
         /**
-         * 
-         * @summary List Credentials
+         * List configured model-provider credentials without secret values. Filter by provider, binding type, agent, or active state when selecting a credential for an agent.
+         * @summary List Provider Credentials
          * @param {any} [provider] 
          * @param {any} [bindingType] 
          * @param {any} [agentId] 
@@ -8110,10 +8406,10 @@ export const ProviderCredentialsApiFactory = function (configuration?: Configura
             return ProviderCredentialsApiFp(configuration).listCredentialsCredentialsProvidersGet(provider, bindingType, agentId, includeInactive, options)(fetch, basePath);
         },
         /**
-         * Update an encrypted provider credential. If `metadata` is omitted, the existing endpoint is preserved; if the provider changes without explicit metadata, or metadata is provided without a base URL, the endpoint resets to a sane provider default.
-         * @summary Update Credential
+         * Update selected fields on a provider credential. Omit the secret to keep the current value. Omitted metadata is preserved; provider changes use that provider's default endpoint unless a base URL is supplied.
+         * @summary Update Provider Credential
          * @param {ProviderCredentialUpdateRequest} body 
-         * @param {any} credentialId 
+         * @param {any} credentialId Provider credential UUID returned by the create or list endpoint.
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
@@ -8131,8 +8427,8 @@ export const ProviderCredentialsApiFactory = function (configuration?: Configura
  */
 export class ProviderCredentialsApi extends BaseAPI {
     /**
-     * Create an encrypted provider credential. Use `metadata.base_url` to override the provider endpoint. If omitted, the API stores a sane provider default for Anthropic, Groq, Ollama, and OpenAI.
-     * @summary Create Credential
+     * Store a provider credential for tenant-wide or agent-specific use. The secret is write-only and is not returned. Use `metadata.base_url` only when the provider should use a non-default compatible endpoint.
+     * @summary Create Provider Credential
      * @param {ProviderCredentialCreateRequest} body 
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
@@ -8143,9 +8439,9 @@ export class ProviderCredentialsApi extends BaseAPI {
     }
 
     /**
-     * 
-     * @summary Delete Credential
-     * @param {any} credentialId 
+     * Permanently remove a provider credential. Confirm dependent agents have another usable credential before deleting it.
+     * @summary Delete Provider Credential
+     * @param {any} credentialId Provider credential UUID returned by the create or list endpoint.
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      * @memberof ProviderCredentialsApi
@@ -8155,9 +8451,9 @@ export class ProviderCredentialsApi extends BaseAPI {
     }
 
     /**
-     * 
-     * @summary Get Credential
-     * @param {any} credentialId 
+     * Retrieve one provider credential's provider, binding, metadata, and active state. Secret material is never included.
+     * @summary Get Provider Credential
+     * @param {any} credentialId Provider credential UUID returned by the create or list endpoint.
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      * @memberof ProviderCredentialsApi
@@ -8167,8 +8463,8 @@ export class ProviderCredentialsApi extends BaseAPI {
     }
 
     /**
-     * 
-     * @summary List Credentials
+     * List configured model-provider credentials without secret values. Filter by provider, binding type, agent, or active state when selecting a credential for an agent.
+     * @summary List Provider Credentials
      * @param {any} [provider] 
      * @param {any} [bindingType] 
      * @param {any} [agentId] 
@@ -8182,10 +8478,10 @@ export class ProviderCredentialsApi extends BaseAPI {
     }
 
     /**
-     * Update an encrypted provider credential. If `metadata` is omitted, the existing endpoint is preserved; if the provider changes without explicit metadata, or metadata is provided without a base URL, the endpoint resets to a sane provider default.
-     * @summary Update Credential
+     * Update selected fields on a provider credential. Omit the secret to keep the current value. Omitted metadata is preserved; provider changes use that provider's default endpoint unless a base URL is supplied.
+     * @summary Update Provider Credential
      * @param {ProviderCredentialUpdateRequest} body 
-     * @param {any} credentialId 
+     * @param {any} credentialId Provider credential UUID returned by the create or list endpoint.
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      * @memberof ProviderCredentialsApi
@@ -8202,10 +8498,10 @@ export class ProviderCredentialsApi extends BaseAPI {
 export const RunsApiFetchParamCreator = function (configuration?: Configuration) {
     return {
         /**
-         * 
+         * Start asynchronous work for a hosted agent. A 202 response contains the server-issued run UUID; use `GET /runs/{run_id}` to follow its status and resume it if human input is requested.
          * @summary Create Goal Run
          * @param {GoalRunRequest} body 
-         * @param {any} agentId 
+         * @param {any} agentId Hosted agent UUID returned by the agent create or list endpoint.
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
@@ -8225,6 +8521,14 @@ export const RunsApiFetchParamCreator = function (configuration?: Configuration)
             const localVarHeaderParameter = {} as any;
             const localVarQueryParameter = {} as any;
 
+            // authentication BearerApiKey required
+            if (configuration && configuration.apiKey) {
+                const localVarApiKeyValue = typeof configuration.apiKey === 'function'
+					? configuration.apiKey("Authorization")
+					: configuration.apiKey;
+                localVarHeaderParameter["Authorization"] = localVarApiKeyValue;
+            }
+
             localVarHeaderParameter['Content-Type'] = 'application/json';
 
             localVarUrlObj.query = Object.assign({}, localVarUrlObj.query, localVarQueryParameter, options.query);
@@ -8240,9 +8544,9 @@ export const RunsApiFetchParamCreator = function (configuration?: Configuration)
             };
         },
         /**
-         * 
+         * Retrieve the latest state and result of a hosted run by its server-issued UUID. Poll this endpoint after starting or resuming a run until it reaches a terminal state or requests human input.
          * @summary Get Run
-         * @param {any} runId 
+         * @param {any} runId Server-issued hosted run UUID returned when a run is accepted.
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
@@ -8258,6 +8562,14 @@ export const RunsApiFetchParamCreator = function (configuration?: Configuration)
             const localVarHeaderParameter = {} as any;
             const localVarQueryParameter = {} as any;
 
+            // authentication BearerApiKey required
+            if (configuration && configuration.apiKey) {
+                const localVarApiKeyValue = typeof configuration.apiKey === 'function'
+					? configuration.apiKey("Authorization")
+					: configuration.apiKey;
+                localVarHeaderParameter["Authorization"] = localVarApiKeyValue;
+            }
+
             localVarUrlObj.query = Object.assign({}, localVarUrlObj.query, localVarQueryParameter, options.query);
             // fix override query string Detail: https://stackoverflow.com/a/7517673/1077943
             localVarUrlObj.search = null;
@@ -8269,15 +8581,15 @@ export const RunsApiFetchParamCreator = function (configuration?: Configuration)
             };
         },
         /**
-         * 
+         * List hosted runs for one agent, optionally filtered by status, type, session, or reporting window. Use the returned run UUIDs with `/runs`.
          * @summary List Agent Runs
-         * @param {any} agentId 
+         * @param {any} agentId Hosted agent UUID returned by the agent create or list endpoint.
          * @param {any} [status] Filter by one or more run statuses.
          * @param {any} [runType] Filter by one or more run types (goal|resume).
          * @param {any} [sessionId] Filter to a single session.
          * @param {UsageTimeWindow} [window] Window bounding which runs are returned.
-         * @param {any} [limit] Page size.
-         * @param {any} [cursor] Opaque string from the previous page&#x27;s &#x60;next_cursor&#x60;.
+         * @param {any} [limit] Maximum number of items to return on this page.
+         * @param {any} [cursor] Opaque pagination token from the previous response&#x27;s &#x60;next_cursor&#x60;. Pass it back unchanged; omit it to start again from the first page.
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
@@ -8292,6 +8604,14 @@ export const RunsApiFetchParamCreator = function (configuration?: Configuration)
             const localVarRequestOptions = Object.assign({ method: 'GET' }, options);
             const localVarHeaderParameter = {} as any;
             const localVarQueryParameter = {} as any;
+
+            // authentication BearerApiKey required
+            if (configuration && configuration.apiKey) {
+                const localVarApiKeyValue = typeof configuration.apiKey === 'function'
+					? configuration.apiKey("Authorization")
+					: configuration.apiKey;
+                localVarHeaderParameter["Authorization"] = localVarApiKeyValue;
+            }
 
             if (status !== undefined) {
                 localVarQueryParameter['status'] = status;
@@ -8328,11 +8648,11 @@ export const RunsApiFetchParamCreator = function (configuration?: Configuration)
             };
         },
         /**
-         * List runs in a session (newest first), keyset-paginated.
+         * List the hosted runs associated with one conversation session, newest first. Use the returned run UUIDs to inspect individual run details.
          * @summary List Session Runs
-         * @param {any} sessionId 
-         * @param {any} [limit] Page size.
-         * @param {any} [cursor] Opaque string from the previous page&#x27;s &#x60;next_cursor&#x60;.
+         * @param {any} sessionId Conversation session UUID associated with an agent.
+         * @param {any} [limit] Maximum number of items to return on this page.
+         * @param {any} [cursor] Opaque pagination token from the previous response&#x27;s &#x60;next_cursor&#x60;. Pass it back unchanged; omit it to start again from the first page.
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
@@ -8347,6 +8667,14 @@ export const RunsApiFetchParamCreator = function (configuration?: Configuration)
             const localVarRequestOptions = Object.assign({ method: 'GET' }, options);
             const localVarHeaderParameter = {} as any;
             const localVarQueryParameter = {} as any;
+
+            // authentication BearerApiKey required
+            if (configuration && configuration.apiKey) {
+                const localVarApiKeyValue = typeof configuration.apiKey === 'function'
+					? configuration.apiKey("Authorization")
+					: configuration.apiKey;
+                localVarHeaderParameter["Authorization"] = localVarApiKeyValue;
+            }
 
             if (limit !== undefined) {
                 localVarQueryParameter['limit'] = limit;
@@ -8367,10 +8695,10 @@ export const RunsApiFetchParamCreator = function (configuration?: Configuration)
             };
         },
         /**
-         * Resume a suspended run with a human decision.
+         * Continue a suspended hosted run with the requested human decision. A 202 response contains the accepted child run; follow it with `GET /runs/{run_id}`.
          * @summary Resume Run
          * @param {ResumeRunRequest} body 
-         * @param {any} runId 
+         * @param {any} runId Server-issued hosted run UUID returned when a run is accepted.
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
@@ -8389,6 +8717,14 @@ export const RunsApiFetchParamCreator = function (configuration?: Configuration)
             const localVarRequestOptions = Object.assign({ method: 'POST' }, options);
             const localVarHeaderParameter = {} as any;
             const localVarQueryParameter = {} as any;
+
+            // authentication BearerApiKey required
+            if (configuration && configuration.apiKey) {
+                const localVarApiKeyValue = typeof configuration.apiKey === 'function'
+					? configuration.apiKey("Authorization")
+					: configuration.apiKey;
+                localVarHeaderParameter["Authorization"] = localVarApiKeyValue;
+            }
 
             localVarHeaderParameter['Content-Type'] = 'application/json';
 
@@ -8414,10 +8750,10 @@ export const RunsApiFetchParamCreator = function (configuration?: Configuration)
 export const RunsApiFp = function(configuration?: Configuration) {
     return {
         /**
-         * 
+         * Start asynchronous work for a hosted agent. A 202 response contains the server-issued run UUID; use `GET /runs/{run_id}` to follow its status and resume it if human input is requested.
          * @summary Create Goal Run
          * @param {GoalRunRequest} body 
-         * @param {any} agentId 
+         * @param {any} agentId Hosted agent UUID returned by the agent create or list endpoint.
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
@@ -8434,9 +8770,9 @@ export const RunsApiFp = function(configuration?: Configuration) {
             };
         },
         /**
-         * 
+         * Retrieve the latest state and result of a hosted run by its server-issued UUID. Poll this endpoint after starting or resuming a run until it reaches a terminal state or requests human input.
          * @summary Get Run
-         * @param {any} runId 
+         * @param {any} runId Server-issued hosted run UUID returned when a run is accepted.
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
@@ -8453,15 +8789,15 @@ export const RunsApiFp = function(configuration?: Configuration) {
             };
         },
         /**
-         * 
+         * List hosted runs for one agent, optionally filtered by status, type, session, or reporting window. Use the returned run UUIDs with `/runs`.
          * @summary List Agent Runs
-         * @param {any} agentId 
+         * @param {any} agentId Hosted agent UUID returned by the agent create or list endpoint.
          * @param {any} [status] Filter by one or more run statuses.
          * @param {any} [runType] Filter by one or more run types (goal|resume).
          * @param {any} [sessionId] Filter to a single session.
          * @param {UsageTimeWindow} [window] Window bounding which runs are returned.
-         * @param {any} [limit] Page size.
-         * @param {any} [cursor] Opaque string from the previous page&#x27;s &#x60;next_cursor&#x60;.
+         * @param {any} [limit] Maximum number of items to return on this page.
+         * @param {any} [cursor] Opaque pagination token from the previous response&#x27;s &#x60;next_cursor&#x60;. Pass it back unchanged; omit it to start again from the first page.
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
@@ -8478,11 +8814,11 @@ export const RunsApiFp = function(configuration?: Configuration) {
             };
         },
         /**
-         * List runs in a session (newest first), keyset-paginated.
+         * List the hosted runs associated with one conversation session, newest first. Use the returned run UUIDs to inspect individual run details.
          * @summary List Session Runs
-         * @param {any} sessionId 
-         * @param {any} [limit] Page size.
-         * @param {any} [cursor] Opaque string from the previous page&#x27;s &#x60;next_cursor&#x60;.
+         * @param {any} sessionId Conversation session UUID associated with an agent.
+         * @param {any} [limit] Maximum number of items to return on this page.
+         * @param {any} [cursor] Opaque pagination token from the previous response&#x27;s &#x60;next_cursor&#x60;. Pass it back unchanged; omit it to start again from the first page.
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
@@ -8499,10 +8835,10 @@ export const RunsApiFp = function(configuration?: Configuration) {
             };
         },
         /**
-         * Resume a suspended run with a human decision.
+         * Continue a suspended hosted run with the requested human decision. A 202 response contains the accepted child run; follow it with `GET /runs/{run_id}`.
          * @summary Resume Run
          * @param {ResumeRunRequest} body 
-         * @param {any} runId 
+         * @param {any} runId Server-issued hosted run UUID returned when a run is accepted.
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
@@ -8528,10 +8864,10 @@ export const RunsApiFp = function(configuration?: Configuration) {
 export const RunsApiFactory = function (configuration?: Configuration, fetch?: FetchAPI, basePath?: string) {
     return {
         /**
-         * 
+         * Start asynchronous work for a hosted agent. A 202 response contains the server-issued run UUID; use `GET /runs/{run_id}` to follow its status and resume it if human input is requested.
          * @summary Create Goal Run
          * @param {GoalRunRequest} body 
-         * @param {any} agentId 
+         * @param {any} agentId Hosted agent UUID returned by the agent create or list endpoint.
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
@@ -8539,9 +8875,9 @@ export const RunsApiFactory = function (configuration?: Configuration, fetch?: F
             return RunsApiFp(configuration).dispatchGoalRunEndpointAgentsAgentIdGoalsPost(body, agentId, options)(fetch, basePath);
         },
         /**
-         * 
+         * Retrieve the latest state and result of a hosted run by its server-issued UUID. Poll this endpoint after starting or resuming a run until it reaches a terminal state or requests human input.
          * @summary Get Run
-         * @param {any} runId 
+         * @param {any} runId Server-issued hosted run UUID returned when a run is accepted.
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
@@ -8549,15 +8885,15 @@ export const RunsApiFactory = function (configuration?: Configuration, fetch?: F
             return RunsApiFp(configuration).getRunEndpointRunsRunIdGet(runId, options)(fetch, basePath);
         },
         /**
-         * 
+         * List hosted runs for one agent, optionally filtered by status, type, session, or reporting window. Use the returned run UUIDs with `/runs`.
          * @summary List Agent Runs
-         * @param {any} agentId 
+         * @param {any} agentId Hosted agent UUID returned by the agent create or list endpoint.
          * @param {any} [status] Filter by one or more run statuses.
          * @param {any} [runType] Filter by one or more run types (goal|resume).
          * @param {any} [sessionId] Filter to a single session.
          * @param {UsageTimeWindow} [window] Window bounding which runs are returned.
-         * @param {any} [limit] Page size.
-         * @param {any} [cursor] Opaque string from the previous page&#x27;s &#x60;next_cursor&#x60;.
+         * @param {any} [limit] Maximum number of items to return on this page.
+         * @param {any} [cursor] Opaque pagination token from the previous response&#x27;s &#x60;next_cursor&#x60;. Pass it back unchanged; omit it to start again from the first page.
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
@@ -8565,11 +8901,11 @@ export const RunsApiFactory = function (configuration?: Configuration, fetch?: F
             return RunsApiFp(configuration).listAgentRunsEndpointAgentsAgentIdRunsGet(agentId, status, runType, sessionId, window, limit, cursor, options)(fetch, basePath);
         },
         /**
-         * List runs in a session (newest first), keyset-paginated.
+         * List the hosted runs associated with one conversation session, newest first. Use the returned run UUIDs to inspect individual run details.
          * @summary List Session Runs
-         * @param {any} sessionId 
-         * @param {any} [limit] Page size.
-         * @param {any} [cursor] Opaque string from the previous page&#x27;s &#x60;next_cursor&#x60;.
+         * @param {any} sessionId Conversation session UUID associated with an agent.
+         * @param {any} [limit] Maximum number of items to return on this page.
+         * @param {any} [cursor] Opaque pagination token from the previous response&#x27;s &#x60;next_cursor&#x60;. Pass it back unchanged; omit it to start again from the first page.
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
@@ -8577,10 +8913,10 @@ export const RunsApiFactory = function (configuration?: Configuration, fetch?: F
             return RunsApiFp(configuration).listSessionRunsEndpointSessionsSessionIdRunsGet(sessionId, limit, cursor, options)(fetch, basePath);
         },
         /**
-         * Resume a suspended run with a human decision.
+         * Continue a suspended hosted run with the requested human decision. A 202 response contains the accepted child run; follow it with `GET /runs/{run_id}`.
          * @summary Resume Run
          * @param {ResumeRunRequest} body 
-         * @param {any} runId 
+         * @param {any} runId Server-issued hosted run UUID returned when a run is accepted.
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
@@ -8598,10 +8934,10 @@ export const RunsApiFactory = function (configuration?: Configuration, fetch?: F
  */
 export class RunsApi extends BaseAPI {
     /**
-     * 
+     * Start asynchronous work for a hosted agent. A 202 response contains the server-issued run UUID; use `GET /runs/{run_id}` to follow its status and resume it if human input is requested.
      * @summary Create Goal Run
      * @param {GoalRunRequest} body 
-     * @param {any} agentId 
+     * @param {any} agentId Hosted agent UUID returned by the agent create or list endpoint.
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      * @memberof RunsApi
@@ -8611,9 +8947,9 @@ export class RunsApi extends BaseAPI {
     }
 
     /**
-     * 
+     * Retrieve the latest state and result of a hosted run by its server-issued UUID. Poll this endpoint after starting or resuming a run until it reaches a terminal state or requests human input.
      * @summary Get Run
-     * @param {any} runId 
+     * @param {any} runId Server-issued hosted run UUID returned when a run is accepted.
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      * @memberof RunsApi
@@ -8623,15 +8959,15 @@ export class RunsApi extends BaseAPI {
     }
 
     /**
-     * 
+     * List hosted runs for one agent, optionally filtered by status, type, session, or reporting window. Use the returned run UUIDs with `/runs`.
      * @summary List Agent Runs
-     * @param {any} agentId 
+     * @param {any} agentId Hosted agent UUID returned by the agent create or list endpoint.
      * @param {any} [status] Filter by one or more run statuses.
      * @param {any} [runType] Filter by one or more run types (goal|resume).
      * @param {any} [sessionId] Filter to a single session.
      * @param {UsageTimeWindow} [window] Window bounding which runs are returned.
-     * @param {any} [limit] Page size.
-     * @param {any} [cursor] Opaque string from the previous page&#x27;s &#x60;next_cursor&#x60;.
+     * @param {any} [limit] Maximum number of items to return on this page.
+     * @param {any} [cursor] Opaque pagination token from the previous response&#x27;s &#x60;next_cursor&#x60;. Pass it back unchanged; omit it to start again from the first page.
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      * @memberof RunsApi
@@ -8641,11 +8977,11 @@ export class RunsApi extends BaseAPI {
     }
 
     /**
-     * List runs in a session (newest first), keyset-paginated.
+     * List the hosted runs associated with one conversation session, newest first. Use the returned run UUIDs to inspect individual run details.
      * @summary List Session Runs
-     * @param {any} sessionId 
-     * @param {any} [limit] Page size.
-     * @param {any} [cursor] Opaque string from the previous page&#x27;s &#x60;next_cursor&#x60;.
+     * @param {any} sessionId Conversation session UUID associated with an agent.
+     * @param {any} [limit] Maximum number of items to return on this page.
+     * @param {any} [cursor] Opaque pagination token from the previous response&#x27;s &#x60;next_cursor&#x60;. Pass it back unchanged; omit it to start again from the first page.
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      * @memberof RunsApi
@@ -8655,10 +8991,10 @@ export class RunsApi extends BaseAPI {
     }
 
     /**
-     * Resume a suspended run with a human decision.
+     * Continue a suspended hosted run with the requested human decision. A 202 response contains the accepted child run; follow it with `GET /runs/{run_id}`.
      * @summary Resume Run
      * @param {ResumeRunRequest} body 
-     * @param {any} runId 
+     * @param {any} runId Server-issued hosted run UUID returned when a run is accepted.
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      * @memberof RunsApi
@@ -8675,11 +9011,11 @@ export class RunsApi extends BaseAPI {
 export const SessionsApiFetchParamCreator = function (configuration?: Configuration) {
     return {
         /**
-         * 
+         * List conversation sessions associated with one agent. Results are cursor-paginated; pass `next_cursor` back unchanged to continue.
          * @summary List Agent Sessions
-         * @param {any} agentId 
-         * @param {any} [limit] Page size.
-         * @param {any} [cursor] Opaque string from the previous page&#x27;s &#x60;next_cursor&#x60;.
+         * @param {any} agentId Hosted agent UUID returned by the agent create or list endpoint.
+         * @param {any} [limit] Maximum number of items to return on this page.
+         * @param {any} [cursor] Opaque pagination token from the previous response&#x27;s &#x60;next_cursor&#x60;. Pass it back unchanged; omit it to start again from the first page.
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
@@ -8695,6 +9031,14 @@ export const SessionsApiFetchParamCreator = function (configuration?: Configurat
             const localVarHeaderParameter = {} as any;
             const localVarQueryParameter = {} as any;
 
+            // authentication BearerApiKey required
+            if (configuration && configuration.apiKey) {
+                const localVarApiKeyValue = typeof configuration.apiKey === 'function'
+					? configuration.apiKey("Authorization")
+					: configuration.apiKey;
+                localVarHeaderParameter["Authorization"] = localVarApiKeyValue;
+            }
+
             if (limit !== undefined) {
                 localVarQueryParameter['limit'] = limit;
             }
@@ -8714,11 +9058,11 @@ export const SessionsApiFetchParamCreator = function (configuration?: Configurat
             };
         },
         /**
-         * 
+         * Read the messages in one conversation session. Results are ordered for transcript consumption and cursor-paginated for long sessions.
          * @summary List Session Messages
-         * @param {any} sessionId 
-         * @param {any} [limit] Page size.
-         * @param {any} [cursor] Opaque string from the previous page&#x27;s &#x60;next_cursor&#x60;.
+         * @param {any} sessionId Conversation session UUID associated with an agent.
+         * @param {any} [limit] Maximum number of items to return on this page.
+         * @param {any} [cursor] Opaque pagination token from the previous response&#x27;s &#x60;next_cursor&#x60;. Pass it back unchanged; omit it to start again from the first page.
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
@@ -8734,6 +9078,14 @@ export const SessionsApiFetchParamCreator = function (configuration?: Configurat
             const localVarHeaderParameter = {} as any;
             const localVarQueryParameter = {} as any;
 
+            // authentication BearerApiKey required
+            if (configuration && configuration.apiKey) {
+                const localVarApiKeyValue = typeof configuration.apiKey === 'function'
+					? configuration.apiKey("Authorization")
+					: configuration.apiKey;
+                localVarHeaderParameter["Authorization"] = localVarApiKeyValue;
+            }
+
             if (limit !== undefined) {
                 localVarQueryParameter['limit'] = limit;
             }
@@ -8753,11 +9105,11 @@ export const SessionsApiFetchParamCreator = function (configuration?: Configurat
             };
         },
         /**
-         * List runs in a session (newest first), keyset-paginated.
+         * List the hosted runs associated with one conversation session, newest first. Use the returned run UUIDs to inspect individual run details.
          * @summary List Session Runs
-         * @param {any} sessionId 
-         * @param {any} [limit] Page size.
-         * @param {any} [cursor] Opaque string from the previous page&#x27;s &#x60;next_cursor&#x60;.
+         * @param {any} sessionId Conversation session UUID associated with an agent.
+         * @param {any} [limit] Maximum number of items to return on this page.
+         * @param {any} [cursor] Opaque pagination token from the previous response&#x27;s &#x60;next_cursor&#x60;. Pass it back unchanged; omit it to start again from the first page.
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
@@ -8772,6 +9124,14 @@ export const SessionsApiFetchParamCreator = function (configuration?: Configurat
             const localVarRequestOptions = Object.assign({ method: 'GET' }, options);
             const localVarHeaderParameter = {} as any;
             const localVarQueryParameter = {} as any;
+
+            // authentication BearerApiKey required
+            if (configuration && configuration.apiKey) {
+                const localVarApiKeyValue = typeof configuration.apiKey === 'function'
+					? configuration.apiKey("Authorization")
+					: configuration.apiKey;
+                localVarHeaderParameter["Authorization"] = localVarApiKeyValue;
+            }
 
             if (limit !== undefined) {
                 localVarQueryParameter['limit'] = limit;
@@ -8801,11 +9161,11 @@ export const SessionsApiFetchParamCreator = function (configuration?: Configurat
 export const SessionsApiFp = function(configuration?: Configuration) {
     return {
         /**
-         * 
+         * List conversation sessions associated with one agent. Results are cursor-paginated; pass `next_cursor` back unchanged to continue.
          * @summary List Agent Sessions
-         * @param {any} agentId 
-         * @param {any} [limit] Page size.
-         * @param {any} [cursor] Opaque string from the previous page&#x27;s &#x60;next_cursor&#x60;.
+         * @param {any} agentId Hosted agent UUID returned by the agent create or list endpoint.
+         * @param {any} [limit] Maximum number of items to return on this page.
+         * @param {any} [cursor] Opaque pagination token from the previous response&#x27;s &#x60;next_cursor&#x60;. Pass it back unchanged; omit it to start again from the first page.
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
@@ -8822,11 +9182,11 @@ export const SessionsApiFp = function(configuration?: Configuration) {
             };
         },
         /**
-         * 
+         * Read the messages in one conversation session. Results are ordered for transcript consumption and cursor-paginated for long sessions.
          * @summary List Session Messages
-         * @param {any} sessionId 
-         * @param {any} [limit] Page size.
-         * @param {any} [cursor] Opaque string from the previous page&#x27;s &#x60;next_cursor&#x60;.
+         * @param {any} sessionId Conversation session UUID associated with an agent.
+         * @param {any} [limit] Maximum number of items to return on this page.
+         * @param {any} [cursor] Opaque pagination token from the previous response&#x27;s &#x60;next_cursor&#x60;. Pass it back unchanged; omit it to start again from the first page.
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
@@ -8843,11 +9203,11 @@ export const SessionsApiFp = function(configuration?: Configuration) {
             };
         },
         /**
-         * List runs in a session (newest first), keyset-paginated.
+         * List the hosted runs associated with one conversation session, newest first. Use the returned run UUIDs to inspect individual run details.
          * @summary List Session Runs
-         * @param {any} sessionId 
-         * @param {any} [limit] Page size.
-         * @param {any} [cursor] Opaque string from the previous page&#x27;s &#x60;next_cursor&#x60;.
+         * @param {any} sessionId Conversation session UUID associated with an agent.
+         * @param {any} [limit] Maximum number of items to return on this page.
+         * @param {any} [cursor] Opaque pagination token from the previous response&#x27;s &#x60;next_cursor&#x60;. Pass it back unchanged; omit it to start again from the first page.
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
@@ -8873,11 +9233,11 @@ export const SessionsApiFp = function(configuration?: Configuration) {
 export const SessionsApiFactory = function (configuration?: Configuration, fetch?: FetchAPI, basePath?: string) {
     return {
         /**
-         * 
+         * List conversation sessions associated with one agent. Results are cursor-paginated; pass `next_cursor` back unchanged to continue.
          * @summary List Agent Sessions
-         * @param {any} agentId 
-         * @param {any} [limit] Page size.
-         * @param {any} [cursor] Opaque string from the previous page&#x27;s &#x60;next_cursor&#x60;.
+         * @param {any} agentId Hosted agent UUID returned by the agent create or list endpoint.
+         * @param {any} [limit] Maximum number of items to return on this page.
+         * @param {any} [cursor] Opaque pagination token from the previous response&#x27;s &#x60;next_cursor&#x60;. Pass it back unchanged; omit it to start again from the first page.
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
@@ -8885,11 +9245,11 @@ export const SessionsApiFactory = function (configuration?: Configuration, fetch
             return SessionsApiFp(configuration).listAgentSessionsEndpointAgentsAgentIdSessionsGet(agentId, limit, cursor, options)(fetch, basePath);
         },
         /**
-         * 
+         * Read the messages in one conversation session. Results are ordered for transcript consumption and cursor-paginated for long sessions.
          * @summary List Session Messages
-         * @param {any} sessionId 
-         * @param {any} [limit] Page size.
-         * @param {any} [cursor] Opaque string from the previous page&#x27;s &#x60;next_cursor&#x60;.
+         * @param {any} sessionId Conversation session UUID associated with an agent.
+         * @param {any} [limit] Maximum number of items to return on this page.
+         * @param {any} [cursor] Opaque pagination token from the previous response&#x27;s &#x60;next_cursor&#x60;. Pass it back unchanged; omit it to start again from the first page.
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
@@ -8897,11 +9257,11 @@ export const SessionsApiFactory = function (configuration?: Configuration, fetch
             return SessionsApiFp(configuration).listSessionMessagesEndpointSessionsSessionIdMessagesGet(sessionId, limit, cursor, options)(fetch, basePath);
         },
         /**
-         * List runs in a session (newest first), keyset-paginated.
+         * List the hosted runs associated with one conversation session, newest first. Use the returned run UUIDs to inspect individual run details.
          * @summary List Session Runs
-         * @param {any} sessionId 
-         * @param {any} [limit] Page size.
-         * @param {any} [cursor] Opaque string from the previous page&#x27;s &#x60;next_cursor&#x60;.
+         * @param {any} sessionId Conversation session UUID associated with an agent.
+         * @param {any} [limit] Maximum number of items to return on this page.
+         * @param {any} [cursor] Opaque pagination token from the previous response&#x27;s &#x60;next_cursor&#x60;. Pass it back unchanged; omit it to start again from the first page.
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
@@ -8919,11 +9279,11 @@ export const SessionsApiFactory = function (configuration?: Configuration, fetch
  */
 export class SessionsApi extends BaseAPI {
     /**
-     * 
+     * List conversation sessions associated with one agent. Results are cursor-paginated; pass `next_cursor` back unchanged to continue.
      * @summary List Agent Sessions
-     * @param {any} agentId 
-     * @param {any} [limit] Page size.
-     * @param {any} [cursor] Opaque string from the previous page&#x27;s &#x60;next_cursor&#x60;.
+     * @param {any} agentId Hosted agent UUID returned by the agent create or list endpoint.
+     * @param {any} [limit] Maximum number of items to return on this page.
+     * @param {any} [cursor] Opaque pagination token from the previous response&#x27;s &#x60;next_cursor&#x60;. Pass it back unchanged; omit it to start again from the first page.
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      * @memberof SessionsApi
@@ -8933,11 +9293,11 @@ export class SessionsApi extends BaseAPI {
     }
 
     /**
-     * 
+     * Read the messages in one conversation session. Results are ordered for transcript consumption and cursor-paginated for long sessions.
      * @summary List Session Messages
-     * @param {any} sessionId 
-     * @param {any} [limit] Page size.
-     * @param {any} [cursor] Opaque string from the previous page&#x27;s &#x60;next_cursor&#x60;.
+     * @param {any} sessionId Conversation session UUID associated with an agent.
+     * @param {any} [limit] Maximum number of items to return on this page.
+     * @param {any} [cursor] Opaque pagination token from the previous response&#x27;s &#x60;next_cursor&#x60;. Pass it back unchanged; omit it to start again from the first page.
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      * @memberof SessionsApi
@@ -8947,11 +9307,11 @@ export class SessionsApi extends BaseAPI {
     }
 
     /**
-     * List runs in a session (newest first), keyset-paginated.
+     * List the hosted runs associated with one conversation session, newest first. Use the returned run UUIDs to inspect individual run details.
      * @summary List Session Runs
-     * @param {any} sessionId 
-     * @param {any} [limit] Page size.
-     * @param {any} [cursor] Opaque string from the previous page&#x27;s &#x60;next_cursor&#x60;.
+     * @param {any} sessionId Conversation session UUID associated with an agent.
+     * @param {any} [limit] Maximum number of items to return on this page.
+     * @param {any} [cursor] Opaque pagination token from the previous response&#x27;s &#x60;next_cursor&#x60;. Pass it back unchanged; omit it to start again from the first page.
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      * @memberof SessionsApi
@@ -8968,10 +9328,10 @@ export class SessionsApi extends BaseAPI {
 export const SpacesApiFetchParamCreator = function (configuration?: Configuration) {
     return {
         /**
-         * 
+         * List spaces the caller can read in the active tenant. Use these UUIDs when selecting an agent home space or filtering accessible agents.
          * @summary List Spaces
-         * @param {any} [limit] Page size.
-         * @param {any} [cursor] Opaque string from the previous page&#x27;s &#x60;next_cursor&#x60;.
+         * @param {any} [limit] Maximum number of items to return on this page.
+         * @param {any} [cursor] Opaque pagination token from the previous response&#x27;s &#x60;next_cursor&#x60;. Pass it back unchanged; omit it to start again from the first page.
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
@@ -8981,6 +9341,14 @@ export const SpacesApiFetchParamCreator = function (configuration?: Configuratio
             const localVarRequestOptions = Object.assign({ method: 'GET' }, options);
             const localVarHeaderParameter = {} as any;
             const localVarQueryParameter = {} as any;
+
+            // authentication BearerApiKey required
+            if (configuration && configuration.apiKey) {
+                const localVarApiKeyValue = typeof configuration.apiKey === 'function'
+					? configuration.apiKey("Authorization")
+					: configuration.apiKey;
+                localVarHeaderParameter["Authorization"] = localVarApiKeyValue;
+            }
 
             if (limit !== undefined) {
                 localVarQueryParameter['limit'] = limit;
@@ -9010,10 +9378,10 @@ export const SpacesApiFetchParamCreator = function (configuration?: Configuratio
 export const SpacesApiFp = function(configuration?: Configuration) {
     return {
         /**
-         * 
+         * List spaces the caller can read in the active tenant. Use these UUIDs when selecting an agent home space or filtering accessible agents.
          * @summary List Spaces
-         * @param {any} [limit] Page size.
-         * @param {any} [cursor] Opaque string from the previous page&#x27;s &#x60;next_cursor&#x60;.
+         * @param {any} [limit] Maximum number of items to return on this page.
+         * @param {any} [cursor] Opaque pagination token from the previous response&#x27;s &#x60;next_cursor&#x60;. Pass it back unchanged; omit it to start again from the first page.
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
@@ -9039,10 +9407,10 @@ export const SpacesApiFp = function(configuration?: Configuration) {
 export const SpacesApiFactory = function (configuration?: Configuration, fetch?: FetchAPI, basePath?: string) {
     return {
         /**
-         * 
+         * List spaces the caller can read in the active tenant. Use these UUIDs when selecting an agent home space or filtering accessible agents.
          * @summary List Spaces
-         * @param {any} [limit] Page size.
-         * @param {any} [cursor] Opaque string from the previous page&#x27;s &#x60;next_cursor&#x60;.
+         * @param {any} [limit] Maximum number of items to return on this page.
+         * @param {any} [cursor] Opaque pagination token from the previous response&#x27;s &#x60;next_cursor&#x60;. Pass it back unchanged; omit it to start again from the first page.
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
@@ -9060,10 +9428,10 @@ export const SpacesApiFactory = function (configuration?: Configuration, fetch?:
  */
 export class SpacesApi extends BaseAPI {
     /**
-     * 
+     * List spaces the caller can read in the active tenant. Use these UUIDs when selecting an agent home space or filtering accessible agents.
      * @summary List Spaces
-     * @param {any} [limit] Page size.
-     * @param {any} [cursor] Opaque string from the previous page&#x27;s &#x60;next_cursor&#x60;.
+     * @param {any} [limit] Maximum number of items to return on this page.
+     * @param {any} [cursor] Opaque pagination token from the previous response&#x27;s &#x60;next_cursor&#x60;. Pass it back unchanged; omit it to start again from the first page.
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      * @memberof SpacesApi
@@ -9080,9 +9448,9 @@ export class SpacesApi extends BaseAPI {
 export const UsageApiFetchParamCreator = function (configuration?: Configuration) {
     return {
         /**
-         * 
+         * Return metered usage for one agent over a preset reporting window. Use tenant-level `/usage` endpoints when an all-agent total is required.
          * @summary Get Agent Usage Summary
-         * @param {any} agentId 
+         * @param {any} agentId Hosted agent UUID returned by the agent create or list endpoint.
          * @param {UsageTimeWindow} [window] Preset reporting window.
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
@@ -9099,6 +9467,14 @@ export const UsageApiFetchParamCreator = function (configuration?: Configuration
             const localVarHeaderParameter = {} as any;
             const localVarQueryParameter = {} as any;
 
+            // authentication BearerApiKey required
+            if (configuration && configuration.apiKey) {
+                const localVarApiKeyValue = typeof configuration.apiKey === 'function'
+					? configuration.apiKey("Authorization")
+					: configuration.apiKey;
+                localVarHeaderParameter["Authorization"] = localVarApiKeyValue;
+            }
+
             if (window !== undefined) {
                 localVarQueryParameter['window'] = window;
             }
@@ -9114,9 +9490,9 @@ export const UsageApiFetchParamCreator = function (configuration?: Configuration
             };
         },
         /**
-         * 
-         * @summary Get Own Claim Assists
-         * @param {any} [windowHours] 
+         * Return recent counts of duplicate work avoided by idempotent claim handling. Use this operational usage indicator to understand retry and concurrency savings.
+         * @summary Get Claim Assist Counts
+         * @param {any} [windowHours] Recent lookback window in hours; values are capped at 90 days.
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
@@ -9126,6 +9502,14 @@ export const UsageApiFetchParamCreator = function (configuration?: Configuration
             const localVarRequestOptions = Object.assign({ method: 'GET' }, options);
             const localVarHeaderParameter = {} as any;
             const localVarQueryParameter = {} as any;
+
+            // authentication BearerApiKey required
+            if (configuration && configuration.apiKey) {
+                const localVarApiKeyValue = typeof configuration.apiKey === 'function'
+					? configuration.apiKey("Authorization")
+					: configuration.apiKey;
+                localVarHeaderParameter["Authorization"] = localVarApiKeyValue;
+            }
 
             if (windowHours !== undefined) {
                 localVarQueryParameter['window_hours'] = windowHours;
@@ -9142,8 +9526,8 @@ export const UsageApiFetchParamCreator = function (configuration?: Configuration
             };
         },
         /**
-         * 
-         * @summary Get Own Usage Summary
+         * Return tenant-wide metered usage for a preset reporting window. Use the same `as_of` value with `/usage/runs` to keep totals and pages aligned.
+         * @summary Get Usage Summary
          * @param {UsageTimeWindow} [window] Preset reporting window (custom date range not supported in this API version).
          * @param {any} [asOf] Optional UTC timestamp used to anchor the reporting window so summary and paginated run pages stay aligned across requests.
          * @param {*} [options] Override http request option.
@@ -9155,6 +9539,14 @@ export const UsageApiFetchParamCreator = function (configuration?: Configuration
             const localVarRequestOptions = Object.assign({ method: 'GET' }, options);
             const localVarHeaderParameter = {} as any;
             const localVarQueryParameter = {} as any;
+
+            // authentication BearerApiKey required
+            if (configuration && configuration.apiKey) {
+                const localVarApiKeyValue = typeof configuration.apiKey === 'function'
+					? configuration.apiKey("Authorization")
+					: configuration.apiKey;
+                localVarHeaderParameter["Authorization"] = localVarApiKeyValue;
+            }
 
             if (window !== undefined) {
                 localVarQueryParameter['window'] = window;
@@ -9175,12 +9567,12 @@ export const UsageApiFetchParamCreator = function (configuration?: Configuration
             };
         },
         /**
-         * 
-         * @summary List Own Usage Runs
+         * List hosted runs contributing to tenant usage in the selected reporting window. Results are cursor-paginated for reconciliation and audit views.
+         * @summary List Usage by Run
          * @param {UsageTimeWindow} [window] Preset reporting window (custom date range not supported in this API version).
          * @param {any} [asOf] Optional UTC timestamp used to anchor the reporting window so summary and paginated run pages stay aligned across requests.
-         * @param {any} [limit] Page size.
-         * @param {any} [cursor] Opaque string from the previous page&#x27;s &#x60;next_cursor&#x60;.
+         * @param {any} [limit] Maximum number of items to return on this page.
+         * @param {any} [cursor] Opaque pagination token from the previous response&#x27;s &#x60;next_cursor&#x60;. Pass it back unchanged; omit it to start again from the first page.
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
@@ -9190,6 +9582,14 @@ export const UsageApiFetchParamCreator = function (configuration?: Configuration
             const localVarRequestOptions = Object.assign({ method: 'GET' }, options);
             const localVarHeaderParameter = {} as any;
             const localVarQueryParameter = {} as any;
+
+            // authentication BearerApiKey required
+            if (configuration && configuration.apiKey) {
+                const localVarApiKeyValue = typeof configuration.apiKey === 'function'
+					? configuration.apiKey("Authorization")
+					: configuration.apiKey;
+                localVarHeaderParameter["Authorization"] = localVarApiKeyValue;
+            }
 
             if (window !== undefined) {
                 localVarQueryParameter['window'] = window;
@@ -9227,9 +9627,9 @@ export const UsageApiFetchParamCreator = function (configuration?: Configuration
 export const UsageApiFp = function(configuration?: Configuration) {
     return {
         /**
-         * 
+         * Return metered usage for one agent over a preset reporting window. Use tenant-level `/usage` endpoints when an all-agent total is required.
          * @summary Get Agent Usage Summary
-         * @param {any} agentId 
+         * @param {any} agentId Hosted agent UUID returned by the agent create or list endpoint.
          * @param {UsageTimeWindow} [window] Preset reporting window.
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
@@ -9247,9 +9647,9 @@ export const UsageApiFp = function(configuration?: Configuration) {
             };
         },
         /**
-         * 
-         * @summary Get Own Claim Assists
-         * @param {any} [windowHours] 
+         * Return recent counts of duplicate work avoided by idempotent claim handling. Use this operational usage indicator to understand retry and concurrency savings.
+         * @summary Get Claim Assist Counts
+         * @param {any} [windowHours] Recent lookback window in hours; values are capped at 90 days.
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
@@ -9266,8 +9666,8 @@ export const UsageApiFp = function(configuration?: Configuration) {
             };
         },
         /**
-         * 
-         * @summary Get Own Usage Summary
+         * Return tenant-wide metered usage for a preset reporting window. Use the same `as_of` value with `/usage/runs` to keep totals and pages aligned.
+         * @summary Get Usage Summary
          * @param {UsageTimeWindow} [window] Preset reporting window (custom date range not supported in this API version).
          * @param {any} [asOf] Optional UTC timestamp used to anchor the reporting window so summary and paginated run pages stay aligned across requests.
          * @param {*} [options] Override http request option.
@@ -9286,12 +9686,12 @@ export const UsageApiFp = function(configuration?: Configuration) {
             };
         },
         /**
-         * 
-         * @summary List Own Usage Runs
+         * List hosted runs contributing to tenant usage in the selected reporting window. Results are cursor-paginated for reconciliation and audit views.
+         * @summary List Usage by Run
          * @param {UsageTimeWindow} [window] Preset reporting window (custom date range not supported in this API version).
          * @param {any} [asOf] Optional UTC timestamp used to anchor the reporting window so summary and paginated run pages stay aligned across requests.
-         * @param {any} [limit] Page size.
-         * @param {any} [cursor] Opaque string from the previous page&#x27;s &#x60;next_cursor&#x60;.
+         * @param {any} [limit] Maximum number of items to return on this page.
+         * @param {any} [cursor] Opaque pagination token from the previous response&#x27;s &#x60;next_cursor&#x60;. Pass it back unchanged; omit it to start again from the first page.
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
@@ -9317,9 +9717,9 @@ export const UsageApiFp = function(configuration?: Configuration) {
 export const UsageApiFactory = function (configuration?: Configuration, fetch?: FetchAPI, basePath?: string) {
     return {
         /**
-         * 
+         * Return metered usage for one agent over a preset reporting window. Use tenant-level `/usage` endpoints when an all-agent total is required.
          * @summary Get Agent Usage Summary
-         * @param {any} agentId 
+         * @param {any} agentId Hosted agent UUID returned by the agent create or list endpoint.
          * @param {UsageTimeWindow} [window] Preset reporting window.
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
@@ -9328,9 +9728,9 @@ export const UsageApiFactory = function (configuration?: Configuration, fetch?: 
             return UsageApiFp(configuration).getAgentUsageSummaryEndpointAgentsAgentIdUsageSummaryGet(agentId, window, options)(fetch, basePath);
         },
         /**
-         * 
-         * @summary Get Own Claim Assists
-         * @param {any} [windowHours] 
+         * Return recent counts of duplicate work avoided by idempotent claim handling. Use this operational usage indicator to understand retry and concurrency savings.
+         * @summary Get Claim Assist Counts
+         * @param {any} [windowHours] Recent lookback window in hours; values are capped at 90 days.
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
@@ -9338,8 +9738,8 @@ export const UsageApiFactory = function (configuration?: Configuration, fetch?: 
             return UsageApiFp(configuration).getOwnClaimAssistsUsageClaimAssistsGet(windowHours, options)(fetch, basePath);
         },
         /**
-         * 
-         * @summary Get Own Usage Summary
+         * Return tenant-wide metered usage for a preset reporting window. Use the same `as_of` value with `/usage/runs` to keep totals and pages aligned.
+         * @summary Get Usage Summary
          * @param {UsageTimeWindow} [window] Preset reporting window (custom date range not supported in this API version).
          * @param {any} [asOf] Optional UTC timestamp used to anchor the reporting window so summary and paginated run pages stay aligned across requests.
          * @param {*} [options] Override http request option.
@@ -9349,12 +9749,12 @@ export const UsageApiFactory = function (configuration?: Configuration, fetch?: 
             return UsageApiFp(configuration).getOwnUsageSummaryUsageSummaryGet(window, asOf, options)(fetch, basePath);
         },
         /**
-         * 
-         * @summary List Own Usage Runs
+         * List hosted runs contributing to tenant usage in the selected reporting window. Results are cursor-paginated for reconciliation and audit views.
+         * @summary List Usage by Run
          * @param {UsageTimeWindow} [window] Preset reporting window (custom date range not supported in this API version).
          * @param {any} [asOf] Optional UTC timestamp used to anchor the reporting window so summary and paginated run pages stay aligned across requests.
-         * @param {any} [limit] Page size.
-         * @param {any} [cursor] Opaque string from the previous page&#x27;s &#x60;next_cursor&#x60;.
+         * @param {any} [limit] Maximum number of items to return on this page.
+         * @param {any} [cursor] Opaque pagination token from the previous response&#x27;s &#x60;next_cursor&#x60;. Pass it back unchanged; omit it to start again from the first page.
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
@@ -9372,9 +9772,9 @@ export const UsageApiFactory = function (configuration?: Configuration, fetch?: 
  */
 export class UsageApi extends BaseAPI {
     /**
-     * 
+     * Return metered usage for one agent over a preset reporting window. Use tenant-level `/usage` endpoints when an all-agent total is required.
      * @summary Get Agent Usage Summary
-     * @param {any} agentId 
+     * @param {any} agentId Hosted agent UUID returned by the agent create or list endpoint.
      * @param {UsageTimeWindow} [window] Preset reporting window.
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
@@ -9385,9 +9785,9 @@ export class UsageApi extends BaseAPI {
     }
 
     /**
-     * 
-     * @summary Get Own Claim Assists
-     * @param {any} [windowHours] 
+     * Return recent counts of duplicate work avoided by idempotent claim handling. Use this operational usage indicator to understand retry and concurrency savings.
+     * @summary Get Claim Assist Counts
+     * @param {any} [windowHours] Recent lookback window in hours; values are capped at 90 days.
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      * @memberof UsageApi
@@ -9397,8 +9797,8 @@ export class UsageApi extends BaseAPI {
     }
 
     /**
-     * 
-     * @summary Get Own Usage Summary
+     * Return tenant-wide metered usage for a preset reporting window. Use the same `as_of` value with `/usage/runs` to keep totals and pages aligned.
+     * @summary Get Usage Summary
      * @param {UsageTimeWindow} [window] Preset reporting window (custom date range not supported in this API version).
      * @param {any} [asOf] Optional UTC timestamp used to anchor the reporting window so summary and paginated run pages stay aligned across requests.
      * @param {*} [options] Override http request option.
@@ -9410,12 +9810,12 @@ export class UsageApi extends BaseAPI {
     }
 
     /**
-     * 
-     * @summary List Own Usage Runs
+     * List hosted runs contributing to tenant usage in the selected reporting window. Results are cursor-paginated for reconciliation and audit views.
+     * @summary List Usage by Run
      * @param {UsageTimeWindow} [window] Preset reporting window (custom date range not supported in this API version).
      * @param {any} [asOf] Optional UTC timestamp used to anchor the reporting window so summary and paginated run pages stay aligned across requests.
-     * @param {any} [limit] Page size.
-     * @param {any} [cursor] Opaque string from the previous page&#x27;s &#x60;next_cursor&#x60;.
+     * @param {any} [limit] Maximum number of items to return on this page.
+     * @param {any} [cursor] Opaque pagination token from the previous response&#x27;s &#x60;next_cursor&#x60;. Pass it back unchanged; omit it to start again from the first page.
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      * @memberof UsageApi
