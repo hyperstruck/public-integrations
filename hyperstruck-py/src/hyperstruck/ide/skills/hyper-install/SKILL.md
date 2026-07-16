@@ -26,22 +26,33 @@ contributes new learnings after, with no explicit skill calls in the common case
 pip install --upgrade hyperstruck
 ```
 
-2. **Wire it up.** This copies the `hyper-*` skills into `~/.claude/skills` and
-   `~/.cursor/skills`, deep-merges the learning hooks into each editor's hooks
-   config without touching your existing hooks, writes the Cursor recall nudge,
-   and records auth. It detects which editors are present and only wires those. It
-   is idempotent: re-running upgrades in place rather than duplicating.
+2. **Wire it up.** Prefer running the installer as a module so it uses the same
+   `hyperstruck` you just installed:
 
 ```!
-python3 -m hyperstruck.ide.install $ARGUMENTS
+python -m hyperstruck.ide.install $ARGUMENTS
 ```
+
+   (`python3 -m hyperstruck.ide.install` is fine too.)
+
+   This creates a durable venv at `~/.hyperstruck/venv`, installs/upgrades the
+   running `hyperstruck` package into it, copies the `hyper-*` skills into
+   `~/.claude/skills` and `~/.cursor/skills`, deep-merges the learning hooks into
+   each editor's hooks config without touching your existing hooks, and records
+   auth. Hook commands always call `$HOME/.hyperstruck/venv/bin/python` (or the
+   Windows equivalent), **not** a project `.venv` interpreter — so a later
+   `uv sync` / project venv recreate will not silently break hooks.
+
+   It detects which editors are present and only wires those. It is idempotent:
+   re-running upgrades the durable venv and replaces Hyperstruck hook entries in
+   place rather than duplicating.
 
 3. **Auth.** The wiring records `HYPER_API_KEY` (and optional `HYPER_BASE_URL`)
    into `~/.hyperstruck/.env`. If you have not exported a key, set one first and
    re-run step 2, or pass it explicitly:
 
 ```
-python3 -m hyperstruck.ide.install --api-key <key>
+python -m hyperstruck.ide.install --api-key <key>
 ```
 
 4. **Pick the agent the ambient loop feeds.** If you have a single Hyperstruck
@@ -49,7 +60,7 @@ python3 -m hyperstruck.ide.install --api-key <key>
    the ambient loop should use:
 
 ```
-python3 -m hyperstruck.ide.install --agent-id <agent-id>
+python -m hyperstruck.ide.install --agent-id <agent-id>
 ```
 
    The explicit reasoning skills still select an agent per task; only the silent
@@ -62,12 +73,15 @@ python3 -m hyperstruck.ide.install --agent-id <agent-id>
   merged, and how to uninstall.
 - The loop fails open everywhere: a missing key, a network error, or a malformed
   config degrades to a silent no-op and never blocks your editing.
+- Re-run `python -m hyperstruck.ide.install` after upgrading `hyperstruck` to
+  refresh the durable venv and hook wiring.
 
 ## Uninstall
 
 ```
-python3 -m hyperstruck.ide.install --uninstall
+python -m hyperstruck.ide.install --uninstall
 ```
 
-Removes only Hyperstruck's hook entries, skills, and the Cursor nudge; your other
-hooks are left untouched.
+Removes only Hyperstruck's hook entries and skills; your other hooks are left
+untouched. The durable `~/.hyperstruck/venv` is left in place so a re-install is
+fast.

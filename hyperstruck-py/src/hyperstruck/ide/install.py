@@ -7,6 +7,10 @@ Re-running upgrades in place: our entries carry a
 recognisable command marker, so a re-run replaces them rather than duplicating,
 and never removes a hook another tool installed.
 
+Hook commands always run under a durable venv at ``~/.hyperstruck/venv`` (not
+the project interpreter). Project ``uv sync`` / venv recreates drop undeclared
+packages and would silently break hooks if they pointed at ``sys.executable``.
+
 Every editor is handled independently and best-effort: a missing editor is
 skipped, and a present-but-unparseable config is backed up and left untouched
 rather than overwritten. The loop is strictly opt-in per machine and per editor.
@@ -19,17 +23,20 @@ import json
 import os
 import shlex
 import shutil
-import sys
+import subprocess
+import venv
 from dataclasses import dataclass, field
-from importlib import resources
+from importlib import metadata, resources
 from pathlib import Path
 from typing import Any
+from urllib.parse import unquote, urlparse
 
 from hyperstruck.ide.config import load_env
 from hyperstruck.ide.constants import (
     SOURCE_CLAUDE_CODE,
     SOURCE_CURSOR,
     env_file,
+    ide_venv_dir,
 )
 
 # The command marker: any hook entry whose command contains this is ours, so a
@@ -84,15 +91,16 @@ def install(
 ) -> Report:
     """Install skills, wire hooks, and record auth for every editor present."""
     report = Report()
+    durable_ready = _ensure_durable_venv(report)
     key, url = _write_auth(report, api_key=api_key, base_url=base_url)
     _resolve_ambient_agent(report, agent_id=agent_id, key=key, base_url=url)
 
     if _claude_dir().is_dir():
-        _install_claude(report)
+        _install_claude(report, wire_hooks=durable_ready)
     else:
         report.did("Claude Code not found (~/.claude absent); skipped")
     if _cursor_dir().is_dir():
-        _install_cursor(report)
+        _install_cursor(report, wire_hooks=durable_ready)
     else:
         report.did("Cursor not found (~/.cursor absent); skipped")
 
@@ -102,7 +110,11 @@ def install(
 
 
 def uninstall() -> Report:
-    """Remove only Hyperstruck hook entries and skills."""
+    """Remove only Hyperstruck hook entries and skills.
+
+    Leaves the durable IDE venv in place so a re-install is fast; hooks and
+    skills are what opt the machine into the loop.
+    """
     report = Report()
     _unwire(report, _claude_dir() / "settings.json", _claude_events())
     _unwire(report, _cursor_dir() / "hooks.json", _cursor_events())
@@ -124,8 +136,14 @@ def uninstall() -> Report:
 # -- Claude Code -------------------------------------------------------------
 
 
-def _install_claude(report: Report) -> None:
+def _install_claude(report: Report, *, wire_hooks: bool = True) -> None:
     _copy_skills(_claude_dir() / "skills", report)
+    if not wire_hooks:
+        report.warn(
+            "Skipping Claude Code hook rewire; durable venv is not importable "
+            "(existing hook wiring left in place)"
+        )
+        return
     settings_path = _claude_dir() / "settings.json"
     config = _load_json_config(settings_path, report)
     if config is None:
@@ -152,8 +170,14 @@ def _install_claude(report: Report) -> None:
 # -- Cursor ------------------------------------------------------------------
 
 
-def _install_cursor(report: Report) -> None:
+def _install_cursor(report: Report, *, wire_hooks: bool = True) -> None:
     _copy_skills(_cursor_dir() / "skills", report)
+    if not wire_hooks:
+        report.warn(
+            "Skipping Cursor hook rewire; durable venv is not importable "
+            "(existing hook wiring left in place)"
+        )
+        return
     hooks_path = _cursor_dir() / "hooks.json"
     config = _load_json_config(hooks_path, report)
     if config is None:
@@ -175,11 +199,193 @@ def _install_cursor(report: Report) -> None:
     report.did(f"Wired Cursor hooks in {hooks_path}")
 
 
+# -- durable IDE venv --------------------------------------------------------
+
+
+def _venv_python(venv_dir: Path) -> Path:
+    """Interpreter path inside a venv (POSIX ``bin/`` vs Windows ``Scripts/``)."""
+    if os.name == "nt":
+        return venv_dir / "Scripts" / "python.exe"
+    return venv_dir / "bin" / "python"
+
+
+def _hook_python() -> str:
+    """Python used in wired hook commands: durable venv, never ``sys.executable``."""
+    return str(_venv_python(ide_venv_dir()))
+
+
+def _ensure_durable_venv(report: Report) -> bool:
+    """Create ``~/.hyperstruck/venv`` if needed and sync the running package into it.
+
+    Returns True only when the durable interpreter can ``import hyperstruck``.
+    Callers must not rewire hooks to the durable path when this returns False,
+    so a failed create/install leaves any existing (working) wiring in place.
+    """
+    venv_dir = ide_venv_dir()
+    python = _venv_python(venv_dir)
+    if not python.is_file():
+        try:
+            venv_dir.parent.mkdir(parents=True, exist_ok=True)
+            venv.create(str(venv_dir), with_pip=True, clear=False)
+            report.did(f"Created durable IDE venv at {venv_dir}")
+        except Exception as exc:  # noqa: BLE001 - best-effort; warn and continue
+            report.warn(f"Could not create durable IDE venv at {venv_dir}: {exc}")
+            return False
+    _sync_package_into_venv(report, venv_dir)
+    if not _durable_venv_importable(report, venv_dir):
+        return False
+    return True
+
+
+def _durable_venv_importable(report: Report, venv_dir: Path) -> bool:
+    """True when the durable venv can import hyperstruck (safe to rewire hooks)."""
+    python = _venv_python(venv_dir)
+    if not python.is_file():
+        report.warn(
+            f"Durable IDE venv python missing at {python}; "
+            "leaving existing hook wiring in place"
+        )
+        return False
+    try:
+        result = subprocess.run(
+            [str(python), "-c", "import hyperstruck"],
+            capture_output=True,
+            text=True,
+            check=False,
+            timeout=30,
+        )
+    except (OSError, subprocess.SubprocessError) as exc:
+        report.warn(
+            f"Could not verify durable IDE venv import: {exc}; "
+            "leaving existing hook wiring in place"
+        )
+        return False
+    if result.returncode != 0:
+        detail = (result.stderr or result.stdout or "").strip()
+        suffix = f": {detail}" if detail else ""
+        report.warn(
+            f"Durable IDE venv cannot import hyperstruck{suffix}; "
+            "leaving existing hook wiring in place"
+        )
+        return False
+    return True
+
+
+def _sync_package_into_venv(report: Report, venv_dir: Path) -> None:
+    """Install/upgrade the running hyperstruck distribution into the durable venv."""
+    python = _venv_python(venv_dir)
+    if not python.is_file():
+        report.warn(
+            f"Durable IDE venv python missing at {python}; hooks may fail until install succeeds"
+        )
+        return
+    target = _running_package_pip_target()
+    if target is None:
+        report.warn(
+            "Could not locate the running hyperstruck package to install into the durable venv"
+        )
+        return
+    try:
+        result = subprocess.run(
+            [str(python), "-m", "pip", "install", "--upgrade", target],
+            capture_output=True,
+            text=True,
+            check=False,
+            timeout=180,
+        )
+    except (OSError, subprocess.SubprocessError) as exc:
+        report.warn(f"Failed to install hyperstruck into durable venv: {exc}")
+        return
+    if result.returncode != 0:
+        detail = (result.stderr or result.stdout or "").strip()
+        suffix = f": {detail}" if detail else ""
+        report.warn(f"Failed to install hyperstruck into durable venv{suffix}")
+        return
+    report.did(f"Installed hyperstruck into durable venv ({venv_dir})")
+
+
+def _running_package_pip_target() -> str | None:
+    """Pip install target matching the hyperstruck package that is running this installer.
+
+    Prefers a local path (checkout / editable install) so the durable venv gets the
+    same code that invoked install; falls back to a version pin when only a wheel
+    distribution is available.
+    """
+    local = _local_package_root()
+    if local is not None:
+        return str(local)
+
+    try:
+        dist = metadata.distribution("hyperstruck")
+    except metadata.PackageNotFoundError:
+        return None
+
+    direct_path = _direct_url_path(dist)
+    if direct_path is not None:
+        return str(direct_path)
+
+    version = dist.version
+    if version:
+        return f"hyperstruck=={version}"
+    return "hyperstruck"
+
+
+def _local_package_root() -> Path | None:
+    """Package root when running from a source tree (``pyproject.toml`` nearby)."""
+    here = Path(__file__).resolve()
+    # install.py -> ide -> hyperstruck -> src -> <package root>
+    candidates = []
+    if len(here.parents) > 3:
+        candidates.append(here.parents[3])
+    if len(here.parents) > 2:
+        candidates.append(here.parents[2])
+    for parent in candidates:
+        pyproject = parent / "pyproject.toml"
+        if not pyproject.is_file():
+            continue
+        try:
+            text = pyproject.read_text(encoding="utf-8")
+        except OSError:
+            continue
+        if 'name = "hyperstruck"' in text or "name = 'hyperstruck'" in text:
+            return parent
+    return None
+
+
+def _direct_url_path(dist: metadata.Distribution) -> Path | None:
+    """File path from an editable / direct_url install, if present."""
+    try:
+        raw = dist.read_text("direct_url.json")
+    except (OSError, FileNotFoundError, UnicodeDecodeError):
+        return None
+    if not raw:
+        return None
+    try:
+        data = json.loads(raw)
+        url = data.get("url") or ""
+    except (ValueError, AttributeError, TypeError):
+        return None
+    if not url.startswith("file:"):
+        return None
+    parsed = urlparse(url)
+    path = unquote(parsed.path)
+    # Windows file URLs are often ``file:///C:/...`` → path ``/C:/...``.
+    if os.name == "nt" and len(path) >= 3 and path[0] == "/" and path[2] == ":":
+        path = path[1:]
+    candidate = Path(path)
+    try:
+        if candidate.exists():
+            return candidate
+    except OSError:
+        return None
+    return None
+
+
 # -- hook command definitions ------------------------------------------------
 
 
 def _hook_cmd(command: str, *extra: str) -> str:
-    parts = [shlex.quote(sys.executable), "-m", "hyperstruck.ide.hook", command, *extra]
+    parts = [shlex.quote(_hook_python()), "-m", "hyperstruck.ide.hook", command, *extra]
     return " ".join(parts)
 
 

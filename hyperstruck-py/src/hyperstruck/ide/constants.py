@@ -31,6 +31,18 @@ def env_file() -> Path:
     return hyper_home() / ".env"
 
 
+# Durable venv that holds the IDE hook runtime. Hooks must not use a project
+# ``.venv`` interpreter: ``uv sync`` / recreates drop undeclared packages and
+# silently break hooks. Overridable for tests.
+IDE_VENV_ENV = "HYPER_IDE_VENV"
+
+
+def ide_venv_dir() -> Path:
+    """Directory of the durable IDE venv (``~/.hyperstruck/venv`` by default)."""
+    override = os.environ.get(IDE_VENV_ENV)
+    return Path(override).expanduser() if override else hyper_home() / "venv"
+
+
 # Per-session subpaths, relative to ``sessions_dir() / <session_id>``.
 ACTIVE_FILE = "active.json"
 PENDING_FILE = "pending.json"

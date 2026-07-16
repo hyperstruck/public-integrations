@@ -63,10 +63,17 @@ pip install hyperstruck
 python -m hyperstruck.ide.install
 ```
 
-This installs the `hyper-*` skills into each editor, deep-merges the learning
-hooks into your editor config *without touching your existing hooks*, and records
-auth. It is idempotent: re-running upgrades in place. Restart your editor
-afterwards. Uninstall with `python -m hyperstruck.ide.install --uninstall`.
+Prefer `python -m hyperstruck.ide.install` after pip install so the installer runs
+from the same package you just installed. The installer creates a durable venv at
+`~/.hyperstruck/venv`, installs/upgrades `hyperstruck` into it, copies the
+`hyper-*` skills into each editor, deep-merges the learning hooks into your editor
+config *without touching your existing hooks*, and records auth. Hook commands
+always use that durable interpreter (not a project `.venv`), so a later
+`uv sync` / project venv recreate will not silently break hooks. It is idempotent:
+re-running upgrades the durable venv and replaces Hyperstruck hook entries in
+place. Restart your editor afterwards. Uninstall with
+`python -m hyperstruck.ide.install --uninstall` (hooks and skills only; the
+durable venv is left in place).
 
 ## What gets learned, and when
 

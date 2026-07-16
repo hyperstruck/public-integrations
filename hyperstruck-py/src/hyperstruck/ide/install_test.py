@@ -3,10 +3,14 @@
 from __future__ import annotations
 
 import json
+import sys
+from pathlib import Path
 
 import pytest
 
 import hyperstruck.ide.install as install
+
+_REAL_ENSURE_DURABLE_VENV = install._ensure_durable_venv
 
 
 @pytest.fixture(autouse=True)
@@ -15,7 +19,10 @@ def _dirs(tmp_path, monkeypatch):
     cursor = tmp_path / "cursor"
     claude.mkdir()
     cursor.mkdir()
-    monkeypatch.setenv("HYPER_HOME", str(tmp_path / "home"))
+    home = tmp_path / "home"
+    venv_dir = home / "venv"
+    monkeypatch.setenv("HYPER_HOME", str(home))
+    monkeypatch.setenv("HYPER_IDE_VENV", str(venv_dir))
     monkeypatch.setenv("HYPER_CLAUDE_DIR", str(claude))
     monkeypatch.setenv("HYPER_CURSOR_DIR", str(cursor))
     for var in (
@@ -25,7 +32,9 @@ def _dirs(tmp_path, monkeypatch):
         "HYPER_LEARNING_AGENT_ID",
     ):
         monkeypatch.delenv(var, raising=False)
-    return claude, cursor
+    # Skip slow venv/pip work in unit tests; hook paths still use HYPER_IDE_VENV.
+    monkeypatch.setattr(install, "_ensure_durable_venv", lambda report: venv_dir)
+    return claude, cursor, venv_dir
 
 
 def _claude_cmds(claude, event="UserPromptSubmit"):
@@ -33,8 +42,12 @@ def _claude_cmds(claude, event="UserPromptSubmit"):
     return [h["command"] for g in data["hooks"][event] for h in g["hooks"]]
 
 
+def _expected_hook_python(venv_dir: Path) -> str:
+    return str(install._venv_python(venv_dir))
+
+
 def test_wires_both_editors_and_is_idempotent(_dirs) -> None:
-    claude, cursor = _dirs
+    claude, cursor, venv_dir = _dirs
     install.install(validate=False)
     install.install(validate=False)  # twice
     cmds = _claude_cmds(claude)
@@ -50,12 +63,17 @@ def test_wires_both_editors_and_is_idempotent(_dirs) -> None:
     # resolve runs on beforeSubmitPrompt; injection rides postToolUse (--inject).
     assert "--inject" in cursor_cfg["hooks"]["postToolUse"][0]["command"]
     assert "prompt" in cursor_cfg["hooks"]["beforeSubmitPrompt"][0]["command"]
+    # Hooks point at the durable IDE venv, not the project interpreter.
+    expected = _expected_hook_python(venv_dir)
+    assert expected in cmds[0]
+    assert sys.executable not in cmds[0]
+    assert expected in cursor_cfg["hooks"]["beforeSubmitPrompt"][0]["command"]
     # The legacy .mdc nudge is no longer written.
     assert not (cursor / "rules" / "hyperstruck-learning.mdc").exists()
 
 
 def test_preserves_foreign_hooks(_dirs) -> None:
-    claude, _ = _dirs
+    claude, _, _ = _dirs
     (claude / "settings.json").write_text(
         json.dumps(
             {
@@ -74,7 +92,7 @@ def test_preserves_foreign_hooks(_dirs) -> None:
 
 
 def test_unparseable_config_backed_up_and_skipped(_dirs) -> None:
-    claude, _ = _dirs
+    claude, _, _ = _dirs
     (claude / "settings.json").write_text("{ this is not json")
     install.install(validate=False)
     assert (claude / "settings.json.bak").exists()
@@ -83,7 +101,7 @@ def test_unparseable_config_backed_up_and_skipped(_dirs) -> None:
 
 
 def test_uninstall_removes_only_ours(_dirs) -> None:
-    claude, _ = _dirs
+    claude, _, venv_dir = _dirs
     (claude / "settings.json").write_text(
         json.dumps(
             {
@@ -96,8 +114,12 @@ def test_uninstall_removes_only_ours(_dirs) -> None:
         )
     )
     install.install(validate=False)
+    # Durable venv is left in place (and may not exist when ensure is mocked).
+    venv_dir.mkdir(parents=True, exist_ok=True)
+    (venv_dir / "marker").write_text("keep")
     install.uninstall()
     assert _claude_cmds(claude) == ["my-own-hook"]
+    assert (venv_dir / "marker").read_text() == "keep"
 
 
 def test_single_agent_wired_automatically(_dirs, monkeypatch) -> None:
@@ -125,3 +147,25 @@ def test_explicit_agent_id_wins(_dirs, monkeypatch) -> None:
     )
     install.install(api_key="k", agent_id="chosen", validate=False)
     assert "HYPER_AGENT_ID=chosen" in (install.env_file()).read_text()
+
+
+def test_ensure_durable_venv_creates_and_syncs(tmp_path, monkeypatch) -> None:
+    home = tmp_path / "home"
+    venv_dir = home / "venv"
+    monkeypatch.setenv("HYPER_HOME", str(home))
+    monkeypatch.setenv("HYPER_IDE_VENV", str(venv_dir))
+    # Restore the real ensure (autouse fixture stubs it for other tests).
+    monkeypatch.setattr(install, "_ensure_durable_venv", _REAL_ENSURE_DURABLE_VENV)
+    synced: list[Path] = []
+
+    def fake_sync(report: install.Report, path: Path) -> None:
+        synced.append(path)
+        report.did(f"Installed hyperstruck into durable venv ({path})")
+
+    monkeypatch.setattr(install, "_sync_package_into_venv", fake_sync)
+    report = install.Report()
+    result = install._ensure_durable_venv(report)
+    assert result == venv_dir
+    assert install._venv_python(venv_dir).is_file()
+    assert synced == [venv_dir]
+    assert any("Created durable IDE venv" in a for a in report.actions)
