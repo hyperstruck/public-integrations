@@ -66,8 +66,15 @@ class LearningClient(Protocol):
         max_learnings: int = DEFAULT_MAX_LEARNINGS,
         model_context_window: int | None = None,
         source_framework: str = "",
+        resolve_idempotency_key: str | None = None,
     ) -> ResolvedContext:
-        """Return the learnings bound to a goal. Deadline-bounded; may raise."""
+        """Return the learnings bound to a goal. Deadline-bounded; may raise.
+
+        Pass ``resolve_idempotency_key`` (stable across retries of one recall,
+        distinct across genuine recalls) to recall more than once in a run: each
+        distinct key accumulates its offers and is charged once. Omit it for a
+        single recall per run.
+        """
         ...
 
     async def observe(self, *, identity: AgentIdentity, episode: Episode) -> None:
@@ -174,6 +181,7 @@ class HostedLearningClient:
         max_learnings: int = DEFAULT_MAX_LEARNINGS,
         model_context_window: int | None = None,
         source_framework: str = "",
+        resolve_idempotency_key: str | None = None,
     ) -> ResolvedContext:
         body: dict[str, Any] = {
             "agent_id": identity.agent_id,
@@ -187,6 +195,8 @@ class HostedLearningClient:
             "max_learnings": max_learnings,
             "model_context_window": model_context_window,
         }
+        if resolve_idempotency_key is not None:
+            body["resolve_idempotency_key"] = resolve_idempotency_key
         response = await asyncio.wait_for(
             self._http.post(self._url("/resolve"), json=body, headers=self._headers),
             timeout=self._resolve_timeout,

@@ -12,7 +12,7 @@ are listed so you understand what is happening.
 
 | Step | Endpoint | When | Purpose |
 |------|----------|------|---------|
-| resolve | `POST /resolve` | turn start | Return goal-relevant learnings to inject. Server stores the offer log keyed by `run_id`. |
+| resolve | `POST /resolve` | turn start (or any decision point) | Return goal-relevant learnings to inject. Server accumulates the offer log keyed by `run_id`; a run may recall more than once by passing a distinct `resolve_idempotency_key` per recall, and offers from every recall are credited at reinforce. |
 | observe | `POST /observe` | deferred to next turn start | Extract new learnings from the finished episode (server-side producer + critic). |
 | reinforce | `POST /reinforce` | deferred to next turn start | Credit/penalise the learnings that were offered at resolve. |
 

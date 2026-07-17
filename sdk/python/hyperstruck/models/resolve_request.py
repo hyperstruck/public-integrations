@@ -36,7 +36,8 @@ class ResolveRequest(object):
         'available_tools': 'object',
         'max_learnings': 'object',
         'model_context_window': 'object',
-        'retrieval': 'object'
+        'retrieval': 'object',
+        'resolve_idempotency_key': 'object'
     }
 
     attribute_map = {
@@ -48,10 +49,11 @@ class ResolveRequest(object):
         'available_tools': 'available_tools',
         'max_learnings': 'max_learnings',
         'model_context_window': 'model_context_window',
-        'retrieval': 'retrieval'
+        'retrieval': 'retrieval',
+        'resolve_idempotency_key': 'resolve_idempotency_key'
     }
 
-    def __init__(self, agent_id=None, org_id=None, run_id=None, goal=None, source_framework=None, available_tools=None, max_learnings=None, model_context_window=None, retrieval=None):  # noqa: E501
+    def __init__(self, agent_id=None, org_id=None, run_id=None, goal=None, source_framework=None, available_tools=None, max_learnings=None, model_context_window=None, retrieval=None, resolve_idempotency_key=None):  # noqa: E501
         """ResolveRequest - a model defined in Swagger"""  # noqa: E501
         self._agent_id = None
         self._org_id = None
@@ -62,6 +64,7 @@ class ResolveRequest(object):
         self._max_learnings = None
         self._model_context_window = None
         self._retrieval = None
+        self._resolve_idempotency_key = None
         self.discriminator = None
         self.agent_id = agent_id
         if org_id is not None:
@@ -78,6 +81,8 @@ class ResolveRequest(object):
             self.model_context_window = model_context_window
         if retrieval is not None:
             self.retrieval = retrieval
+        if resolve_idempotency_key is not None:
+            self.resolve_idempotency_key = resolve_idempotency_key
 
     @property
     def agent_id(self):
@@ -285,6 +290,29 @@ class ResolveRequest(object):
         """
 
         self._retrieval = retrieval
+
+    @property
+    def resolve_idempotency_key(self):
+        """Gets the resolve_idempotency_key of this ResolveRequest.  # noqa: E501
+
+        Opaque per-recall idempotency key, scoped to this run. Supply a value that is stable across retries of one recall and distinct across genuine recalls to recall more than once in a run.  # noqa: E501
+
+        :return: The resolve_idempotency_key of this ResolveRequest.  # noqa: E501
+        :rtype: object
+        """
+        return self._resolve_idempotency_key
+
+    @resolve_idempotency_key.setter
+    def resolve_idempotency_key(self, resolve_idempotency_key):
+        """Sets the resolve_idempotency_key of this ResolveRequest.
+
+        Opaque per-recall idempotency key, scoped to this run. Supply a value that is stable across retries of one recall and distinct across genuine recalls to recall more than once in a run.  # noqa: E501
+
+        :param resolve_idempotency_key: The resolve_idempotency_key of this ResolveRequest.  # noqa: E501
+        :type: object
+        """
+
+        self._resolve_idempotency_key = resolve_idempotency_key
 
     def to_dict(self):
         """Returns the model properties as a dict"""
