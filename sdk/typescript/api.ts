@@ -78,6 +78,99 @@ export class RequiredError extends Error {
 }
 
 /**
+ * A claim stored without a structural attribute key, awaiting adoption.
+ * @export
+ * @interface AbstainedQueueItem
+ */
+export interface AbstainedQueueItem {
+    /**
+     * 
+     * @type {any}
+     * @memberof AbstainedQueueItem
+     */
+    claimId: any;
+    /**
+     * 
+     * @type {any}
+     * @memberof AbstainedQueueItem
+     */
+    agentId: any;
+    /**
+     * 
+     * @type {any}
+     * @memberof AbstainedQueueItem
+     */
+    entityId: any;
+    /**
+     * 
+     * @type {any}
+     * @memberof AbstainedQueueItem
+     */
+    canonicalName: any;
+    /**
+     * 
+     * @type {any}
+     * @memberof AbstainedQueueItem
+     */
+    provenanceClass: any;
+    /**
+     * 
+     * @type {any}
+     * @memberof AbstainedQueueItem
+     */
+    channelTrust: any;
+    /**
+     * 
+     * @type {any}
+     * @memberof AbstainedQueueItem
+     */
+    toolFamily?: any;
+    /**
+     * 
+     * @type {any}
+     * @memberof AbstainedQueueItem
+     */
+    recordedAt: any;
+    /**
+     * 
+     * @type {RenderedText}
+     * @memberof AbstainedQueueItem
+     */
+    statement: RenderedText;
+}
+/**
+ * 
+ * @export
+ * @interface AbstainedQueueResponse
+ */
+export interface AbstainedQueueResponse {
+    /**
+     * 
+     * @type {any}
+     * @memberof AbstainedQueueResponse
+     */
+    items: any;
+    /**
+     * 
+     * @type {any}
+     * @memberof AbstainedQueueResponse
+     */
+    nextCursor?: any;
+}
+/**
+ * 
+ * @export
+ * @interface AdoptClaimRequest
+ */
+export interface AdoptClaimRequest {
+    /**
+     * The structural attribute registry id to adopt this abstained claim under.
+     * @type {any}
+     * @memberof AdoptClaimRequest
+     */
+    attributeId: any;
+}
+/**
  * Runtime instructions and optional execution settings for a hosted agent.
  * @export
  * @interface AgentCoreConfigInput
@@ -143,6 +236,12 @@ export interface AgentCoreConfigInput {
      * @memberof AgentCoreConfigInput
      */
     metadata?: any;
+    /**
+     * Domain dimensions this agent focuses on when extracting and keeping learnings. Each entry has a name, description, and optional example values. Learnings store the matching names in ``domain_dimensions`` (list of strings). Omit or null when unguided; on PATCH, pass null or [] to clear.
+     * @type {any}
+     * @memberof AgentCoreConfigInput
+     */
+    domainDimensions?: any;
 }
 /**
  * Runtime instructions and optional execution settings for a hosted agent.
@@ -210,6 +309,12 @@ export interface AgentCoreConfigOutput {
      * @memberof AgentCoreConfigOutput
      */
     metadata?: any;
+    /**
+     * Domain dimensions this agent focuses on when extracting and keeping learnings. Each entry has a name, description, and optional example values. Learnings store the matching names in ``domain_dimensions`` (list of strings). Omit or null when unguided; on PATCH, pass null or [] to clear.
+     * @type {any}
+     * @memberof AgentCoreConfigOutput
+     */
+    domainDimensions?: any;
 }
 /**
  * Partial update for `config_jsonb`; omitted keys are left unchanged.
@@ -277,6 +382,12 @@ export interface AgentCoreConfigPatch {
      * @memberof AgentCoreConfigPatch
      */
     metadata?: any;
+    /**
+     * Replace the agent's domain_dimensions when set. Pass null or [] to clear; omit to leave unchanged.
+     * @type {any}
+     * @memberof AgentCoreConfigPatch
+     */
+    domainDimensions?: any;
 }
 /**
  * 
@@ -1082,6 +1193,49 @@ export interface AgentUsageSummaryResponse {
 /**
  * 
  * @export
+ * @interface AliasResponse
+ */
+export interface AliasResponse {
+    /**
+     * 
+     * @type {any}
+     * @memberof AliasResponse
+     */
+    aliasId: any;
+    /**
+     * 
+     * @type {any}
+     * @memberof AliasResponse
+     */
+    entityId: any;
+    /**
+     * 
+     * @type {any}
+     * @memberof AliasResponse
+     */
+    aliasText: any;
+    /**
+     * 
+     * @type {any}
+     * @memberof AliasResponse
+     */
+    provenance?: any;
+    /**
+     * 
+     * @type {any}
+     * @memberof AliasResponse
+     */
+    isActive: any;
+    /**
+     * 
+     * @type {any}
+     * @memberof AliasResponse
+     */
+    createdAt: any;
+}
+/**
+ * 
+ * @export
  * @interface ApiKeyCreateRequest
  */
 export interface ApiKeyCreateRequest {
@@ -1097,6 +1251,18 @@ export interface ApiKeyCreateRequest {
      * @memberof ApiKeyCreateRequest
      */
     scopes?: any;
+    /**
+     * 
+     * @type {any}
+     * @memberof ApiKeyCreateRequest
+     */
+    allSpaces?: any;
+    /**
+     * 
+     * @type {any}
+     * @memberof ApiKeyCreateRequest
+     */
+    spaceIds?: any;
 }
 /**
  * 
@@ -1128,6 +1294,24 @@ export interface ApiKeyCreateResponse {
      * @memberof ApiKeyCreateResponse
      */
     scopes?: any;
+    /**
+     * 
+     * @type {any}
+     * @memberof ApiKeyCreateResponse
+     */
+    tier?: any;
+    /**
+     * 
+     * @type {any}
+     * @memberof ApiKeyCreateResponse
+     */
+    allSpaces: any;
+    /**
+     * 
+     * @type {any}
+     * @memberof ApiKeyCreateResponse
+     */
+    spaceIds?: any;
     /**
      * 
      * @type {any}
@@ -1183,6 +1367,24 @@ export interface ApiKeyListItem {
      * @memberof ApiKeyListItem
      */
     scopes?: any;
+    /**
+     * 
+     * @type {any}
+     * @memberof ApiKeyListItem
+     */
+    tier?: any;
+    /**
+     * 
+     * @type {any}
+     * @memberof ApiKeyListItem
+     */
+    allSpaces: any;
+    /**
+     * 
+     * @type {any}
+     * @memberof ApiKeyListItem
+     */
+    spaceIds?: any;
     /**
      * 
      * @type {any}
@@ -1433,6 +1635,305 @@ export interface ClaimAssistsResponse {
     totalRuns: any;
 }
 /**
+ * 
+ * @export
+ * @interface ClaimDossierResponse
+ */
+export interface ClaimDossierResponse {
+    /**
+     * 
+     * @type {any}
+     * @memberof ClaimDossierResponse
+     */
+    entityId: any;
+    /**
+     * 
+     * @type {any}
+     * @memberof ClaimDossierResponse
+     */
+    agentId: any;
+    /**
+     * 
+     * @type {any}
+     * @memberof ClaimDossierResponse
+     */
+    canonicalName: any;
+    /**
+     * 
+     * @type {any}
+     * @memberof ClaimDossierResponse
+     */
+    claims: any;
+}
+/**
+ * The durable record of a claim-layer erasure.  ``reached`` counts what the cascade actually removed from the claim layer; ``not_reached`` names the stores this erasure deliberately does not touch (learnings, graph nodes, raw traces, usage aggregates), so the receipt never overstates what was erased.
+ * @export
+ * @interface ClaimErasureReceipt
+ */
+export interface ClaimErasureReceipt {
+    /**
+     * 
+     * @type {any}
+     * @memberof ClaimErasureReceipt
+     */
+    requestId: any;
+    /**
+     * 
+     * @type {any}
+     * @memberof ClaimErasureReceipt
+     */
+    agentId: any;
+    /**
+     * 
+     * @type {any}
+     * @memberof ClaimErasureReceipt
+     */
+    entityId: any;
+    /**
+     * 
+     * @type {any}
+     * @memberof ClaimErasureReceipt
+     */
+    operatorPrincipal: any;
+    /**
+     * 
+     * @type {any}
+     * @memberof ClaimErasureReceipt
+     */
+    status: any;
+    /**
+     * 
+     * @type {any}
+     * @memberof ClaimErasureReceipt
+     */
+    requestedAt: any;
+    /**
+     * 
+     * @type {any}
+     * @memberof ClaimErasureReceipt
+     */
+    completedAt?: any;
+    /**
+     * 
+     * @type {any}
+     * @memberof ClaimErasureReceipt
+     */
+    reached: any;
+    /**
+     * 
+     * @type {any}
+     * @memberof ClaimErasureReceipt
+     */
+    notReached: any;
+}
+/**
+ * The explanation a reviewer must fetch before releasing a claim.  ``etag`` is a content hash over the fields a release decision depends on; the release, promote and adopt mutations require it back as ``If-Match``, so a caller cannot mutate a claim it never inspected, and any change to the claim silently invalidates a stale consent token.
+ * @export
+ * @interface ClaimReviewContext
+ */
+export interface ClaimReviewContext {
+    /**
+     * 
+     * @type {any}
+     * @memberof ClaimReviewContext
+     */
+    claimId: any;
+    /**
+     * 
+     * @type {any}
+     * @memberof ClaimReviewContext
+     */
+    agentId: any;
+    /**
+     * 
+     * @type {any}
+     * @memberof ClaimReviewContext
+     */
+    entityId: any;
+    /**
+     * 
+     * @type {any}
+     * @memberof ClaimReviewContext
+     */
+    canonicalName: any;
+    /**
+     * 
+     * @type {any}
+     * @memberof ClaimReviewContext
+     */
+    isQuarantined: any;
+    /**
+     * 
+     * @type {any}
+     * @memberof ClaimReviewContext
+     */
+    quarantineCause?: any;
+    /**
+     * 
+     * @type {any}
+     * @memberof ClaimReviewContext
+     */
+    isReleaseLapsed?: any;
+    /**
+     * 
+     * @type {any}
+     * @memberof ClaimReviewContext
+     */
+    provenanceClass: any;
+    /**
+     * 
+     * @type {any}
+     * @memberof ClaimReviewContext
+     */
+    channelTrust: any;
+    /**
+     * 
+     * @type {any}
+     * @memberof ClaimReviewContext
+     */
+    toolFamily?: any;
+    /**
+     * 
+     * @type {any}
+     * @memberof ClaimReviewContext
+     */
+    distinctOrigins: any;
+    /**
+     * 
+     * @type {any}
+     * @memberof ClaimReviewContext
+     */
+    kRequired: any;
+    /**
+     * 
+     * @type {any}
+     * @memberof ClaimReviewContext
+     */
+    corroborationCount: any;
+    /**
+     * 
+     * @type {any}
+     * @memberof ClaimReviewContext
+     */
+    recordedAt: any;
+    /**
+     * 
+     * @type {RenderedText}
+     * @memberof ClaimReviewContext
+     */
+    statement: RenderedText;
+    /**
+     * 
+     * @type {any}
+     * @memberof ClaimReviewContext
+     */
+    etag: any;
+}
+/**
+ * 
+ * @export
+ * @interface CreateAliasRequest
+ */
+export interface CreateAliasRequest {
+    /**
+     * 
+     * @type {any}
+     * @memberof CreateAliasRequest
+     */
+    aliasText: any;
+    /**
+     * 
+     * @type {any}
+     * @memberof CreateAliasRequest
+     */
+    provenance?: any;
+}
+/**
+ * The state of a claim after a curation mutation.
+ * @export
+ * @interface CuratedClaim
+ */
+export interface CuratedClaim {
+    /**
+     * 
+     * @type {any}
+     * @memberof CuratedClaim
+     */
+    claimId: any;
+    /**
+     * 
+     * @type {any}
+     * @memberof CuratedClaim
+     */
+    agentId: any;
+    /**
+     * 
+     * @type {any}
+     * @memberof CuratedClaim
+     */
+    entityId: any;
+    /**
+     * 
+     * @type {any}
+     * @memberof CuratedClaim
+     */
+    status: any;
+    /**
+     * 
+     * @type {any}
+     * @memberof CuratedClaim
+     */
+    provenanceClass: any;
+    /**
+     * 
+     * @type {any}
+     * @memberof CuratedClaim
+     */
+    isQuarantined: any;
+    /**
+     * 
+     * @type {any}
+     * @memberof CuratedClaim
+     */
+    quarantineCause?: any;
+    /**
+     * 
+     * @type {any}
+     * @memberof CuratedClaim
+     */
+    isReleaseLapsed?: any;
+    /**
+     * 
+     * @type {any}
+     * @memberof CuratedClaim
+     */
+    isOperatorAsserted: any;
+    /**
+     * 
+     * @type {any}
+     * @memberof CuratedClaim
+     */
+    isBindable: any;
+    /**
+     * 
+     * @type {any}
+     * @memberof CuratedClaim
+     */
+    humanAttestedBy?: any;
+    /**
+     * 
+     * @type {any}
+     * @memberof CuratedClaim
+     */
+    humanAttestedAt?: any;
+    /**
+     * 
+     * @type {RenderedText}
+     * @memberof CuratedClaim
+     */
+    statement: RenderedText;
+}
+/**
  * The type of decision the human is making.
  * @export
  * @enum {string}
@@ -1543,6 +2044,152 @@ export interface DistillRequest {
      * @memberof DistillRequest
      */
     occurredAt?: any;
+}
+/**
+ * One topic or taxonomy axis the agent should prefer when learning.
+ * @export
+ * @interface DomainDimensionModel
+ */
+export interface DomainDimensionModel {
+    /**
+     * Short stable key for this focus area (e.g. reliability, OWASP, latency, apply_phase).
+     * @type {any}
+     * @memberof DomainDimensionModel
+     */
+    name: any;
+    /**
+     * Plain-language explanation of what this dimension means so extraction can prefer relevant patterns.
+     * @type {any}
+     * @memberof DomainDimensionModel
+     */
+    description: any;
+    /**
+     * Optional sample values that illustrate this dimension.
+     * @type {any}
+     * @memberof DomainDimensionModel
+     */
+    examples?: any;
+}
+/**
+ * One version of a claim in an entity's curation dossier.  Unlike the agent-facing dossier, this includes quarantined and disputed versions: the whole point of the curation read is to show the reviewer everything the agent knows about an entity, on whose word, and since when.
+ * @export
+ * @interface DossierClaimItem
+ */
+export interface DossierClaimItem {
+    /**
+     * 
+     * @type {any}
+     * @memberof DossierClaimItem
+     */
+    claimId: any;
+    /**
+     * 
+     * @type {any}
+     * @memberof DossierClaimItem
+     */
+    status: any;
+    /**
+     * 
+     * @type {any}
+     * @memberof DossierClaimItem
+     */
+    provenanceClass: any;
+    /**
+     * 
+     * @type {any}
+     * @memberof DossierClaimItem
+     */
+    isBindable: any;
+    /**
+     * 
+     * @type {any}
+     * @memberof DossierClaimItem
+     */
+    isQuarantined: any;
+    /**
+     * 
+     * @type {any}
+     * @memberof DossierClaimItem
+     */
+    quarantineCause?: any;
+    /**
+     * 
+     * @type {any}
+     * @memberof DossierClaimItem
+     */
+    isReleaseLapsed?: any;
+    /**
+     * 
+     * @type {any}
+     * @memberof DossierClaimItem
+     */
+    isOperatorAsserted: any;
+    /**
+     * 
+     * @type {any}
+     * @memberof DossierClaimItem
+     */
+    attributeKey?: any;
+    /**
+     * 
+     * @type {any}
+     * @memberof DossierClaimItem
+     */
+    validFrom: any;
+    /**
+     * 
+     * @type {any}
+     * @memberof DossierClaimItem
+     */
+    validUntil?: any;
+    /**
+     * 
+     * @type {any}
+     * @memberof DossierClaimItem
+     */
+    recordedAt: any;
+    /**
+     * 
+     * @type {any}
+     * @memberof DossierClaimItem
+     */
+    expiredAt?: any;
+    /**
+     * 
+     * @type {any}
+     * @memberof DossierClaimItem
+     */
+    corroborationCount?: any;
+    /**
+     * 
+     * @type {any}
+     * @memberof DossierClaimItem
+     */
+    distinctSourceCount?: any;
+    /**
+     * 
+     * @type {any}
+     * @memberof DossierClaimItem
+     */
+    contradictionCount?: any;
+    /**
+     * 
+     * @type {any}
+     * @memberof DossierClaimItem
+     */
+    humanAttestedBy?: any;
+    /**
+     * 
+     * @type {any}
+     * @memberof DossierClaimItem
+     */
+    humanAttestedAt?: any;
+    /**
+     * 
+     * @type {RenderedText}
+     * @memberof DossierClaimItem
+     */
+    statement: RenderedText;
 }
 /**
  * The plan facts a caller (or a downstream surface) is entitled to act on.
@@ -1837,6 +2484,37 @@ export interface HTTPValidationError {
      * @memberof HTTPValidationError
      */
     detail?: any;
+}
+/**
+ * One class of hidden or deceptive character found in a claim's text.  Padding a payload out of a reviewer's view with zero-width characters, bidi overrides or long whitespace runs is a documented review-queue attack, so each finding is surfaced explicitly rather than silently stripped.
+ * @export
+ * @interface HiddenCharFinding
+ */
+export interface HiddenCharFinding {
+    /**
+     * 
+     * @type {any}
+     * @memberof HiddenCharFinding
+     */
+    kind: any;
+    /**
+     * The offending code point as U+XXXX, or null for a whitespace run.
+     * @type {any}
+     * @memberof HiddenCharFinding
+     */
+    codepoint?: any;
+    /**
+     * How many times this character appears.
+     * @type {any}
+     * @memberof HiddenCharFinding
+     */
+    count: any;
+    /**
+     * Index of the first occurrence in the raw text.
+     * @type {any}
+     * @memberof HiddenCharFinding
+     */
+    firstIndex: any;
 }
 /**
  * Supported human-in-the-loop policy presets.
@@ -2452,6 +3130,12 @@ export interface LearningResponse {
      * @memberof LearningResponse
      */
     applicableTools: any;
+    /**
+     * Names of domain dimensions associated with this learning (same concept as agent ``core_config.domain_dimensions`` names).
+     * @type {any}
+     * @memberof LearningResponse
+     */
+    domainDimensions?: any;
     /**
      * 
      * @type {any}
@@ -3199,6 +3883,19 @@ export enum PrivacyClassification {
     Sensitive = <any> 'sensitive'
 }
 /**
+ * 
+ * @export
+ * @interface PromoteClaimRequest
+ */
+export interface PromoteClaimRequest {
+    /**
+     * 
+     * @type {SupersessionReason}
+     * @memberof PromoteClaimRequest
+     */
+    reason?: SupersessionReason;
+}
+/**
  * Configuration for prompt-injection / jailbreaking guardrails.  Action is restricted to BLOCK or LOG_ONLY (no ANONYMIZE).
  * @export
  * @interface PromptInjectionGuardrailConfig
@@ -3405,6 +4102,104 @@ export interface ProviderCredentialUpdateRequest {
     metadata?: any;
 }
 /**
+ * A quarantined claim awaiting a release decision, labelled with its owning agent.
+ * @export
+ * @interface QuarantineQueueItem
+ */
+export interface QuarantineQueueItem {
+    /**
+     * 
+     * @type {any}
+     * @memberof QuarantineQueueItem
+     */
+    claimId: any;
+    /**
+     * 
+     * @type {any}
+     * @memberof QuarantineQueueItem
+     */
+    agentId: any;
+    /**
+     * 
+     * @type {any}
+     * @memberof QuarantineQueueItem
+     */
+    entityId: any;
+    /**
+     * 
+     * @type {any}
+     * @memberof QuarantineQueueItem
+     */
+    canonicalName: any;
+    /**
+     * 
+     * @type {any}
+     * @memberof QuarantineQueueItem
+     */
+    provenanceClass: any;
+    /**
+     * 
+     * @type {any}
+     * @memberof QuarantineQueueItem
+     */
+    channelTrust: any;
+    /**
+     * 
+     * @type {any}
+     * @memberof QuarantineQueueItem
+     */
+    toolFamily?: any;
+    /**
+     * 
+     * @type {any}
+     * @memberof QuarantineQueueItem
+     */
+    quarantineCause?: any;
+    /**
+     * 
+     * @type {any}
+     * @memberof QuarantineQueueItem
+     */
+    isReleaseLapsed?: any;
+    /**
+     * 
+     * @type {any}
+     * @memberof QuarantineQueueItem
+     */
+    corroborationCount?: any;
+    /**
+     * 
+     * @type {any}
+     * @memberof QuarantineQueueItem
+     */
+    recordedAt: any;
+    /**
+     * 
+     * @type {RenderedText}
+     * @memberof QuarantineQueueItem
+     */
+    statement: RenderedText;
+}
+/**
+ * 
+ * @export
+ * @interface QuarantineQueueResponse
+ */
+export interface QuarantineQueueResponse {
+    /**
+     * 
+     * @type {any}
+     * @memberof QuarantineQueueResponse
+     */
+    items: any;
+    /**
+     * 
+     * @type {any}
+     * @memberof QuarantineQueueResponse
+     */
+    nextCursor?: any;
+}
+/**
  * Curated hosted reasoning tiers exposed to customers.
  * @export
  * @enum {string}
@@ -3565,6 +4360,49 @@ export interface RejectLearningResponse {
     updatedAt: any;
 }
 /**
+ * Attacker-reachable text prepared for safe human review.  ``display_text`` is plain text with URLs defanged and hidden characters made visible; it carries no markup, so a console that renders it as plain text cannot be made to load a remote image or follow a link. ``raw_text`` is the verbatim original behind a raw-bytes toggle. ``findings`` and the character counts let a reviewer see padding and deception that ``display_text`` alone would not convey.
+ * @export
+ * @interface RenderedText
+ */
+export interface RenderedText {
+    /**
+     * 
+     * @type {any}
+     * @memberof RenderedText
+     */
+    displayText: any;
+    /**
+     * 
+     * @type {any}
+     * @memberof RenderedText
+     */
+    rawText: any;
+    /**
+     * Characters a human actually sees (excludes zero-width and control characters).
+     * @type {any}
+     * @memberof RenderedText
+     */
+    visibleCharCount: any;
+    /**
+     * Total code points in the raw text, including hidden ones.
+     * @type {any}
+     * @memberof RenderedText
+     */
+    rawCharCount: any;
+    /**
+     * 
+     * @type {any}
+     * @memberof RenderedText
+     */
+    findings?: any;
+    /**
+     * Hint to the console to collapse long text until the reviewer expands it.
+     * @type {any}
+     * @memberof RenderedText
+     */
+    isCollapsedByDefault?: any;
+}
+/**
  * Ask for the learnings bound to a goal at run start.
  * @export
  * @interface ResolveRequest
@@ -3624,6 +4462,12 @@ export interface ResolveRequest {
      * @memberof ResolveRequest
      */
     retrieval?: any;
+    /**
+     * Opaque per-recall idempotency key, scoped to this run. Supply a value that is stable across retries of one recall and distinct across genuine recalls (a turn id, milestone id, or UUID) to recall more than once in a run: each distinct key accumulates its offers and is charged once; a retry with the same key neither double-charges nor double-records. Omit for a single recall per run (the default).
+     * @type {any}
+     * @memberof ResolveRequest
+     */
+    resolveIdempotencyKey?: any;
 }
 /**
  * The bound learnings: the rendered block plus the offered IDs.
@@ -3643,6 +4487,38 @@ export interface ResolveResponse {
      * @memberof ResolveResponse
      */
     offeredLearningIds?: any;
+}
+/**
+ * 
+ * @export
+ * @interface ResolveSplitRequest
+ */
+export interface ResolveSplitRequest {
+    /**
+     * 
+     * @type {SplitProposalStatus}
+     * @memberof ResolveSplitRequest
+     */
+    status: SplitProposalStatus;
+}
+/**
+ * 
+ * @export
+ * @interface ResolveSplitResponse
+ */
+export interface ResolveSplitResponse {
+    /**
+     * 
+     * @type {any}
+     * @memberof ResolveSplitResponse
+     */
+    proposalId: any;
+    /**
+     * 
+     * @type {any}
+     * @memberof ResolveSplitResponse
+     */
+    status: any;
 }
 /**
  * Request body for POST /runs/{run_id}/resume (HITL suspension resume).
@@ -4372,6 +5248,96 @@ export interface SpaceResponse {
     createdAt: any;
 }
 /**
+ * A proposal that an oscillating attribute key be split rather than superseded.
+ * @export
+ * @interface SplitProposalQueueItem
+ */
+export interface SplitProposalQueueItem {
+    /**
+     * 
+     * @type {any}
+     * @memberof SplitProposalQueueItem
+     */
+    proposalId: any;
+    /**
+     * 
+     * @type {any}
+     * @memberof SplitProposalQueueItem
+     */
+    agentId: any;
+    /**
+     * 
+     * @type {any}
+     * @memberof SplitProposalQueueItem
+     */
+    entityId: any;
+    /**
+     * 
+     * @type {any}
+     * @memberof SplitProposalQueueItem
+     */
+    canonicalName: any;
+    /**
+     * 
+     * @type {any}
+     * @memberof SplitProposalQueueItem
+     */
+    attributeKey: any;
+    /**
+     * 
+     * @type {any}
+     * @memberof SplitProposalQueueItem
+     */
+    classification: any;
+    /**
+     * 
+     * @type {any}
+     * @memberof SplitProposalQueueItem
+     */
+    status: any;
+    /**
+     * 
+     * @type {any}
+     * @memberof SplitProposalQueueItem
+     */
+    proposedQualifier?: any;
+    /**
+     * 
+     * @type {any}
+     * @memberof SplitProposalQueueItem
+     */
+    createdAt: any;
+}
+/**
+ * 
+ * @export
+ * @interface SplitProposalQueueResponse
+ */
+export interface SplitProposalQueueResponse {
+    /**
+     * 
+     * @type {any}
+     * @memberof SplitProposalQueueResponse
+     */
+    items: any;
+    /**
+     * 
+     * @type {any}
+     * @memberof SplitProposalQueueResponse
+     */
+    nextCursor?: any;
+}
+/**
+ * Lifecycle of a flip-flop split proposal.
+ * @export
+ * @enum {string}
+ */
+export enum SplitProposalStatus {
+    Proposed = <any> 'proposed',
+    Confirmed = <any> 'confirmed',
+    Rejected = <any> 'rejected'
+}
+/**
  * One executed step: a decision joined to its outcome.
  * @export
  * @interface StepModel
@@ -4476,6 +5442,12 @@ export interface StoreLearningRequest {
      */
     applicableTools?: any;
     /**
+     * Names of domain dimensions this learning addresses (e.g. OWASP, reliability). Prefer names from the agent's ``core_config.domain_dimensions`` rather than stuffing taxonomy into applicable_goals.
+     * @type {any}
+     * @memberof StoreLearningRequest
+     */
+    domainDimensions?: any;
+    /**
      * Privacy classification for cross-agent sharing eligibility.
      * @type {PrivacyClassification}
      * @memberof StoreLearningRequest
@@ -4487,6 +5459,17 @@ export interface StoreLearningRequest {
      * @memberof StoreLearningRequest
      */
     instances?: any;
+}
+/**
+ * Why an open version was closed, distinguishing update from revision.  WORLD_CHANGE: the world moved on (Katsuno-Mendelzon update); prior sources were right, no reliability penalty. CORRECTION: a genuine conflict (revision); the prior version's reliability interval widens. RETRACTION: withdrawn with no replacement. REFINEMENT: narrowed to a more qualified claim.
+ * @export
+ * @enum {string}
+ */
+export enum SupersessionReason {
+    WorldChange = <any> 'world_change',
+    Correction = <any> 'correction',
+    Retraction = <any> 'retraction',
+    Refinement = <any> 'refinement'
 }
 /**
  * 
@@ -6333,6 +7316,1246 @@ export class BillingApi extends BaseAPI {
      */
     public getBillingSummaryEndpointBillingSummaryGet(options?: any) {
         return BillingApiFp(this.configuration).getBillingSummaryEndpointBillingSummaryGet(options)(this.fetch, this.basePath);
+    }
+
+}
+/**
+ * ClaimsApi - fetch parameter creator
+ * @export
+ */
+export const ClaimsApiFetchParamCreator = function (configuration?: Configuration) {
+    return {
+        /**
+         * Release any quarantined claim, including an untrusted (possible-injection) one, with re-verification. Admin-tier because releasing attacker-reachable content into a corpus the planner reads is the sharpest curation action. Requires the If-Match consent token.
+         * @summary Release a quarantined claim (administrator path)
+         * @param {any} agentId Hosted agent UUID returned by the agent create or list endpoint.
+         * @param {any} claimId Claim UUID returned by a curation queue, dossier, or review-context endpoint.
+         * @param {any} [ifMatch] The consent ETag returned by GET .../review-context. Required for release, promote and adopt: it proves the reviewer saw this claim&#x27;s state, and a stale token is refused.
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        adminReleaseClaimEndpointAgentsAgentIdClaimsClaimIdAdminReleasePost(agentId: any, claimId: any, ifMatch?: any, options: any = {}): FetchArgs {
+            // verify required parameter 'agentId' is not null or undefined
+            if (agentId === null || agentId === undefined) {
+                throw new RequiredError('agentId','Required parameter agentId was null or undefined when calling adminReleaseClaimEndpointAgentsAgentIdClaimsClaimIdAdminReleasePost.');
+            }
+            // verify required parameter 'claimId' is not null or undefined
+            if (claimId === null || claimId === undefined) {
+                throw new RequiredError('claimId','Required parameter claimId was null or undefined when calling adminReleaseClaimEndpointAgentsAgentIdClaimsClaimIdAdminReleasePost.');
+            }
+            const localVarPath = `/agents/{agent_id}/claims/{claim_id}/admin-release`
+                .replace(`{${"agent_id"}}`, encodeURIComponent(String(agentId)))
+                .replace(`{${"claim_id"}}`, encodeURIComponent(String(claimId)));
+            const localVarUrlObj = url.parse(localVarPath, true);
+            const localVarRequestOptions = Object.assign({ method: 'POST' }, options);
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication BearerApiKey required
+            if (configuration && configuration.apiKey) {
+                const localVarApiKeyValue = typeof configuration.apiKey === 'function'
+					? configuration.apiKey("Authorization")
+					: configuration.apiKey;
+                localVarHeaderParameter["Authorization"] = localVarApiKeyValue;
+            }
+
+            if (ifMatch !== undefined && ifMatch !== null) {
+                localVarHeaderParameter['If-Match'] = String(ifMatch);
+            }
+
+            localVarUrlObj.query = Object.assign({}, localVarUrlObj.query, localVarQueryParameter, options.query);
+            // fix override query string Detail: https://stackoverflow.com/a/7517673/1077943
+            localVarUrlObj.search = null;
+            localVarRequestOptions.headers = Object.assign({}, localVarHeaderParameter, options.headers);
+
+            return {
+                url: url.format(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * Assign a structural attribute key to a claim stored without one, with the operator's attestation, so it can participate in supersession. A second adoption returns 409. Requires the If-Match consent token.
+         * @summary Adopt an abstained claim under a structural attribute
+         * @param {AdoptClaimRequest} body 
+         * @param {any} agentId Hosted agent UUID returned by the agent create or list endpoint.
+         * @param {any} claimId Claim UUID returned by a curation queue, dossier, or review-context endpoint.
+         * @param {any} [ifMatch] The consent ETag returned by GET .../review-context. Required for release, promote and adopt: it proves the reviewer saw this claim&#x27;s state, and a stale token is refused.
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        adoptClaimEndpointAgentsAgentIdClaimsClaimIdAdoptPost(body: AdoptClaimRequest, agentId: any, claimId: any, ifMatch?: any, options: any = {}): FetchArgs {
+            // verify required parameter 'body' is not null or undefined
+            if (body === null || body === undefined) {
+                throw new RequiredError('body','Required parameter body was null or undefined when calling adoptClaimEndpointAgentsAgentIdClaimsClaimIdAdoptPost.');
+            }
+            // verify required parameter 'agentId' is not null or undefined
+            if (agentId === null || agentId === undefined) {
+                throw new RequiredError('agentId','Required parameter agentId was null or undefined when calling adoptClaimEndpointAgentsAgentIdClaimsClaimIdAdoptPost.');
+            }
+            // verify required parameter 'claimId' is not null or undefined
+            if (claimId === null || claimId === undefined) {
+                throw new RequiredError('claimId','Required parameter claimId was null or undefined when calling adoptClaimEndpointAgentsAgentIdClaimsClaimIdAdoptPost.');
+            }
+            const localVarPath = `/agents/{agent_id}/claims/{claim_id}/adopt`
+                .replace(`{${"agent_id"}}`, encodeURIComponent(String(agentId)))
+                .replace(`{${"claim_id"}}`, encodeURIComponent(String(claimId)));
+            const localVarUrlObj = url.parse(localVarPath, true);
+            const localVarRequestOptions = Object.assign({ method: 'POST' }, options);
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication BearerApiKey required
+            if (configuration && configuration.apiKey) {
+                const localVarApiKeyValue = typeof configuration.apiKey === 'function'
+					? configuration.apiKey("Authorization")
+					: configuration.apiKey;
+                localVarHeaderParameter["Authorization"] = localVarApiKeyValue;
+            }
+
+            if (ifMatch !== undefined && ifMatch !== null) {
+                localVarHeaderParameter['If-Match'] = String(ifMatch);
+            }
+
+            localVarHeaderParameter['Content-Type'] = 'application/json';
+
+            localVarUrlObj.query = Object.assign({}, localVarUrlObj.query, localVarQueryParameter, options.query);
+            // fix override query string Detail: https://stackoverflow.com/a/7517673/1077943
+            localVarUrlObj.search = null;
+            localVarRequestOptions.headers = Object.assign({}, localVarHeaderParameter, options.headers);
+            const needsSerialization = (<any>"AdoptClaimRequest" !== "string") || localVarRequestOptions.headers['Content-Type'] === 'application/json';
+            localVarRequestOptions.body =  needsSerialization ? JSON.stringify(body || {}) : (body || "");
+
+            return {
+                url: url.format(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * Create a reversible alias edge from an observed surface form to an entity. A sequential retry with the same text returns the existing active alias rather than duplicating it; genuinely concurrent authorings may still both insert, and either can be deactivated. Deactivating an alias does not re-split claims already folded onto the entity while it was active.
+         * @summary Author an alias for an entity
+         * @param {CreateAliasRequest} body 
+         * @param {any} agentId Hosted agent UUID returned by the agent create or list endpoint.
+         * @param {any} entityId Claim entity UUID (the unit of identity and of erasure).
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        createAliasEndpointAgentsAgentIdClaimsEntitiesEntityIdAliasesPost(body: CreateAliasRequest, agentId: any, entityId: any, options: any = {}): FetchArgs {
+            // verify required parameter 'body' is not null or undefined
+            if (body === null || body === undefined) {
+                throw new RequiredError('body','Required parameter body was null or undefined when calling createAliasEndpointAgentsAgentIdClaimsEntitiesEntityIdAliasesPost.');
+            }
+            // verify required parameter 'agentId' is not null or undefined
+            if (agentId === null || agentId === undefined) {
+                throw new RequiredError('agentId','Required parameter agentId was null or undefined when calling createAliasEndpointAgentsAgentIdClaimsEntitiesEntityIdAliasesPost.');
+            }
+            // verify required parameter 'entityId' is not null or undefined
+            if (entityId === null || entityId === undefined) {
+                throw new RequiredError('entityId','Required parameter entityId was null or undefined when calling createAliasEndpointAgentsAgentIdClaimsEntitiesEntityIdAliasesPost.');
+            }
+            const localVarPath = `/agents/{agent_id}/claims/entities/{entity_id}/aliases`
+                .replace(`{${"agent_id"}}`, encodeURIComponent(String(agentId)))
+                .replace(`{${"entity_id"}}`, encodeURIComponent(String(entityId)));
+            const localVarUrlObj = url.parse(localVarPath, true);
+            const localVarRequestOptions = Object.assign({ method: 'POST' }, options);
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication BearerApiKey required
+            if (configuration && configuration.apiKey) {
+                const localVarApiKeyValue = typeof configuration.apiKey === 'function'
+					? configuration.apiKey("Authorization")
+					: configuration.apiKey;
+                localVarHeaderParameter["Authorization"] = localVarApiKeyValue;
+            }
+
+            localVarHeaderParameter['Content-Type'] = 'application/json';
+
+            localVarUrlObj.query = Object.assign({}, localVarUrlObj.query, localVarQueryParameter, options.query);
+            // fix override query string Detail: https://stackoverflow.com/a/7517673/1077943
+            localVarUrlObj.search = null;
+            localVarRequestOptions.headers = Object.assign({}, localVarHeaderParameter, options.headers);
+            const needsSerialization = (<any>"CreateAliasRequest" !== "string") || localVarRequestOptions.headers['Content-Type'] === 'application/json';
+            localVarRequestOptions.body =  needsSerialization ? JSON.stringify(body || {}) : (body || "");
+
+            return {
+                url: url.format(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * Toggle an alias edge off. Reversible; never a hard merge.
+         * @summary Deactivate an alias
+         * @param {any} agentId Hosted agent UUID returned by the agent create or list endpoint.
+         * @param {any} aliasId Claim alias UUID returned by the alias authoring endpoint.
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        deactivateAliasEndpointAgentsAgentIdClaimsAliasesAliasIdDeactivatePost(agentId: any, aliasId: any, options: any = {}): FetchArgs {
+            // verify required parameter 'agentId' is not null or undefined
+            if (agentId === null || agentId === undefined) {
+                throw new RequiredError('agentId','Required parameter agentId was null or undefined when calling deactivateAliasEndpointAgentsAgentIdClaimsAliasesAliasIdDeactivatePost.');
+            }
+            // verify required parameter 'aliasId' is not null or undefined
+            if (aliasId === null || aliasId === undefined) {
+                throw new RequiredError('aliasId','Required parameter aliasId was null or undefined when calling deactivateAliasEndpointAgentsAgentIdClaimsAliasesAliasIdDeactivatePost.');
+            }
+            const localVarPath = `/agents/{agent_id}/claims/aliases/{alias_id}/deactivate`
+                .replace(`{${"agent_id"}}`, encodeURIComponent(String(agentId)))
+                .replace(`{${"alias_id"}}`, encodeURIComponent(String(aliasId)));
+            const localVarUrlObj = url.parse(localVarPath, true);
+            const localVarRequestOptions = Object.assign({ method: 'POST' }, options);
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication BearerApiKey required
+            if (configuration && configuration.apiKey) {
+                const localVarApiKeyValue = typeof configuration.apiKey === 'function'
+					? configuration.apiKey("Authorization")
+					: configuration.apiKey;
+                localVarHeaderParameter["Authorization"] = localVarApiKeyValue;
+            }
+
+            localVarUrlObj.query = Object.assign({}, localVarUrlObj.query, localVarQueryParameter, options.query);
+            // fix override query string Detail: https://stackoverflow.com/a/7517673/1077943
+            localVarUrlObj.search = null;
+            localVarRequestOptions.headers = Object.assign({}, localVarHeaderParameter, options.headers);
+
+            return {
+                url: url.format(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * Delete an entity and its claims, aliases, dossier and split proposals, and record a durable, PII-free receipt. Before the delete, the reinforcement each of those claims earned is subtracted back out of the rules it fed, so no rule keeps standing granted by erased evidence. Idempotent: a repeat request returns the original receipt. This is still a claim-layer erasure, not a full Article 17 erasure: learnings themselves, graph nodes, raw run traces and usage aggregates are not deleted, and the receipt names each. The ledger is designed so those fan-out legs can replay against requests served today.
+         * @summary Erase an entity's claim layer
+         * @param {any} agentId Hosted agent UUID returned by the agent create or list endpoint.
+         * @param {any} entityId Claim entity UUID (the unit of identity and of erasure).
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        eraseEntityEndpointAgentsAgentIdClaimsEntitiesEntityIdErasurePost(agentId: any, entityId: any, options: any = {}): FetchArgs {
+            // verify required parameter 'agentId' is not null or undefined
+            if (agentId === null || agentId === undefined) {
+                throw new RequiredError('agentId','Required parameter agentId was null or undefined when calling eraseEntityEndpointAgentsAgentIdClaimsEntitiesEntityIdErasurePost.');
+            }
+            // verify required parameter 'entityId' is not null or undefined
+            if (entityId === null || entityId === undefined) {
+                throw new RequiredError('entityId','Required parameter entityId was null or undefined when calling eraseEntityEndpointAgentsAgentIdClaimsEntitiesEntityIdErasurePost.');
+            }
+            const localVarPath = `/agents/{agent_id}/claims/entities/{entity_id}/erasure`
+                .replace(`{${"agent_id"}}`, encodeURIComponent(String(agentId)))
+                .replace(`{${"entity_id"}}`, encodeURIComponent(String(entityId)));
+            const localVarUrlObj = url.parse(localVarPath, true);
+            const localVarRequestOptions = Object.assign({ method: 'POST' }, options);
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication BearerApiKey required
+            if (configuration && configuration.apiKey) {
+                const localVarApiKeyValue = typeof configuration.apiKey === 'function'
+					? configuration.apiKey("Authorization")
+					: configuration.apiKey;
+                localVarHeaderParameter["Authorization"] = localVarApiKeyValue;
+            }
+
+            localVarUrlObj.query = Object.assign({}, localVarUrlObj.query, localVarQueryParameter, options.query);
+            // fix override query string Detail: https://stackoverflow.com/a/7517673/1077943
+            localVarUrlObj.search = null;
+            localVarRequestOptions.headers = Object.assign({}, localVarHeaderParameter, options.headers);
+
+            return {
+                url: url.format(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * Every version of every claim the agent holds about one entity, including quarantined and disputed versions the agent-facing recall path never surfaces. Answers what the agent knows about this entity, on whose word, and since when.
+         * @summary Get an entity's curation dossier
+         * @param {any} agentId Hosted agent UUID returned by the agent create or list endpoint.
+         * @param {any} entityId Claim entity UUID (the unit of identity and of erasure).
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        getEntityDossierEndpointAgentsAgentIdClaimsEntitiesEntityIdGet(agentId: any, entityId: any, options: any = {}): FetchArgs {
+            // verify required parameter 'agentId' is not null or undefined
+            if (agentId === null || agentId === undefined) {
+                throw new RequiredError('agentId','Required parameter agentId was null or undefined when calling getEntityDossierEndpointAgentsAgentIdClaimsEntitiesEntityIdGet.');
+            }
+            // verify required parameter 'entityId' is not null or undefined
+            if (entityId === null || entityId === undefined) {
+                throw new RequiredError('entityId','Required parameter entityId was null or undefined when calling getEntityDossierEndpointAgentsAgentIdClaimsEntitiesEntityIdGet.');
+            }
+            const localVarPath = `/agents/{agent_id}/claims/entities/{entity_id}`
+                .replace(`{${"agent_id"}}`, encodeURIComponent(String(agentId)))
+                .replace(`{${"entity_id"}}`, encodeURIComponent(String(entityId)));
+            const localVarUrlObj = url.parse(localVarPath, true);
+            const localVarRequestOptions = Object.assign({ method: 'GET' }, options);
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication BearerApiKey required
+            if (configuration && configuration.apiKey) {
+                const localVarApiKeyValue = typeof configuration.apiKey === 'function'
+					? configuration.apiKey("Authorization")
+					: configuration.apiKey;
+                localVarHeaderParameter["Authorization"] = localVarApiKeyValue;
+            }
+
+            localVarUrlObj.query = Object.assign({}, localVarUrlObj.query, localVarQueryParameter, options.query);
+            // fix override query string Detail: https://stackoverflow.com/a/7517673/1077943
+            localVarUrlObj.search = null;
+            localVarRequestOptions.headers = Object.assign({}, localVarHeaderParameter, options.headers);
+
+            return {
+                url: url.format(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * The provenance, quarantine reason and corroboration a reviewer must see before releasing a claim, plus an ETag consent token. Pass the ETag back as If-Match on release, promote or adopt; any change to the claim invalidates it.
+         * @summary Get a claim's review context and consent token
+         * @param {any} agentId Hosted agent UUID returned by the agent create or list endpoint.
+         * @param {any} claimId Claim UUID returned by a curation queue, dossier, or review-context endpoint.
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        getReviewContextEndpointAgentsAgentIdClaimsClaimIdReviewContextGet(agentId: any, claimId: any, options: any = {}): FetchArgs {
+            // verify required parameter 'agentId' is not null or undefined
+            if (agentId === null || agentId === undefined) {
+                throw new RequiredError('agentId','Required parameter agentId was null or undefined when calling getReviewContextEndpointAgentsAgentIdClaimsClaimIdReviewContextGet.');
+            }
+            // verify required parameter 'claimId' is not null or undefined
+            if (claimId === null || claimId === undefined) {
+                throw new RequiredError('claimId','Required parameter claimId was null or undefined when calling getReviewContextEndpointAgentsAgentIdClaimsClaimIdReviewContextGet.');
+            }
+            const localVarPath = `/agents/{agent_id}/claims/{claim_id}/review-context`
+                .replace(`{${"agent_id"}}`, encodeURIComponent(String(agentId)))
+                .replace(`{${"claim_id"}}`, encodeURIComponent(String(claimId)));
+            const localVarUrlObj = url.parse(localVarPath, true);
+            const localVarRequestOptions = Object.assign({ method: 'GET' }, options);
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication BearerApiKey required
+            if (configuration && configuration.apiKey) {
+                const localVarApiKeyValue = typeof configuration.apiKey === 'function'
+					? configuration.apiKey("Authorization")
+					: configuration.apiKey;
+                localVarHeaderParameter["Authorization"] = localVarApiKeyValue;
+            }
+
+            localVarUrlObj.query = Object.assign({}, localVarUrlObj.query, localVarQueryParameter, options.query);
+            // fix override query string Detail: https://stackoverflow.com/a/7517673/1077943
+            localVarUrlObj.search = null;
+            localVarRequestOptions.headers = Object.assign({}, localVarHeaderParameter, options.headers);
+
+            return {
+                url: url.format(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * Claims stored without a structural attribute key, awaiting adoption under one. Fanned across the tenant's agents and labelled with the owning agent. recorded_at keyset pagination.
+         * @summary List abstained claims across the tenant
+         * @param {any} [limit] Maximum number of items to return on this page.
+         * @param {any} [cursor] Opaque pagination token from the previous response&#x27;s &#x60;next_cursor&#x60;. Pass it back unchanged; omit it to start again from the first page.
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        listAbstainedQueueEndpointOrgClaimsAbstainedGet(limit?: any, cursor?: any, options: any = {}): FetchArgs {
+            const localVarPath = `/org/claims/abstained`;
+            const localVarUrlObj = url.parse(localVarPath, true);
+            const localVarRequestOptions = Object.assign({ method: 'GET' }, options);
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication BearerApiKey required
+            if (configuration && configuration.apiKey) {
+                const localVarApiKeyValue = typeof configuration.apiKey === 'function'
+					? configuration.apiKey("Authorization")
+					: configuration.apiKey;
+                localVarHeaderParameter["Authorization"] = localVarApiKeyValue;
+            }
+
+            if (limit !== undefined) {
+                localVarQueryParameter['limit'] = limit;
+            }
+
+            if (cursor !== undefined) {
+                localVarQueryParameter['cursor'] = cursor;
+            }
+
+            localVarUrlObj.query = Object.assign({}, localVarUrlObj.query, localVarQueryParameter, options.query);
+            // fix override query string Detail: https://stackoverflow.com/a/7517673/1077943
+            localVarUrlObj.search = null;
+            localVarRequestOptions.headers = Object.assign({}, localVarHeaderParameter, options.headers);
+
+            return {
+                url: url.format(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * The tenant's quarantined claims, fanned across its agents and each labelled with its owning agent. A quarantined claim is a possible injection or a high-stakes supersession that a human must judge before it can bind. recorded_at keyset pagination.
+         * @summary List quarantined claims across the tenant
+         * @param {any} [limit] Maximum number of items to return on this page.
+         * @param {any} [cursor] Opaque pagination token from the previous response&#x27;s &#x60;next_cursor&#x60;. Pass it back unchanged; omit it to start again from the first page.
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        listQuarantineQueueEndpointOrgClaimsQuarantineGet(limit?: any, cursor?: any, options: any = {}): FetchArgs {
+            const localVarPath = `/org/claims/quarantine`;
+            const localVarUrlObj = url.parse(localVarPath, true);
+            const localVarRequestOptions = Object.assign({ method: 'GET' }, options);
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication BearerApiKey required
+            if (configuration && configuration.apiKey) {
+                const localVarApiKeyValue = typeof configuration.apiKey === 'function'
+					? configuration.apiKey("Authorization")
+					: configuration.apiKey;
+                localVarHeaderParameter["Authorization"] = localVarApiKeyValue;
+            }
+
+            if (limit !== undefined) {
+                localVarQueryParameter['limit'] = limit;
+            }
+
+            if (cursor !== undefined) {
+                localVarQueryParameter['cursor'] = cursor;
+            }
+
+            localVarUrlObj.query = Object.assign({}, localVarUrlObj.query, localVarQueryParameter, options.query);
+            // fix override query string Detail: https://stackoverflow.com/a/7517673/1077943
+            localVarUrlObj.search = null;
+            localVarRequestOptions.headers = Object.assign({}, localVarHeaderParameter, options.headers);
+
+            return {
+                url: url.format(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * Proposals that an oscillating attribute key be split into qualified variants rather than repeatedly superseded. Fanned across the tenant's agents and labelled with the owning agent. created_at keyset pagination.
+         * @summary List open split proposals across the tenant
+         * @param {any} [limit] Maximum number of items to return on this page.
+         * @param {any} [cursor] Opaque pagination token from the previous response&#x27;s &#x60;next_cursor&#x60;. Pass it back unchanged; omit it to start again from the first page.
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        listSplitProposalQueueEndpointOrgClaimsSplitProposalsGet(limit?: any, cursor?: any, options: any = {}): FetchArgs {
+            const localVarPath = `/org/claims/split-proposals`;
+            const localVarUrlObj = url.parse(localVarPath, true);
+            const localVarRequestOptions = Object.assign({ method: 'GET' }, options);
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication BearerApiKey required
+            if (configuration && configuration.apiKey) {
+                const localVarApiKeyValue = typeof configuration.apiKey === 'function'
+					? configuration.apiKey("Authorization")
+					: configuration.apiKey;
+                localVarHeaderParameter["Authorization"] = localVarApiKeyValue;
+            }
+
+            if (limit !== undefined) {
+                localVarQueryParameter['limit'] = limit;
+            }
+
+            if (cursor !== undefined) {
+                localVarQueryParameter['cursor'] = cursor;
+            }
+
+            localVarUrlObj.query = Object.assign({}, localVarUrlObj.query, localVarQueryParameter, options.query);
+            // fix override query string Detail: https://stackoverflow.com/a/7517673/1077943
+            localVarUrlObj.search = null;
+            localVarRequestOptions.headers = Object.assign({}, localVarHeaderParameter, options.headers);
+
+            return {
+                url: url.format(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * Make a disputed alternative the open, binding version for its key, with the operator's attestation. A second promotion of the same claim returns 409. Requires the If-Match consent token.
+         * @summary Promote a disputed claim to the binding version
+         * @param {PromoteClaimRequest} body 
+         * @param {any} agentId Hosted agent UUID returned by the agent create or list endpoint.
+         * @param {any} claimId Claim UUID returned by a curation queue, dossier, or review-context endpoint.
+         * @param {any} [ifMatch] The consent ETag returned by GET .../review-context. Required for release, promote and adopt: it proves the reviewer saw this claim&#x27;s state, and a stale token is refused.
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        promoteClaimEndpointAgentsAgentIdClaimsClaimIdPromotePost(body: PromoteClaimRequest, agentId: any, claimId: any, ifMatch?: any, options: any = {}): FetchArgs {
+            // verify required parameter 'body' is not null or undefined
+            if (body === null || body === undefined) {
+                throw new RequiredError('body','Required parameter body was null or undefined when calling promoteClaimEndpointAgentsAgentIdClaimsClaimIdPromotePost.');
+            }
+            // verify required parameter 'agentId' is not null or undefined
+            if (agentId === null || agentId === undefined) {
+                throw new RequiredError('agentId','Required parameter agentId was null or undefined when calling promoteClaimEndpointAgentsAgentIdClaimsClaimIdPromotePost.');
+            }
+            // verify required parameter 'claimId' is not null or undefined
+            if (claimId === null || claimId === undefined) {
+                throw new RequiredError('claimId','Required parameter claimId was null or undefined when calling promoteClaimEndpointAgentsAgentIdClaimsClaimIdPromotePost.');
+            }
+            const localVarPath = `/agents/{agent_id}/claims/{claim_id}/promote`
+                .replace(`{${"agent_id"}}`, encodeURIComponent(String(agentId)))
+                .replace(`{${"claim_id"}}`, encodeURIComponent(String(claimId)));
+            const localVarUrlObj = url.parse(localVarPath, true);
+            const localVarRequestOptions = Object.assign({ method: 'POST' }, options);
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication BearerApiKey required
+            if (configuration && configuration.apiKey) {
+                const localVarApiKeyValue = typeof configuration.apiKey === 'function'
+					? configuration.apiKey("Authorization")
+					: configuration.apiKey;
+                localVarHeaderParameter["Authorization"] = localVarApiKeyValue;
+            }
+
+            if (ifMatch !== undefined && ifMatch !== null) {
+                localVarHeaderParameter['If-Match'] = String(ifMatch);
+            }
+
+            localVarHeaderParameter['Content-Type'] = 'application/json';
+
+            localVarUrlObj.query = Object.assign({}, localVarUrlObj.query, localVarQueryParameter, options.query);
+            // fix override query string Detail: https://stackoverflow.com/a/7517673/1077943
+            localVarUrlObj.search = null;
+            localVarRequestOptions.headers = Object.assign({}, localVarHeaderParameter, options.headers);
+            const needsSerialization = (<any>"PromoteClaimRequest" !== "string") || localVarRequestOptions.headers['Content-Type'] === 'application/json';
+            localVarRequestOptions.body =  needsSerialization ? JSON.stringify(body || {}) : (body || "");
+
+            return {
+                url: url.format(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * Release a curator-releasable quarantined claim (high-stakes or a lapsed endorsement), re-entering it into verification with the operator's attestation. Any other reason, an untrusted (possible-injection) claim, an unresolved-identity or unclassified one, or a claim with no recorded reason, is refused here and must go through the admin release. Requires the If-Match consent token.
+         * @summary Release a quarantined claim (curator path)
+         * @param {any} agentId Hosted agent UUID returned by the agent create or list endpoint.
+         * @param {any} claimId Claim UUID returned by a curation queue, dossier, or review-context endpoint.
+         * @param {any} [ifMatch] The consent ETag returned by GET .../review-context. Required for release, promote and adopt: it proves the reviewer saw this claim&#x27;s state, and a stale token is refused.
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        releaseClaimEndpointAgentsAgentIdClaimsClaimIdReleasePost(agentId: any, claimId: any, ifMatch?: any, options: any = {}): FetchArgs {
+            // verify required parameter 'agentId' is not null or undefined
+            if (agentId === null || agentId === undefined) {
+                throw new RequiredError('agentId','Required parameter agentId was null or undefined when calling releaseClaimEndpointAgentsAgentIdClaimsClaimIdReleasePost.');
+            }
+            // verify required parameter 'claimId' is not null or undefined
+            if (claimId === null || claimId === undefined) {
+                throw new RequiredError('claimId','Required parameter claimId was null or undefined when calling releaseClaimEndpointAgentsAgentIdClaimsClaimIdReleasePost.');
+            }
+            const localVarPath = `/agents/{agent_id}/claims/{claim_id}/release`
+                .replace(`{${"agent_id"}}`, encodeURIComponent(String(agentId)))
+                .replace(`{${"claim_id"}}`, encodeURIComponent(String(claimId)));
+            const localVarUrlObj = url.parse(localVarPath, true);
+            const localVarRequestOptions = Object.assign({ method: 'POST' }, options);
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication BearerApiKey required
+            if (configuration && configuration.apiKey) {
+                const localVarApiKeyValue = typeof configuration.apiKey === 'function'
+					? configuration.apiKey("Authorization")
+					: configuration.apiKey;
+                localVarHeaderParameter["Authorization"] = localVarApiKeyValue;
+            }
+
+            if (ifMatch !== undefined && ifMatch !== null) {
+                localVarHeaderParameter['If-Match'] = String(ifMatch);
+            }
+
+            localVarUrlObj.query = Object.assign({}, localVarUrlObj.query, localVarQueryParameter, options.query);
+            // fix override query string Detail: https://stackoverflow.com/a/7517673/1077943
+            localVarUrlObj.search = null;
+            localVarRequestOptions.headers = Object.assign({}, localVarHeaderParameter, options.headers);
+
+            return {
+                url: url.format(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * Resolve an oscillating-key split proposal. Refuses to re-resolve one that is already confirmed or rejected (409).
+         * @summary Confirm or reject a split proposal
+         * @param {ResolveSplitRequest} body 
+         * @param {any} agentId Hosted agent UUID returned by the agent create or list endpoint.
+         * @param {any} proposalId Split-proposal UUID returned by the split-proposal queue.
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        resolveSplitProposalEndpointAgentsAgentIdClaimsSplitProposalsProposalIdResolvePost(body: ResolveSplitRequest, agentId: any, proposalId: any, options: any = {}): FetchArgs {
+            // verify required parameter 'body' is not null or undefined
+            if (body === null || body === undefined) {
+                throw new RequiredError('body','Required parameter body was null or undefined when calling resolveSplitProposalEndpointAgentsAgentIdClaimsSplitProposalsProposalIdResolvePost.');
+            }
+            // verify required parameter 'agentId' is not null or undefined
+            if (agentId === null || agentId === undefined) {
+                throw new RequiredError('agentId','Required parameter agentId was null or undefined when calling resolveSplitProposalEndpointAgentsAgentIdClaimsSplitProposalsProposalIdResolvePost.');
+            }
+            // verify required parameter 'proposalId' is not null or undefined
+            if (proposalId === null || proposalId === undefined) {
+                throw new RequiredError('proposalId','Required parameter proposalId was null or undefined when calling resolveSplitProposalEndpointAgentsAgentIdClaimsSplitProposalsProposalIdResolvePost.');
+            }
+            const localVarPath = `/agents/{agent_id}/claims/split-proposals/{proposal_id}/resolve`
+                .replace(`{${"agent_id"}}`, encodeURIComponent(String(agentId)))
+                .replace(`{${"proposal_id"}}`, encodeURIComponent(String(proposalId)));
+            const localVarUrlObj = url.parse(localVarPath, true);
+            const localVarRequestOptions = Object.assign({ method: 'POST' }, options);
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication BearerApiKey required
+            if (configuration && configuration.apiKey) {
+                const localVarApiKeyValue = typeof configuration.apiKey === 'function'
+					? configuration.apiKey("Authorization")
+					: configuration.apiKey;
+                localVarHeaderParameter["Authorization"] = localVarApiKeyValue;
+            }
+
+            localVarHeaderParameter['Content-Type'] = 'application/json';
+
+            localVarUrlObj.query = Object.assign({}, localVarUrlObj.query, localVarQueryParameter, options.query);
+            // fix override query string Detail: https://stackoverflow.com/a/7517673/1077943
+            localVarUrlObj.search = null;
+            localVarRequestOptions.headers = Object.assign({}, localVarHeaderParameter, options.headers);
+            const needsSerialization = (<any>"ResolveSplitRequest" !== "string") || localVarRequestOptions.headers['Content-Type'] === 'application/json';
+            localVarRequestOptions.body =  needsSerialization ? JSON.stringify(body || {}) : (body || "");
+
+            return {
+                url: url.format(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+    }
+};
+
+/**
+ * ClaimsApi - functional programming interface
+ * @export
+ */
+export const ClaimsApiFp = function(configuration?: Configuration) {
+    return {
+        /**
+         * Release any quarantined claim, including an untrusted (possible-injection) one, with re-verification. Admin-tier because releasing attacker-reachable content into a corpus the planner reads is the sharpest curation action. Requires the If-Match consent token.
+         * @summary Release a quarantined claim (administrator path)
+         * @param {any} agentId Hosted agent UUID returned by the agent create or list endpoint.
+         * @param {any} claimId Claim UUID returned by a curation queue, dossier, or review-context endpoint.
+         * @param {any} [ifMatch] The consent ETag returned by GET .../review-context. Required for release, promote and adopt: it proves the reviewer saw this claim&#x27;s state, and a stale token is refused.
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        adminReleaseClaimEndpointAgentsAgentIdClaimsClaimIdAdminReleasePost(agentId: any, claimId: any, ifMatch?: any, options?: any): (fetch?: FetchAPI, basePath?: string) => Promise<CuratedClaim> {
+            const localVarFetchArgs = ClaimsApiFetchParamCreator(configuration).adminReleaseClaimEndpointAgentsAgentIdClaimsClaimIdAdminReleasePost(agentId, claimId, ifMatch, options);
+            return (fetch: FetchAPI = isomorphicFetch, basePath: string = BASE_PATH) => {
+                return fetch(basePath + localVarFetchArgs.url, localVarFetchArgs.options).then((response) => {
+                    if (response.status >= 200 && response.status < 300) {
+                        return response.json();
+                    } else {
+                        throw response;
+                    }
+                });
+            };
+        },
+        /**
+         * Assign a structural attribute key to a claim stored without one, with the operator's attestation, so it can participate in supersession. A second adoption returns 409. Requires the If-Match consent token.
+         * @summary Adopt an abstained claim under a structural attribute
+         * @param {AdoptClaimRequest} body 
+         * @param {any} agentId Hosted agent UUID returned by the agent create or list endpoint.
+         * @param {any} claimId Claim UUID returned by a curation queue, dossier, or review-context endpoint.
+         * @param {any} [ifMatch] The consent ETag returned by GET .../review-context. Required for release, promote and adopt: it proves the reviewer saw this claim&#x27;s state, and a stale token is refused.
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        adoptClaimEndpointAgentsAgentIdClaimsClaimIdAdoptPost(body: AdoptClaimRequest, agentId: any, claimId: any, ifMatch?: any, options?: any): (fetch?: FetchAPI, basePath?: string) => Promise<CuratedClaim> {
+            const localVarFetchArgs = ClaimsApiFetchParamCreator(configuration).adoptClaimEndpointAgentsAgentIdClaimsClaimIdAdoptPost(body, agentId, claimId, ifMatch, options);
+            return (fetch: FetchAPI = isomorphicFetch, basePath: string = BASE_PATH) => {
+                return fetch(basePath + localVarFetchArgs.url, localVarFetchArgs.options).then((response) => {
+                    if (response.status >= 200 && response.status < 300) {
+                        return response.json();
+                    } else {
+                        throw response;
+                    }
+                });
+            };
+        },
+        /**
+         * Create a reversible alias edge from an observed surface form to an entity. A sequential retry with the same text returns the existing active alias rather than duplicating it; genuinely concurrent authorings may still both insert, and either can be deactivated. Deactivating an alias does not re-split claims already folded onto the entity while it was active.
+         * @summary Author an alias for an entity
+         * @param {CreateAliasRequest} body 
+         * @param {any} agentId Hosted agent UUID returned by the agent create or list endpoint.
+         * @param {any} entityId Claim entity UUID (the unit of identity and of erasure).
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        createAliasEndpointAgentsAgentIdClaimsEntitiesEntityIdAliasesPost(body: CreateAliasRequest, agentId: any, entityId: any, options?: any): (fetch?: FetchAPI, basePath?: string) => Promise<AliasResponse> {
+            const localVarFetchArgs = ClaimsApiFetchParamCreator(configuration).createAliasEndpointAgentsAgentIdClaimsEntitiesEntityIdAliasesPost(body, agentId, entityId, options);
+            return (fetch: FetchAPI = isomorphicFetch, basePath: string = BASE_PATH) => {
+                return fetch(basePath + localVarFetchArgs.url, localVarFetchArgs.options).then((response) => {
+                    if (response.status >= 200 && response.status < 300) {
+                        return response.json();
+                    } else {
+                        throw response;
+                    }
+                });
+            };
+        },
+        /**
+         * Toggle an alias edge off. Reversible; never a hard merge.
+         * @summary Deactivate an alias
+         * @param {any} agentId Hosted agent UUID returned by the agent create or list endpoint.
+         * @param {any} aliasId Claim alias UUID returned by the alias authoring endpoint.
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        deactivateAliasEndpointAgentsAgentIdClaimsAliasesAliasIdDeactivatePost(agentId: any, aliasId: any, options?: any): (fetch?: FetchAPI, basePath?: string) => Promise<AliasResponse> {
+            const localVarFetchArgs = ClaimsApiFetchParamCreator(configuration).deactivateAliasEndpointAgentsAgentIdClaimsAliasesAliasIdDeactivatePost(agentId, aliasId, options);
+            return (fetch: FetchAPI = isomorphicFetch, basePath: string = BASE_PATH) => {
+                return fetch(basePath + localVarFetchArgs.url, localVarFetchArgs.options).then((response) => {
+                    if (response.status >= 200 && response.status < 300) {
+                        return response.json();
+                    } else {
+                        throw response;
+                    }
+                });
+            };
+        },
+        /**
+         * Delete an entity and its claims, aliases, dossier and split proposals, and record a durable, PII-free receipt. Before the delete, the reinforcement each of those claims earned is subtracted back out of the rules it fed, so no rule keeps standing granted by erased evidence. Idempotent: a repeat request returns the original receipt. This is still a claim-layer erasure, not a full Article 17 erasure: learnings themselves, graph nodes, raw run traces and usage aggregates are not deleted, and the receipt names each. The ledger is designed so those fan-out legs can replay against requests served today.
+         * @summary Erase an entity's claim layer
+         * @param {any} agentId Hosted agent UUID returned by the agent create or list endpoint.
+         * @param {any} entityId Claim entity UUID (the unit of identity and of erasure).
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        eraseEntityEndpointAgentsAgentIdClaimsEntitiesEntityIdErasurePost(agentId: any, entityId: any, options?: any): (fetch?: FetchAPI, basePath?: string) => Promise<ClaimErasureReceipt> {
+            const localVarFetchArgs = ClaimsApiFetchParamCreator(configuration).eraseEntityEndpointAgentsAgentIdClaimsEntitiesEntityIdErasurePost(agentId, entityId, options);
+            return (fetch: FetchAPI = isomorphicFetch, basePath: string = BASE_PATH) => {
+                return fetch(basePath + localVarFetchArgs.url, localVarFetchArgs.options).then((response) => {
+                    if (response.status >= 200 && response.status < 300) {
+                        return response.json();
+                    } else {
+                        throw response;
+                    }
+                });
+            };
+        },
+        /**
+         * Every version of every claim the agent holds about one entity, including quarantined and disputed versions the agent-facing recall path never surfaces. Answers what the agent knows about this entity, on whose word, and since when.
+         * @summary Get an entity's curation dossier
+         * @param {any} agentId Hosted agent UUID returned by the agent create or list endpoint.
+         * @param {any} entityId Claim entity UUID (the unit of identity and of erasure).
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        getEntityDossierEndpointAgentsAgentIdClaimsEntitiesEntityIdGet(agentId: any, entityId: any, options?: any): (fetch?: FetchAPI, basePath?: string) => Promise<ClaimDossierResponse> {
+            const localVarFetchArgs = ClaimsApiFetchParamCreator(configuration).getEntityDossierEndpointAgentsAgentIdClaimsEntitiesEntityIdGet(agentId, entityId, options);
+            return (fetch: FetchAPI = isomorphicFetch, basePath: string = BASE_PATH) => {
+                return fetch(basePath + localVarFetchArgs.url, localVarFetchArgs.options).then((response) => {
+                    if (response.status >= 200 && response.status < 300) {
+                        return response.json();
+                    } else {
+                        throw response;
+                    }
+                });
+            };
+        },
+        /**
+         * The provenance, quarantine reason and corroboration a reviewer must see before releasing a claim, plus an ETag consent token. Pass the ETag back as If-Match on release, promote or adopt; any change to the claim invalidates it.
+         * @summary Get a claim's review context and consent token
+         * @param {any} agentId Hosted agent UUID returned by the agent create or list endpoint.
+         * @param {any} claimId Claim UUID returned by a curation queue, dossier, or review-context endpoint.
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        getReviewContextEndpointAgentsAgentIdClaimsClaimIdReviewContextGet(agentId: any, claimId: any, options?: any): (fetch?: FetchAPI, basePath?: string) => Promise<ClaimReviewContext> {
+            const localVarFetchArgs = ClaimsApiFetchParamCreator(configuration).getReviewContextEndpointAgentsAgentIdClaimsClaimIdReviewContextGet(agentId, claimId, options);
+            return (fetch: FetchAPI = isomorphicFetch, basePath: string = BASE_PATH) => {
+                return fetch(basePath + localVarFetchArgs.url, localVarFetchArgs.options).then((response) => {
+                    if (response.status >= 200 && response.status < 300) {
+                        return response.json();
+                    } else {
+                        throw response;
+                    }
+                });
+            };
+        },
+        /**
+         * Claims stored without a structural attribute key, awaiting adoption under one. Fanned across the tenant's agents and labelled with the owning agent. recorded_at keyset pagination.
+         * @summary List abstained claims across the tenant
+         * @param {any} [limit] Maximum number of items to return on this page.
+         * @param {any} [cursor] Opaque pagination token from the previous response&#x27;s &#x60;next_cursor&#x60;. Pass it back unchanged; omit it to start again from the first page.
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        listAbstainedQueueEndpointOrgClaimsAbstainedGet(limit?: any, cursor?: any, options?: any): (fetch?: FetchAPI, basePath?: string) => Promise<AbstainedQueueResponse> {
+            const localVarFetchArgs = ClaimsApiFetchParamCreator(configuration).listAbstainedQueueEndpointOrgClaimsAbstainedGet(limit, cursor, options);
+            return (fetch: FetchAPI = isomorphicFetch, basePath: string = BASE_PATH) => {
+                return fetch(basePath + localVarFetchArgs.url, localVarFetchArgs.options).then((response) => {
+                    if (response.status >= 200 && response.status < 300) {
+                        return response.json();
+                    } else {
+                        throw response;
+                    }
+                });
+            };
+        },
+        /**
+         * The tenant's quarantined claims, fanned across its agents and each labelled with its owning agent. A quarantined claim is a possible injection or a high-stakes supersession that a human must judge before it can bind. recorded_at keyset pagination.
+         * @summary List quarantined claims across the tenant
+         * @param {any} [limit] Maximum number of items to return on this page.
+         * @param {any} [cursor] Opaque pagination token from the previous response&#x27;s &#x60;next_cursor&#x60;. Pass it back unchanged; omit it to start again from the first page.
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        listQuarantineQueueEndpointOrgClaimsQuarantineGet(limit?: any, cursor?: any, options?: any): (fetch?: FetchAPI, basePath?: string) => Promise<QuarantineQueueResponse> {
+            const localVarFetchArgs = ClaimsApiFetchParamCreator(configuration).listQuarantineQueueEndpointOrgClaimsQuarantineGet(limit, cursor, options);
+            return (fetch: FetchAPI = isomorphicFetch, basePath: string = BASE_PATH) => {
+                return fetch(basePath + localVarFetchArgs.url, localVarFetchArgs.options).then((response) => {
+                    if (response.status >= 200 && response.status < 300) {
+                        return response.json();
+                    } else {
+                        throw response;
+                    }
+                });
+            };
+        },
+        /**
+         * Proposals that an oscillating attribute key be split into qualified variants rather than repeatedly superseded. Fanned across the tenant's agents and labelled with the owning agent. created_at keyset pagination.
+         * @summary List open split proposals across the tenant
+         * @param {any} [limit] Maximum number of items to return on this page.
+         * @param {any} [cursor] Opaque pagination token from the previous response&#x27;s &#x60;next_cursor&#x60;. Pass it back unchanged; omit it to start again from the first page.
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        listSplitProposalQueueEndpointOrgClaimsSplitProposalsGet(limit?: any, cursor?: any, options?: any): (fetch?: FetchAPI, basePath?: string) => Promise<SplitProposalQueueResponse> {
+            const localVarFetchArgs = ClaimsApiFetchParamCreator(configuration).listSplitProposalQueueEndpointOrgClaimsSplitProposalsGet(limit, cursor, options);
+            return (fetch: FetchAPI = isomorphicFetch, basePath: string = BASE_PATH) => {
+                return fetch(basePath + localVarFetchArgs.url, localVarFetchArgs.options).then((response) => {
+                    if (response.status >= 200 && response.status < 300) {
+                        return response.json();
+                    } else {
+                        throw response;
+                    }
+                });
+            };
+        },
+        /**
+         * Make a disputed alternative the open, binding version for its key, with the operator's attestation. A second promotion of the same claim returns 409. Requires the If-Match consent token.
+         * @summary Promote a disputed claim to the binding version
+         * @param {PromoteClaimRequest} body 
+         * @param {any} agentId Hosted agent UUID returned by the agent create or list endpoint.
+         * @param {any} claimId Claim UUID returned by a curation queue, dossier, or review-context endpoint.
+         * @param {any} [ifMatch] The consent ETag returned by GET .../review-context. Required for release, promote and adopt: it proves the reviewer saw this claim&#x27;s state, and a stale token is refused.
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        promoteClaimEndpointAgentsAgentIdClaimsClaimIdPromotePost(body: PromoteClaimRequest, agentId: any, claimId: any, ifMatch?: any, options?: any): (fetch?: FetchAPI, basePath?: string) => Promise<CuratedClaim> {
+            const localVarFetchArgs = ClaimsApiFetchParamCreator(configuration).promoteClaimEndpointAgentsAgentIdClaimsClaimIdPromotePost(body, agentId, claimId, ifMatch, options);
+            return (fetch: FetchAPI = isomorphicFetch, basePath: string = BASE_PATH) => {
+                return fetch(basePath + localVarFetchArgs.url, localVarFetchArgs.options).then((response) => {
+                    if (response.status >= 200 && response.status < 300) {
+                        return response.json();
+                    } else {
+                        throw response;
+                    }
+                });
+            };
+        },
+        /**
+         * Release a curator-releasable quarantined claim (high-stakes or a lapsed endorsement), re-entering it into verification with the operator's attestation. Any other reason, an untrusted (possible-injection) claim, an unresolved-identity or unclassified one, or a claim with no recorded reason, is refused here and must go through the admin release. Requires the If-Match consent token.
+         * @summary Release a quarantined claim (curator path)
+         * @param {any} agentId Hosted agent UUID returned by the agent create or list endpoint.
+         * @param {any} claimId Claim UUID returned by a curation queue, dossier, or review-context endpoint.
+         * @param {any} [ifMatch] The consent ETag returned by GET .../review-context. Required for release, promote and adopt: it proves the reviewer saw this claim&#x27;s state, and a stale token is refused.
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        releaseClaimEndpointAgentsAgentIdClaimsClaimIdReleasePost(agentId: any, claimId: any, ifMatch?: any, options?: any): (fetch?: FetchAPI, basePath?: string) => Promise<CuratedClaim> {
+            const localVarFetchArgs = ClaimsApiFetchParamCreator(configuration).releaseClaimEndpointAgentsAgentIdClaimsClaimIdReleasePost(agentId, claimId, ifMatch, options);
+            return (fetch: FetchAPI = isomorphicFetch, basePath: string = BASE_PATH) => {
+                return fetch(basePath + localVarFetchArgs.url, localVarFetchArgs.options).then((response) => {
+                    if (response.status >= 200 && response.status < 300) {
+                        return response.json();
+                    } else {
+                        throw response;
+                    }
+                });
+            };
+        },
+        /**
+         * Resolve an oscillating-key split proposal. Refuses to re-resolve one that is already confirmed or rejected (409).
+         * @summary Confirm or reject a split proposal
+         * @param {ResolveSplitRequest} body 
+         * @param {any} agentId Hosted agent UUID returned by the agent create or list endpoint.
+         * @param {any} proposalId Split-proposal UUID returned by the split-proposal queue.
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        resolveSplitProposalEndpointAgentsAgentIdClaimsSplitProposalsProposalIdResolvePost(body: ResolveSplitRequest, agentId: any, proposalId: any, options?: any): (fetch?: FetchAPI, basePath?: string) => Promise<ResolveSplitResponse> {
+            const localVarFetchArgs = ClaimsApiFetchParamCreator(configuration).resolveSplitProposalEndpointAgentsAgentIdClaimsSplitProposalsProposalIdResolvePost(body, agentId, proposalId, options);
+            return (fetch: FetchAPI = isomorphicFetch, basePath: string = BASE_PATH) => {
+                return fetch(basePath + localVarFetchArgs.url, localVarFetchArgs.options).then((response) => {
+                    if (response.status >= 200 && response.status < 300) {
+                        return response.json();
+                    } else {
+                        throw response;
+                    }
+                });
+            };
+        },
+    }
+};
+
+/**
+ * ClaimsApi - factory interface
+ * @export
+ */
+export const ClaimsApiFactory = function (configuration?: Configuration, fetch?: FetchAPI, basePath?: string) {
+    return {
+        /**
+         * Release any quarantined claim, including an untrusted (possible-injection) one, with re-verification. Admin-tier because releasing attacker-reachable content into a corpus the planner reads is the sharpest curation action. Requires the If-Match consent token.
+         * @summary Release a quarantined claim (administrator path)
+         * @param {any} agentId Hosted agent UUID returned by the agent create or list endpoint.
+         * @param {any} claimId Claim UUID returned by a curation queue, dossier, or review-context endpoint.
+         * @param {any} [ifMatch] The consent ETag returned by GET .../review-context. Required for release, promote and adopt: it proves the reviewer saw this claim&#x27;s state, and a stale token is refused.
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        adminReleaseClaimEndpointAgentsAgentIdClaimsClaimIdAdminReleasePost(agentId: any, claimId: any, ifMatch?: any, options?: any) {
+            return ClaimsApiFp(configuration).adminReleaseClaimEndpointAgentsAgentIdClaimsClaimIdAdminReleasePost(agentId, claimId, ifMatch, options)(fetch, basePath);
+        },
+        /**
+         * Assign a structural attribute key to a claim stored without one, with the operator's attestation, so it can participate in supersession. A second adoption returns 409. Requires the If-Match consent token.
+         * @summary Adopt an abstained claim under a structural attribute
+         * @param {AdoptClaimRequest} body 
+         * @param {any} agentId Hosted agent UUID returned by the agent create or list endpoint.
+         * @param {any} claimId Claim UUID returned by a curation queue, dossier, or review-context endpoint.
+         * @param {any} [ifMatch] The consent ETag returned by GET .../review-context. Required for release, promote and adopt: it proves the reviewer saw this claim&#x27;s state, and a stale token is refused.
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        adoptClaimEndpointAgentsAgentIdClaimsClaimIdAdoptPost(body: AdoptClaimRequest, agentId: any, claimId: any, ifMatch?: any, options?: any) {
+            return ClaimsApiFp(configuration).adoptClaimEndpointAgentsAgentIdClaimsClaimIdAdoptPost(body, agentId, claimId, ifMatch, options)(fetch, basePath);
+        },
+        /**
+         * Create a reversible alias edge from an observed surface form to an entity. A sequential retry with the same text returns the existing active alias rather than duplicating it; genuinely concurrent authorings may still both insert, and either can be deactivated. Deactivating an alias does not re-split claims already folded onto the entity while it was active.
+         * @summary Author an alias for an entity
+         * @param {CreateAliasRequest} body 
+         * @param {any} agentId Hosted agent UUID returned by the agent create or list endpoint.
+         * @param {any} entityId Claim entity UUID (the unit of identity and of erasure).
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        createAliasEndpointAgentsAgentIdClaimsEntitiesEntityIdAliasesPost(body: CreateAliasRequest, agentId: any, entityId: any, options?: any) {
+            return ClaimsApiFp(configuration).createAliasEndpointAgentsAgentIdClaimsEntitiesEntityIdAliasesPost(body, agentId, entityId, options)(fetch, basePath);
+        },
+        /**
+         * Toggle an alias edge off. Reversible; never a hard merge.
+         * @summary Deactivate an alias
+         * @param {any} agentId Hosted agent UUID returned by the agent create or list endpoint.
+         * @param {any} aliasId Claim alias UUID returned by the alias authoring endpoint.
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        deactivateAliasEndpointAgentsAgentIdClaimsAliasesAliasIdDeactivatePost(agentId: any, aliasId: any, options?: any) {
+            return ClaimsApiFp(configuration).deactivateAliasEndpointAgentsAgentIdClaimsAliasesAliasIdDeactivatePost(agentId, aliasId, options)(fetch, basePath);
+        },
+        /**
+         * Delete an entity and its claims, aliases, dossier and split proposals, and record a durable, PII-free receipt. Before the delete, the reinforcement each of those claims earned is subtracted back out of the rules it fed, so no rule keeps standing granted by erased evidence. Idempotent: a repeat request returns the original receipt. This is still a claim-layer erasure, not a full Article 17 erasure: learnings themselves, graph nodes, raw run traces and usage aggregates are not deleted, and the receipt names each. The ledger is designed so those fan-out legs can replay against requests served today.
+         * @summary Erase an entity's claim layer
+         * @param {any} agentId Hosted agent UUID returned by the agent create or list endpoint.
+         * @param {any} entityId Claim entity UUID (the unit of identity and of erasure).
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        eraseEntityEndpointAgentsAgentIdClaimsEntitiesEntityIdErasurePost(agentId: any, entityId: any, options?: any) {
+            return ClaimsApiFp(configuration).eraseEntityEndpointAgentsAgentIdClaimsEntitiesEntityIdErasurePost(agentId, entityId, options)(fetch, basePath);
+        },
+        /**
+         * Every version of every claim the agent holds about one entity, including quarantined and disputed versions the agent-facing recall path never surfaces. Answers what the agent knows about this entity, on whose word, and since when.
+         * @summary Get an entity's curation dossier
+         * @param {any} agentId Hosted agent UUID returned by the agent create or list endpoint.
+         * @param {any} entityId Claim entity UUID (the unit of identity and of erasure).
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        getEntityDossierEndpointAgentsAgentIdClaimsEntitiesEntityIdGet(agentId: any, entityId: any, options?: any) {
+            return ClaimsApiFp(configuration).getEntityDossierEndpointAgentsAgentIdClaimsEntitiesEntityIdGet(agentId, entityId, options)(fetch, basePath);
+        },
+        /**
+         * The provenance, quarantine reason and corroboration a reviewer must see before releasing a claim, plus an ETag consent token. Pass the ETag back as If-Match on release, promote or adopt; any change to the claim invalidates it.
+         * @summary Get a claim's review context and consent token
+         * @param {any} agentId Hosted agent UUID returned by the agent create or list endpoint.
+         * @param {any} claimId Claim UUID returned by a curation queue, dossier, or review-context endpoint.
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        getReviewContextEndpointAgentsAgentIdClaimsClaimIdReviewContextGet(agentId: any, claimId: any, options?: any) {
+            return ClaimsApiFp(configuration).getReviewContextEndpointAgentsAgentIdClaimsClaimIdReviewContextGet(agentId, claimId, options)(fetch, basePath);
+        },
+        /**
+         * Claims stored without a structural attribute key, awaiting adoption under one. Fanned across the tenant's agents and labelled with the owning agent. recorded_at keyset pagination.
+         * @summary List abstained claims across the tenant
+         * @param {any} [limit] Maximum number of items to return on this page.
+         * @param {any} [cursor] Opaque pagination token from the previous response&#x27;s &#x60;next_cursor&#x60;. Pass it back unchanged; omit it to start again from the first page.
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        listAbstainedQueueEndpointOrgClaimsAbstainedGet(limit?: any, cursor?: any, options?: any) {
+            return ClaimsApiFp(configuration).listAbstainedQueueEndpointOrgClaimsAbstainedGet(limit, cursor, options)(fetch, basePath);
+        },
+        /**
+         * The tenant's quarantined claims, fanned across its agents and each labelled with its owning agent. A quarantined claim is a possible injection or a high-stakes supersession that a human must judge before it can bind. recorded_at keyset pagination.
+         * @summary List quarantined claims across the tenant
+         * @param {any} [limit] Maximum number of items to return on this page.
+         * @param {any} [cursor] Opaque pagination token from the previous response&#x27;s &#x60;next_cursor&#x60;. Pass it back unchanged; omit it to start again from the first page.
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        listQuarantineQueueEndpointOrgClaimsQuarantineGet(limit?: any, cursor?: any, options?: any) {
+            return ClaimsApiFp(configuration).listQuarantineQueueEndpointOrgClaimsQuarantineGet(limit, cursor, options)(fetch, basePath);
+        },
+        /**
+         * Proposals that an oscillating attribute key be split into qualified variants rather than repeatedly superseded. Fanned across the tenant's agents and labelled with the owning agent. created_at keyset pagination.
+         * @summary List open split proposals across the tenant
+         * @param {any} [limit] Maximum number of items to return on this page.
+         * @param {any} [cursor] Opaque pagination token from the previous response&#x27;s &#x60;next_cursor&#x60;. Pass it back unchanged; omit it to start again from the first page.
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        listSplitProposalQueueEndpointOrgClaimsSplitProposalsGet(limit?: any, cursor?: any, options?: any) {
+            return ClaimsApiFp(configuration).listSplitProposalQueueEndpointOrgClaimsSplitProposalsGet(limit, cursor, options)(fetch, basePath);
+        },
+        /**
+         * Make a disputed alternative the open, binding version for its key, with the operator's attestation. A second promotion of the same claim returns 409. Requires the If-Match consent token.
+         * @summary Promote a disputed claim to the binding version
+         * @param {PromoteClaimRequest} body 
+         * @param {any} agentId Hosted agent UUID returned by the agent create or list endpoint.
+         * @param {any} claimId Claim UUID returned by a curation queue, dossier, or review-context endpoint.
+         * @param {any} [ifMatch] The consent ETag returned by GET .../review-context. Required for release, promote and adopt: it proves the reviewer saw this claim&#x27;s state, and a stale token is refused.
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        promoteClaimEndpointAgentsAgentIdClaimsClaimIdPromotePost(body: PromoteClaimRequest, agentId: any, claimId: any, ifMatch?: any, options?: any) {
+            return ClaimsApiFp(configuration).promoteClaimEndpointAgentsAgentIdClaimsClaimIdPromotePost(body, agentId, claimId, ifMatch, options)(fetch, basePath);
+        },
+        /**
+         * Release a curator-releasable quarantined claim (high-stakes or a lapsed endorsement), re-entering it into verification with the operator's attestation. Any other reason, an untrusted (possible-injection) claim, an unresolved-identity or unclassified one, or a claim with no recorded reason, is refused here and must go through the admin release. Requires the If-Match consent token.
+         * @summary Release a quarantined claim (curator path)
+         * @param {any} agentId Hosted agent UUID returned by the agent create or list endpoint.
+         * @param {any} claimId Claim UUID returned by a curation queue, dossier, or review-context endpoint.
+         * @param {any} [ifMatch] The consent ETag returned by GET .../review-context. Required for release, promote and adopt: it proves the reviewer saw this claim&#x27;s state, and a stale token is refused.
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        releaseClaimEndpointAgentsAgentIdClaimsClaimIdReleasePost(agentId: any, claimId: any, ifMatch?: any, options?: any) {
+            return ClaimsApiFp(configuration).releaseClaimEndpointAgentsAgentIdClaimsClaimIdReleasePost(agentId, claimId, ifMatch, options)(fetch, basePath);
+        },
+        /**
+         * Resolve an oscillating-key split proposal. Refuses to re-resolve one that is already confirmed or rejected (409).
+         * @summary Confirm or reject a split proposal
+         * @param {ResolveSplitRequest} body 
+         * @param {any} agentId Hosted agent UUID returned by the agent create or list endpoint.
+         * @param {any} proposalId Split-proposal UUID returned by the split-proposal queue.
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        resolveSplitProposalEndpointAgentsAgentIdClaimsSplitProposalsProposalIdResolvePost(body: ResolveSplitRequest, agentId: any, proposalId: any, options?: any) {
+            return ClaimsApiFp(configuration).resolveSplitProposalEndpointAgentsAgentIdClaimsSplitProposalsProposalIdResolvePost(body, agentId, proposalId, options)(fetch, basePath);
+        },
+    };
+};
+
+/**
+ * ClaimsApi - object-oriented interface
+ * @export
+ * @class ClaimsApi
+ * @extends {BaseAPI}
+ */
+export class ClaimsApi extends BaseAPI {
+    /**
+     * Release any quarantined claim, including an untrusted (possible-injection) one, with re-verification. Admin-tier because releasing attacker-reachable content into a corpus the planner reads is the sharpest curation action. Requires the If-Match consent token.
+     * @summary Release a quarantined claim (administrator path)
+     * @param {any} agentId Hosted agent UUID returned by the agent create or list endpoint.
+     * @param {any} claimId Claim UUID returned by a curation queue, dossier, or review-context endpoint.
+     * @param {any} [ifMatch] The consent ETag returned by GET .../review-context. Required for release, promote and adopt: it proves the reviewer saw this claim&#x27;s state, and a stale token is refused.
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof ClaimsApi
+     */
+    public adminReleaseClaimEndpointAgentsAgentIdClaimsClaimIdAdminReleasePost(agentId: any, claimId: any, ifMatch?: any, options?: any) {
+        return ClaimsApiFp(this.configuration).adminReleaseClaimEndpointAgentsAgentIdClaimsClaimIdAdminReleasePost(agentId, claimId, ifMatch, options)(this.fetch, this.basePath);
+    }
+
+    /**
+     * Assign a structural attribute key to a claim stored without one, with the operator's attestation, so it can participate in supersession. A second adoption returns 409. Requires the If-Match consent token.
+     * @summary Adopt an abstained claim under a structural attribute
+     * @param {AdoptClaimRequest} body 
+     * @param {any} agentId Hosted agent UUID returned by the agent create or list endpoint.
+     * @param {any} claimId Claim UUID returned by a curation queue, dossier, or review-context endpoint.
+     * @param {any} [ifMatch] The consent ETag returned by GET .../review-context. Required for release, promote and adopt: it proves the reviewer saw this claim&#x27;s state, and a stale token is refused.
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof ClaimsApi
+     */
+    public adoptClaimEndpointAgentsAgentIdClaimsClaimIdAdoptPost(body: AdoptClaimRequest, agentId: any, claimId: any, ifMatch?: any, options?: any) {
+        return ClaimsApiFp(this.configuration).adoptClaimEndpointAgentsAgentIdClaimsClaimIdAdoptPost(body, agentId, claimId, ifMatch, options)(this.fetch, this.basePath);
+    }
+
+    /**
+     * Create a reversible alias edge from an observed surface form to an entity. A sequential retry with the same text returns the existing active alias rather than duplicating it; genuinely concurrent authorings may still both insert, and either can be deactivated. Deactivating an alias does not re-split claims already folded onto the entity while it was active.
+     * @summary Author an alias for an entity
+     * @param {CreateAliasRequest} body 
+     * @param {any} agentId Hosted agent UUID returned by the agent create or list endpoint.
+     * @param {any} entityId Claim entity UUID (the unit of identity and of erasure).
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof ClaimsApi
+     */
+    public createAliasEndpointAgentsAgentIdClaimsEntitiesEntityIdAliasesPost(body: CreateAliasRequest, agentId: any, entityId: any, options?: any) {
+        return ClaimsApiFp(this.configuration).createAliasEndpointAgentsAgentIdClaimsEntitiesEntityIdAliasesPost(body, agentId, entityId, options)(this.fetch, this.basePath);
+    }
+
+    /**
+     * Toggle an alias edge off. Reversible; never a hard merge.
+     * @summary Deactivate an alias
+     * @param {any} agentId Hosted agent UUID returned by the agent create or list endpoint.
+     * @param {any} aliasId Claim alias UUID returned by the alias authoring endpoint.
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof ClaimsApi
+     */
+    public deactivateAliasEndpointAgentsAgentIdClaimsAliasesAliasIdDeactivatePost(agentId: any, aliasId: any, options?: any) {
+        return ClaimsApiFp(this.configuration).deactivateAliasEndpointAgentsAgentIdClaimsAliasesAliasIdDeactivatePost(agentId, aliasId, options)(this.fetch, this.basePath);
+    }
+
+    /**
+     * Delete an entity and its claims, aliases, dossier and split proposals, and record a durable, PII-free receipt. Before the delete, the reinforcement each of those claims earned is subtracted back out of the rules it fed, so no rule keeps standing granted by erased evidence. Idempotent: a repeat request returns the original receipt. This is still a claim-layer erasure, not a full Article 17 erasure: learnings themselves, graph nodes, raw run traces and usage aggregates are not deleted, and the receipt names each. The ledger is designed so those fan-out legs can replay against requests served today.
+     * @summary Erase an entity's claim layer
+     * @param {any} agentId Hosted agent UUID returned by the agent create or list endpoint.
+     * @param {any} entityId Claim entity UUID (the unit of identity and of erasure).
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof ClaimsApi
+     */
+    public eraseEntityEndpointAgentsAgentIdClaimsEntitiesEntityIdErasurePost(agentId: any, entityId: any, options?: any) {
+        return ClaimsApiFp(this.configuration).eraseEntityEndpointAgentsAgentIdClaimsEntitiesEntityIdErasurePost(agentId, entityId, options)(this.fetch, this.basePath);
+    }
+
+    /**
+     * Every version of every claim the agent holds about one entity, including quarantined and disputed versions the agent-facing recall path never surfaces. Answers what the agent knows about this entity, on whose word, and since when.
+     * @summary Get an entity's curation dossier
+     * @param {any} agentId Hosted agent UUID returned by the agent create or list endpoint.
+     * @param {any} entityId Claim entity UUID (the unit of identity and of erasure).
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof ClaimsApi
+     */
+    public getEntityDossierEndpointAgentsAgentIdClaimsEntitiesEntityIdGet(agentId: any, entityId: any, options?: any) {
+        return ClaimsApiFp(this.configuration).getEntityDossierEndpointAgentsAgentIdClaimsEntitiesEntityIdGet(agentId, entityId, options)(this.fetch, this.basePath);
+    }
+
+    /**
+     * The provenance, quarantine reason and corroboration a reviewer must see before releasing a claim, plus an ETag consent token. Pass the ETag back as If-Match on release, promote or adopt; any change to the claim invalidates it.
+     * @summary Get a claim's review context and consent token
+     * @param {any} agentId Hosted agent UUID returned by the agent create or list endpoint.
+     * @param {any} claimId Claim UUID returned by a curation queue, dossier, or review-context endpoint.
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof ClaimsApi
+     */
+    public getReviewContextEndpointAgentsAgentIdClaimsClaimIdReviewContextGet(agentId: any, claimId: any, options?: any) {
+        return ClaimsApiFp(this.configuration).getReviewContextEndpointAgentsAgentIdClaimsClaimIdReviewContextGet(agentId, claimId, options)(this.fetch, this.basePath);
+    }
+
+    /**
+     * Claims stored without a structural attribute key, awaiting adoption under one. Fanned across the tenant's agents and labelled with the owning agent. recorded_at keyset pagination.
+     * @summary List abstained claims across the tenant
+     * @param {any} [limit] Maximum number of items to return on this page.
+     * @param {any} [cursor] Opaque pagination token from the previous response&#x27;s &#x60;next_cursor&#x60;. Pass it back unchanged; omit it to start again from the first page.
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof ClaimsApi
+     */
+    public listAbstainedQueueEndpointOrgClaimsAbstainedGet(limit?: any, cursor?: any, options?: any) {
+        return ClaimsApiFp(this.configuration).listAbstainedQueueEndpointOrgClaimsAbstainedGet(limit, cursor, options)(this.fetch, this.basePath);
+    }
+
+    /**
+     * The tenant's quarantined claims, fanned across its agents and each labelled with its owning agent. A quarantined claim is a possible injection or a high-stakes supersession that a human must judge before it can bind. recorded_at keyset pagination.
+     * @summary List quarantined claims across the tenant
+     * @param {any} [limit] Maximum number of items to return on this page.
+     * @param {any} [cursor] Opaque pagination token from the previous response&#x27;s &#x60;next_cursor&#x60;. Pass it back unchanged; omit it to start again from the first page.
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof ClaimsApi
+     */
+    public listQuarantineQueueEndpointOrgClaimsQuarantineGet(limit?: any, cursor?: any, options?: any) {
+        return ClaimsApiFp(this.configuration).listQuarantineQueueEndpointOrgClaimsQuarantineGet(limit, cursor, options)(this.fetch, this.basePath);
+    }
+
+    /**
+     * Proposals that an oscillating attribute key be split into qualified variants rather than repeatedly superseded. Fanned across the tenant's agents and labelled with the owning agent. created_at keyset pagination.
+     * @summary List open split proposals across the tenant
+     * @param {any} [limit] Maximum number of items to return on this page.
+     * @param {any} [cursor] Opaque pagination token from the previous response&#x27;s &#x60;next_cursor&#x60;. Pass it back unchanged; omit it to start again from the first page.
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof ClaimsApi
+     */
+    public listSplitProposalQueueEndpointOrgClaimsSplitProposalsGet(limit?: any, cursor?: any, options?: any) {
+        return ClaimsApiFp(this.configuration).listSplitProposalQueueEndpointOrgClaimsSplitProposalsGet(limit, cursor, options)(this.fetch, this.basePath);
+    }
+
+    /**
+     * Make a disputed alternative the open, binding version for its key, with the operator's attestation. A second promotion of the same claim returns 409. Requires the If-Match consent token.
+     * @summary Promote a disputed claim to the binding version
+     * @param {PromoteClaimRequest} body 
+     * @param {any} agentId Hosted agent UUID returned by the agent create or list endpoint.
+     * @param {any} claimId Claim UUID returned by a curation queue, dossier, or review-context endpoint.
+     * @param {any} [ifMatch] The consent ETag returned by GET .../review-context. Required for release, promote and adopt: it proves the reviewer saw this claim&#x27;s state, and a stale token is refused.
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof ClaimsApi
+     */
+    public promoteClaimEndpointAgentsAgentIdClaimsClaimIdPromotePost(body: PromoteClaimRequest, agentId: any, claimId: any, ifMatch?: any, options?: any) {
+        return ClaimsApiFp(this.configuration).promoteClaimEndpointAgentsAgentIdClaimsClaimIdPromotePost(body, agentId, claimId, ifMatch, options)(this.fetch, this.basePath);
+    }
+
+    /**
+     * Release a curator-releasable quarantined claim (high-stakes or a lapsed endorsement), re-entering it into verification with the operator's attestation. Any other reason, an untrusted (possible-injection) claim, an unresolved-identity or unclassified one, or a claim with no recorded reason, is refused here and must go through the admin release. Requires the If-Match consent token.
+     * @summary Release a quarantined claim (curator path)
+     * @param {any} agentId Hosted agent UUID returned by the agent create or list endpoint.
+     * @param {any} claimId Claim UUID returned by a curation queue, dossier, or review-context endpoint.
+     * @param {any} [ifMatch] The consent ETag returned by GET .../review-context. Required for release, promote and adopt: it proves the reviewer saw this claim&#x27;s state, and a stale token is refused.
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof ClaimsApi
+     */
+    public releaseClaimEndpointAgentsAgentIdClaimsClaimIdReleasePost(agentId: any, claimId: any, ifMatch?: any, options?: any) {
+        return ClaimsApiFp(this.configuration).releaseClaimEndpointAgentsAgentIdClaimsClaimIdReleasePost(agentId, claimId, ifMatch, options)(this.fetch, this.basePath);
+    }
+
+    /**
+     * Resolve an oscillating-key split proposal. Refuses to re-resolve one that is already confirmed or rejected (409).
+     * @summary Confirm or reject a split proposal
+     * @param {ResolveSplitRequest} body 
+     * @param {any} agentId Hosted agent UUID returned by the agent create or list endpoint.
+     * @param {any} proposalId Split-proposal UUID returned by the split-proposal queue.
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof ClaimsApi
+     */
+    public resolveSplitProposalEndpointAgentsAgentIdClaimsSplitProposalsProposalIdResolvePost(body: ResolveSplitRequest, agentId: any, proposalId: any, options?: any) {
+        return ClaimsApiFp(this.configuration).resolveSplitProposalEndpointAgentsAgentIdClaimsSplitProposalsProposalIdResolvePost(body, agentId, proposalId, options)(this.fetch, this.basePath);
     }
 
 }

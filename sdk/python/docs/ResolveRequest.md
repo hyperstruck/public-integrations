@@ -12,7 +12,7 @@ Name | Type | Description | Notes
 **max_learnings** | **object** |  | [optional]
 **model_context_window** | **object** |  | [optional]
 **retrieval** | **object** | Retrieval depth. &#x60;fast&#x60; prioritises response time; &#x60;full&#x60; may return richer contextual relationships at higher latency. | [optional]
-**resolve_idempotency_key** | **object** | Opaque per-recall idempotency key, scoped to this run. Stable across retries of one recall, distinct across genuine recalls, to recall more than once in a run. | [optional]
+**resolve_idempotency_key** | **object** | Opaque per-recall idempotency key, scoped to this run. Supply a value that is stable across retries of one recall and distinct across genuine recalls (a turn id, milestone id, or UUID) to recall more than once in a run: each distinct key accumulates its offers and is charged once; a retry with the same key neither double-charges nor double-records. Omit for a single recall per run (the default). | [optional]
 
 [[Back to Model list]](../README.md#documentation-for-models) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to README]](../README.md)
 

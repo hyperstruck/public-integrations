@@ -35,6 +35,7 @@ class LearningResponse(object):
         'source_goal': 'object',
         'applicable_goals': 'object',
         'applicable_tools': 'object',
+        'domain_dimensions': 'object',
         'times_applied': 'object',
         'times_helpful': 'object',
         'is_archived': 'object',
@@ -53,6 +54,7 @@ class LearningResponse(object):
         'source_goal': 'source_goal',
         'applicable_goals': 'applicable_goals',
         'applicable_tools': 'applicable_tools',
+        'domain_dimensions': 'domain_dimensions',
         'times_applied': 'times_applied',
         'times_helpful': 'times_helpful',
         'is_archived': 'is_archived',
@@ -63,7 +65,7 @@ class LearningResponse(object):
         'updated_at': 'updated_at'
     }
 
-    def __init__(self, learning_id=None, content=None, standing=None, trust_level=None, source_goal=None, applicable_goals=None, applicable_tools=None, times_applied=None, times_helpful=None, is_archived=None, privacy=None, scope=None, instances=None, created_at=None, updated_at=None):  # noqa: E501
+    def __init__(self, learning_id=None, content=None, standing=None, trust_level=None, source_goal=None, applicable_goals=None, applicable_tools=None, domain_dimensions=None, times_applied=None, times_helpful=None, is_archived=None, privacy=None, scope=None, instances=None, created_at=None, updated_at=None):  # noqa: E501
         """LearningResponse - a model defined in Swagger"""  # noqa: E501
         self._learning_id = None
         self._content = None
@@ -72,6 +74,7 @@ class LearningResponse(object):
         self._source_goal = None
         self._applicable_goals = None
         self._applicable_tools = None
+        self._domain_dimensions = None
         self._times_applied = None
         self._times_helpful = None
         self._is_archived = None
@@ -88,6 +91,8 @@ class LearningResponse(object):
         self.source_goal = source_goal
         self.applicable_goals = applicable_goals
         self.applicable_tools = applicable_tools
+        if domain_dimensions is not None:
+            self.domain_dimensions = domain_dimensions
         self.times_applied = times_applied
         self.times_helpful = times_helpful
         self.is_archived = is_archived
@@ -259,6 +264,29 @@ class LearningResponse(object):
             raise ValueError("Invalid value for `applicable_tools`, must not be `None`")  # noqa: E501
 
         self._applicable_tools = applicable_tools
+
+    @property
+    def domain_dimensions(self):
+        """Gets the domain_dimensions of this LearningResponse.  # noqa: E501
+
+        Names of domain dimensions associated with this learning (same concept as agent ``core_config.domain_dimensions`` names).  # noqa: E501
+
+        :return: The domain_dimensions of this LearningResponse.  # noqa: E501
+        :rtype: object
+        """
+        return self._domain_dimensions
+
+    @domain_dimensions.setter
+    def domain_dimensions(self, domain_dimensions):
+        """Sets the domain_dimensions of this LearningResponse.
+
+        Names of domain dimensions associated with this learning (same concept as agent ``core_config.domain_dimensions`` names).  # noqa: E501
+
+        :param domain_dimensions: The domain_dimensions of this LearningResponse.  # noqa: E501
+        :type: object
+        """
+
+        self._domain_dimensions = domain_dimensions
 
     @property
     def times_applied(self):

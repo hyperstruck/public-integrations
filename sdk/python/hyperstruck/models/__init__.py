@@ -14,6 +14,9 @@
 from __future__ import absolute_import
 
 # import models into model package
+from hyperstruck.models.abstained_queue_item import AbstainedQueueItem
+from hyperstruck.models.abstained_queue_response import AbstainedQueueResponse
+from hyperstruck.models.adopt_claim_request import AdoptClaimRequest
 from hyperstruck.models.agent_core_config_input import AgentCoreConfigInput
 from hyperstruck.models.agent_core_config_output import AgentCoreConfigOutput
 from hyperstruck.models.agent_core_config_patch import AgentCoreConfigPatch
@@ -31,6 +34,7 @@ from hyperstruck.models.agent_run_status_aggregates import AgentRunStatusAggrega
 from hyperstruck.models.agent_summary_metrics import AgentSummaryMetrics
 from hyperstruck.models.agent_update_request import AgentUpdateRequest
 from hyperstruck.models.agent_usage_summary_response import AgentUsageSummaryResponse
+from hyperstruck.models.alias_response import AliasResponse
 from hyperstruck.models.api_key_create_request import ApiKeyCreateRequest
 from hyperstruck.models.api_key_create_response import ApiKeyCreateResponse
 from hyperstruck.models.api_key_list_item import ApiKeyListItem
@@ -42,10 +46,17 @@ from hyperstruck.models.billing_window_kind import BillingWindowKind
 from hyperstruck.models.boundary_accepted_response import BoundaryAcceptedResponse
 from hyperstruck.models.candidate_learning_response import CandidateLearningResponse
 from hyperstruck.models.claim_assists_response import ClaimAssistsResponse
+from hyperstruck.models.claim_dossier_response import ClaimDossierResponse
+from hyperstruck.models.claim_erasure_receipt import ClaimErasureReceipt
+from hyperstruck.models.claim_review_context import ClaimReviewContext
+from hyperstruck.models.create_alias_request import CreateAliasRequest
+from hyperstruck.models.curated_claim import CuratedClaim
 from hyperstruck.models.decision_type import DecisionType
 from hyperstruck.models.delete_learnings_response import DeleteLearningsResponse
 from hyperstruck.models.distill_outcome_model import DistillOutcomeModel
 from hyperstruck.models.distill_request import DistillRequest
+from hyperstruck.models.domain_dimension_model import DomainDimensionModel
+from hyperstruck.models.dossier_claim_item import DossierClaimItem
 from hyperstruck.models.entitlements_response import EntitlementsResponse
 from hyperstruck.models.episode_model import EpisodeModel
 from hyperstruck.models.evidence_availability import EvidenceAvailability
@@ -57,6 +68,7 @@ from hyperstruck.models.guardrail_config import GuardrailConfig
 from hyperstruck.models.guardrails_config_input import GuardrailsConfigInput
 from hyperstruck.models.guardrails_config_output import GuardrailsConfigOutput
 from hyperstruck.models.http_validation_error import HTTPValidationError
+from hyperstruck.models.hidden_char_finding import HiddenCharFinding
 from hyperstruck.models.hitl_policy_preset import HitlPolicyPreset
 from hyperstruck.models.host_loop_closure import HostLoopClosure
 from hyperstruck.models.hosted_agent_model_provider import HostedAgentModelProvider
@@ -95,12 +107,15 @@ from hyperstruck.models.plan_milestone_response import PlanMilestoneResponse
 from hyperstruck.models.plan_response import PlanResponse
 from hyperstruck.models.plan_step_response import PlanStepResponse
 from hyperstruck.models.privacy_classification import PrivacyClassification
+from hyperstruck.models.promote_claim_request import PromoteClaimRequest
 from hyperstruck.models.prompt_injection_guardrail_config import PromptInjectionGuardrailConfig
 from hyperstruck.models.provider_credential_binding_type import ProviderCredentialBindingType
 from hyperstruck.models.provider_credential_create_request import ProviderCredentialCreateRequest
 from hyperstruck.models.provider_credential_list_response import ProviderCredentialListResponse
 from hyperstruck.models.provider_credential_response import ProviderCredentialResponse
 from hyperstruck.models.provider_credential_update_request import ProviderCredentialUpdateRequest
+from hyperstruck.models.quarantine_queue_item import QuarantineQueueItem
+from hyperstruck.models.quarantine_queue_response import QuarantineQueueResponse
 from hyperstruck.models.reasoning_tier import ReasoningTier
 from hyperstruck.models.reinforce_learning_request import ReinforceLearningRequest
 from hyperstruck.models.reinforce_learning_response import ReinforceLearningResponse
@@ -108,8 +123,11 @@ from hyperstruck.models.reinforce_request import ReinforceRequest
 from hyperstruck.models.reject_learning_reason_code import RejectLearningReasonCode
 from hyperstruck.models.reject_learning_request import RejectLearningRequest
 from hyperstruck.models.reject_learning_response import RejectLearningResponse
+from hyperstruck.models.rendered_text import RenderedText
 from hyperstruck.models.resolve_request import ResolveRequest
 from hyperstruck.models.resolve_response import ResolveResponse
+from hyperstruck.models.resolve_split_request import ResolveSplitRequest
+from hyperstruck.models.resolve_split_response import ResolveSplitResponse
 from hyperstruck.models.resume_run_request import ResumeRunRequest
 from hyperstruck.models.review_reason import ReviewReason
 from hyperstruck.models.review_state import ReviewState
@@ -132,9 +150,13 @@ from hyperstruck.models.similar_plans_response import SimilarPlansResponse
 from hyperstruck.models.space_kind import SpaceKind
 from hyperstruck.models.space_list_response import SpaceListResponse
 from hyperstruck.models.space_response import SpaceResponse
+from hyperstruck.models.split_proposal_queue_item import SplitProposalQueueItem
+from hyperstruck.models.split_proposal_queue_response import SplitProposalQueueResponse
+from hyperstruck.models.split_proposal_status import SplitProposalStatus
 from hyperstruck.models.step_model import StepModel
 from hyperstruck.models.store_learning_accepted_response import StoreLearningAcceptedResponse
 from hyperstruck.models.store_learning_request import StoreLearningRequest
+from hyperstruck.models.supersession_reason import SupersessionReason
 from hyperstruck.models.tenant_model import TenantModel
 from hyperstruck.models.tool_spec_model import ToolSpecModel
 from hyperstruck.models.trust_level import TrustLevel

@@ -7,6 +7,9 @@ Name | Type | Description | Notes
 **name** | **object** |  | [optional]
 **key_prefix** | **object** |  |
 **scopes** | **object** |  | [optional]
+**tier** | **object** |  | [optional]
+**all_spaces** | **object** |  |
+**space_ids** | **object** |  | [optional]
 **created_at** | **object** |  |
 **last_used_at** | **object** |  | [optional]
 **revoked_at** | **object** |  | [optional]

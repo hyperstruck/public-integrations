@@ -13,6 +13,7 @@ Name | Type | Description | Notes
 **hitl_autonomy_level** | **object** | HITL autonomy level (1&#x3D;most supervised, 5&#x3D;least supervised). Used when &#x60;&#x60;hitl_policy_preset&#x60;&#x60; is &#x60;&#x60;autonomy&#x60;&#x60;. | [optional]
 **hitl_policy_preset** | [**HitlPolicyPreset**](HitlPolicyPreset.md) | How hosted runs build HITL policies: &#x60;&#x60;autonomy&#x60;&#x60; uses &#x60;&#x60;hitl_autonomy_level&#x60;&#x60;; &#x60;&#x60;milestone_only&#x60;&#x60; gates only at milestone boundaries (simpler resume/checkpoints). | [optional]
 **metadata** | **object** | Arbitrary extension metadata (&#x60;AgentConfig.metadata&#x60;). | [optional]
+**domain_dimensions** | **object** | Domain dimensions this agent focuses on when extracting and keeping learnings. Each entry has a name, description, and optional example values. Learnings store the matching names in &#x60;&#x60;domain_dimensions&#x60;&#x60; (list of strings). Omit or null when unguided; on PATCH, pass null or [] to clear. | [optional]
 
 [[Back to Model list]](../README.md#documentation-for-models) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to README]](../README.md)
 

@@ -29,22 +29,32 @@ class ApiKeyCreateRequest(object):
     """
     swagger_types = {
         'name': 'object',
-        'scopes': 'object'
+        'scopes': 'object',
+        'all_spaces': 'object',
+        'space_ids': 'object'
     }
 
     attribute_map = {
         'name': 'name',
-        'scopes': 'scopes'
+        'scopes': 'scopes',
+        'all_spaces': 'all_spaces',
+        'space_ids': 'space_ids'
     }
 
-    def __init__(self, name=None, scopes=None):  # noqa: E501
+    def __init__(self, name=None, scopes=None, all_spaces=None, space_ids=None):  # noqa: E501
         """ApiKeyCreateRequest - a model defined in Swagger"""  # noqa: E501
         self._name = None
         self._scopes = None
+        self._all_spaces = None
+        self._space_ids = None
         self.discriminator = None
         self.name = name
         if scopes is not None:
             self.scopes = scopes
+        if all_spaces is not None:
+            self.all_spaces = all_spaces
+        if space_ids is not None:
+            self.space_ids = space_ids
 
     @property
     def name(self):
@@ -93,6 +103,48 @@ class ApiKeyCreateRequest(object):
         """
 
         self._scopes = scopes
+
+    @property
+    def all_spaces(self):
+        """Gets the all_spaces of this ApiKeyCreateRequest.  # noqa: E501
+
+
+        :return: The all_spaces of this ApiKeyCreateRequest.  # noqa: E501
+        :rtype: object
+        """
+        return self._all_spaces
+
+    @all_spaces.setter
+    def all_spaces(self, all_spaces):
+        """Sets the all_spaces of this ApiKeyCreateRequest.
+
+
+        :param all_spaces: The all_spaces of this ApiKeyCreateRequest.  # noqa: E501
+        :type: object
+        """
+
+        self._all_spaces = all_spaces
+
+    @property
+    def space_ids(self):
+        """Gets the space_ids of this ApiKeyCreateRequest.  # noqa: E501
+
+
+        :return: The space_ids of this ApiKeyCreateRequest.  # noqa: E501
+        :rtype: object
+        """
+        return self._space_ids
+
+    @space_ids.setter
+    def space_ids(self, space_ids):
+        """Sets the space_ids of this ApiKeyCreateRequest.
+
+
+        :param space_ids: The space_ids of this ApiKeyCreateRequest.  # noqa: E501
+        :type: object
+        """
+
+        self._space_ids = space_ids
 
     def to_dict(self):
         """Returns the model properties as a dict"""

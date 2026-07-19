@@ -7,6 +7,7 @@ from hyperstruck.api.agents_api import AgentsApi
 from hyperstruck.api.api_keys_api import ApiKeysApi
 from hyperstruck.api.auth_api import AuthApi
 from hyperstruck.api.billing_api import BillingApi
+from hyperstruck.api.claims_api import ClaimsApi
 from hyperstruck.api.entitlements_api import EntitlementsApi
 from hyperstruck.api.learning_boundary_api import LearningBoundaryApi
 from hyperstruck.api.learnings_api import LearningsApi

@@ -128,6 +128,87 @@ describe("BillingApi", () => {
   })
 })
 
+describe("ClaimsApi", () => {
+  let instance: api.ClaimsApi
+  beforeEach(function() {
+    instance = new api.ClaimsApi(config)
+  });
+
+  test("adminReleaseClaimEndpointAgentsAgentIdClaimsClaimIdAdminReleasePost", () => {
+    const agentId: any = undefined
+    const claimId: any = undefined
+    const ifMatch: any = undefined
+    return expect(instance.adminReleaseClaimEndpointAgentsAgentIdClaimsClaimIdAdminReleasePost(agentId, claimId, ifMatch, {})).resolves.toBe(null)
+  })
+  test("adoptClaimEndpointAgentsAgentIdClaimsClaimIdAdoptPost", () => {
+    const body: api.AdoptClaimRequest = undefined
+    const agentId: any = undefined
+    const claimId: any = undefined
+    const ifMatch: any = undefined
+    return expect(instance.adoptClaimEndpointAgentsAgentIdClaimsClaimIdAdoptPost(body, agentId, claimId, ifMatch, {})).resolves.toBe(null)
+  })
+  test("createAliasEndpointAgentsAgentIdClaimsEntitiesEntityIdAliasesPost", () => {
+    const body: api.CreateAliasRequest = undefined
+    const agentId: any = undefined
+    const entityId: any = undefined
+    return expect(instance.createAliasEndpointAgentsAgentIdClaimsEntitiesEntityIdAliasesPost(body, agentId, entityId, {})).resolves.toBe(null)
+  })
+  test("deactivateAliasEndpointAgentsAgentIdClaimsAliasesAliasIdDeactivatePost", () => {
+    const agentId: any = undefined
+    const aliasId: any = undefined
+    return expect(instance.deactivateAliasEndpointAgentsAgentIdClaimsAliasesAliasIdDeactivatePost(agentId, aliasId, {})).resolves.toBe(null)
+  })
+  test("eraseEntityEndpointAgentsAgentIdClaimsEntitiesEntityIdErasurePost", () => {
+    const agentId: any = undefined
+    const entityId: any = undefined
+    return expect(instance.eraseEntityEndpointAgentsAgentIdClaimsEntitiesEntityIdErasurePost(agentId, entityId, {})).resolves.toBe(null)
+  })
+  test("getEntityDossierEndpointAgentsAgentIdClaimsEntitiesEntityIdGet", () => {
+    const agentId: any = undefined
+    const entityId: any = undefined
+    return expect(instance.getEntityDossierEndpointAgentsAgentIdClaimsEntitiesEntityIdGet(agentId, entityId, {})).resolves.toBe(null)
+  })
+  test("getReviewContextEndpointAgentsAgentIdClaimsClaimIdReviewContextGet", () => {
+    const agentId: any = undefined
+    const claimId: any = undefined
+    return expect(instance.getReviewContextEndpointAgentsAgentIdClaimsClaimIdReviewContextGet(agentId, claimId, {})).resolves.toBe(null)
+  })
+  test("listAbstainedQueueEndpointOrgClaimsAbstainedGet", () => {
+    const limit: any = undefined
+    const cursor: any = undefined
+    return expect(instance.listAbstainedQueueEndpointOrgClaimsAbstainedGet(limit, cursor, {})).resolves.toBe(null)
+  })
+  test("listQuarantineQueueEndpointOrgClaimsQuarantineGet", () => {
+    const limit: any = undefined
+    const cursor: any = undefined
+    return expect(instance.listQuarantineQueueEndpointOrgClaimsQuarantineGet(limit, cursor, {})).resolves.toBe(null)
+  })
+  test("listSplitProposalQueueEndpointOrgClaimsSplitProposalsGet", () => {
+    const limit: any = undefined
+    const cursor: any = undefined
+    return expect(instance.listSplitProposalQueueEndpointOrgClaimsSplitProposalsGet(limit, cursor, {})).resolves.toBe(null)
+  })
+  test("promoteClaimEndpointAgentsAgentIdClaimsClaimIdPromotePost", () => {
+    const body: api.PromoteClaimRequest = undefined
+    const agentId: any = undefined
+    const claimId: any = undefined
+    const ifMatch: any = undefined
+    return expect(instance.promoteClaimEndpointAgentsAgentIdClaimsClaimIdPromotePost(body, agentId, claimId, ifMatch, {})).resolves.toBe(null)
+  })
+  test("releaseClaimEndpointAgentsAgentIdClaimsClaimIdReleasePost", () => {
+    const agentId: any = undefined
+    const claimId: any = undefined
+    const ifMatch: any = undefined
+    return expect(instance.releaseClaimEndpointAgentsAgentIdClaimsClaimIdReleasePost(agentId, claimId, ifMatch, {})).resolves.toBe(null)
+  })
+  test("resolveSplitProposalEndpointAgentsAgentIdClaimsSplitProposalsProposalIdResolvePost", () => {
+    const body: api.ResolveSplitRequest = undefined
+    const agentId: any = undefined
+    const proposalId: any = undefined
+    return expect(instance.resolveSplitProposalEndpointAgentsAgentIdClaimsSplitProposalsProposalIdResolvePost(body, agentId, proposalId, {})).resolves.toBe(null)
+  })
+})
+
 describe("EntitlementsApi", () => {
   let instance: api.EntitlementsApi
   beforeEach(function() {

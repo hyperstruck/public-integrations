@@ -13,6 +13,7 @@ Name | Type | Description | Notes
 **hitl_autonomy_level** | **object** |  | [optional]
 **hitl_policy_preset** | **object** |  | [optional]
 **metadata** | **object** |  | [optional]
+**domain_dimensions** | **object** | Replace the agent&#x27;s domain_dimensions when set. Pass null or [] to clear; omit to leave unchanged. | [optional]
 
 [[Back to Model list]](../README.md#documentation-for-models) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to README]](../README.md)
 

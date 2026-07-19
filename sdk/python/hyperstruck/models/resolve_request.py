@@ -295,7 +295,7 @@ class ResolveRequest(object):
     def resolve_idempotency_key(self):
         """Gets the resolve_idempotency_key of this ResolveRequest.  # noqa: E501
 
-        Opaque per-recall idempotency key, scoped to this run. Supply a value that is stable across retries of one recall and distinct across genuine recalls to recall more than once in a run.  # noqa: E501
+        Opaque per-recall idempotency key, scoped to this run. Supply a value that is stable across retries of one recall and distinct across genuine recalls (a turn id, milestone id, or UUID) to recall more than once in a run: each distinct key accumulates its offers and is charged once; a retry with the same key neither double-charges nor double-records. Omit for a single recall per run (the default).  # noqa: E501
 
         :return: The resolve_idempotency_key of this ResolveRequest.  # noqa: E501
         :rtype: object
@@ -306,7 +306,7 @@ class ResolveRequest(object):
     def resolve_idempotency_key(self, resolve_idempotency_key):
         """Sets the resolve_idempotency_key of this ResolveRequest.
 
-        Opaque per-recall idempotency key, scoped to this run. Supply a value that is stable across retries of one recall and distinct across genuine recalls to recall more than once in a run.  # noqa: E501
+        Opaque per-recall idempotency key, scoped to this run. Supply a value that is stable across retries of one recall and distinct across genuine recalls (a turn id, milestone id, or UUID) to recall more than once in a run: each distinct key accumulates its offers and is charged once; a retry with the same key neither double-charges nor double-records. Omit for a single recall per run (the default).  # noqa: E501
 
         :param resolve_idempotency_key: The resolve_idempotency_key of this ResolveRequest.  # noqa: E501
         :type: object

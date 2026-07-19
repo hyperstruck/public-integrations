@@ -8,6 +8,7 @@ Name | Type | Description | Notes
 **source_goal** | **object** | Goal or context this learning originated from. | [optional]
 **applicable_goals** | **object** | Keywords or patterns this learning applies to. | [optional]
 **applicable_tools** | **object** | Tools this learning relates to. | [optional]
+**domain_dimensions** | **object** | Names of domain dimensions this learning addresses (e.g. OWASP, reliability). Prefer names from the agent&#x27;s &#x60;&#x60;core_config.domain_dimensions&#x60;&#x60; rather than stuffing taxonomy into applicable_goals. | [optional]
 **privacy** | [**PrivacyClassification**](PrivacyClassification.md) | Privacy classification for cross-agent sharing eligibility. | [optional]
 **instances** | **object** | Specific structured examples that support the learning, expressed as entity values and observed outcomes. | [optional]
 

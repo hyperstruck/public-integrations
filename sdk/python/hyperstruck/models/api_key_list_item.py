@@ -32,6 +32,9 @@ class ApiKeyListItem(object):
         'name': 'object',
         'key_prefix': 'object',
         'scopes': 'object',
+        'tier': 'object',
+        'all_spaces': 'object',
+        'space_ids': 'object',
         'created_at': 'object',
         'last_used_at': 'object',
         'revoked_at': 'object'
@@ -42,17 +45,23 @@ class ApiKeyListItem(object):
         'name': 'name',
         'key_prefix': 'key_prefix',
         'scopes': 'scopes',
+        'tier': 'tier',
+        'all_spaces': 'all_spaces',
+        'space_ids': 'space_ids',
         'created_at': 'created_at',
         'last_used_at': 'last_used_at',
         'revoked_at': 'revoked_at'
     }
 
-    def __init__(self, id=None, name=None, key_prefix=None, scopes=None, created_at=None, last_used_at=None, revoked_at=None):  # noqa: E501
+    def __init__(self, id=None, name=None, key_prefix=None, scopes=None, tier=None, all_spaces=None, space_ids=None, created_at=None, last_used_at=None, revoked_at=None):  # noqa: E501
         """ApiKeyListItem - a model defined in Swagger"""  # noqa: E501
         self._id = None
         self._name = None
         self._key_prefix = None
         self._scopes = None
+        self._tier = None
+        self._all_spaces = None
+        self._space_ids = None
         self._created_at = None
         self._last_used_at = None
         self._revoked_at = None
@@ -63,6 +72,11 @@ class ApiKeyListItem(object):
         self.key_prefix = key_prefix
         if scopes is not None:
             self.scopes = scopes
+        if tier is not None:
+            self.tier = tier
+        self.all_spaces = all_spaces
+        if space_ids is not None:
+            self.space_ids = space_ids
         self.created_at = created_at
         if last_used_at is not None:
             self.last_used_at = last_used_at
@@ -156,6 +170,71 @@ class ApiKeyListItem(object):
         """
 
         self._scopes = scopes
+
+    @property
+    def tier(self):
+        """Gets the tier of this ApiKeyListItem.  # noqa: E501
+
+
+        :return: The tier of this ApiKeyListItem.  # noqa: E501
+        :rtype: object
+        """
+        return self._tier
+
+    @tier.setter
+    def tier(self, tier):
+        """Sets the tier of this ApiKeyListItem.
+
+
+        :param tier: The tier of this ApiKeyListItem.  # noqa: E501
+        :type: object
+        """
+
+        self._tier = tier
+
+    @property
+    def all_spaces(self):
+        """Gets the all_spaces of this ApiKeyListItem.  # noqa: E501
+
+
+        :return: The all_spaces of this ApiKeyListItem.  # noqa: E501
+        :rtype: object
+        """
+        return self._all_spaces
+
+    @all_spaces.setter
+    def all_spaces(self, all_spaces):
+        """Sets the all_spaces of this ApiKeyListItem.
+
+
+        :param all_spaces: The all_spaces of this ApiKeyListItem.  # noqa: E501
+        :type: object
+        """
+        if all_spaces is None:
+            raise ValueError("Invalid value for `all_spaces`, must not be `None`")  # noqa: E501
+
+        self._all_spaces = all_spaces
+
+    @property
+    def space_ids(self):
+        """Gets the space_ids of this ApiKeyListItem.  # noqa: E501
+
+
+        :return: The space_ids of this ApiKeyListItem.  # noqa: E501
+        :rtype: object
+        """
+        return self._space_ids
+
+    @space_ids.setter
+    def space_ids(self, space_ids):
+        """Sets the space_ids of this ApiKeyListItem.
+
+
+        :param space_ids: The space_ids of this ApiKeyListItem.  # noqa: E501
+        :type: object
+        """
+
+        self._space_ids = space_ids
 
     @property
     def created_at(self):

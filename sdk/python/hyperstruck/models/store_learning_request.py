@@ -33,6 +33,7 @@ class StoreLearningRequest(object):
         'source_goal': 'object',
         'applicable_goals': 'object',
         'applicable_tools': 'object',
+        'domain_dimensions': 'object',
         'privacy': 'PrivacyClassification',
         'instances': 'object'
     }
@@ -43,17 +44,19 @@ class StoreLearningRequest(object):
         'source_goal': 'source_goal',
         'applicable_goals': 'applicable_goals',
         'applicable_tools': 'applicable_tools',
+        'domain_dimensions': 'domain_dimensions',
         'privacy': 'privacy',
         'instances': 'instances'
     }
 
-    def __init__(self, content=None, utility=None, source_goal=None, applicable_goals=None, applicable_tools=None, privacy=None, instances=None):  # noqa: E501
+    def __init__(self, content=None, utility=None, source_goal=None, applicable_goals=None, applicable_tools=None, domain_dimensions=None, privacy=None, instances=None):  # noqa: E501
         """StoreLearningRequest - a model defined in Swagger"""  # noqa: E501
         self._content = None
         self._utility = None
         self._source_goal = None
         self._applicable_goals = None
         self._applicable_tools = None
+        self._domain_dimensions = None
         self._privacy = None
         self._instances = None
         self.discriminator = None
@@ -66,6 +69,8 @@ class StoreLearningRequest(object):
             self.applicable_goals = applicable_goals
         if applicable_tools is not None:
             self.applicable_tools = applicable_tools
+        if domain_dimensions is not None:
+            self.domain_dimensions = domain_dimensions
         if privacy is not None:
             self.privacy = privacy
         if instances is not None:
@@ -187,6 +192,29 @@ class StoreLearningRequest(object):
         """
 
         self._applicable_tools = applicable_tools
+
+    @property
+    def domain_dimensions(self):
+        """Gets the domain_dimensions of this StoreLearningRequest.  # noqa: E501
+
+        Names of domain dimensions this learning addresses (e.g. OWASP, reliability). Prefer names from the agent's ``core_config.domain_dimensions`` rather than stuffing taxonomy into applicable_goals.  # noqa: E501
+
+        :return: The domain_dimensions of this StoreLearningRequest.  # noqa: E501
+        :rtype: object
+        """
+        return self._domain_dimensions
+
+    @domain_dimensions.setter
+    def domain_dimensions(self, domain_dimensions):
+        """Sets the domain_dimensions of this StoreLearningRequest.
+
+        Names of domain dimensions this learning addresses (e.g. OWASP, reliability). Prefer names from the agent's ``core_config.domain_dimensions`` rather than stuffing taxonomy into applicable_goals.  # noqa: E501
+
+        :param domain_dimensions: The domain_dimensions of this StoreLearningRequest.  # noqa: E501
+        :type: object
+        """
+
+        self._domain_dimensions = domain_dimensions
 
     @property
     def privacy(self):

@@ -37,7 +37,8 @@ class AgentCoreConfigPatch(object):
         'hitl_enabled': 'object',
         'hitl_autonomy_level': 'object',
         'hitl_policy_preset': 'object',
-        'metadata': 'object'
+        'metadata': 'object',
+        'domain_dimensions': 'object'
     }
 
     attribute_map = {
@@ -50,10 +51,11 @@ class AgentCoreConfigPatch(object):
         'hitl_enabled': 'hitl_enabled',
         'hitl_autonomy_level': 'hitl_autonomy_level',
         'hitl_policy_preset': 'hitl_policy_preset',
-        'metadata': 'metadata'
+        'metadata': 'metadata',
+        'domain_dimensions': 'domain_dimensions'
     }
 
-    def __init__(self, instructions=None, description=None, temperature=None, max_tokens=None, mcp_servers=None, guardrails_config=None, hitl_enabled=None, hitl_autonomy_level=None, hitl_policy_preset=None, metadata=None):  # noqa: E501
+    def __init__(self, instructions=None, description=None, temperature=None, max_tokens=None, mcp_servers=None, guardrails_config=None, hitl_enabled=None, hitl_autonomy_level=None, hitl_policy_preset=None, metadata=None, domain_dimensions=None):  # noqa: E501
         """AgentCoreConfigPatch - a model defined in Swagger"""  # noqa: E501
         self._instructions = None
         self._description = None
@@ -65,6 +67,7 @@ class AgentCoreConfigPatch(object):
         self._hitl_autonomy_level = None
         self._hitl_policy_preset = None
         self._metadata = None
+        self._domain_dimensions = None
         self.discriminator = None
         if instructions is not None:
             self.instructions = instructions
@@ -86,6 +89,8 @@ class AgentCoreConfigPatch(object):
             self.hitl_policy_preset = hitl_policy_preset
         if metadata is not None:
             self.metadata = metadata
+        if domain_dimensions is not None:
+            self.domain_dimensions = domain_dimensions
 
     @property
     def instructions(self):
@@ -298,6 +303,29 @@ class AgentCoreConfigPatch(object):
         """
 
         self._metadata = metadata
+
+    @property
+    def domain_dimensions(self):
+        """Gets the domain_dimensions of this AgentCoreConfigPatch.  # noqa: E501
+
+        Replace the agent's domain_dimensions when set. Pass null or [] to clear; omit to leave unchanged.  # noqa: E501
+
+        :return: The domain_dimensions of this AgentCoreConfigPatch.  # noqa: E501
+        :rtype: object
+        """
+        return self._domain_dimensions
+
+    @domain_dimensions.setter
+    def domain_dimensions(self, domain_dimensions):
+        """Sets the domain_dimensions of this AgentCoreConfigPatch.
+
+        Replace the agent's domain_dimensions when set. Pass null or [] to clear; omit to leave unchanged.  # noqa: E501
+
+        :param domain_dimensions: The domain_dimensions of this AgentCoreConfigPatch.  # noqa: E501
+        :type: object
+        """
+
+        self._domain_dimensions = domain_dimensions
 
     def to_dict(self):
         """Returns the model properties as a dict"""
