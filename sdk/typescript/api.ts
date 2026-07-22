@@ -4545,12 +4545,6 @@ export interface ResumeRunRequest {
      */
     data?: any;
     /**
-     * Optional identifier of the human who made the decision.
-     * @type {any}
-     * @memberof ResumeRunRequest
-     */
-    decidedBy?: any;
-    /**
      * Optional human-readable reason (audit / trace; SDK-dependent visibility to the model).
      * @type {any}
      * @memberof ResumeRunRequest

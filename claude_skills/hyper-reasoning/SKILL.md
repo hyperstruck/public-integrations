@@ -206,7 +206,6 @@ POST {BASE_URL}/runs/{run_id}/resume
 {
   "suspension_id": "<from suspension.id>",
   "decision_type": "<user choice>",
-  "decided_by": "claude-code-user",
   "reason": "<optional>"
 }
 ```

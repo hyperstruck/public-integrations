@@ -31,7 +31,6 @@ class ResumeRunRequest(object):
         'suspension_id': 'object',
         'decision_type': 'DecisionType',
         'data': 'object',
-        'decided_by': 'object',
         'reason': 'object',
         'worker_profile': 'object',
         'metadata': 'object'
@@ -41,18 +40,16 @@ class ResumeRunRequest(object):
         'suspension_id': 'suspension_id',
         'decision_type': 'decision_type',
         'data': 'data',
-        'decided_by': 'decided_by',
         'reason': 'reason',
         'worker_profile': 'worker_profile',
         'metadata': 'metadata'
     }
 
-    def __init__(self, suspension_id=None, decision_type=None, data=None, decided_by=None, reason=None, worker_profile=None, metadata=None):  # noqa: E501
+    def __init__(self, suspension_id=None, decision_type=None, data=None, reason=None, worker_profile=None, metadata=None):  # noqa: E501
         """ResumeRunRequest - a model defined in Swagger"""  # noqa: E501
         self._suspension_id = None
         self._decision_type = None
         self._data = None
-        self._decided_by = None
         self._reason = None
         self._worker_profile = None
         self._metadata = None
@@ -61,8 +58,6 @@ class ResumeRunRequest(object):
         self.decision_type = decision_type
         if data is not None:
             self.data = data
-        if decided_by is not None:
-            self.decided_by = decided_by
         if reason is not None:
             self.reason = reason
         if worker_profile is not None:
@@ -142,29 +137,6 @@ class ResumeRunRequest(object):
         """
 
         self._data = data
-
-    @property
-    def decided_by(self):
-        """Gets the decided_by of this ResumeRunRequest.  # noqa: E501
-
-        Optional identifier of the human who made the decision.  # noqa: E501
-
-        :return: The decided_by of this ResumeRunRequest.  # noqa: E501
-        :rtype: object
-        """
-        return self._decided_by
-
-    @decided_by.setter
-    def decided_by(self, decided_by):
-        """Sets the decided_by of this ResumeRunRequest.
-
-        Optional identifier of the human who made the decision.  # noqa: E501
-
-        :param decided_by: The decided_by of this ResumeRunRequest.  # noqa: E501
-        :type: object
-        """
-
-        self._decided_by = decided_by
 
     @property
     def reason(self):

@@ -6,7 +6,6 @@ Name | Type | Description | Notes
 **suspension_id** | **object** | ID of the suspension to respond to (from the suspended run metadata). |
 **decision_type** | [**DecisionType**](DecisionType.md) | Decision type: approve, reject, modify, skip, provide_input, or partial_approve. |
 **data** | **object** | Optional decision payload, such as modified instructions, selected items, or additional human input. | [optional]
-**decided_by** | **object** | Optional identifier of the human who made the decision. | [optional]
 **reason** | **object** | Optional human-readable reason (audit / trace; SDK-dependent visibility to the model). | [optional]
 **worker_profile** | **object** | Worker profile for the resume execution. | [optional]
 **metadata** | **object** | Optional caller-defined metadata for the child run. | [optional]

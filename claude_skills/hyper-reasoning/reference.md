@@ -205,7 +205,6 @@ POST /runs/{run_id}/resume
 | `suspension_id` | yes | From `metadata.result.suspension.id` on the suspended run |
 | `decision_type` | yes | `approve`, `reject`, `modify`, `skip`, `provide_input`, `partial_approve` |
 | `data` | no | Dict for `modify` or `provide_input` |
-| `decided_by` | no | Identifier for audit trail |
 | `reason` | no | Human-readable reason |
 | `worker_profile` | no | `"default"` |
 | `metadata` | no | Arbitrary dict for the child run |
