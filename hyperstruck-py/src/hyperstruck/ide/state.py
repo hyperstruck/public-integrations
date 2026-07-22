@@ -4,13 +4,14 @@ The prompt-submit hook, the per-tool hooks, and the stop hook are separate OS
 processes, so disk is the only channel between them. State is keyed by the
 editor's session id under ``~/.hyperstruck/sessions/<session_id>/``.
 
-The single-process turn-start and turn-end hooks own the small top-level files
-(``active.json``, ``pending.json``) and write them atomically (temp + rename).
-The per-tool hooks fire in parallel, so they never share a mutable file: each
-writes its own append-only per-step file under ``active/steps/``, and the stop
-hook merges them in order. No process ever rewrites another's file, so parallel
-tool calls cannot drop a step. Every read tolerates a missing or partial file and
-returns ``None`` (the loop fails open).
+The single-process turn-start and turn-end hooks own ``active.json`` and
+``pending.json`` and write them atomically (temp + rename). The detached resolver
+hands recall to the first tool hook through ``recall.json``; a hook validates a
+non-destructive peek of the file, then atomically renames it to claim, so
+parallel tools cannot inject twice and a failed validation leaves the stash for
+a later hook. Tool steps remain append-only files under ``active/steps/`` so
+concurrent captures cannot drop one another. Every read tolerates a missing or
+partial file and returns ``None`` (the loop fails open).
 """
 
 from __future__ import annotations
@@ -28,6 +29,7 @@ from hyperstruck.ide.constants import (
     ACTIVE_SUBDIR,
     FLUSHING_SUBDIR,
     PENDING_FILE,
+    RECALL_FILE,
     STEPS_SUBDIR,
     sessions_dir,
 )
@@ -42,13 +44,9 @@ class ActiveTurn:
     goal: str
     source_framework: str
     started_at: float
-    # Learnings resolve offered for this turn, carried to the pending turn so the
-    # deferred reinforce can credit them.
+    # Offered learnings are merged only when a tool hook successfully injects
+    # their recall, then carried to pending so deferred reinforce can credit them.
     offered_learning_ids: tuple[str, ...] = field(default_factory=tuple)
-    # Cursor cannot inject at prompt time, so the prompt hook stashes the resolved
-    # injection text here and the first postToolUse hook emits it, then flips
-    # is_injected so later tool hooks in the same turn do not re-inject.
-    injected_text: str | None = None
     is_injected: bool = False
 
 
@@ -90,6 +88,7 @@ def write_active(
     sdir = session_dir(session_id)
     steps_dir = sdir / ACTIVE_SUBDIR / STEPS_SUBDIR
     if reset_steps:
+        clear_recall(session_id)
         _reset_dir(steps_dir)
     else:
         ensure_private_dir(steps_dir)
@@ -108,7 +107,6 @@ def read_active(session_id: str) -> ActiveTurn | None:
             source_framework=data.get("source_framework", ""),
             started_at=float(data.get("started_at", 0.0)),
             offered_learning_ids=tuple(data.get("offered_learning_ids") or ()),
-            injected_text=data.get("injected_text"),
             is_injected=bool(data.get("is_injected", False)),
         )
     except (KeyError, TypeError, ValueError):
@@ -119,6 +117,51 @@ def clear_active(session_id: str) -> None:
     sdir = session_dir(session_id)
     _remove(sdir / ACTIVE_FILE)
     _remove_tree(sdir / ACTIVE_SUBDIR)
+
+
+# -- detached recall handoff -------------------------------------------------
+
+
+def write_recall(session_id: str, recall: dict[str, Any]) -> None:
+    """Atomically publish one detached resolve result for the active turn."""
+    _write_json_atomic(session_dir(session_id) / RECALL_FILE, recall)
+
+
+def peek_recall(session_id: str) -> dict[str, Any] | None:
+    """Read the recall stash without consuming it, for pre-claim validation."""
+    data = _read_json(session_dir(session_id) / RECALL_FILE)
+    return data if isinstance(data, dict) else None
+
+
+def claim_recall(session_id: str) -> dict[str, Any] | None:
+    """Atomically consume the recall stash so at most one parallel hook can emit it.
+
+    Destructive on every path, including a claim the caller then discards: the
+    stash is one-shot, so validate via ``peek_recall`` first and claim only when
+    ready to emit.
+    """
+    sdir = session_dir(session_id)
+    source = sdir / RECALL_FILE
+    claimed = sdir / f".{RECALL_FILE}.{uuid.uuid4().hex}.processing"
+    try:
+        os.replace(source, claimed)
+    except OSError:
+        return None
+    try:
+        data = _read_json(claimed)
+        return data if isinstance(data, dict) else None
+    finally:
+        _remove(claimed)
+
+
+def clear_recall(session_id: str) -> None:
+    """Drop published or in-flight recall state when its turn is retired."""
+    sdir = session_dir(session_id)
+    _remove(sdir / RECALL_FILE)
+    if not sdir.is_dir():
+        return
+    for path in sdir.glob(f".{RECALL_FILE}.*.processing"):
+        _remove(path)
 
 
 # -- per-step append files ---------------------------------------------------
@@ -159,6 +202,7 @@ def write_pending(session_id: str, pending: PendingTurn) -> None:
     sdir = session_dir(session_id)
     _write_json_atomic(sdir / PENDING_FILE, _pending_to_dict(pending))
     clear_active(session_id)
+    clear_recall(session_id)
 
 
 def read_pending(session_id: str) -> PendingTurn | None:
@@ -222,6 +266,8 @@ def remove_session_if_empty(session_id: str) -> None:
     if not sdir.is_dir():
         return
     if (sdir / ACTIVE_FILE).exists() or (sdir / PENDING_FILE).exists():
+        return
+    if (sdir / RECALL_FILE).exists():
         return
     flush_dir = sdir / FLUSHING_SUBDIR
     if flush_dir.is_dir() and any(flush_dir.iterdir()):

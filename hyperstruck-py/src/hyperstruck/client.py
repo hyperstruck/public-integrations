@@ -23,6 +23,7 @@ from __future__ import annotations
 
 import asyncio
 import logging
+import os
 from collections.abc import Sequence
 from typing import Any, Protocol, runtime_checkable
 
@@ -44,6 +45,25 @@ from hyperstruck.redaction import redact_episode_payload
 logger = logging.getLogger(__name__)
 
 DEFAULT_BASE_URL = "https://api.hyperstruck.com"
+
+# Deadlines are env-tunable so hosts that construct the client with defaults
+# (the IDE hooks) can be adjusted without a code change. Resolve sits on the
+# model-call hot path and stays tight; writes run in the background and can
+# afford to wait out a slow boundary.
+RESOLVE_TIMEOUT_ENV = "HYPER_RESOLVE_TIMEOUT"
+WRITE_TIMEOUT_ENV = "HYPER_WRITE_TIMEOUT"
+DEFAULT_RESOLVE_TIMEOUT = 2.0
+DEFAULT_WRITE_TIMEOUT = 30.0
+
+
+def _env_float(name: str, default: float) -> float:
+    raw = os.environ.get(name)
+    if not raw:
+        return default
+    try:
+        return float(raw)
+    except ValueError:
+        return default
 
 
 @runtime_checkable
@@ -138,7 +158,7 @@ class HostedLearningClient:
         base_url: str | None = None,
         *,
         http_client: httpx.AsyncClient | None = None,
-        resolve_timeout: float = 2.0,
+        resolve_timeout: float | None = None,
         max_write_retries: int = 3,
         retry_backoff: float = 0.5,
     ) -> None:
@@ -153,11 +173,19 @@ class HostedLearningClient:
             base_url or first_env(BASE_URL_ENV_VARS) or DEFAULT_BASE_URL
         ).rstrip("/")
         _require_secure_base_url(self._base_url)
-        self._resolve_timeout = resolve_timeout
+        self._resolve_timeout = (
+            resolve_timeout
+            if resolve_timeout is not None
+            else _env_float(RESOLVE_TIMEOUT_ENV, DEFAULT_RESOLVE_TIMEOUT)
+        )
         self._max_write_retries = max(1, max_write_retries)
         self._retry_backoff = retry_backoff
         self._is_client_owned = http_client is None
-        self._http = http_client or httpx.AsyncClient(timeout=resolve_timeout)
+        # Writes get their own, longer deadline; resolve stays bounded by
+        # asyncio.wait_for(self._resolve_timeout) regardless of this client timeout.
+        self._http = http_client or httpx.AsyncClient(
+            timeout=_env_float(WRITE_TIMEOUT_ENV, DEFAULT_WRITE_TIMEOUT)
+        )
         self._pending: set[asyncio.Task[None]] = set()
         # Visibility counters.
         self.resolves = 0

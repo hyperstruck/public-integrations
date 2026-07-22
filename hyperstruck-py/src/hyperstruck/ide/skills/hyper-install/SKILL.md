@@ -20,10 +20,11 @@ contributes new learnings after, with no explicit skill calls in the common case
 
 ## Steps
 
-1. **Install the package** (it carries the skills, the hooks, and the loop):
+1. **Install the package** (it carries the skills, the hooks, and the loop; it is
+   distributed from the public-integrations repository, not PyPI):
 
 ```!
-pip install --upgrade hyperstruck
+pip install --upgrade "hyperstruck @ git+https://github.com/hyperstruck/public-integrations.git#subdirectory=hyperstruck-py"
 ```
 
 2. **Wire it up.** Prefer running the installer as a module so it uses the same

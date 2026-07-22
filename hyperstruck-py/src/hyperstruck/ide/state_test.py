@@ -82,6 +82,31 @@ def test_flush_staging_round_trip() -> None:
     assert state.read_flush(path) is None
 
 
+def test_recall_claim_is_atomic_and_single_use() -> None:
+    recall = {
+        "run_id": "r",
+        "injected_text": "TEXT",
+        "offered_learning_ids": ["L1"],
+    }
+    state.write_recall("s1", recall)
+    assert state.claim_recall("s1") == recall
+    assert state.claim_recall("s1") is None
+
+
+def test_recall_peek_does_not_consume() -> None:
+    recall = {
+        "run_id": "r",
+        "injected_text": "TEXT",
+        "offered_learning_ids": ["L1"],
+    }
+    assert state.peek_recall("s1") is None
+    state.write_recall("s1", recall)
+    assert state.peek_recall("s1") == recall
+    assert state.peek_recall("s1") == recall  # repeatable: peeking never claims
+    assert state.claim_recall("s1") == recall
+    assert state.peek_recall("s1") is None
+
+
 def test_remove_session_if_empty() -> None:
     state.write_active(
         "s1",

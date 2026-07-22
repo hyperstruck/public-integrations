@@ -2,24 +2,42 @@
 
 from __future__ import annotations
 
+import json
+
 import pytest
 
 from hyperstruck._wire import StepRecord
 from hyperstruck.ide import hook, state
 
 # Captured before the autouse fixture patches it, so the resolve breadcrumb tests
-# can exercise the real _resolve rather than the fixture's stub.
+# can exercise the real _resolve rather than the fixture's readonly stub.
 _REAL_RESOLVE = hook._resolve
+_REAL_SPAWN_RESOLVE = hook._spawn_resolve
 
 
 @pytest.fixture(autouse=True)
 def _env(tmp_path, monkeypatch):
     monkeypatch.setenv("HYPER_HOME", str(tmp_path))
     monkeypatch.setenv("HYPER_AGENT_ID", "agent-x")
-    # Resolve always offers one learning; capture flushes instead of spawning.
+    # Readonly resolve always offers one learning. Detached resolve is modelled as
+    # immediately ready so lifecycle tests can exercise the tool-time handoff.
     monkeypatch.setattr(
         hook, "_resolve", lambda agent_id, run_id, goal: ("INJECTED", ("L1",))
     )
+
+    def resolve_now(session_id: str) -> None:
+        active = state.read_active(session_id)
+        assert active is not None
+        state.write_recall(
+            session_id,
+            {
+                "run_id": active.run_id,
+                "injected_text": "INJECTED",
+                "offered_learning_ids": ["L1"],
+            },
+        )
+
+    monkeypatch.setattr(hook, "_spawn_resolve", resolve_now)
     staged: list = []
     monkeypatch.setattr(hook, "_spawn_flush", lambda path: staged.append(path))
     return staged
@@ -305,11 +323,20 @@ def test_run_id_preserved_end_to_end(_env, monkeypatch) -> None:
     staged = _env
     run_ids: list[str] = []
 
-    def capture(agent_id, run_id, goal):
-        run_ids.append(run_id)
-        return ("INJECTED", ("L1",))
+    def capture(session_id):
+        active = state.read_active(session_id)
+        assert active is not None
+        run_ids.append(active.run_id)
+        state.write_recall(
+            session_id,
+            {
+                "run_id": active.run_id,
+                "injected_text": "INJECTED",
+                "offered_learning_ids": ["L1"],
+            },
+        )
 
-    monkeypatch.setattr(hook, "_resolve", capture)
+    monkeypatch.setattr(hook, "_spawn_resolve", capture)
     session = "s1"
     hook.cmd_prompt(
         {"session_id": session, "prompt": "x", "cwd": "/repo"}, _args("prompt")
@@ -339,7 +366,8 @@ def test_run_id_preserved_end_to_end(_env, monkeypatch) -> None:
     )
     hook.cmd_stop({"session_id": session, "cwd": "/repo"}, _args("stop"))
     flushed = _last_staged(staged)
-    # The shipped run_id must equal turn 1's resolve run_id (server keys offer log on it).
+    # The shipped run_id must equal turn 1's resolve run_id (the server keys its
+    # offer log on that id).
     assert flushed["episode"]["run_id"] == run_ids[0]
     assert "[REDACTED]" not in flushed["episode"]["run_id"]
 
@@ -415,6 +443,20 @@ def test_eviction_flushes_stale_pending(_env) -> None:
     assert _last_staged(staged)["episode"]["run_id"] == "agent-x:oldsess:r1"
 
 
+def test_sweep_removes_recall_without_an_active_turn(_env) -> None:
+    state.write_recall(
+        "oldsess",
+        {
+            "run_id": "ended-run",
+            "injected_text": "TEXT",
+            "offered_learning_ids": ["L1"],
+        },
+    )
+    hook._sweep_stale(exclude="other")
+    assert state.claim_recall("oldsess") is None
+    assert not state.session_dir("oldsess").exists()
+
+
 def test_main_fails_open_on_internal_error(_env, monkeypatch) -> None:
     monkeypatch.setattr(hook, "_read_stdin", lambda: {})
 
@@ -487,20 +529,231 @@ def test_flush_retries_on_failed_delivery(_env, monkeypatch) -> None:
     assert state.read_flush(path) is None  # removed once delivered
 
 
-# -- Cursor JIT recall (beforeSubmitPrompt resolve + postToolUse injection) ----
+# -- detached recall + tool-time injection -----------------------------------
 
 
-def test_cursor_resolve_stashes_and_does_not_emit_at_prompt(_env, capsys) -> None:
-    # Cursor's prompt hook cannot inject, so resolve stashes the text and emits nothing.
+def test_prompt_spawns_resolve_without_inline_network(
+    _env, capsys, monkeypatch
+) -> None:
+    spawned = []
+    monkeypatch.setattr(hook, "_spawn_resolve", spawned.append)
+
+    async def forbidden(*_args, **_kwargs):
+        raise AssertionError("prompt hook touched the resolve client")
+
+    monkeypatch.setattr(hook, "_aresolve", forbidden)
     hook.cmd_prompt(
-        {"conversation_id": "c1", "prompt": "do x", "cwd": "/repo"},
-        hook._parse_args(["prompt", "--source", "cursor"]),
+        {"session_id": "s1", "prompt": "do x", "cwd": "/repo"},
+        hook._parse_args(["prompt"]),
     )
     assert capsys.readouterr().out == ""
-    active = state.read_active("c1")
+    assert spawned == ["s1"]
+    active = state.read_active("s1")
     assert active is not None
-    assert active.injected_text == "INJECTED"
+    assert active.offered_learning_ids == ()
     assert active.is_injected is False
+
+
+def test_prompt_spawns_fixed_argv_detached_resolver(_env, monkeypatch) -> None:
+    calls = []
+
+    def fake_popen(argv, **kwargs):
+        calls.append((argv, kwargs))
+
+    monkeypatch.setattr(hook, "_spawn_resolve", _REAL_SPAWN_RESOLVE)
+    monkeypatch.setattr(hook.subprocess, "Popen", fake_popen)
+    hook.cmd_prompt(
+        {"session_id": "s1", "prompt": "do x", "cwd": "/repo"},
+        hook._parse_args(["prompt"]),
+    )
+    argv, kwargs = calls[0]
+    assert argv == [
+        hook.sys.executable,
+        "-m",
+        "hyperstruck.ide.hook",
+        "resolve",
+        "s1",
+    ]
+    assert kwargs["start_new_session"] is True
+    assert kwargs["stdin"] is hook.subprocess.DEVNULL
+    assert kwargs["stdout"] is hook.subprocess.DEVNULL
+    assert kwargs["stderr"] is hook.subprocess.DEVNULL
+
+
+@pytest.mark.parametrize("replacement", [None, "new-run"])
+def test_resolver_drops_recall_when_turn_ended_or_changed(
+    _env, monkeypatch, replacement
+) -> None:
+    state.write_active(
+        "s1",
+        state.ActiveTurn(
+            run_id="old-run",
+            agent_id="agent-x",
+            goal="do x",
+            source_framework="claude-code",
+            started_at=1.0,
+        ),
+    )
+
+    async def resolve_then_change(*_args, **_kwargs):
+        if replacement is None:
+            state.clear_active("s1")
+        else:
+            state.write_active(
+                "s1",
+                state.ActiveTurn(
+                    run_id=replacement,
+                    agent_id="agent-x",
+                    goal="next",
+                    source_framework="claude-code",
+                    started_at=2.0,
+                ),
+            )
+        return "TEXT", ("L1",)
+
+    monkeypatch.setattr(hook, "_aresolve", resolve_then_change)
+    hook.cmd_resolve("s1")
+    assert state.claim_recall("s1") is None
+
+
+def test_resolver_writes_matching_recall(_env, monkeypatch) -> None:
+    state.write_active(
+        "s1",
+        state.ActiveTurn(
+            run_id="run-1",
+            agent_id="agent-x",
+            goal="do x",
+            source_framework="claude-code",
+            started_at=1.0,
+        ),
+    )
+
+    async def resolved(*_args, **_kwargs):
+        return "TEXT", ("L1", "L2")
+
+    monkeypatch.setattr(hook, "_aresolve", resolved)
+    hook.cmd_resolve("s1")
+    assert state.claim_recall("s1") == {
+        "run_id": "run-1",
+        "injected_text": "TEXT",
+        "offered_learning_ids": ["L1", "L2"],
+    }
+
+
+def test_resolver_skips_publish_when_no_learnings(_env, monkeypatch) -> None:
+    state.write_active(
+        "s1",
+        state.ActiveTurn(
+            run_id="run-1",
+            agent_id="agent-x",
+            goal="do x",
+            source_framework="claude-code",
+            started_at=1.0,
+        ),
+    )
+
+    async def resolved(*_args, **_kwargs):
+        return None, ()
+
+    monkeypatch.setattr(hook, "_aresolve", resolved)
+    hook.cmd_resolve("s1")
+    assert state.peek_recall("s1") is None
+
+
+@pytest.mark.parametrize(
+    ("env_value", "expected"), [(None, hook.DETACHED_RESOLVE_TIMEOUT), ("12.5", 12.5)]
+)
+def test_resolver_timeout_default_and_env_override(
+    _env, monkeypatch, env_value, expected
+) -> None:
+    state.write_active(
+        "s1",
+        state.ActiveTurn(
+            run_id="run-1",
+            agent_id="agent-x",
+            goal="do x",
+            source_framework="claude-code",
+            started_at=1.0,
+        ),
+    )
+    seen = []
+
+    async def resolved(*_args, **kwargs):
+        seen.append(kwargs["resolve_timeout"])
+        return "TEXT", ()
+
+    if env_value is None:
+        monkeypatch.delenv("HYPER_RESOLVE_TIMEOUT", raising=False)
+    else:
+        monkeypatch.setenv("HYPER_RESOLVE_TIMEOUT", env_value)
+    monkeypatch.setattr(hook, "_aresolve", resolved)
+    hook.cmd_resolve("s1")
+    assert seen == [expected]
+
+
+def test_claude_posttooluse_injects_once_and_attributes_offers(_env, capsys) -> None:
+    hook.cmd_prompt(
+        {"session_id": "s1", "prompt": "do x", "cwd": "/repo"},
+        hook._parse_args(["prompt"]),
+    )
+    hook.cmd_tool(
+        {"session_id": "s1", "tool_name": "Read", "cwd": "/repo"},
+        hook._parse_args(["tool"]),
+    )
+    payload = json.loads(capsys.readouterr().out)
+    assert payload == {
+        "hookSpecificOutput": {
+            "hookEventName": "PostToolUse",
+            "additionalContext": "INJECTED",
+        }
+    }
+    active = state.read_active("s1")
+    assert active is not None
+    assert active.is_injected is True
+    assert active.offered_learning_ids == ("L1",)
+    assert len(state.read_steps("s1")) == 1
+    hook.cmd_tool(
+        {"session_id": "s1", "tool_name": "Read", "cwd": "/repo"},
+        hook._parse_args(["tool"]),
+    )
+    assert capsys.readouterr().out == ""
+
+
+def test_failed_validation_leaves_recall_for_a_later_hook(_env, capsys) -> None:
+    # A late resolve from a prior turn must not consume the one-shot claim:
+    # the mismatching stash stays put, and once the current turn's recall
+    # lands a later tool hook still injects it.
+    hook.cmd_prompt(
+        {"session_id": "s1", "prompt": "do x", "cwd": "/repo"},
+        hook._parse_args(["prompt"]),
+    )
+    fresh = state.claim_recall("s1")  # hold this turn's recall aside
+    assert fresh is not None
+    state.write_recall(
+        "s1",
+        {
+            "run_id": "prior-run",
+            "injected_text": "STALE",
+            "offered_learning_ids": ["L9"],
+        },
+    )
+    hook.cmd_tool(
+        {"session_id": "s1", "tool_name": "Read", "cwd": "/repo"},
+        hook._parse_args(["tool"]),
+    )
+    assert capsys.readouterr().out == ""
+    assert state.peek_recall("s1") is not None  # stash survived the failure
+    assert state.read_active("s1").is_injected is False
+    state.write_recall("s1", fresh)  # the current turn's resolve lands
+    hook.cmd_tool(
+        {"session_id": "s1", "tool_name": "Read", "cwd": "/repo"},
+        hook._parse_args(["tool"]),
+    )
+    payload = json.loads(capsys.readouterr().out)
+    assert payload["hookSpecificOutput"]["additionalContext"] == "INJECTED"
+    active = state.read_active("s1")
+    assert active.is_injected is True
+    assert active.offered_learning_ids == ("L1",)
 
 
 def test_cursor_posttooluse_injects_once(_env, capsys) -> None:
@@ -513,8 +766,7 @@ def test_cursor_posttooluse_injects_once(_env, capsys) -> None:
         {"conversation_id": "c1", "tool_name": "Read", "cwd": "/repo"},
         hook._parse_args(["tool", "--source", "cursor", "--inject"]),
     )
-    out = capsys.readouterr().out
-    assert '"additional_context"' in out and "INJECTED" in out
+    assert json.loads(capsys.readouterr().out) == {"additional_context": "INJECTED"}
     assert state.read_active("c1").is_injected is True
     # A second postToolUse in the same turn must not re-inject.
     hook.cmd_tool(
@@ -533,6 +785,7 @@ def test_cursor_rendezvous_credits_reinforce(_env) -> None:
     hook.cmd_prompt(
         {**conv, "prompt": "add feature to a.py"}, hook._parse_args(["prompt", *cc])
     )
+    hook.cmd_tool(conv, hook._parse_args(["tool", *cc, "--inject"]))
     hook.cmd_tool(
         {**conv, "file_path": "a.py", "tool_response": "ok"},
         hook._parse_args(["tool", *cc, "--kind", "edit"]),
@@ -549,6 +802,43 @@ def test_cursor_rendezvous_credits_reinforce(_env) -> None:
     flushed = _last_staged(staged)
     assert flushed["do_observe"] is True  # 2 material steps captured under c1
     assert flushed["do_reinforce"] is True  # offered ids rendezvoused with the turn
+
+
+def test_cursor_capture_events_do_not_inject(_env, capsys) -> None:
+    conv = {"conversation_id": "c1", "cwd": "/repo"}
+    hook.cmd_prompt(
+        {**conv, "prompt": "do x"},
+        hook._parse_args(["prompt", "--source", "cursor"]),
+    )
+    hook.cmd_tool(
+        {**conv, "file_path": "a.py"},
+        hook._parse_args(["tool", "--source", "cursor", "--kind", "edit"]),
+    )
+    assert capsys.readouterr().out == ""
+    assert state.claim_recall("c1") is not None
+
+
+def test_uninjected_recall_is_not_reinforced_and_is_removed(_env) -> None:
+    staged = _env
+    conv = {"conversation_id": "c1", "cwd": "/repo"}
+    hook.cmd_prompt(
+        {**conv, "prompt": "do x"},
+        hook._parse_args(["prompt", "--source", "cursor"]),
+    )
+    hook.cmd_tool(
+        {**conv, "file_path": "a.py"},
+        hook._parse_args(["tool", "--source", "cursor", "--kind", "edit"]),
+    )
+    hook.cmd_tool(
+        {**conv, "command": "pytest"},
+        hook._parse_args(["tool", "--source", "cursor", "--kind", "command"]),
+    )
+    hook.cmd_stop(conv, hook._parse_args(["stop", "--source", "cursor"]))
+    pending = state.read_pending("c1")
+    assert pending is not None and pending.offered_learning_ids == ()
+    assert state.claim_recall("c1") is None
+    hook._stage_and_flush("c1", pending, True)
+    assert _last_staged(staged)["do_reinforce"] is False
 
 
 def test_readonly_recall_does_not_touch_state(_env, capsys) -> None:

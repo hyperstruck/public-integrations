@@ -27,8 +27,10 @@ a key and an identity, and register a middleware.
 
 ## Install
 
+The package is distributed from this repository, not PyPI:
+
 ```
-pip install hyperstruck[langgraph]
+pip install "hyperstruck[langgraph] @ git+https://github.com/hyperstruck/public-integrations.git#subdirectory=hyperstruck-py"
 ```
 
 ## Quick start (LangGraph)
@@ -65,7 +67,7 @@ agent. Install once and every coding turn recalls and contributes learnings with
 no explicit commands:
 
 ```
-pip install hyperstruck
+pip install "hyperstruck @ git+https://github.com/hyperstruck/public-integrations.git#subdirectory=hyperstruck-py"
 python -m hyperstruck.ide.install
 ```
 

@@ -46,6 +46,7 @@ def ide_venv_dir() -> Path:
 # Per-session subpaths, relative to ``sessions_dir() / <session_id>``.
 ACTIVE_FILE = "active.json"
 PENDING_FILE = "pending.json"
+RECALL_FILE = "recall.json"
 STEPS_SUBDIR = "steps"  # under active/, one append-only file per tool call
 ACTIVE_SUBDIR = "active"
 FLUSHING_SUBDIR = "flushing"  # handed-off episodes a detached flush is delivering
@@ -83,6 +84,10 @@ EVICTION_WINDOW_SECONDS = 48 * 60 * 60
 # died before delivering) and is re-spawned by the sweep. Younger files are left
 # to their in-flight flush, so a freshly-staged episode is not double-spawned.
 FLUSH_STALE_SECONDS = 5 * 60
+
+# Resolve is detached from the prompt hook, so it can afford to wait out the
+# production boundary without adding latency to prompt submission.
+DETACHED_RESOLVE_TIMEOUT = 20.0
 
 # A turn is only observed if it has at least this many material steps. This also
 # subsumes the rapid-tiny-turn debounce: a trivial burst cannot clear it.

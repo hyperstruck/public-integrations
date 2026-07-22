@@ -40,8 +40,8 @@ platform episode: the goal is the prompt, the steps are the tool calls.
             one TURN  =  one run  =  one episode
   prompt ───────────►  assistant acts (edits, shell) ───────────► stop
      │                        │  │  │                               │
-  resolve + inject       capture each tool                     finalise
-  (read path)            outcome as a step                     (deferred)
+  detach resolve         first tool injects recall             finalise
+  (read path)            + capture each outcome                (deferred)
 ```
 
 Three editor hooks fire as three separate processes, so they share per-turn state
@@ -49,17 +49,19 @@ on disk:
 
 | Moment | Claude Code | Cursor |
 |--------|-------------|--------|
-| recall (inject) | `UserPromptSubmit` hook injects learnings | `hyper-learning` skill (hooks cannot inject on Cursor) |
-| capture a step | `PostToolUse` hook | file-edit / shell hooks |
+| recall (inject) | `UserPromptSubmit` spawns a detached resolve; the first `PostToolUse` injects it | `hyper-learning` starts resolve; the first `postToolUse` injects it |
+| capture a step | the same `PostToolUse` hook | file-edit / shell hooks (capture only) |
 | turn end | `Stop` hook | `stop` hook |
 
-The write side (observe + reinforce) is deferred and handed to a detached process,
-so it never delays the prompt you are waiting on.
+Both recall and the write side (observe + reinforce) are handed to detached
+processes, so network work never delays the prompt you are waiting on.
 
 ## Install
 
+The package is distributed from this repository, not PyPI:
+
 ```
-pip install hyperstruck
+pip install "hyperstruck @ git+https://github.com/hyperstruck/public-integrations.git#subdirectory=hyperstruck-py"
 python -m hyperstruck.ide.install
 ```
 
@@ -142,6 +144,8 @@ fires them.
 
 To tell these apart, set `HYPER_HOOK_DEBUG=1`. Each hook then writes one status
 breadcrumb to stderr on exit (which command fired, whether an agent was
-configured, and the resolve result), while stdout stays clean for the injection
-payload. It is off by default, so normal runs stay silent; the values `0`,
+configured, and whether the detached resolver was spawned). The resolver itself
+also records success, failure, and stale-result breadcrumbs when run directly,
+while stdout stays clean for injection payloads. Debugging is off by default, so
+normal runs stay silent; the values `0`,
 `false`, `no`, and `off` also count as off.

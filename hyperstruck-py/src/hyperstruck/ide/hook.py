@@ -6,9 +6,10 @@ editor, sharing per-turn state on disk (see :mod:`hyperstruck.ide.state`):
 
 * ``prompt`` (Claude Code ``UserPromptSubmit``; the Cursor skill calls it too):
   flushes the previous turn now that this prompt is its ground truth, sweeps
-  stale sessions, mints a run id, resolves the goal's learnings, injects them, and
-  records the new active turn.
-* ``tool`` (``PostToolUse`` / Cursor tool hooks): appends one redacted step.
+  stale sessions, records the new active turn, and detaches its resolve.
+* ``resolve`` (internal, detached): resolves the active goal into a recall stash.
+* ``tool`` (``PostToolUse`` / Cursor tool hooks): appends one redacted step and,
+  on the first eligible hook, atomically claims and injects the recall stash.
 * ``stop`` (``Stop`` / Cursor ``stop``): finalises the turn with a provisional
   outcome and holds it as pending. No write to the platform yet.
 * ``flush`` (internal, detached): delivers one turn's observe then reinforce.
@@ -28,7 +29,7 @@ import hashlib
 import json
 import os
 
-# Used only for the fixed-argv detached flush in _spawn_flush; never a shell.
+# Used only for fixed-argv detached processes; never a shell.
 import subprocess  # nosec B404
 import sys
 import time
@@ -39,6 +40,7 @@ from typing import Any
 from hyperstruck.ide import outcome, state
 from hyperstruck.ide.config import configured_agent_id, load_env
 from hyperstruck.ide.constants import (
+    DETACHED_RESOLVE_TIMEOUT,
     EVICTION_WINDOW_SECONDS,
     FLUSH_STALE_SECONDS,
     HOOK_DEBUG_ENV,
@@ -65,7 +67,7 @@ _WIRE_STEP_FIELDS = ("id", "name", "args", "status", "result", "error")
 
 
 def cmd_prompt(payload: dict[str, Any], args: argparse.Namespace) -> None:
-    """Turn start: resolve+inject for the new turn; recover any interrupted turn."""
+    """Turn start: record and detach resolve; recover any interrupted turn."""
     cwd = _cwd(payload, args)
     session_id = resolve_session_id(payload, cwd, args)
     goal = (args.goal or payload.get("prompt") or "").strip()
@@ -94,9 +96,8 @@ def cmd_prompt(payload: dict[str, Any], args: argparse.Namespace) -> None:
     if not agent_id:
         _debug("prompt: no agent configured; loop idle, nothing to resolve")
         return
-    # 4. Begin the new turn and inject.
+    # 4. Begin the new turn, then resolve outside the editor's prompt hook.
     run_id = _new_run_id(agent_id, session_id)
-    injected_text, offered_ids = _resolve(agent_id, run_id, goal)
     state.write_active(
         session_id,
         ActiveTurn(
@@ -105,15 +106,9 @@ def cmd_prompt(payload: dict[str, Any], args: argparse.Namespace) -> None:
             goal=goal,
             source_framework=_source(args),
             started_at=time.time(),
-            offered_learning_ids=offered_ids,
-            injected_text=injected_text,
         ),
     )
-    # Claude Code injects at prompt time (UserPromptSubmit additionalContext).
-    # Cursor's prompt hook cannot inject, so the stash above is emitted later by
-    # the first postToolUse hook (see cmd_tool --inject).
-    if _source(args) == SOURCE_CLAUDE_CODE:
-        _emit_injection(injected_text, args)
+    _spawn_resolve(session_id)
 
 
 # -- command: tool (capture a step) ------------------------------------------
@@ -129,10 +124,10 @@ def cmd_tool(payload: dict[str, Any], args: argparse.Namespace) -> None:
     cwd = _cwd(payload, args)
     session_id = resolve_session_id(payload, cwd, args)
     if args.inject:
-        # Cursor postToolUse: emit the prompt hook's stashed recall, once per turn.
+        # Cursor postToolUse: atomically claim the detached recall, once per turn.
         # This hook does not capture a step (afterFileEdit/afterShellExecution do),
         # so injection and capture never double-count the same tool call.
-        _inject_pending(session_id)
+        _inject_pending(session_id, SOURCE_CURSOR)
         return
     if state.read_active(session_id) is None:
         agent_id = configured_agent_id()
@@ -154,6 +149,8 @@ def cmd_tool(payload: dict[str, Any], args: argparse.Namespace) -> None:
             reset_steps=False,
         )
     state.append_step(session_id, _step_from_payload(payload, args))
+    if _source(args) == SOURCE_CLAUDE_CODE:
+        _inject_pending(session_id, SOURCE_CLAUDE_CODE)
 
 
 # -- command: stop (finalise provisional) ------------------------------------
@@ -170,6 +167,53 @@ def cmd_stop(payload: dict[str, Any], args: argparse.Namespace) -> None:
     steps = state.read_steps(session_id)
     native_status = args.native_status or payload.get("status")
     _finalise(session_id, active, steps, native_status=native_status)
+
+
+# -- command: resolve (detached recall) --------------------------------------
+
+
+def cmd_resolve(session_id: str) -> None:
+    """Resolve one active turn into a tool-hook stash; fail open on every error."""
+    try:
+        load_env()
+        active = state.read_active(session_id)
+        if active is None:
+            _debug("resolve: no active turn for session")
+            return
+        if not active.goal:
+            _debug("resolve skipped: empty goal")
+            return
+        from hyperstruck.client import RESOLVE_TIMEOUT_ENV, _env_float
+
+        timeout = _env_float(RESOLVE_TIMEOUT_ENV, DETACHED_RESOLVE_TIMEOUT)
+        text, offered = asyncio.run(
+            _aresolve(
+                active.agent_id,
+                active.run_id,
+                active.goal,
+                resolve_timeout=timeout,
+            )
+        )
+        if not text:
+            # An empty stash can never validate for injection; publishing it
+            # would only leave dead weight for the tool hooks to skip.
+            _debug("resolve dropped: no learnings to inject")
+            return
+        current = state.read_active(session_id)
+        if current is None or current.run_id != active.run_id:
+            _debug("resolve dropped: active turn changed before recall was ready")
+            return
+        state.write_recall(
+            session_id,
+            {
+                "run_id": active.run_id,
+                "injected_text": text,
+                "offered_learning_ids": list(offered),
+            },
+        )
+        _debug(f"resolve ok: {len(offered)} learning(s) for agent {active.agent_id}")
+    except Exception as exc:  # noqa: BLE001 - detached recall always fails open
+        _debug(f"resolve failed ({type(exc).__name__}): {exc}")
 
 
 # -- command: flush (detached delivery) --------------------------------------
@@ -299,11 +343,14 @@ def _sweep_stale(*, exclude: str) -> None:
         if pending is not None and now - pending.ended_at > EVICTION_WINDOW_SECONDS:
             _stage_and_flush(session_id, pending, pending.is_success)
             state.clear_pending(session_id)
+            state.clear_recall(session_id)
         orphan = state.read_active(session_id)
         if orphan is not None and now - orphan.started_at > EVICTION_WINDOW_SECONDS:
             _finalise(
                 session_id, orphan, state.read_steps(session_id), native_status=None
             )
+        elif orphan is None:
+            state.clear_recall(session_id)
         _recover_flushes(session_id, now)
         state.remove_session_if_empty(session_id)
 
@@ -341,20 +388,24 @@ def _resolve(
         text, offered = asyncio.run(_aresolve(agent_id, run_id, goal))
         _debug(f"resolve ok: {len(offered)} learning(s) for agent {agent_id}")
         return text, offered
-    except Exception as exc:  # noqa: BLE001 - fail open, never block the prompt
+    except Exception as exc:  # noqa: BLE001 - explicit recall always fails open
         _debug(f"resolve failed ({type(exc).__name__}): {exc}")
         return None, ()
 
 
 async def _aresolve(
-    agent_id: str, run_id: str, goal: str
+    agent_id: str,
+    run_id: str,
+    goal: str,
+    *,
+    resolve_timeout: float | None = None,
 ) -> tuple[str | None, tuple[str, ...]]:
     # Imported lazily: each hook is a short-lived subprocess, so deferring the
     # httpx-backed client import keeps startup latency off the no-network paths.
     from hyperstruck.client import HostedLearningClient
     from hyperstruck.identity import AgentIdentity
 
-    client = HostedLearningClient()
+    client = HostedLearningClient(resolve_timeout=resolve_timeout)
     try:
         context = await client.resolve(
             identity=AgentIdentity(agent_id=agent_id), run_id=run_id, goal=goal
@@ -563,6 +614,22 @@ def _spawn_flush(path: str | os.PathLike[str]) -> None:
         pass
 
 
+def _spawn_resolve(session_id: str) -> None:
+    """Spawn a detached resolve process so recall never delays prompt submission."""
+    try:
+        subprocess.Popen(  # nosec B603
+            [sys.executable, "-m", "hyperstruck.ide.hook", "resolve", session_id],
+            stdin=subprocess.DEVNULL,
+            stdout=subprocess.DEVNULL,
+            stderr=subprocess.DEVNULL,
+            start_new_session=True,
+            close_fds=True,
+        )
+        _debug(f"resolve spawned: session {session_id}")
+    except (OSError, ValueError) as exc:
+        _debug(f"resolve spawn failed ({type(exc).__name__}): {exc}")
+
+
 def _emit_injection(injected_text: str | None, args: argparse.Namespace) -> None:
     """Emit the resolved learnings for the editor to inject before the model acts."""
     if not injected_text:
@@ -581,25 +648,52 @@ def _emit_injection(injected_text: str | None, args: argparse.Namespace) -> None
     )
 
 
-def _emit_cursor_context(injected_text: str | None) -> None:
-    """Cursor postToolUse injection: additional_context is added to the conversation."""
+def _emit_tool_context(injected_text: str | None, source: str) -> bool:
+    """Emit one tool-hook context payload, returning whether context was emitted."""
     if not injected_text:
-        return
-    json.dump({"additional_context": injected_text}, sys.stdout)
+        return False
+    if source == SOURCE_CURSOR:
+        json.dump({"additional_context": injected_text}, sys.stdout)
+    else:
+        json.dump(
+            {
+                "hookSpecificOutput": {
+                    "hookEventName": "PostToolUse",
+                    "additionalContext": injected_text,
+                }
+            },
+            sys.stdout,
+        )
+    return True
 
 
-def _inject_pending(session_id: str) -> None:
-    """Emit the prompt hook's stashed recall once, then mark the turn injected.
-
-    Cursor's prompt hook cannot inject, so resolve stashes the text on the active
-    turn and the first postToolUse hook delivers it. Subsequent tool hooks in the
-    same turn see is_injected and do nothing, so the recall lands exactly once.
-    """
-    active = state.read_active(session_id)
-    if active is None or active.is_injected or not active.injected_text:
-        return
-    _emit_cursor_context(active.injected_text)
-    state.write_active(session_id, replace(active, is_injected=True), reset_steps=False)
+def _inject_pending(session_id: str, source: str) -> None:
+    """Emit detached recall exactly once, claiming it only after it validates."""
+    try:
+        recall = state.peek_recall(session_id)
+        if recall is None or not recall.get("injected_text"):
+            return
+        active = state.read_active(session_id)
+        if (
+            active is None
+            or active.is_injected
+            or recall.get("run_id") != active.run_id
+        ):
+            return
+        claimed = state.claim_recall(session_id)
+        if claimed is None:
+            return  # a parallel hook won the claim
+        if not _emit_tool_context(claimed.get("injected_text"), source):
+            return
+        offered = tuple(str(item) for item in claimed.get("offered_learning_ids") or ())
+        merged = tuple(dict.fromkeys((*active.offered_learning_ids, *offered)))
+        state.write_active(
+            session_id,
+            replace(active, is_injected=True, offered_learning_ids=merged),
+            reset_steps=False,
+        )
+    except Exception as exc:  # noqa: BLE001 - context injection always fails open
+        _debug(f"inject failed ({type(exc).__name__}): {exc}")
 
 
 def resolve_session_id(
@@ -658,7 +752,9 @@ def _read_stdin() -> dict[str, Any]:
 
 def _parse_args(argv: list[str]) -> argparse.Namespace:
     parser = argparse.ArgumentParser(prog="hyperstruck.ide.hook", add_help=False)
-    parser.add_argument("command", choices=["prompt", "tool", "stop", "flush"])
+    parser.add_argument(
+        "command", choices=["prompt", "tool", "stop", "resolve", "flush"]
+    )
     parser.add_argument("flush_path", nargs="?", default=None)
     parser.add_argument(
         "--source", choices=[SOURCE_CLAUDE_CODE, SOURCE_CURSOR], default=None
@@ -686,6 +782,10 @@ def main(argv: list[str] | None = None) -> int:
         _debug(
             f"fired command={args.command} source={args.source or SOURCE_CLAUDE_CODE}"
         )
+        if args.command == "resolve":
+            if args.flush_path:
+                cmd_resolve(args.flush_path)
+            return 0
         if args.command == "flush":
             cmd_flush(args)
             return 0
@@ -696,7 +796,9 @@ def main(argv: list[str] | None = None) -> int:
             cmd_tool(payload, args)
         elif args.command == "stop":
             cmd_stop(payload, args)
-    except BaseException:  # noqa: BLE001 - the loop must never break the editor, even on cancellation/interrupt
+    except (
+        BaseException
+    ):  # noqa: BLE001 - the loop must never break the editor, even on cancellation/interrupt
         return 0
     return 0
 
