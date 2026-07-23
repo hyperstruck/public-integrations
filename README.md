@@ -129,3 +129,5 @@ Both skills can inject **current environment hints** at load time (for example w
 - **Skill index:** [claude_skills/README.md](claude_skills/README.md)
 
 If you are extending or publishing this material from Hyperstruck’s private engineering repository, see the internal maintainer note in the platform repo: `docs/public-integrations-maintainers.md`.
+
+Changes merged to `main` under `public_integrations/` are mirrored automatically to [hyperstruck/public-integrations](https://github.com/hyperstruck/public-integrations) by the `sync-public-integrations` GitHub Action.
