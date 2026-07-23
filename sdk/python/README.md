@@ -4,6 +4,8 @@ Python client SDK for the Hyperstruck Core API.
 
 This package is generated from the Hyperstruck OpenAPI document with [Swagger Codegen](https://github.com/swagger-api/swagger-codegen) using the `python` generator.
 
+For the ergonomic learning surface (LangGraph middleware, IDE hooks, and bundled skills), use the hand-written [`hyperstruck-py`](../../hyperstruck-py/) package instead. Reach for this SDK when you need raw, fully typed access to an endpoint the package does not wrap.
+
 ## Installation
 
 ```bash

@@ -12,4 +12,10 @@ These skills use the **`hyper-` prefix** on folder names and `name:` frontmatter
 
 Each skill directory contains `SKILL.md` (main instructions) and `reference.md` (API shapes and error codes).
 
-For installation, environment variables, and how these fit together, see the [repository README](../README.md).
+## Installation options
+
+**Manual copy:** follow the copy or symlink steps in the [repository README](../README.md#getting-started).
+
+**IDE installer:** install [`hyperstruck-py`](../hyperstruck-py/) and run `python -m hyperstruck.ide.install`. That command deep-merges learning hooks into Claude Code and Cursor and installs the bundled skill copies from `hyperstruck-py/src/hyperstruck/ide/skills/` without overwriting your existing hook entries.
+
+For environment variables and how these skills fit together, see the [repository README](../README.md).
