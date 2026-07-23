@@ -89,6 +89,23 @@ EVICTION_WINDOW_SECONDS = 48 * 60 * 60
 # to their in-flight flush, so a freshly-staged episode is not double-spawned.
 FLUSH_STALE_SECONDS = 5 * 60
 
+# Failed staged flushes are retried by later sweeps. This caps how many terminal
+# (4xx) rejections a permanently-invalid payload gets before it is dropped, so one
+# bad episode cannot reappear forever. Transient outages do not count against it.
+DEFAULT_FLUSH_MAX_ATTEMPTS = 3
+FLUSH_MAX_ATTEMPTS_ENV = "HYPER_FLUSH_MAX_ATTEMPTS"
+FLUSH_ATTEMPT_SUFFIX = ".attempts"
+
+# Dropping a flush is the one place a learning is lost for good, and the detached
+# flush process has no reachable stderr, so each drop is appended (one JSON line)
+# to this log under the loop root for an operator to inspect.
+DROPPED_FLUSH_LOG = "dropped.jsonl"
+
+
+def dropped_flush_log() -> Path:
+    return hyper_home() / DROPPED_FLUSH_LOG
+
+
 # Resolve is detached from the prompt hook, so it can afford to wait out the
 # production boundary without adding latency to prompt submission.
 DETACHED_RESOLVE_TIMEOUT = 20.0

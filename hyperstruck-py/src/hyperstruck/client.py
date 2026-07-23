@@ -66,6 +66,22 @@ def _env_float(name: str, default: float) -> float:
         return default
 
 
+def _is_terminal_write_error(exc: Exception | None) -> bool:
+    """A 4xx response means the payload is rejected; retrying it cannot succeed."""
+    return (
+        isinstance(exc, httpx.HTTPStatusError) and 400 <= exc.response.status_code < 500
+    )
+
+
+def _describe_write_error(exc: Exception | None) -> str | None:
+    """A cause tag with no request body, safe to persist to a diagnostic log."""
+    if exc is None:
+        return None
+    if isinstance(exc, httpx.HTTPStatusError):
+        return f"HTTP {exc.response.status_code}"
+    return type(exc).__name__
+
+
 @runtime_checkable
 class LearningClient(Protocol):
     """The observe / resolve / reinforce boundary the middleware depends on."""
@@ -191,6 +207,12 @@ class HostedLearningClient:
         self.resolves = 0
         self.writes_delivered = 0
         self.writes_failed = 0
+        # A 4xx rejection means the payload itself is bad, so a retry cannot help.
+        # Tracked apart from transient 5xx/network failures so a caller (the IDE
+        # flush outbox) can count only terminal rejections toward a retry cap and
+        # let transient outages keep retrying.
+        self.writes_terminal_failed = 0
+        self.last_write_error: str | None = None
 
     @property
     def _headers(self) -> dict[str, str]:
@@ -337,9 +359,14 @@ class HostedLearningClient:
                 return
             except Exception as exc:  # noqa: BLE001 - background best-effort
                 last_error = exc
+                if _is_terminal_write_error(exc):
+                    break  # a 4xx fails identically on every retry
                 if attempt + 1 < self._max_write_retries:
                     await asyncio.sleep(self._retry_backoff * (2**attempt))
         self.writes_failed += 1
+        if _is_terminal_write_error(last_error):
+            self.writes_terminal_failed += 1
+        self.last_write_error = _describe_write_error(last_error)
         logger.warning(
             "Hyperstruck write to %s dropped after %d attempts: %s",
             path,

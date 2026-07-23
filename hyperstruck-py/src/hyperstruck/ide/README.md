@@ -134,6 +134,19 @@ The loop is strictly additive. A missing API key, a network error, a malformed
 config, a timeout: every one degrades to a silent no-op. The learning loop can
 never block or slow your editing.
 
+Detached write flushes are retried on later sweeps. A *terminal* rejection (a
+4xx: the boundary refuses the payload as invalid) is what counts toward the cap,
+so a permanently invalid local episode is dropped after three such rejections
+rather than retrying forever. A *transient* failure (the boundary is down, a
+network blip) does not count: it keeps retrying until the eviction window, so a
+passing outage never discards a still-deliverable episode. Set
+`HYPER_FLUSH_MAX_ATTEMPTS` to a positive integer to change the terminal-retry cap.
+
+Because a dropped flush is the one place a learning is lost for good, and the
+detached flush process has no reachable stderr, each drop is appended as one JSON
+line to `~/.hyperstruck/dropped.jsonl` (run id, agent, attempts, and a coarse
+cause tag such as `HTTP 422`, never the prompt), so the loss leaves a trace.
+
 ## Diagnosing a quiet hook
 
 The flip side of failing open is that a hook producing no output is ambiguous: it

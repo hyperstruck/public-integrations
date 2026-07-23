@@ -506,7 +506,7 @@ def test_nested_bash_failure_detected(_env) -> None:
     assert interrupted["status"] == "failed"
 
 
-def test_flush_retries_on_failed_delivery(_env, monkeypatch) -> None:
+def test_flush_retries_on_terminal_failure(_env, monkeypatch) -> None:
     monkeypatch.setattr(hook, "_spawn_flush", lambda path: None)  # don't spawn
     path = state.stage_flush(
         "s1",
@@ -514,19 +514,99 @@ def test_flush_retries_on_failed_delivery(_env, monkeypatch) -> None:
         {"agent_name": "agent-x", "episode": {"run_id": "r"}, "do_observe": True},
     )
 
-    async def fail(_payload):
-        return False
+    async def terminal(_payload):
+        return hook.FlushOutcome.TERMINAL, "HTTP 422"
 
-    monkeypatch.setattr(hook, "_deliver", fail)
+    monkeypatch.setattr(hook, "_deliver", terminal)
     hook.cmd_flush(hook._parse_args(["flush", str(path)]))
     assert state.read_flush(path) is not None  # kept for retry on failed delivery
+    assert state.read_flush_attempts(path) == 1
 
     async def ok(_payload):
-        return True
+        return hook.FlushOutcome.DELIVERED, None
 
     monkeypatch.setattr(hook, "_deliver", ok)
     hook.cmd_flush(hook._parse_args(["flush", str(path)]))
     assert state.read_flush(path) is None  # removed once delivered
+
+
+def test_transient_failure_never_counts_or_drops(_env, monkeypatch) -> None:
+    monkeypatch.setenv("HYPER_FLUSH_MAX_ATTEMPTS", "2")
+    monkeypatch.setattr(hook, "_spawn_flush", lambda path: None)
+    path = state.stage_flush(
+        "s1",
+        "agent-x:s1:r",
+        {"agent_name": "agent-x", "episode": {"run_id": "r"}, "do_observe": True},
+    )
+
+    async def transient(_payload):
+        return hook.FlushOutcome.TRANSIENT, "ConnectError"
+
+    monkeypatch.setattr(hook, "_deliver", transient)
+    for _ in range(5):
+        hook.cmd_flush(hook._parse_args(["flush", str(path)]))
+    # A transient outage must never count against the cap or drop the episode:
+    # it retries until the eviction window, well past max attempts.
+    assert state.read_flush(path) is not None
+    assert state.read_flush_attempts(path) == 0
+
+
+def test_flush_drops_after_max_terminal_attempts(_env, monkeypatch, tmp_path) -> None:
+    monkeypatch.setenv("HYPER_FLUSH_MAX_ATTEMPTS", "2")
+    monkeypatch.setattr(hook, "_spawn_flush", lambda path: None)  # don't spawn
+    path = state.stage_flush(
+        "s1",
+        "agent-x:s1:r",
+        {"agent_name": "agent-x", "episode": {"run_id": "r"}, "do_observe": True},
+    )
+
+    async def terminal(_payload):
+        return hook.FlushOutcome.TERMINAL, "HTTP 422"
+
+    monkeypatch.setattr(hook, "_deliver", terminal)
+    hook.cmd_flush(hook._parse_args(["flush", str(path)]))
+    assert state.read_flush(path) is not None
+    hook.cmd_flush(hook._parse_args(["flush", str(path)]))
+    assert state.read_flush(path) is None
+    # The drop leaves a durable, prompt-free trace with the run id and cause.
+    dropped = (tmp_path / "dropped.jsonl").read_text().splitlines()
+    assert len(dropped) == 1
+    record = json.loads(dropped[0])
+    assert record["run_id"] == "r"
+    assert record["cause"] == "HTTP 422"
+    assert record["attempts"] == 2
+
+
+def test_unrecoverable_delivery_drops_without_counting(_env, monkeypatch) -> None:
+    monkeypatch.setattr(hook, "_spawn_flush", lambda path: None)
+    path = state.stage_flush(
+        "s1",
+        "agent-x:s1:r",
+        {"agent_name": "agent-x", "episode": {"run_id": "r"}, "do_observe": True},
+    )
+
+    async def unrecoverable(_payload):
+        return hook.FlushOutcome.UNRECOVERABLE, "no API key configured"
+
+    monkeypatch.setattr(hook, "_deliver", unrecoverable)
+    hook.cmd_flush(hook._parse_args(["flush", str(path)]))
+    assert state.read_flush(path) is None
+
+
+def test_failed_flush_does_not_recreate_delivered_file(_env, monkeypatch) -> None:
+    path = state.stage_flush(
+        "s1",
+        "agent-x:s1:r",
+        {"agent_name": "agent-x", "episode": {"run_id": "r"}, "do_observe": True},
+    )
+
+    async def fail_after_peer_delivered(_payload):
+        state.remove_flush(path)
+        return hook.FlushOutcome.TERMINAL, "HTTP 422"
+
+    monkeypatch.setattr(hook, "_deliver", fail_after_peer_delivered)
+    hook.cmd_flush(hook._parse_args(["flush", str(path)]))
+    assert state.read_flush(path) is None
 
 
 # -- detached recall + tool-time injection -----------------------------------

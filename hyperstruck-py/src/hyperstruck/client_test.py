@@ -195,7 +195,25 @@ async def test_write_bounded_retry_then_dropped() -> None:
     await client.drain()
     assert attempts["n"] == 3
     assert client.writes_failed == 1
+    assert client.writes_terminal_failed == 0  # a 503 is transient, not terminal
     assert client.writes_delivered == 0
+    await client.aclose()
+
+
+async def test_terminal_4xx_write_fails_fast_and_is_flagged_terminal() -> None:
+    attempts = {"n": 0}
+
+    def handler(request: httpx.Request) -> httpx.Response:
+        attempts["n"] += 1
+        return httpx.Response(422, json={"detail": "invalid episode"})
+
+    client = _client(handler, max_write_retries=3, retry_backoff=0.0)
+    await client.reinforce(identity=IDENTITY, episode=_episode())
+    await client.drain()
+    assert attempts["n"] == 1  # a 4xx fails identically on retry, so no retries
+    assert client.writes_failed == 1
+    assert client.writes_terminal_failed == 1
+    assert client.last_write_error == "HTTP 422"
     await client.aclose()
 
 

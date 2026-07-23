@@ -27,10 +27,12 @@ from typing import Any
 from hyperstruck.ide.constants import (
     ACTIVE_FILE,
     ACTIVE_SUBDIR,
+    FLUSH_ATTEMPT_SUFFIX,
     FLUSHING_SUBDIR,
     PENDING_FILE,
     RECALL_FILE,
     STEPS_SUBDIR,
+    dropped_flush_log,
     sessions_dir,
 )
 
@@ -238,8 +240,76 @@ def read_flush(path: str | os.PathLike[str]) -> dict[str, Any] | None:
     return _read_json(Path(path))
 
 
+def record_flush_attempt(path: str | os.PathLike[str]) -> int | None:
+    """Record one failed delivery attempt and return the running total.
+
+    Attempts live in a sidecar so retry metadata never corrupts the staged episode
+    payload. The count is one atomic append per attempt (not a read-modify-write),
+    so two flush processes racing on the same payload can never lose an increment
+    and exceed the retry cap. ``None`` means another process already delivered and
+    removed the payload, so there is nothing left to retry.
+    """
+    flush_path = Path(path)
+    if not flush_path.is_file():
+        return None
+    attempt_path = _flush_attempt_path(flush_path)
+    ensure_private_dir(attempt_path.parent)
+    fd = os.open(attempt_path, os.O_WRONLY | os.O_APPEND | os.O_CREAT, 0o600)
+    try:
+        os.write(fd, b"x\n")
+    finally:
+        os.close(fd)
+    if not flush_path.is_file():
+        _remove(attempt_path)
+        return None
+    return read_flush_attempts(flush_path)
+
+
+def read_flush_attempts(path: str | os.PathLike[str]) -> int:
+    try:
+        with _flush_attempt_path(Path(path)).open("rb") as handle:
+            return sum(1 for line in handle if line.strip())
+    except OSError:
+        return 0
+
+
+def record_dropped_flush(
+    path: str | os.PathLike[str],
+    *,
+    run_id: str,
+    agent_name: str,
+    attempts: int,
+    cause: str | None,
+) -> None:
+    """Append a durable record of a flush dropped after exhausting its retry cap.
+
+    A dropped flush is a learning lost for good, and the detached flush process's
+    stderr is ``/dev/null``, so the loss is recorded as one JSON line under the
+    loop root where an operator can see what was discarded and why. The cause is a
+    coarse tag (e.g. ``HTTP 422``), never the payload, so no prompt content leaks.
+    """
+    record = {
+        "at": time.time(),
+        "run_id": run_id,
+        "agent_name": agent_name,
+        "attempts": attempts,
+        "cause": cause,
+        "path": str(path),
+    }
+    log_path = dropped_flush_log()
+    ensure_private_dir(log_path.parent)
+    line = (json.dumps(record) + "\n").encode("utf-8")
+    fd = os.open(log_path, os.O_WRONLY | os.O_APPEND | os.O_CREAT, 0o600)
+    try:
+        os.write(fd, line)
+    finally:
+        os.close(fd)
+
+
 def remove_flush(path: str | os.PathLike[str]) -> None:
-    _remove(Path(path))
+    flush_path = Path(path)
+    _remove(flush_path)
+    _remove(_flush_attempt_path(flush_path))
 
 
 def iter_flush_files(session_id: str) -> list[Path]:
@@ -269,8 +339,7 @@ def remove_session_if_empty(session_id: str) -> None:
         return
     if (sdir / RECALL_FILE).exists():
         return
-    flush_dir = sdir / FLUSHING_SUBDIR
-    if flush_dir.is_dir() and any(flush_dir.iterdir()):
+    if iter_flush_files(session_id):
         return
     _remove_tree(sdir)
 
@@ -365,6 +434,10 @@ def _remove_tree(path: Path) -> None:
         path.rmdir()
     except OSError:
         pass
+
+
+def _flush_attempt_path(path: Path) -> Path:
+    return path.with_name(f"{path.name}{FLUSH_ATTEMPT_SUFFIX}")
 
 
 def _safe_name(name: str) -> str:

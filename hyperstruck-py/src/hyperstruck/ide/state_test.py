@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+import json
+
 import pytest
 
 from hyperstruck.ide import state
@@ -77,9 +79,48 @@ def test_flush_staging_round_trip() -> None:
     other = state.stage_flush("s1", "a:s1:run123", payload)
     assert other != path
     assert len(state.iter_flush_files("s1")) == 2
+    assert state.record_flush_attempt(path) == 1
+    assert state.read_flush(path) == payload
+    assert state.read_flush_attempts(path) == 1
     state.remove_flush(path)
     state.remove_flush(other)
     assert state.read_flush(path) is None
+    assert state.read_flush_attempts(path) == 0
+
+
+def test_record_flush_attempt_does_not_recreate_removed_path() -> None:
+    path = state.stage_flush(
+        "s1", "a:s1:run123", {"agent_id": "a", "episode": {"run_id": "r"}}
+    )
+    state.remove_flush(path)
+    assert state.record_flush_attempt(path) is None
+    assert state.read_flush(path) is None
+
+
+def test_flush_attempts_accumulate_and_sidecar_is_not_a_flush_file() -> None:
+    path = state.stage_flush(
+        "s1", "a:s1:run123", {"agent_id": "a", "episode": {"run_id": "r"}}
+    )
+    assert state.record_flush_attempt(path) == 1
+    assert state.record_flush_attempt(path) == 2
+    assert state.read_flush_attempts(path) == 2
+    # The attempt sidecar must never be mistaken for a staged payload to deliver.
+    assert state.iter_flush_files("s1") == [path]
+
+
+def test_record_dropped_flush_appends_a_prompt_free_line(tmp_path) -> None:
+    path = state.stage_flush(
+        "s1", "a:s1:run123", {"agent_id": "a", "episode": {"run_id": "r"}}
+    )
+    state.record_dropped_flush(
+        path, run_id="r", agent_name="a", attempts=3, cause="HTTP 422"
+    )
+    state.record_dropped_flush(
+        path, run_id="r2", agent_name="a", attempts=3, cause="HTTP 400"
+    )
+    lines = (tmp_path / "dropped.jsonl").read_text().splitlines()
+    assert [json.loads(line)["run_id"] for line in lines] == ["r", "r2"]
+    assert json.loads(lines[0])["cause"] == "HTTP 422"
 
 
 def test_recall_claim_is_atomic_and_single_use() -> None:

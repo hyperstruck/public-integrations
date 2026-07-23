@@ -35,13 +35,16 @@ import sys
 import time
 import uuid
 from dataclasses import replace
+from enum import Enum
 from typing import Any
 
 from hyperstruck.ide import outcome, state
 from hyperstruck.ide.config import configured_agent_name, load_env
 from hyperstruck.ide.constants import (
+    DEFAULT_FLUSH_MAX_ATTEMPTS,
     DETACHED_RESOLVE_TIMEOUT,
     EVICTION_WINDOW_SECONDS,
+    FLUSH_MAX_ATTEMPTS_ENV,
     FLUSH_STALE_SECONDS,
     HOOK_DEBUG_ENV,
     HOOK_DEBUG_OFF_VALUES,
@@ -219,25 +222,55 @@ def cmd_resolve(session_id: str) -> None:
 # -- command: flush (detached delivery) --------------------------------------
 
 
+class FlushOutcome(Enum):
+    """What one delivery attempt established about a staged flush.
+
+    DELIVERED and UNRECOVERABLE (malformed payload / no key) both mean drop now.
+    TERMINAL (a 4xx: the payload is bad) counts toward the retry cap; TRANSIENT
+    (5xx / network) is retried later without counting, so a passing outage never
+    drops a still-deliverable episode.
+    """
+
+    DELIVERED = "delivered"
+    UNRECOVERABLE = "unrecoverable"
+    TERMINAL = "terminal"
+    TRANSIENT = "transient"
+
+
 def cmd_flush(args: argparse.Namespace) -> None:
     """Deliver one staged turn: observe (if gated in) then reinforce.
 
-    The staged file is removed ONLY when delivery succeeds. If the boundary is
-    down or a write fails, the file is left in place so the next sweep re-spawns a
-    flush for it (and eviction drops it after the retention window). This makes the
-    staging dir a real outbox rather than a one-shot that loses the episode the
-    moment delivery fails.
+    The staged file is removed on success, on an unrecoverable payload, and once a
+    *terminal* (4xx) rejection has recurred up to the retry cap. A *transient*
+    failure (boundary down, network error) leaves the file in place so the next
+    sweep retries it, bounded only by the eviction window: this keeps the staging
+    dir a real outbox that never discards a still-deliverable episode over a blip.
     """
     payload = state.read_flush(args.flush_path)
     if not payload:
         state.remove_flush(args.flush_path)
         return
-    delivered = False
     try:
-        delivered = asyncio.run(_deliver(payload))
-    except Exception:  # noqa: BLE001 - fail open; leave the file for a later retry
-        delivered = False
-    if delivered:
+        outcome_, cause = asyncio.run(_deliver(payload))
+    except Exception as exc:  # noqa: BLE001 - fail open; treat as transient and retry
+        outcome_, cause = FlushOutcome.TRANSIENT, f"{type(exc).__name__}: {exc}"
+    if outcome_ in (FlushOutcome.DELIVERED, FlushOutcome.UNRECOVERABLE):
+        state.remove_flush(args.flush_path)
+        return
+    if outcome_ is FlushOutcome.TRANSIENT:
+        return  # leave staged for a later sweep; eviction is the ultimate backstop
+    attempts = state.record_flush_attempt(args.flush_path)
+    if attempts is None:
+        return  # another flush process delivered and removed the staged file
+    if attempts >= _max_flush_attempts():
+        episode = payload.get("episode") or {}
+        state.record_dropped_flush(
+            args.flush_path,
+            run_id=episode.get("run_id", ""),
+            agent_name=payload.get("agent_name") or payload.get("agent_id", ""),
+            attempts=attempts,
+            cause=cause,
+        )
         state.remove_flush(args.flush_path)
 
 
@@ -374,6 +407,18 @@ def _recover_flushes(session_id: str, now: float) -> None:
             _spawn_flush(path)  # presumed orphaned; retry. Younger files are in flight.
 
 
+def _max_flush_attempts() -> int:
+    """Configured outer flush attempts; the HTTP client still retries per attempt."""
+    raw = os.environ.get(FLUSH_MAX_ATTEMPTS_ENV)
+    if raw is None:
+        return DEFAULT_FLUSH_MAX_ATTEMPTS
+    try:
+        parsed = int(raw)
+    except ValueError:
+        return DEFAULT_FLUSH_MAX_ATTEMPTS
+    return max(1, parsed)
+
+
 # -- network (resolve / deliver) ---------------------------------------------
 
 
@@ -415,11 +460,13 @@ async def _aresolve(
         await client.aclose()
 
 
-async def _deliver(payload: dict[str, Any]) -> bool:
+async def _deliver(payload: dict[str, Any]) -> tuple[FlushOutcome, str | None]:
     """Observe (awaited to completion) then reinforce, so the wire order holds.
 
-    Returns True when the staged episode is done with (delivered, or unrecoverable
-    so not worth retrying) and False when delivery should be retried later.
+    Returns the outcome plus a coarse cause tag. A 4xx rejection is TERMINAL (the
+    payload is bad, so it counts toward the retry cap); a 5xx/network failure is
+    TRANSIENT (retry later, uncounted); a malformed payload or missing key is
+    UNRECOVERABLE (drop now, retrying cannot help).
     """
     from hyperstruck._wire import Episode, StepRecord, TerminalOutcome
     from hyperstruck.client import HostedLearningClient
@@ -428,7 +475,7 @@ async def _deliver(payload: dict[str, Any]) -> bool:
     agent_name = payload.get("agent_name") or payload.get("agent_id")
     episode_data = payload.get("episode") or {}
     if not agent_name or not episode_data:
-        return True  # malformed staged file: drop it, retrying cannot help
+        return FlushOutcome.UNRECOVERABLE, "malformed staged payload"
     identity = AgentIdentity(agent_name=agent_name)
     outcome_data = episode_data.get("outcome") or {}
     episode = Episode(
@@ -448,7 +495,7 @@ async def _deliver(payload: dict[str, Any]) -> bool:
     try:
         client = HostedLearningClient()
     except ValueError:
-        return True  # no API key configured: nothing to retry, drop it
+        return FlushOutcome.UNRECOVERABLE, "no API key configured"
     try:
         if payload.get("do_observe"):
             await client.observe(identity=identity, episode=episode)
@@ -460,9 +507,14 @@ async def _deliver(payload: dict[str, Any]) -> bool:
             )
             await client.drain()
         # The client retries internally then drops with a counter rather than
-        # raising; a non-zero failure count means the boundary did not accept it,
-        # so keep the staged file for the next sweep to retry.
-        return client.writes_failed == 0
+        # raising. A terminal (4xx) failure means the payload is bad and will fail
+        # every retry, so it counts toward the cap; a transient failure keeps the
+        # staged file for the next sweep without counting.
+        if client.writes_failed == 0:
+            return FlushOutcome.DELIVERED, None
+        if client.writes_terminal_failed:
+            return FlushOutcome.TERMINAL, client.last_write_error
+        return FlushOutcome.TRANSIENT, client.last_write_error
     finally:
         await client.aclose()
 
