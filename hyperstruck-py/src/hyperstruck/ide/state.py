@@ -27,6 +27,7 @@ from typing import Any
 from hyperstruck.ide.constants import (
     ACTIVE_FILE,
     ACTIVE_SUBDIR,
+    FLUSH_ATTEMPT_SUFFIX,
     FLUSHING_SUBDIR,
     PENDING_FILE,
     RECALL_FILE,
@@ -238,8 +239,40 @@ def read_flush(path: str | os.PathLike[str]) -> dict[str, Any] | None:
     return _read_json(Path(path))
 
 
+def record_flush_attempt(path: str | os.PathLike[str]) -> int | None:
+    """Increment and persist failed-attempt metadata for an existing flush file.
+
+    Attempts live in a sidecar so updating retry metadata never corrupts the
+    staged episode payload. ``None`` means another process already removed the
+    payload, so there is nothing left to retry.
+    """
+    flush_path = Path(path)
+    if not flush_path.is_file():
+        return None
+    attempts = read_flush_attempts(flush_path) + 1
+    attempt_path = _flush_attempt_path(flush_path)
+    _write_json_atomic(attempt_path, {"attempts": attempts})
+    if not flush_path.is_file():
+        _remove(attempt_path)
+        return None
+    return attempts
+
+
+def read_flush_attempts(path: str | os.PathLike[str]) -> int:
+    data = _read_json(_flush_attempt_path(Path(path)))
+    if not isinstance(data, dict):
+        return 0
+    try:
+        attempts = int(data.get("attempts", 0))
+    except (TypeError, ValueError):
+        return 0
+    return max(0, attempts)
+
+
 def remove_flush(path: str | os.PathLike[str]) -> None:
-    _remove(Path(path))
+    flush_path = Path(path)
+    _remove(flush_path)
+    _remove(_flush_attempt_path(flush_path))
 
 
 def iter_flush_files(session_id: str) -> list[Path]:
@@ -270,8 +303,10 @@ def remove_session_if_empty(session_id: str) -> None:
     if (sdir / RECALL_FILE).exists():
         return
     flush_dir = sdir / FLUSHING_SUBDIR
-    if flush_dir.is_dir() and any(flush_dir.iterdir()):
-        return
+    if flush_dir.is_dir():
+        _remove_orphan_flush_attempts(flush_dir)
+        if any(flush_dir.iterdir()):
+            return
     _remove_tree(sdir)
 
 
@@ -365,6 +400,18 @@ def _remove_tree(path: Path) -> None:
         path.rmdir()
     except OSError:
         pass
+
+
+def _flush_attempt_path(path: Path) -> Path:
+    return path.with_name(f"{path.name}{FLUSH_ATTEMPT_SUFFIX}")
+
+
+def _remove_orphan_flush_attempts(flush_dir: Path) -> None:
+    for path in flush_dir.iterdir():
+        if path.name.endswith(FLUSH_ATTEMPT_SUFFIX):
+            payload_name = path.name[: -len(FLUSH_ATTEMPT_SUFFIX)]
+            if not (flush_dir / payload_name).exists():
+                _remove(path)
 
 
 def _safe_name(name: str) -> str:

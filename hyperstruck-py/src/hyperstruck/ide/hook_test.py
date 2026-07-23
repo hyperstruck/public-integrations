@@ -520,6 +520,7 @@ def test_flush_retries_on_failed_delivery(_env, monkeypatch) -> None:
     monkeypatch.setattr(hook, "_deliver", fail)
     hook.cmd_flush(hook._parse_args(["flush", str(path)]))
     assert state.read_flush(path) is not None  # kept for retry on failed delivery
+    assert state.read_flush_attempts(path) == 1
 
     async def ok(_payload):
         return True
@@ -527,6 +528,41 @@ def test_flush_retries_on_failed_delivery(_env, monkeypatch) -> None:
     monkeypatch.setattr(hook, "_deliver", ok)
     hook.cmd_flush(hook._parse_args(["flush", str(path)]))
     assert state.read_flush(path) is None  # removed once delivered
+
+
+def test_flush_drops_after_max_failed_attempts(_env, monkeypatch) -> None:
+    monkeypatch.setenv("HYPER_FLUSH_MAX_ATTEMPTS", "2")
+    monkeypatch.setattr(hook, "_spawn_flush", lambda path: None)  # don't spawn
+    path = state.stage_flush(
+        "s1",
+        "agent-x:s1:r",
+        {"agent_name": "agent-x", "episode": {"run_id": "r"}, "do_observe": True},
+    )
+
+    async def fail(_payload):
+        return False
+
+    monkeypatch.setattr(hook, "_deliver", fail)
+    hook.cmd_flush(hook._parse_args(["flush", str(path)]))
+    assert state.read_flush(path) is not None
+    hook.cmd_flush(hook._parse_args(["flush", str(path)]))
+    assert state.read_flush(path) is None
+
+
+def test_failed_flush_does_not_recreate_delivered_file(_env, monkeypatch) -> None:
+    path = state.stage_flush(
+        "s1",
+        "agent-x:s1:r",
+        {"agent_name": "agent-x", "episode": {"run_id": "r"}, "do_observe": True},
+    )
+
+    async def fail_after_peer_delivered(_payload):
+        state.remove_flush(path)
+        return False
+
+    monkeypatch.setattr(hook, "_deliver", fail_after_peer_delivered)
+    hook.cmd_flush(hook._parse_args(["flush", str(path)]))
+    assert state.read_flush(path) is None
 
 
 # -- detached recall + tool-time injection -----------------------------------

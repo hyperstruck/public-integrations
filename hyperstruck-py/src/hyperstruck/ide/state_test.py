@@ -77,8 +77,21 @@ def test_flush_staging_round_trip() -> None:
     other = state.stage_flush("s1", "a:s1:run123", payload)
     assert other != path
     assert len(state.iter_flush_files("s1")) == 2
+    assert state.record_flush_attempt(path) == 1
+    assert state.read_flush(path) == payload
+    assert state.read_flush_attempts(path) == 1
     state.remove_flush(path)
     state.remove_flush(other)
+    assert state.read_flush(path) is None
+    assert state.read_flush_attempts(path) == 0
+
+
+def test_record_flush_attempt_does_not_recreate_removed_path() -> None:
+    path = state.stage_flush(
+        "s1", "a:s1:run123", {"agent_id": "a", "episode": {"run_id": "r"}}
+    )
+    state.remove_flush(path)
+    assert state.record_flush_attempt(path) is None
     assert state.read_flush(path) is None
 
 

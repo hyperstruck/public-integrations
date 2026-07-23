@@ -89,6 +89,13 @@ EVICTION_WINDOW_SECONDS = 48 * 60 * 60
 # to their in-flight flush, so a freshly-staged episode is not double-spawned.
 FLUSH_STALE_SECONDS = 5 * 60
 
+# Failed staged flushes are retried by later sweeps. This caps permanently
+# invalid payloads (for example server-side 422s) so one bad episode cannot keep
+# reappearing forever.
+DEFAULT_FLUSH_MAX_ATTEMPTS = 3
+FLUSH_MAX_ATTEMPTS_ENV = "HYPER_FLUSH_MAX_ATTEMPTS"
+FLUSH_ATTEMPT_SUFFIX = ".attempts"
+
 # Resolve is detached from the prompt hook, so it can afford to wait out the
 # production boundary without adding latency to prompt submission.
 DETACHED_RESOLVE_TIMEOUT = 20.0

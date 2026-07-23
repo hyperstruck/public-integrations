@@ -134,6 +134,11 @@ The loop is strictly additive. A missing API key, a network error, a malformed
 config, a timeout: every one degrades to a silent no-op. The learning loop can
 never block or slow your editing.
 
+Detached write flushes are retried on later sweeps, then dropped after three
+failed delivery attempts so a permanently invalid local episode cannot retry
+forever. Set `HYPER_FLUSH_MAX_ATTEMPTS` to a positive integer to change that
+outer retry cap.
+
 ## Diagnosing a quiet hook
 
 The flip side of failing open is that a hook producing no output is ambiguous: it

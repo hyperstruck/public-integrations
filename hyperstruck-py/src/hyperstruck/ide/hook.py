@@ -40,8 +40,10 @@ from typing import Any
 from hyperstruck.ide import outcome, state
 from hyperstruck.ide.config import configured_agent_name, load_env
 from hyperstruck.ide.constants import (
+    DEFAULT_FLUSH_MAX_ATTEMPTS,
     DETACHED_RESOLVE_TIMEOUT,
     EVICTION_WINDOW_SECONDS,
+    FLUSH_MAX_ATTEMPTS_ENV,
     FLUSH_STALE_SECONDS,
     HOOK_DEBUG_ENV,
     HOOK_DEBUG_OFF_VALUES,
@@ -239,6 +241,17 @@ def cmd_flush(args: argparse.Namespace) -> None:
         delivered = False
     if delivered:
         state.remove_flush(args.flush_path)
+        return
+    attempts = state.record_flush_attempt(args.flush_path)
+    if attempts is None:
+        return  # another flush process delivered and removed the staged file
+    max_attempts = _max_flush_attempts()
+    if attempts >= max_attempts:
+        _debug(
+            f"flush dropped after {attempts} failed attempt(s); "
+            f"max is {max_attempts}"
+        )
+        state.remove_flush(args.flush_path)
 
 
 # -- turn finalisation / flush staging ---------------------------------------
@@ -372,6 +385,18 @@ def _recover_flushes(session_id: str, now: float) -> None:
             state.remove_flush(path)  # never delivered in time; drop it
         elif age > FLUSH_STALE_SECONDS:
             _spawn_flush(path)  # presumed orphaned; retry. Younger files are in flight.
+
+
+def _max_flush_attempts() -> int:
+    """Configured outer flush attempts; the HTTP client still retries per attempt."""
+    raw = os.environ.get(FLUSH_MAX_ATTEMPTS_ENV)
+    if raw is None:
+        return DEFAULT_FLUSH_MAX_ATTEMPTS
+    try:
+        parsed = int(raw)
+    except ValueError:
+        return DEFAULT_FLUSH_MAX_ATTEMPTS
+    return max(1, parsed)
 
 
 # -- network (resolve / deliver) ---------------------------------------------
