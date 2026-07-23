@@ -41,8 +41,9 @@ python3 -m hyperstruck.ide.hook prompt --readonly --emit text --goal "$ARGUMENTS
   current turn's automatic capture/reinforce, so it never disrupts the live loop.
 - It is fail-open: any error prints nothing and you simply proceed without recall.
 
-The agent the loop reads from and writes to is the one configured at install
-(`HYPER_AGENT_ID`), or your single agent. For deeper, explicit reasoning that
+The agent the loop reads from and writes to is configured at install as
+`HYPER_AGENT_NAME` (boundary agent **name**, not UUID), or your single agent when
+install auto-wires both name and REST id. For deeper, explicit reasoning that
 selects the most appropriate agent for a task, use the `hyper-reasoning` skill.
 
 ## Manual curation

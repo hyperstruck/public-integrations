@@ -15,7 +15,7 @@ from hyperstruck._wire import (
 from hyperstruck.client import HostedLearningClient
 from hyperstruck.identity import AgentIdentity
 
-IDENTITY = AgentIdentity(agent_id="support-bot", org_id="org-1")
+IDENTITY = AgentIdentity(agent_name="support-bot", org_id="org-1")
 
 
 def _episode() -> Episode:
@@ -147,7 +147,7 @@ async def test_distill_posts_flat_body_in_background() -> None:
     assert client.writes_delivered == 1
     assert paths[0] == "/distill"
     # Flat body (agent_id from identity), not wrapped like observe/reinforce.
-    assert bodies[0]["agent_id"] == "support-bot"
+    assert bodies[0]["agent_name"] == "support-bot"
     assert bodies[0]["run_id"] == "distill:pm-1"
     assert len(bodies[0]["evidence"]) == 2
     await client.aclose()

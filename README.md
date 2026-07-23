@@ -86,11 +86,22 @@ Send it on every request as:
 
 **API base URL** — default **https://api.hyperstruck.com**. Override via conversation, **`HYPER_BASE_URL`**, or `.env`.
 
-**Agent id** (for `hyper-learning`):
+**Agent identity** — two env vars, two APIs:
 
-1. You specify it explicitly, or
+| Variable | Used by | Value |
+| -------- | ------- | ----- |
+| **`HYPER_AGENT_NAME`** | Learning boundary (`POST /resolve`, `/observe`, `/reinforce`) and IDE hooks | Human-readable agent **name** (e.g. `support-bot`). If the name does not exist yet, the boundary **creates a learning agent with that name** on first use. |
+| **`HYPER_AGENT_ID`** | REST skills (`GET/POST /agents/{agent_id}/...`) | Hosted agent **UUID** from `GET /agents` |
+
+Do **not** paste a Postgres UUID into `HYPER_AGENT_NAME` — the boundary would create a separate stub agent *named* with that UUID and learnings would land in the wrong corpus.
+
+For **`hyper-learning`** / **`hyper-reasoning`** / **`hyper-plans`** REST calls:
+
+1. You specify the UUID explicitly, or
 2. **`HYPER_AGENT_ID`** / `.env`, or
-3. The skill lists available agents and asks you to choose.
+3. The skill lists available agents (`GET /agents?limit=50`) and asks you to pick.
+
+For the **IDE learning hook loop** (after `python -m hyperstruck.ide.install`), set **`HYPER_AGENT_NAME`**. The installer writes both vars automatically when you have a single agent.
 
 ### 3. Invoke from your assistant
 

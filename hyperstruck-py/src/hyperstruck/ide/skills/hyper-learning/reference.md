@@ -22,7 +22,7 @@ truth for the prior turn's outcome. All of this is handled by
 you invoke, and only on Cursor.
 
 Auth and the configured agent come from `~/.hyperstruck/.env`
-(`HYPER_API_KEY`, `HYPER_BASE_URL`, `HYPER_AGENT_ID`), written by `hyper-install`.
+(`HYPER_API_KEY`, `HYPER_BASE_URL`, `HYPER_AGENT_NAME`, `HYPER_AGENT_ID`), written by `hyper-install`.
 
 ---
 

@@ -16,7 +16,7 @@ def _home(tmp_path, monkeypatch) -> None:
 def test_active_round_trip() -> None:
     turn = ActiveTurn(
         run_id="r1",
-        agent_id="a",
+        agent_name="a",
         goal="g",
         source_framework="claude-code",
         started_at=1.0,
@@ -33,7 +33,7 @@ def test_steps_append_and_order() -> None:
     state.write_active(
         "s1",
         ActiveTurn(
-            run_id="r", agent_id="a", goal="", source_framework="x", started_at=0.0
+            run_id="r", agent_name="a", goal="", source_framework="x", started_at=0.0
         ),
     )
     for i in range(3):
@@ -47,7 +47,7 @@ def test_steps_append_and_order() -> None:
 def test_pending_round_trip() -> None:
     pending = PendingTurn(
         run_id="r",
-        agent_id="a",
+        agent_name="a",
         goal="g",
         steps=({"id": "1"},),
         is_success=False,
@@ -58,7 +58,7 @@ def test_pending_round_trip() -> None:
     state.write_active(
         "s1",
         ActiveTurn(
-            run_id="r", agent_id="a", goal="g", source_framework="x", started_at=0.0
+            run_id="r", agent_name="a", goal="g", source_framework="x", started_at=0.0
         ),
     )
     state.write_pending("s1", pending)
@@ -111,7 +111,7 @@ def test_remove_session_if_empty() -> None:
     state.write_active(
         "s1",
         ActiveTurn(
-            run_id="r", agent_id="a", goal="", source_framework="x", started_at=0.0
+            run_id="r", agent_name="a", goal="", source_framework="x", started_at=0.0
         ),
     )
     state.clear_active("s1")
@@ -131,7 +131,7 @@ def test_parallel_appends_keep_every_step() -> None:
     state.write_active(
         "s1",
         ActiveTurn(
-            run_id="r", agent_id="a", goal="", source_framework="x", started_at=0.0
+            run_id="r", agent_name="a", goal="", source_framework="x", started_at=0.0
         ),
     )
     for i in range(20):
@@ -147,7 +147,7 @@ def test_parallel_appends_keep_every_step() -> None:
 
 def _active(run_id: str = "r") -> ActiveTurn:
     return ActiveTurn(
-        run_id=run_id, agent_id="a", goal="", source_framework="x", started_at=0.0
+        run_id=run_id, agent_name="a", goal="", source_framework="x", started_at=0.0
     )
 
 

@@ -28,52 +28,52 @@ class ObserveRequest(object):
                             and the value is json key in definition.
     """
     swagger_types = {
-        'agent_id': 'object',
+        'agent_name': 'object',
         'org_id': 'object',
         'episode': 'EpisodeModel'
     }
 
     attribute_map = {
-        'agent_id': 'agent_id',
+        'agent_name': 'agent_name',
         'org_id': 'org_id',
         'episode': 'episode'
     }
 
-    def __init__(self, agent_id=None, org_id=None, episode=None):  # noqa: E501
+    def __init__(self, agent_name=None, org_id=None, episode=None):  # noqa: E501
         """ObserveRequest - a model defined in Swagger"""  # noqa: E501
-        self._agent_id = None
+        self._agent_name = None
         self._org_id = None
         self._episode = None
         self.discriminator = None
-        self.agent_id = agent_id
+        self.agent_name = agent_name
         if org_id is not None:
             self.org_id = org_id
         self.episode = episode
 
     @property
-    def agent_id(self):
-        """Gets the agent_id of this ObserveRequest.  # noqa: E501
+    def agent_name(self):
+        """Gets the agent_name of this ObserveRequest.  # noqa: E501
 
-        Caller-defined string identifying the external agent.  # noqa: E501
+        Human-readable agent name, unique within your tenant. Not the hosted agent UUID used in `/agents/{agent_id}` REST paths. If no agent with this name exists yet, the platform creates one automatically on the first boundary call. Reuse the same name to target the same learning corpus.  # noqa: E501
 
-        :return: The agent_id of this ObserveRequest.  # noqa: E501
+        :return: The agent_name of this ObserveRequest.  # noqa: E501
         :rtype: object
         """
-        return self._agent_id
+        return self._agent_name
 
-    @agent_id.setter
-    def agent_id(self, agent_id):
-        """Sets the agent_id of this ObserveRequest.
+    @agent_name.setter
+    def agent_name(self, agent_name):
+        """Sets the agent_name of this ObserveRequest.
 
-        Caller-defined string identifying the external agent.  # noqa: E501
+        Human-readable agent name, unique within your tenant. Not the hosted agent UUID used in `/agents/{agent_id}` REST paths. If no agent with this name exists yet, the platform creates one automatically on the first boundary call. Reuse the same name to target the same learning corpus.  # noqa: E501
 
-        :param agent_id: The agent_id of this ObserveRequest.  # noqa: E501
+        :param agent_name: The agent_name of this ObserveRequest.  # noqa: E501
         :type: object
         """
-        if agent_id is None:
-            raise ValueError("Invalid value for `agent_id`, must not be `None`")  # noqa: E501
+        if agent_name is None:
+            raise ValueError("Invalid value for `agent_name`, must not be `None`")  # noqa: E501
 
-        self._agent_id = agent_id
+        self._agent_name = agent_name
 
     @property
     def org_id(self):

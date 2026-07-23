@@ -10,7 +10,7 @@ Quick start (LangGraph)::
     agent = create_agent(
         model,
         tools=tools,
-        middleware=[HyperstruckLearningMiddleware(api_key=..., agent_id="support-bot")],
+        middleware=[HyperstruckLearningMiddleware(api_key=..., agent_name="support-bot")],
     )
 
 The framework-neutral pieces (the client, identity, and wire types) live at the

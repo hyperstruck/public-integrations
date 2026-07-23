@@ -95,10 +95,10 @@ class MiddlewareStats:
 class HyperstruckLearningMiddleware(AgentMiddleware):
     """LangChain ``AgentMiddleware`` running Hyperstruck's learning loop on a graph.
 
-    Construct with an API key and an ``agent_id`` (the whole configuration for a
-    single agent), or pass a custom :class:`LearningClient` to point at a
-    different backend. To serve many tenants from one registered middleware, set
-    ``"hyperstruck_identity"`` in each invoke's config.
+    Construct with an API key and an ``agent_name`` (the boundary learning identity),
+    or pass a custom :class:`LearningClient` to point at a different backend. To
+    serve many tenants from one registered middleware, set ``"hyperstruck_identity"``
+    in each invoke's config.
     """
 
     state_schema = LearningLoopState
@@ -107,7 +107,7 @@ class HyperstruckLearningMiddleware(AgentMiddleware):
         self,
         *,
         api_key: str | None = None,
-        agent_id: str | None = None,
+        agent_name: str | None = None,
         org_id: str | None = None,
         identity: AgentIdentity | None = None,
         client: LearningClient | None = None,
@@ -118,10 +118,10 @@ class HyperstruckLearningMiddleware(AgentMiddleware):
         max_injected_learnings: int = DEFAULT_MAX_LEARNINGS,
     ) -> None:
         super().__init__()
-        resolved_identity = identity or (AgentIdentity(agent_id=agent_id, org_id=org_id) if agent_id else None)
+        resolved_identity = identity or (AgentIdentity(agent_name=agent_name, org_id=org_id) if agent_name else None)
         if resolved_identity is None:
             raise ValueError(
-                "HyperstruckLearningMiddleware requires an identity: pass agent_id=... "
+                "HyperstruckLearningMiddleware requires an identity: pass agent_name=... "
                 "(and optionally org_id), or an AgentIdentity"
             )
         self._identity = resolved_identity
@@ -143,15 +143,15 @@ class HyperstruckLearningMiddleware(AgentMiddleware):
     async def abefore_agent(self, state: Any, runtime: Any) -> dict[str, Any] | None:  # noqa: ARG002
         """Open the per-invoke ledger, stamp its run id, and prefetch resolve.
 
-        The run id is a fresh UUID namespaced by ``agent_id``, minted once per
+        The run id is a fresh UUID namespaced by ``agent_name``, minted once per
         invoke and stable for it. Resolve is fired here so its round-trip overlaps
         graph setup and is usually done by the first model call.
         """
         identity = self._invoke_identity()
-        run_id = f"{identity.agent_id}:{uuid.uuid4().hex}"
+        run_id = f"{identity.agent_name}:{uuid.uuid4().hex}"
         ledger = InvokeLedger(
             run_id=run_id,
-            agent_id=identity.agent_id,
+            agent_id=identity.agent_name,
             org_id=identity.org_id,
             goal=self._goal_extractor(self._messages(state)),
             thread_id=self._thread_id(),

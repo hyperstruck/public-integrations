@@ -1,8 +1,8 @@
 """Shared constants for the IDE learning adapter.
 
-Values only, no logic (see :mod:`hyperstruck.ide.agent_id` and friends for the
-behaviour). Centralised so the hook, installer, state, and gating modules cannot
-drift on a path, a window, or a marker.
+Values only, no logic (see :mod:`hyperstruck.ide.config` for behaviour).
+Centralised so the hook, installer, state, and gating modules cannot drift on a
+path, a window, or a marker.
 """
 
 from __future__ import annotations
@@ -53,9 +53,13 @@ FLUSHING_SUBDIR = "flushing"  # handed-off episodes a detached flush is deliveri
 
 # -- identity ----------------------------------------------------------------
 
-# Override the per-repo agent id. The loop-specific var wins over the general pin,
-# which wins over the git-derived default.
-AGENT_ID_ENV_VARS = ("HYPER_LEARNING_AGENT_ID", "HYPER_AGENT_ID")
+# Boundary loop: human-readable agent name (``upsert_learning_agent`` key).
+# ``HYPER_LEARNING_AGENT_NAME`` wins over ``HYPER_AGENT_NAME`` for backward compat
+# with the old ``HYPER_LEARNING_AGENT_ID`` name-only pin.
+AGENT_NAME_ENV_VARS = ("HYPER_LEARNING_AGENT_NAME", "HYPER_AGENT_NAME")
+
+# REST skills: hosted agent UUID for ``/agents/{agent_id}/...`` paths.
+AGENT_ID_ENV_VARS = ("HYPER_AGENT_ID",)
 
 # -- diagnostics -------------------------------------------------------------
 

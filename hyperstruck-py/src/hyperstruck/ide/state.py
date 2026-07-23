@@ -40,7 +40,7 @@ class ActiveTurn:
     """The turn in progress: written at turn start, before any tool runs."""
 
     run_id: str
-    agent_id: str
+    agent_name: str
     goal: str
     source_framework: str
     started_at: float
@@ -59,7 +59,7 @@ class PendingTurn:
     """
 
     run_id: str
-    agent_id: str
+    agent_name: str
     goal: str
     steps: tuple[dict[str, Any], ...]
     is_success: bool
@@ -102,7 +102,7 @@ def read_active(session_id: str) -> ActiveTurn | None:
     try:
         return ActiveTurn(
             run_id=data["run_id"],
-            agent_id=data.get("agent_id", ""),
+            agent_name=data.get("agent_name") or data.get("agent_id", ""),
             goal=data.get("goal", ""),
             source_framework=data.get("source_framework", ""),
             started_at=float(data.get("started_at", 0.0)),
@@ -291,7 +291,7 @@ def _pending_from_dict(data: dict[str, Any] | None) -> PendingTurn | None:
     try:
         return PendingTurn(
             run_id=data["run_id"],
-            agent_id=data.get("agent_id", ""),
+            agent_name=data.get("agent_name") or data.get("agent_id", ""),
             goal=data.get("goal", ""),
             steps=tuple(data.get("steps") or ()),
             is_success=bool(data.get("is_success", True)),

@@ -36,7 +36,7 @@ async def main() -> None:
     # short-lived script ends. A long-lived server need not do this.
     async with HyperstruckLearningMiddleware(
         # api_key defaults to $HYPERSTRUCK_API_KEY
-        agent_id="support-bot",
+        agent_name="support-bot",
         # Declare sensitive tool fields so they are redacted before they ever
         # leave your environment (optional).
         tool_sensitivity={"lookup_order": {}},

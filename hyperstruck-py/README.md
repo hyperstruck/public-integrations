@@ -39,7 +39,7 @@ pip install "hyperstruck[langgraph] @ git+https://github.com/hyperstruck/public-
 from langchain.agents import create_agent
 from hyperstruck.langgraph import HyperstruckLearningMiddleware
 
-async with HyperstruckLearningMiddleware(api_key="hsk_...", agent_id="support-bot") as learning:
+async with HyperstruckLearningMiddleware(api_key="hsk_...", agent_name="support-bot") as learning:
     agent = create_agent(model, tools=tools, middleware=[learning])
 
     # Use the agent as normal. Over successive runs it gets sharper.
@@ -53,9 +53,12 @@ middleware as an `async with` context (or `await learning.aclose()` before exit)
 so the writes are drained before the process ends. Skip the drain and the first
 run's learning is cancelled at exit before it reaches the platform.
 
-The `agent_id` is your own string. The platform creates a named agent for it on
-first use and scopes the learning corpus to it. Set the key from the environment
-(`HYPERSTRUCK_API_KEY`) and you can drop the `api_key` argument entirely.
+The `agent_name` is your human-readable agent name (unique within the tenant).
+If no agent with that name exists yet, the learning boundary **creates one
+automatically** on first use and scopes the corpus to it. This is not the hosted
+agent UUID used in REST paths — use `HYPER_AGENT_ID` for those. Set the key from
+the environment (`HYPERSTRUCK_API_KEY`) and you can drop the `api_key` argument
+entirely.
 
 Watch it learn through the platform's learnings and usage APIs (see the docs);
 the corpus grows as runs accrue.
@@ -89,7 +92,7 @@ to run: point your host at the remote endpoint with your key and an agent name.
       "url": "https://mcp.hyperstruck.com/mcp/",
       "headers": {
         "Authorization": "Bearer your-hyperstruck-api-key",
-        "X-Hyperstruck-Agent-Id": "support-bot"
+        "X-Hyperstruck-Agent-Name": "support-bot"
       }
     }
   }
@@ -178,7 +181,7 @@ unrelated content; it errs towards over-redaction rather than leaking:
 ```python
 HyperstruckLearningMiddleware(
     api_key="hsk_...",
-    agent_id="support-bot",
+    agent_name="support-bot",
     tool_sensitivity={"lookup_customer": {"ssn": "pii", "dob": "pii"}},
 )
 ```

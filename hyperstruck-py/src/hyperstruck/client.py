@@ -212,7 +212,7 @@ class HostedLearningClient:
         resolve_idempotency_key: str | None = None,
     ) -> ResolvedContext:
         body: dict[str, Any] = {
-            "agent_id": identity.agent_id,
+            "agent_name": identity.agent_name,
             "org_id": identity.org_id,
             "run_id": run_id,
             "goal": goal,
@@ -235,7 +235,7 @@ class HostedLearningClient:
 
     async def observe(self, *, identity: AgentIdentity, episode: Episode) -> None:
         body = {
-            "agent_id": identity.agent_id,
+            "agent_name": identity.agent_name,
             "org_id": identity.org_id,
             "episode": redact_episode_payload(episode.to_payload()),
         }
@@ -249,7 +249,7 @@ class HostedLearningClient:
         is_org_promotion_allowed: bool = False,
     ) -> None:
         body = {
-            "agent_id": identity.agent_id,
+            "agent_name": identity.agent_name,
             "org_id": identity.org_id,
             "episode": redact_episode_payload(episode.to_payload()),
             "is_org_promotion_allowed": is_org_promotion_allowed,
@@ -284,7 +284,7 @@ class HostedLearningClient:
         # Identity is authoritative (as for observe/reinforce); the caller must
         # pre-redact secrets in evidence content, which is stored verbatim server-side.
         job = DistillJob(
-            agent_id=identity.agent_id,
+            agent_name=identity.agent_name,
             org_id=identity.org_id,
             run_id=run_id,
             goal=goal,

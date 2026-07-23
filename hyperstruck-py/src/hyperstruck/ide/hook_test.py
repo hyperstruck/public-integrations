@@ -18,7 +18,7 @@ _REAL_SPAWN_RESOLVE = hook._spawn_resolve
 @pytest.fixture(autouse=True)
 def _env(tmp_path, monkeypatch):
     monkeypatch.setenv("HYPER_HOME", str(tmp_path))
-    monkeypatch.setenv("HYPER_AGENT_ID", "agent-x")
+    monkeypatch.setenv("HYPER_AGENT_NAME", "agent-x")
     # Readonly resolve always offers one learning. Detached resolve is modelled as
     # immediately ready so lifecycle tests can exercise the tool-time handoff.
     monkeypatch.setattr(
@@ -134,7 +134,7 @@ def test_rework_resolution_on_one_session(_env) -> None:
 
     assert len(staged) == 1
     flushed = _last_staged(staged)
-    assert flushed["agent_id"] == "agent-x"
+    assert flushed["agent_name"] == "agent-x"
     assert (
         flushed["episode"]["outcome"]["is_success"] is False
     )  # rework overrode the green
@@ -226,7 +226,7 @@ def test_secret_scrubbed_from_shipped_episode(_env) -> None:
 
 
 def test_no_agent_no_capture(_env, monkeypatch) -> None:
-    monkeypatch.delenv("HYPER_AGENT_ID", raising=False)
+    monkeypatch.delenv("HYPER_AGENT_NAME", raising=False)
     hook.cmd_prompt(
         {"session_id": "s1", "prompt": "do a thing", "cwd": "/repo"}, _args("prompt")
     )
@@ -413,7 +413,7 @@ def test_eviction_flushes_stale_pending(_env) -> None:
         "oldsess",
         state.PendingTurn(
             run_id="agent-x:oldsess:r1",
-            agent_id="agent-x",
+            agent_name="agent-x",
             goal="g",
             steps=(
                 {
@@ -511,7 +511,7 @@ def test_flush_retries_on_failed_delivery(_env, monkeypatch) -> None:
     path = state.stage_flush(
         "s1",
         "agent-x:s1:r",
-        {"agent_id": "agent-x", "episode": {"run_id": "r"}, "do_observe": True},
+        {"agent_name": "agent-x", "episode": {"run_id": "r"}, "do_observe": True},
     )
 
     async def fail(_payload):
@@ -588,7 +588,7 @@ def test_resolver_drops_recall_when_turn_ended_or_changed(
         "s1",
         state.ActiveTurn(
             run_id="old-run",
-            agent_id="agent-x",
+            agent_name="agent-x",
             goal="do x",
             source_framework="claude-code",
             started_at=1.0,
@@ -603,7 +603,7 @@ def test_resolver_drops_recall_when_turn_ended_or_changed(
                 "s1",
                 state.ActiveTurn(
                     run_id=replacement,
-                    agent_id="agent-x",
+                    agent_name="agent-x",
                     goal="next",
                     source_framework="claude-code",
                     started_at=2.0,
@@ -621,7 +621,7 @@ def test_resolver_writes_matching_recall(_env, monkeypatch) -> None:
         "s1",
         state.ActiveTurn(
             run_id="run-1",
-            agent_id="agent-x",
+            agent_name="agent-x",
             goal="do x",
             source_framework="claude-code",
             started_at=1.0,
@@ -645,7 +645,7 @@ def test_resolver_skips_publish_when_no_learnings(_env, monkeypatch) -> None:
         "s1",
         state.ActiveTurn(
             run_id="run-1",
-            agent_id="agent-x",
+            agent_name="agent-x",
             goal="do x",
             source_framework="claude-code",
             started_at=1.0,
@@ -670,7 +670,7 @@ def test_resolver_timeout_default_and_env_override(
         "s1",
         state.ActiveTurn(
             run_id="run-1",
-            agent_id="agent-x",
+            agent_name="agent-x",
             goal="do x",
             source_framework="claude-code",
             started_at=1.0,
@@ -893,7 +893,7 @@ def test_debug_on_writes_stderr(_env, capsys, monkeypatch) -> None:
 
 def test_prompt_no_agent_emits_breadcrumb(_env, capsys, monkeypatch) -> None:
     monkeypatch.setenv("HYPER_HOOK_DEBUG", "1")
-    monkeypatch.delenv("HYPER_AGENT_ID", raising=False)
+    monkeypatch.delenv("HYPER_AGENT_NAME", raising=False)
     hook.cmd_prompt(
         {"session_id": "s1", "prompt": "do x", "cwd": "/repo"}, _args("prompt")
     )

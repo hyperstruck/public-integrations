@@ -3,7 +3,7 @@
 ## Properties
 Name | Type | Description | Notes
 ------------ | ------------- | ------------- | -------------
-**agent_id** | **object** | Caller-defined agent identifier. This is a string, not the hosted agent UUID used in &#x60;/agents/{agent_id}&#x60; paths. |
+**agent_name** | **object** | Human-readable agent name, unique within your tenant. Not the hosted agent UUID used in `/agents/{agent_id}` REST paths. If no agent with this name exists yet, the platform creates one automatically on the first boundary call. Reuse the same name to target the same learning corpus. |
 **org_id** | **object** | Optional caller-owned organisation reference. | [optional]
 **run_id** | **object** | Caller-created correlation key. Reuse it with observe and reinforce; it does not reference a hosted &#x60;/runs/{run_id}&#x60; resource. |
 **goal** | **object** | Goal about to be attempted by the external agent. |

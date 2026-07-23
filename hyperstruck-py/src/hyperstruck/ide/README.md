@@ -121,11 +121,12 @@ Your source never leaves; only scrubbed, pattern-level learnings do.
 
 ## Identity
 
-The agent a turn reads from and writes to is *your configured Hyperstruck agent*,
-never anything derived from the repo, because editors are general agent platforms,
-not just code tools. If you have one agent, it is used automatically. If you have
-several, the explicit skills pick the one fitting the task, and the silent loop
-uses the one you set at install.
+The agent a turn reads from and writes to is *your configured boundary agent
+name* (`HYPER_AGENT_NAME`), never anything derived from the repo, because editors
+are general agent platforms, not just code tools. If you have one agent, install
+writes both `HYPER_AGENT_NAME` and `HYPER_AGENT_ID` (REST UUID) automatically. If
+you have several, pick a name with `--agent-name` at install; REST skills still
+use `HYPER_AGENT_ID` or `GET /agents`.
 
 ## Fail-open by design
 

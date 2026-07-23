@@ -54,7 +54,7 @@ def test_requires_identity() -> None:
 
 async def test_full_loop_resolves_injects_records_and_writes() -> None:
     fake = FakeLearningClient()
-    mw = HyperstruckLearningMiddleware(agent_id="bot", org_id="org", client=fake)
+    mw = HyperstruckLearningMiddleware(agent_name="bot", org_id="org", client=fake)
 
     state = {"messages": [HumanMessage("look up the account")]}
     delta = await mw.abefore_agent(state, None)
@@ -104,7 +104,7 @@ async def test_resolve_failure_fails_open() -> None:
             raise RuntimeError("platform down")
 
     fake = FailingClient()
-    mw = HyperstruckLearningMiddleware(agent_id="bot", client=fake)
+    mw = HyperstruckLearningMiddleware(agent_name="bot", client=fake)
     state = {"messages": [HumanMessage("x")]}
     state.update(await mw.abefore_agent(state, None))
 
@@ -122,7 +122,7 @@ async def test_resolve_failure_fails_open() -> None:
 
 async def test_cancelled_run_is_not_observed() -> None:
     fake = FakeLearningClient()
-    mw = HyperstruckLearningMiddleware(agent_id="bot", client=fake)
+    mw = HyperstruckLearningMiddleware(agent_name="bot", client=fake)
     state = {"messages": [HumanMessage("x")]}
     state.update(await mw.abefore_agent(state, None))
     # Simulate cancellation: aafter_agent never fires.
@@ -137,7 +137,7 @@ async def test_cancelled_run_is_not_observed() -> None:
 async def test_tool_aware_resolve_passes_registered_tools() -> None:
     fake = FakeLearningClient()
     mw = HyperstruckLearningMiddleware(
-        agent_id="bot", client=fake, tools=["search", {"name": "db", "description": "query the db"}]
+        agent_name="bot", client=fake, tools=["search", {"name": "db", "description": "query the db"}]
     )
     state = {"messages": [HumanMessage("x")]}
     state.update(await mw.abefore_agent(state, None))
@@ -167,14 +167,14 @@ class DrainableClient(FakeLearningClient):
 
 async def test_aclose_drains_the_client() -> None:
     fake = DrainableClient()
-    mw = HyperstruckLearningMiddleware(agent_id="bot", client=fake)
+    mw = HyperstruckLearningMiddleware(agent_name="bot", client=fake)
     await mw.aclose()
     assert fake.closed == 1
 
 
 async def test_async_context_drains_on_exit() -> None:
     fake = DrainableClient()
-    async with HyperstruckLearningMiddleware(agent_id="bot", client=fake) as mw:
+    async with HyperstruckLearningMiddleware(agent_name="bot", client=fake) as mw:
         assert isinstance(mw, HyperstruckLearningMiddleware)
     assert fake.closed == 1
 
@@ -182,21 +182,21 @@ async def test_async_context_drains_on_exit() -> None:
 async def test_drain_is_noop_when_client_has_no_drain() -> None:
     # A custom client without drain/aclose must not raise.
     fake = FakeLearningClient()
-    mw = HyperstruckLearningMiddleware(agent_id="bot", client=fake)
+    mw = HyperstruckLearningMiddleware(agent_name="bot", client=fake)
     await mw.drain()
     await mw.aclose()
 
 
 def test_assert_innermost_passes_when_last() -> None:
     fake = FakeLearningClient()
-    mw = HyperstruckLearningMiddleware(agent_id="bot", client=fake)
+    mw = HyperstruckLearningMiddleware(agent_name="bot", client=fake)
     other = object()
     assert_innermost([other, mw], mw)  # innermost (last): no raise
 
 
 def test_assert_innermost_raises_when_not_last() -> None:
     fake = FakeLearningClient()
-    mw = HyperstruckLearningMiddleware(agent_id="bot", client=fake)
+    mw = HyperstruckLearningMiddleware(agent_name="bot", client=fake)
     other = object()
     with pytest.raises(ValueError, match="innermost"):
         assert_innermost([mw, other], mw)
@@ -204,8 +204,8 @@ def test_assert_innermost_raises_when_not_last() -> None:
 
 async def test_per_invoke_identity_override(monkeypatch: pytest.MonkeyPatch) -> None:
     fake = FakeLearningClient()
-    mw = HyperstruckLearningMiddleware(agent_id="default-bot", client=fake)
-    override = AgentIdentity(agent_id="tenant-2-bot", org_id="org-2")
+    mw = HyperstruckLearningMiddleware(agent_name="default-bot", client=fake)
+    override = AgentIdentity(agent_name="tenant-2-bot", org_id="org-2")
 
     def fake_config(key):
         return override if key == mw_module.IDENTITY_CONFIG_KEY else None

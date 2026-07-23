@@ -11,6 +11,7 @@ import pytest
 import hyperstruck.ide.install as install
 
 _REAL_ENSURE_DURABLE_VENV = install._ensure_durable_venv
+_AGENT_UUID = "11111111-1111-4111-8111-111111111111"
 
 
 @pytest.fixture(autouse=True)
@@ -28,12 +29,13 @@ def _dirs(tmp_path, monkeypatch):
     for var in (
         "HYPER_API_KEY",
         "HYPER_BASE_URL",
+        "HYPER_AGENT_NAME",
         "HYPER_AGENT_ID",
+        "HYPER_LEARNING_AGENT_NAME",
         "HYPER_LEARNING_AGENT_ID",
     ):
         monkeypatch.delenv(var, raising=False)
-    # Skip slow venv/pip work in unit tests; hook paths still use HYPER_IDE_VENV.
-    monkeypatch.setattr(install, "_ensure_durable_venv", lambda report: venv_dir)
+    monkeypatch.setattr(install, "_ensure_durable_venv", lambda report: True)
     return claude, cursor, venv_dir
 
 
@@ -49,9 +51,9 @@ def _expected_hook_python(venv_dir: Path) -> str:
 def test_wires_both_editors_and_is_idempotent(_dirs) -> None:
     claude, cursor, venv_dir = _dirs
     install.install(validate=False)
-    install.install(validate=False)  # twice
+    install.install(validate=False)
     cmds = _claude_cmds(claude)
-    assert sum("hyperstruck.ide.hook" in c for c in cmds) == 1  # no duplicate
+    assert sum("hyperstruck.ide.hook" in c for c in cmds) == 1
     cursor_cfg = json.loads((cursor / "hooks.json").read_text())
     assert set(cursor_cfg["hooks"]) == {
         "beforeSubmitPrompt",
@@ -60,15 +62,12 @@ def test_wires_both_editors_and_is_idempotent(_dirs) -> None:
         "afterShellExecution",
         "stop",
     }
-    # resolve runs on beforeSubmitPrompt; injection rides postToolUse (--inject).
     assert "--inject" in cursor_cfg["hooks"]["postToolUse"][0]["command"]
     assert "prompt" in cursor_cfg["hooks"]["beforeSubmitPrompt"][0]["command"]
-    # Hooks point at the durable IDE venv, not the project interpreter.
     expected = _expected_hook_python(venv_dir)
     assert expected in cmds[0]
     assert sys.executable not in cmds[0]
     assert expected in cursor_cfg["hooks"]["beforeSubmitPrompt"][0]["command"]
-    # The legacy .mdc nudge is no longer written.
     assert not (cursor / "rules" / "hyperstruck-learning.mdc").exists()
 
 
@@ -96,7 +95,6 @@ def test_unparseable_config_backed_up_and_skipped(_dirs) -> None:
     (claude / "settings.json").write_text("{ this is not json")
     install.install(validate=False)
     assert (claude / "settings.json.bak").exists()
-    # Original left untouched (still not valid json), not overwritten.
     assert (claude / "settings.json").read_text() == "{ this is not json"
 
 
@@ -114,7 +112,6 @@ def test_uninstall_removes_only_ours(_dirs) -> None:
         )
     )
     install.install(validate=False)
-    # Durable venv is left in place (and may not exist when ensure is mocked).
     venv_dir.mkdir(parents=True, exist_ok=True)
     (venv_dir / "marker").write_text("keep")
     install.uninstall()
@@ -124,29 +121,118 @@ def test_uninstall_removes_only_ours(_dirs) -> None:
 
 def test_single_agent_wired_automatically(_dirs, monkeypatch) -> None:
     monkeypatch.setattr(
-        install, "_list_agents", lambda key, base: [{"id": "only-agent"}]
+        install,
+        "_list_agents",
+        lambda key, base: [{"id": _AGENT_UUID, "name": "only-agent"}],
     )
     install.install(api_key="k", validate=False)
     env = (install.env_file()).read_text()
-    assert "HYPER_AGENT_ID=only-agent" in env
+    assert "HYPER_AGENT_NAME=only-agent" in env
+    assert f"HYPER_AGENT_ID={_AGENT_UUID}" in env
     assert "HYPER_API_KEY=k" in env
 
 
 def test_multiple_agents_left_for_user(_dirs, monkeypatch) -> None:
     monkeypatch.setattr(
-        install, "_list_agents", lambda key, base: [{"id": "a"}, {"id": "b"}]
+        install,
+        "_list_agents",
+        lambda key, base: [
+            {"id": _AGENT_UUID, "name": "a"},
+            {"id": "22222222-2222-4222-8222-222222222222", "name": "b"},
+        ],
     )
     report = install.install(api_key="k", validate=False)
     assert any("multiple agents" in w for w in report.warnings)
-    assert "HYPER_AGENT_ID" not in (install.env_file()).read_text()
+    env = (install.env_file()).read_text()
+    assert "HYPER_AGENT_NAME" not in env
+    assert "HYPER_AGENT_ID" not in env
 
 
-def test_explicit_agent_id_wins(_dirs, monkeypatch) -> None:
+def test_explicit_agent_name_wins(_dirs, monkeypatch) -> None:
     monkeypatch.setattr(
-        install, "_list_agents", lambda key, base: [{"id": "a"}, {"id": "b"}]
+        install,
+        "_list_agents",
+        lambda key, base: [
+            {"id": _AGENT_UUID, "name": "a"},
+            {"id": "22222222-2222-4222-8222-222222222222", "name": "b"},
+        ],
     )
-    install.install(api_key="k", agent_id="chosen", validate=False)
-    assert "HYPER_AGENT_ID=chosen" in (install.env_file()).read_text()
+    install.install(api_key="k", agent_name="chosen", validate=False)
+    env = (install.env_file()).read_text()
+    assert "HYPER_AGENT_NAME=chosen" in env
+
+
+def test_explicit_agent_uuid_resolves_name(_dirs, monkeypatch) -> None:
+    monkeypatch.setattr(
+        install,
+        "_list_agents",
+        lambda key, base: [{"id": _AGENT_UUID, "name": "resolved-name"}],
+    )
+    install.install(api_key="k", agent_id=_AGENT_UUID, validate=False)
+    env = (install.env_file()).read_text()
+    assert "HYPER_AGENT_NAME=resolved-name" in env
+    assert f"HYPER_AGENT_ID={_AGENT_UUID}" in env
+
+
+def test_rerun_migrates_managed_legacy_learning_agent_name(_dirs) -> None:
+    path = install.env_file()
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_text("HYPER_API_KEY=k\nHYPER_LEARNING_AGENT_ID=legacy-agent\n")
+
+    install.install(validate=False)
+
+    env = install.env_file().read_text()
+    assert "HYPER_AGENT_NAME=legacy-agent" in env
+    assert "HYPER_LEARNING_AGENT_ID" not in env
+
+
+def test_rerun_migrates_managed_legacy_agent_name(_dirs) -> None:
+    path = install.env_file()
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_text("HYPER_API_KEY=k\nHYPER_AGENT_ID=legacy-agent\n")
+
+    install.install(validate=False)
+
+    env = install.env_file().read_text()
+    assert "HYPER_AGENT_NAME=legacy-agent" in env
+    assert "HYPER_AGENT_ID=legacy-agent" not in env
+
+
+def test_rerun_migrates_managed_legacy_agent_uuid(_dirs, monkeypatch) -> None:
+    monkeypatch.setattr(
+        install,
+        "_list_agents",
+        lambda key, base: [{"id": _AGENT_UUID, "name": "resolved-name"}],
+    )
+    path = install.env_file()
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_text(f"HYPER_API_KEY=k\nHYPER_AGENT_ID={_AGENT_UUID}\n")
+
+    install.install(validate=False)
+
+    env = install.env_file().read_text()
+    assert "HYPER_AGENT_NAME=resolved-name" in env
+    assert f"HYPER_AGENT_ID={_AGENT_UUID}" in env
+
+
+def test_rerun_migrates_managed_legacy_learning_agent_uuid(
+    _dirs, monkeypatch
+) -> None:
+    monkeypatch.setattr(
+        install,
+        "_list_agents",
+        lambda key, base: [{"id": _AGENT_UUID, "name": "resolved-name"}],
+    )
+    path = install.env_file()
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_text(f"HYPER_API_KEY=k\nHYPER_LEARNING_AGENT_ID={_AGENT_UUID}\n")
+
+    install.install(validate=False)
+
+    env = install.env_file().read_text()
+    assert "HYPER_AGENT_NAME=resolved-name" in env
+    assert f"HYPER_AGENT_ID={_AGENT_UUID}" in env
+    assert "HYPER_LEARNING_AGENT_ID" not in env
 
 
 def test_ensure_durable_venv_creates_and_syncs(tmp_path, monkeypatch) -> None:
@@ -154,7 +240,6 @@ def test_ensure_durable_venv_creates_and_syncs(tmp_path, monkeypatch) -> None:
     venv_dir = home / "venv"
     monkeypatch.setenv("HYPER_HOME", str(home))
     monkeypatch.setenv("HYPER_IDE_VENV", str(venv_dir))
-    # Restore the real ensure (autouse fixture stubs it for other tests).
     monkeypatch.setattr(install, "_ensure_durable_venv", _REAL_ENSURE_DURABLE_VENV)
     synced: list[Path] = []
 
@@ -163,9 +248,10 @@ def test_ensure_durable_venv_creates_and_syncs(tmp_path, monkeypatch) -> None:
         report.did(f"Installed hyperstruck into durable venv ({path})")
 
     monkeypatch.setattr(install, "_sync_package_into_venv", fake_sync)
+    monkeypatch.setattr(install, "_durable_venv_importable", lambda report, path: True)
     report = install.Report()
     result = install._ensure_durable_venv(report)
-    assert result == venv_dir
+    assert result is True
     assert install._venv_python(venv_dir).is_file()
     assert synced == [venv_dir]
     assert any("Created durable IDE venv" in a for a in report.actions)

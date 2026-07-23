@@ -100,11 +100,11 @@ class DistillJob:
     """A corpus distillation job, ready to ship to ``POST /distill``.
 
     Unlike an ``Episode`` this is the whole flat request body (it carries its own
-    ``agent_id``): a distillation job stands outside the resolve/observe/reinforce loop, so
+    ``agent_name``): a distillation job stands outside the resolve/observe/reinforce loop, so
     there is no wrapping envelope. ``run_id`` must be namespaced ``distill:``.
     """
 
-    agent_id: str
+    agent_name: str
     run_id: str
     goal: str
     evidence: tuple[EvidenceItem, ...]
@@ -120,7 +120,7 @@ class DistillJob:
     def to_payload(self) -> dict[str, Any]:
         """Serialise to the JSON body the platform expects."""
         return {
-            "agent_id": self.agent_id,
+            "agent_name": self.agent_name,
             "org_id": self.org_id,
             "run_id": self.run_id,
             "goal": self.goal,

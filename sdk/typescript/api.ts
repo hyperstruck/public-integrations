@@ -1985,11 +1985,11 @@ export interface DistillOutcomeModel {
  */
 export interface DistillRequest {
     /**
-     * Caller-defined agent identifier. This is a string, not the hosted agent UUID used in `/agents/{agent_id}` paths.
+     * Human-readable agent name, unique within your tenant. Not the hosted agent UUID used in `/agents/{agent_id}` REST paths. If no agent with this name exists yet, the platform creates one automatically on the first boundary call. Reuse the same name to target the same learning corpus.
      * @type {any}
      * @memberof DistillRequest
      */
-    agentId: any;
+    agentName: any;
     /**
      * Optional caller-owned organisation reference.
      * @type {any}
@@ -3552,7 +3552,7 @@ export interface ObserveRequest {
      * @type {any}
      * @memberof ObserveRequest
      */
-    agentId: any;
+    agentName: any;
     /**
      * Optional caller-owned organisation reference.
      * @type {any}
@@ -4270,7 +4270,7 @@ export interface ReinforceRequest {
      * @type {any}
      * @memberof ReinforceRequest
      */
-    agentId: any;
+    agentName: any;
     /**
      * Optional caller-owned organisation reference.
      * @type {any}
@@ -4409,11 +4409,11 @@ export interface RenderedText {
  */
 export interface ResolveRequest {
     /**
-     * Caller-defined agent identifier. This is a string, not the hosted agent UUID used in `/agents/{agent_id}` paths.
+     * Human-readable agent name, unique within your tenant. Not the hosted agent UUID used in `/agents/{agent_id}` REST paths. If no agent with this name exists yet, the platform creates one automatically on the first boundary call. Reuse the same name to target the same learning corpus.
      * @type {any}
      * @memberof ResolveRequest
      */
-    agentId: any;
+    agentName: any;
     /**
      * Optional caller-owned organisation reference.
      * @type {any}
@@ -8661,6 +8661,100 @@ export class EntitlementsApi extends BaseAPI {
  * LearningBoundaryApi - fetch parameter creator
  * @export
  */
+const boundaryDefined = (value: any): boolean => value !== undefined;
+
+const boundaryValue = (body: any, camelKey: string, snakeKey: string): any => {
+    const camelValue = body[camelKey];
+    if (boundaryDefined(camelValue)) {
+        return camelValue;
+    }
+    return body[snakeKey];
+};
+
+const boundaryCompact = (body: any): any => {
+    const compacted = {} as any;
+    for (const key of Object.keys(body)) {
+        const value = body[key];
+        if (boundaryDefined(value)) {
+            compacted[key] = value;
+        }
+    }
+    return compacted;
+};
+
+const boundaryEpisode = (episode: any): any => {
+    if (!episode || typeof episode !== "object") {
+        return episode;
+    }
+    return boundaryCompact({
+        run_id: boundaryValue(episode, "runId", "run_id"),
+        goal: episode.goal,
+        steps: Array.isArray(episode.steps)
+            ? episode.steps.map((step: any) => boundaryCompact({
+                id: step.id,
+                name: step.name,
+                args: step.args,
+                status: step.status,
+                result: step.result,
+                error: step.error,
+                declared_sensitivity: boundaryValue(step, "declaredSensitivity", "declared_sensitivity"),
+            }))
+            : episode.steps,
+        outcome: episode.outcome ? boundaryCompact({
+            is_success: boundaryValue(episode.outcome, "isSuccess", "is_success"),
+            total_steps: boundaryValue(episode.outcome, "totalSteps", "total_steps"),
+            completed_steps: boundaryValue(episode.outcome, "completedSteps", "completed_steps"),
+            failed_steps: boundaryValue(episode.outcome, "failedSteps", "failed_steps"),
+        }) : episode.outcome,
+        source_framework: boundaryValue(episode, "sourceFramework", "source_framework"),
+        thread_id: boundaryValue(episode, "threadId", "thread_id"),
+    });
+};
+
+const boundaryDistillOutcome = (outcome: any): any => {
+    if (!outcome || typeof outcome !== "object") {
+        return outcome;
+    }
+    return boundaryCompact({
+        is_success: boundaryValue(outcome, "isSuccess", "is_success"),
+        summary: outcome.summary,
+    });
+};
+
+const boundaryEvidence = (evidence: any): any => {
+    if (!Array.isArray(evidence)) {
+        return evidence;
+    }
+    return evidence.map((item: any) => boundaryCompact({
+        id: item.id,
+        content: item.content,
+        label: item.label,
+        role: item.role,
+        status: item.status,
+        source_ref: boundaryValue(item, "sourceRef", "source_ref"),
+    }));
+};
+
+const serializeLearningBoundaryRequest = (body: any): any => boundaryCompact({
+    agent_name: boundaryValue(body, "agentName", "agent_name"),
+    org_id: boundaryValue(body, "orgId", "org_id"),
+    run_id: boundaryValue(body, "runId", "run_id"),
+    goal: body.goal,
+    source_framework: boundaryValue(body, "sourceFramework", "source_framework"),
+    available_tools: boundaryValue(body, "availableTools", "available_tools"),
+    max_learnings: boundaryValue(body, "maxLearnings", "max_learnings"),
+    model_context_window: boundaryValue(body, "modelContextWindow", "model_context_window"),
+    retrieval: body.retrieval,
+    resolve_idempotency_key: boundaryValue(body, "resolveIdempotencyKey", "resolve_idempotency_key"),
+    episode: boundaryEpisode(body.episode),
+    is_org_promotion_allowed: boundaryValue(body, "isOrgPromotionAllowed", "is_org_promotion_allowed"),
+    evidence: boundaryEvidence(body.evidence),
+    outcome: boundaryDistillOutcome(body.outcome),
+    evaluation: body.evaluation,
+    synthesis_notes: boundaryValue(body, "synthesisNotes", "synthesis_notes"),
+    occurred_at: boundaryValue(body, "occurredAt", "occurred_at"),
+});
+
 export const LearningBoundaryApiFetchParamCreator = function (configuration?: Configuration) {
     return {
         /**
@@ -8696,7 +8790,7 @@ export const LearningBoundaryApiFetchParamCreator = function (configuration?: Co
             localVarUrlObj.search = null;
             localVarRequestOptions.headers = Object.assign({}, localVarHeaderParameter, options.headers);
             const needsSerialization = (<any>"DistillRequest" !== "string") || localVarRequestOptions.headers['Content-Type'] === 'application/json';
-            localVarRequestOptions.body =  needsSerialization ? JSON.stringify(body || {}) : (body || "");
+            localVarRequestOptions.body =  needsSerialization ? JSON.stringify(serializeLearningBoundaryRequest(body || {})) : (body || "");
 
             return {
                 url: url.format(localVarUrlObj),
@@ -8777,7 +8871,7 @@ export const LearningBoundaryApiFetchParamCreator = function (configuration?: Co
             localVarUrlObj.search = null;
             localVarRequestOptions.headers = Object.assign({}, localVarHeaderParameter, options.headers);
             const needsSerialization = (<any>"ObserveRequest" !== "string") || localVarRequestOptions.headers['Content-Type'] === 'application/json';
-            localVarRequestOptions.body =  needsSerialization ? JSON.stringify(body || {}) : (body || "");
+            localVarRequestOptions.body =  needsSerialization ? JSON.stringify(serializeLearningBoundaryRequest(body || {})) : (body || "");
 
             return {
                 url: url.format(localVarUrlObj),
@@ -8817,7 +8911,7 @@ export const LearningBoundaryApiFetchParamCreator = function (configuration?: Co
             localVarUrlObj.search = null;
             localVarRequestOptions.headers = Object.assign({}, localVarHeaderParameter, options.headers);
             const needsSerialization = (<any>"ReinforceRequest" !== "string") || localVarRequestOptions.headers['Content-Type'] === 'application/json';
-            localVarRequestOptions.body =  needsSerialization ? JSON.stringify(body || {}) : (body || "");
+            localVarRequestOptions.body =  needsSerialization ? JSON.stringify(serializeLearningBoundaryRequest(body || {})) : (body || "");
 
             return {
                 url: url.format(localVarUrlObj),
@@ -8857,7 +8951,7 @@ export const LearningBoundaryApiFetchParamCreator = function (configuration?: Co
             localVarUrlObj.search = null;
             localVarRequestOptions.headers = Object.assign({}, localVarHeaderParameter, options.headers);
             const needsSerialization = (<any>"ResolveRequest" !== "string") || localVarRequestOptions.headers['Content-Type'] === 'application/json';
-            localVarRequestOptions.body =  needsSerialization ? JSON.stringify(body || {}) : (body || "");
+            localVarRequestOptions.body =  needsSerialization ? JSON.stringify(serializeLearningBoundaryRequest(body || {})) : (body || "");
 
             return {
                 url: url.format(localVarUrlObj),

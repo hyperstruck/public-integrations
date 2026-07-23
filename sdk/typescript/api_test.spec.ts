@@ -222,6 +222,7 @@ describe("EntitlementsApi", () => {
 
 describe("LearningBoundaryApi", () => {
   let instance: api.LearningBoundaryApi
+  const boundaryParams = api.LearningBoundaryApiFetchParamCreator(config)
   beforeEach(function() {
     instance = new api.LearningBoundaryApi(config)
   });
@@ -246,6 +247,167 @@ describe("LearningBoundaryApi", () => {
   test("resolveEndpointResolvePost", () => {
     const body: api.ResolveRequest = undefined
     return expect(instance.resolveEndpointResolvePost(body, {})).resolves.toBe(null)
+  })
+
+  test("serializes boundary requests with snake_case wire keys", () => {
+    const episode: api.EpisodeModel = {
+      runId: "run-1",
+      goal: "ship safely",
+      steps: [
+        {
+          id: "step-1",
+          name: "lookup",
+          args: { keepCamelCase: true },
+          status: "completed",
+          result: { keepNestedData: true },
+        },
+      ],
+      outcome: {
+        isSuccess: true,
+        totalSteps: 1,
+        completedSteps: 1,
+        failedSteps: 0,
+      },
+      sourceFramework: "jest",
+    }
+    const resolve = JSON.parse(boundaryParams.resolveEndpointResolvePost({
+      agentName: "agent-a",
+      orgId: "org-a",
+      runId: "run-1",
+      goal: "ship safely",
+      sourceFramework: "jest",
+      availableTools: [{ name: "lookup" }],
+      maxLearnings: 3,
+      modelContextWindow: 1000,
+      retrieval: "fast",
+      resolveIdempotencyKey: "turn-1",
+    }, {}).options.body as string)
+    const observe = JSON.parse(boundaryParams.observeEndpointObservePost({
+      agentName: "agent-a",
+      episode,
+    }, {}).options.body as string)
+    const reinforce = JSON.parse(boundaryParams.reinforceEndpointReinforcePost({
+      agentName: "agent-a",
+      episode,
+      isOrgPromotionAllowed: true,
+    }, {}).options.body as string)
+    const distill = JSON.parse(boundaryParams.distillEndpointDistillPost({
+      agentName: "agent-a",
+      runId: "distill:run-1",
+      goal: "extract",
+      evidence: [{ id: "e1", content: "text", sourceRef: "doc" }],
+      outcome: { isSuccess: true, summary: "done" },
+      synthesisNotes: "notes",
+      sourceFramework: "jest",
+      occurredAt: "2026-07-23T00:00:00Z",
+    }, {}).options.body as string)
+
+    expect(resolve).toMatchObject({
+      agent_name: "agent-a",
+      org_id: "org-a",
+      run_id: "run-1",
+      source_framework: "jest",
+      available_tools: [{ name: "lookup" }],
+      max_learnings: 3,
+      model_context_window: 1000,
+      resolve_idempotency_key: "turn-1",
+    })
+    expect(resolve.agentName).toBeUndefined()
+    expect(observe).toMatchObject({
+      agent_name: "agent-a",
+      episode: {
+        run_id: "run-1",
+        source_framework: "jest",
+        outcome: { is_success: true, total_steps: 1 },
+      },
+    })
+    expect(observe.episode.steps[0].args).toEqual({ keepCamelCase: true })
+    expect(reinforce).toMatchObject({
+      agent_name: "agent-a",
+      is_org_promotion_allowed: true,
+      episode: { run_id: "run-1" },
+    })
+    expect(distill).toMatchObject({
+      agent_name: "agent-a",
+      run_id: "distill:run-1",
+      evidence: [{ id: "e1", content: "text", source_ref: "doc" }],
+      outcome: { is_success: true, summary: "done" },
+      synthesis_notes: "notes",
+      source_framework: "jest",
+      occurred_at: "2026-07-23T00:00:00Z",
+    })
+  })
+
+  test("preserves already snake_case boundary request inputs", () => {
+    const resolve = JSON.parse(boundaryParams.resolveEndpointResolvePost({
+      agent_name: "agent-a",
+      org_id: "org-a",
+      run_id: "run-1",
+      goal: "ship safely",
+      source_framework: "jest",
+      available_tools: [{ name: "lookup" }],
+      max_learnings: 3,
+      model_context_window: 1000,
+      resolve_idempotency_key: "turn-1",
+    } as any, {}).options.body as string)
+    const observe = JSON.parse(boundaryParams.observeEndpointObservePost({
+      agent_name: "agent-a",
+      episode: {
+        run_id: "run-1",
+        goal: "ship safely",
+        steps: [{ id: "step-1", name: "lookup", declared_sensitivity: { token: { level: "secret" } } }],
+        outcome: { is_success: true, total_steps: 1, completed_steps: 1, failed_steps: 0 },
+        source_framework: "jest",
+      },
+    } as any, {}).options.body as string)
+    const reinforce = JSON.parse(boundaryParams.reinforceEndpointReinforcePost({
+      agent_name: "agent-a",
+      episode: observe.episode,
+      is_org_promotion_allowed: true,
+    } as any, {}).options.body as string)
+    const distill = JSON.parse(boundaryParams.distillEndpointDistillPost({
+      agent_name: "agent-a",
+      run_id: "distill:run-1",
+      goal: "extract",
+      evidence: [{ id: "e1", content: "text", source_ref: "doc" }],
+      outcome: { is_success: true, summary: "done" },
+      synthesis_notes: "notes",
+      source_framework: "jest",
+      occurred_at: "2026-07-23T00:00:00Z",
+    } as any, {}).options.body as string)
+
+    expect(resolve).toMatchObject({
+      agent_name: "agent-a",
+      org_id: "org-a",
+      run_id: "run-1",
+      available_tools: [{ name: "lookup" }],
+      max_learnings: 3,
+      model_context_window: 1000,
+      resolve_idempotency_key: "turn-1",
+    })
+    expect(observe).toMatchObject({
+      agent_name: "agent-a",
+      episode: {
+        run_id: "run-1",
+        source_framework: "jest",
+        outcome: { is_success: true, total_steps: 1 },
+        steps: [{ declared_sensitivity: { token: { level: "secret" } } }],
+      },
+    })
+    expect(reinforce).toMatchObject({
+      agent_name: "agent-a",
+      is_org_promotion_allowed: true,
+      episode: { run_id: "run-1" },
+    })
+    expect(distill).toMatchObject({
+      agent_name: "agent-a",
+      run_id: "distill:run-1",
+      evidence: [{ source_ref: "doc" }],
+      outcome: { is_success: true },
+      synthesis_notes: "notes",
+      source_framework: "jest",
+      occurred_at: "2026-07-23T00:00:00Z",
+    })
   })
 })
 

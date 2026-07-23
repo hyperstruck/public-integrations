@@ -28,7 +28,7 @@ class DistillRequest(object):
                             and the value is json key in definition.
     """
     swagger_types = {
-        'agent_id': 'object',
+        'agent_name': 'object',
         'org_id': 'object',
         'run_id': 'object',
         'goal': 'object',
@@ -41,7 +41,7 @@ class DistillRequest(object):
     }
 
     attribute_map = {
-        'agent_id': 'agent_id',
+        'agent_name': 'agent_name',
         'org_id': 'org_id',
         'run_id': 'run_id',
         'goal': 'goal',
@@ -53,9 +53,9 @@ class DistillRequest(object):
         'occurred_at': 'occurred_at'
     }
 
-    def __init__(self, agent_id=None, org_id=None, run_id=None, goal=None, evidence=None, outcome=None, evaluation=None, synthesis_notes=None, source_framework=None, occurred_at=None):  # noqa: E501
+    def __init__(self, agent_name=None, org_id=None, run_id=None, goal=None, evidence=None, outcome=None, evaluation=None, synthesis_notes=None, source_framework=None, occurred_at=None):  # noqa: E501
         """DistillRequest - a model defined in Swagger"""  # noqa: E501
-        self._agent_id = None
+        self._agent_name = None
         self._org_id = None
         self._run_id = None
         self._goal = None
@@ -66,7 +66,7 @@ class DistillRequest(object):
         self._source_framework = None
         self._occurred_at = None
         self.discriminator = None
-        self.agent_id = agent_id
+        self.agent_name = agent_name
         if org_id is not None:
             self.org_id = org_id
         self.run_id = run_id
@@ -84,29 +84,29 @@ class DistillRequest(object):
             self.occurred_at = occurred_at
 
     @property
-    def agent_id(self):
-        """Gets the agent_id of this DistillRequest.  # noqa: E501
+    def agent_name(self):
+        """Gets the agent_name of this DistillRequest.  # noqa: E501
 
-        Caller-defined agent identifier. This is a string, not the hosted agent UUID used in `/agents/{agent_id}` paths.  # noqa: E501
+        Human-readable agent name. This is a string, not the hosted agent UUID used in `/agents/{agent_id}` paths.  # noqa: E501
 
-        :return: The agent_id of this DistillRequest.  # noqa: E501
+        :return: The agent_name of this DistillRequest.  # noqa: E501
         :rtype: object
         """
-        return self._agent_id
+        return self._agent_name
 
-    @agent_id.setter
-    def agent_id(self, agent_id):
-        """Sets the agent_id of this DistillRequest.
+    @agent_name.setter
+    def agent_name(self, agent_name):
+        """Sets the agent_name of this DistillRequest.
 
-        Caller-defined agent identifier. This is a string, not the hosted agent UUID used in `/agents/{agent_id}` paths.  # noqa: E501
+        Human-readable agent name. This is a string, not the hosted agent UUID used in `/agents/{agent_id}` paths.  # noqa: E501
 
-        :param agent_id: The agent_id of this DistillRequest.  # noqa: E501
+        :param agent_name: The agent_name of this DistillRequest.  # noqa: E501
         :type: object
         """
-        if agent_id is None:
-            raise ValueError("Invalid value for `agent_id`, must not be `None`")  # noqa: E501
+        if agent_name is None:
+            raise ValueError("Invalid value for `agent_name`, must not be `None`")  # noqa: E501
 
-        self._agent_id = agent_id
+        self._agent_name = agent_name
 
     @property
     def org_id(self):

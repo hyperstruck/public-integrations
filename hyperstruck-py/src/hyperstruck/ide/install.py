@@ -31,6 +31,8 @@ from pathlib import Path
 from typing import Any
 from urllib.parse import unquote, urlparse
 
+from uuid import UUID
+
 from hyperstruck.ide.config import load_env
 from hyperstruck.ide.constants import (
     SOURCE_CLAUDE_CODE,
@@ -86,14 +88,22 @@ def install(
     *,
     api_key: str | None = None,
     base_url: str | None = None,
+    agent_name: str | None = None,
     agent_id: str | None = None,
     validate: bool = True,
 ) -> Report:
     """Install skills, wire hooks, and record auth for every editor present."""
     report = Report()
     durable_ready = _ensure_durable_venv(report)
+    load_env()
     key, url = _write_auth(report, api_key=api_key, base_url=base_url)
-    _resolve_ambient_agent(report, agent_id=agent_id, key=key, base_url=url)
+    _resolve_ambient_agent(
+        report,
+        agent_name=agent_name,
+        agent_id=agent_id,
+        key=key,
+        base_url=url,
+    )
 
     if _claude_dir().is_dir():
         _install_claude(report, wire_hooks=durable_ready)
@@ -483,36 +493,112 @@ def _write_auth(
 
 
 def _resolve_ambient_agent(
-    report: Report, *, agent_id: str | None, key: str | None, base_url: str | None
+    report: Report,
+    *,
+    agent_name: str | None,
+    agent_id: str | None,
+    key: str | None,
+    base_url: str | None,
 ) -> None:
-    """Pick the agent the ambient hook loop feeds, and persist it as HYPER_AGENT_ID.
+    """Persist ``HYPER_AGENT_NAME`` (boundary) and ``HYPER_AGENT_ID`` (REST UUID).
 
-    Identity is the customer's configured agent, never the repo. An explicit
-    choice wins; otherwise a single-agent tenant is wired automatically; a
-    multi-agent tenant is left for the user to choose (the skills still select an
-    agent per task, so only the ambient loop waits on this).
+    The ambient hook loop reads the **name** for ``/resolve`` and ``/observe``.
+    REST skills read the hosted agent **UUID** for ``/agents/{agent_id}/...``.
+    When only one is supplied, the other is resolved from ``GET /agents`` when
+    possible.
     """
-    chosen = (
-        agent_id
-        or os.environ.get("HYPER_AGENT_ID")
-        or os.environ.get("HYPER_LEARNING_AGENT_ID")
-    )
-    if not chosen and key:
-        agents = _list_agents(key, base_url)
+    explicit_name = (agent_name or os.environ.get("HYPER_AGENT_NAME") or "").strip()
+    explicit_id = (agent_id or os.environ.get("HYPER_AGENT_ID") or "").strip()
+    legacy_loop = (os.environ.get("HYPER_LEARNING_AGENT_ID") or "").strip()
+    if legacy_loop and not explicit_name:
+        if _looks_like_uuid(legacy_loop) and not explicit_id:
+            explicit_id = legacy_loop
+        else:
+            explicit_name = legacy_loop
+
+    # Backward compat: a lone legacy HYPER_AGENT_ID may hold either a name or UUID.
+    if not explicit_name and explicit_id and not _looks_like_uuid(explicit_id):
+        explicit_name = explicit_id
+        explicit_id = ""
+
+    agents = _list_agents(key, base_url) if key else []
+
+    resolved_name = explicit_name
+    resolved_id = explicit_id if explicit_id and _looks_like_uuid(explicit_id) else ""
+
+    if resolved_id and not resolved_name:
+        match = _find_agent_by_id(agents, resolved_id)
+        if match:
+            resolved_name = str(match.get("name") or "").strip()
+
+    if resolved_name and not resolved_id:
+        match = _find_agent_by_name(agents, resolved_name)
+        if match:
+            resolved_id = str(match.get("id") or match.get("agent_id") or "").strip()
+
+    if not resolved_name and not resolved_id and agents:
         if len(agents) == 1:
-            chosen = agents[0].get("id") or agents[0].get("agent_id")
+            agent = agents[0]
+            resolved_name = str(agent.get("name") or "").strip()
+            resolved_id = str(agent.get("id") or agent.get("agent_id") or "").strip()
         elif len(agents) > 1:
             report.warn(
                 "You have multiple agents; the ambient loop needs one to feed. Re-run with "
-                "--agent-id <id> (or set HYPER_AGENT_ID). The skills still pick an agent per task."
+                "--agent-name <name> (and optionally --agent-id <uuid>). REST skills use "
+                "HYPER_AGENT_ID; the hook loop uses HYPER_AGENT_NAME."
             )
         else:
             report.warn(
                 "No agents found for this key; create one in the dashboard, then re-run."
             )
-    if chosen:
-        _upsert_env({"HYPER_AGENT_ID": chosen})
-        report.did(f"Ambient loop will learn into agent {chosen}")
+
+    updates: dict[str, str | None] = {
+        "HYPER_LEARNING_AGENT_ID": None,
+        "HYPER_LEARNING_AGENT_NAME": None,
+    }
+    if resolved_name:
+        updates["HYPER_AGENT_NAME"] = resolved_name
+    if resolved_id and _looks_like_uuid(resolved_id):
+        updates["HYPER_AGENT_ID"] = resolved_id
+    else:
+        updates["HYPER_AGENT_ID"] = None
+    if updates:
+        _upsert_env(updates)
+    if resolved_name:
+        detail = resolved_name
+        if resolved_id:
+            detail = f"{resolved_name} (REST id {resolved_id})"
+        report.did(f"Ambient loop will learn into agent {detail}")
+
+
+def _looks_like_uuid(value: str) -> bool:
+    try:
+        UUID(value)
+    except ValueError:
+        return False
+    return True
+
+
+def _find_agent_by_id(
+    agents: list[dict[str, Any]], agent_id: str
+) -> dict[str, Any] | None:
+    needle = agent_id.strip().lower()
+    for agent in agents:
+        raw = agent.get("id") or agent.get("agent_id")
+        if raw and str(raw).strip().lower() == needle:
+            return agent
+    return None
+
+
+def _find_agent_by_name(
+    agents: list[dict[str, Any]], name: str
+) -> dict[str, Any] | None:
+    needle = name.strip().lower()
+    for agent in agents:
+        raw = agent.get("name")
+        if raw and str(raw).strip().lower() == needle:
+            return agent
+    return None
 
 
 def _list_agents(key: str, base_url: str | None) -> list[dict[str, Any]]:
@@ -641,6 +727,8 @@ def _upsert_env(updates: dict[str, str | None]) -> None:
                 order.append(key)
     for key, value in updates.items():
         if value is None:
+            existing.pop(key, None)
+            order = [k for k in order if k != key]
             continue
         if key not in existing:
             order.append(key)
@@ -679,9 +767,14 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--api-key", default=None)
     parser.add_argument("--base-url", default=None)
     parser.add_argument(
+        "--agent-name",
+        default=None,
+        help="Boundary agent name for the ambient learning loop (HYPER_AGENT_NAME)",
+    )
+    parser.add_argument(
         "--agent-id",
         default=None,
-        help="Agent the ambient loop feeds (defaults to your single agent)",
+        help="Hosted agent UUID for REST skills (HYPER_AGENT_ID); resolved from name when omitted",
     )
     parser.add_argument("--no-validate", action="store_true")
     args = parser.parse_args(argv)
@@ -691,6 +784,7 @@ def main(argv: list[str] | None = None) -> int:
         else install(
             api_key=args.api_key,
             base_url=args.base_url,
+            agent_name=args.agent_name,
             agent_id=args.agent_id,
             validate=not args.no_validate,
         )

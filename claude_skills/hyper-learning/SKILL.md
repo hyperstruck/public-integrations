@@ -37,7 +37,7 @@ If `HYPER_API_KEY_SET=no` above, check `.env` for a `HYPER_API_KEY=` line. If st
 
 - **Base URL**: `HYPER_BASE_URL` from above, defaulting to `https://api.hyperstruck.com`.
 - **API key**: Resolved above. **Never echo it.**
-- **Agent ID**: `HYPER_AGENT_ID` from above. If `<not set>`, call `GET {BASE_URL}/agents?limit=50` and ask the user to pick an agent (learnings are scoped per agent).
+- **Agent ID**: `HYPER_AGENT_ID` from above must be the hosted agent **UUID** (from `GET /agents`), not the agent name. If `<not set>`, call `GET {BASE_URL}/agents?limit=50` and ask the user to pick an agent (learnings are scoped per agent). For the automatic IDE hook loop, use `HYPER_AGENT_NAME` (agent name) instead — see `hyperstruck-py` install docs.
 - **Headers**:
   ```
   Authorization: Bearer <API_KEY>

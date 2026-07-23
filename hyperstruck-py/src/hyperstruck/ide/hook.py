@@ -38,7 +38,7 @@ from dataclasses import replace
 from typing import Any
 
 from hyperstruck.ide import outcome, state
-from hyperstruck.ide.config import configured_agent_id, load_env
+from hyperstruck.ide.config import configured_agent_name, load_env
 from hyperstruck.ide.constants import (
     DETACHED_RESOLVE_TIMEOUT,
     EVICTION_WINDOW_SECONDS,
@@ -71,14 +71,14 @@ def cmd_prompt(payload: dict[str, Any], args: argparse.Namespace) -> None:
     cwd = _cwd(payload, args)
     session_id = resolve_session_id(payload, cwd, args)
     goal = (args.goal or payload.get("prompt") or "").strip()
-    agent_id = configured_agent_id()
+    agent_name = configured_agent_name()
 
     # Read-only recall (the hyper-learning skill): resolve and print for this goal,
     # without touching any turn state, so an explicit recall never disturbs the
     # automatic loop. A throwaway run id keeps the offer un-reinforced.
     if args.readonly:
-        if agent_id:
-            text, _ = _resolve(agent_id, _new_run_id(agent_id, session_id), goal)
+        if agent_name:
+            text, _ = _resolve(agent_name, _new_run_id(agent_name, session_id), goal)
             _emit_injection(text, args)
         else:
             _debug("prompt(readonly): no agent configured")
@@ -93,16 +93,16 @@ def cmd_prompt(payload: dict[str, Any], args: argparse.Namespace) -> None:
     # 2. Sweep stale sessions on their provisional label (backstop delivery).
     _sweep_stale(exclude=session_id)
     # 3. No configured agent means nothing to learn into: fail open, no injection.
-    if not agent_id:
+    if not agent_name:
         _debug("prompt: no agent configured; loop idle, nothing to resolve")
         return
     # 4. Begin the new turn, then resolve outside the editor's prompt hook.
-    run_id = _new_run_id(agent_id, session_id)
+    run_id = _new_run_id(agent_name, session_id)
     state.write_active(
         session_id,
         ActiveTurn(
             run_id=run_id,
-            agent_id=agent_id,
+            agent_name=agent_name,
             goal=goal,
             source_framework=_source(args),
             started_at=time.time(),
@@ -130,18 +130,18 @@ def cmd_tool(payload: dict[str, Any], args: argparse.Namespace) -> None:
         _inject_pending(session_id, SOURCE_CURSOR)
         return
     if state.read_active(session_id) is None:
-        agent_id = configured_agent_id()
-        if not agent_id:
+        agent_name = configured_agent_name()
+        if not agent_name:
             _debug("tool: no agent configured; step not captured")
             return  # no agent configured: nothing to capture into, fail open
-        run_id = _new_run_id(agent_id, session_id)
+        run_id = _new_run_id(agent_name, session_id)
         # reset_steps=False: a parallel tool hook may already have written a step
         # for this turn; resetting the steps dir would drop it.
         state.write_active(
             session_id,
             ActiveTurn(
                 run_id=run_id,
-                agent_id=agent_id,
+                agent_name=agent_name,
                 goal="",
                 source_framework=_source(args),
                 started_at=time.time(),
@@ -188,7 +188,7 @@ def cmd_resolve(session_id: str) -> None:
         timeout = _env_float(RESOLVE_TIMEOUT_ENV, DETACHED_RESOLVE_TIMEOUT)
         text, offered = asyncio.run(
             _aresolve(
-                active.agent_id,
+                active.agent_name,
                 active.run_id,
                 active.goal,
                 resolve_timeout=timeout,
@@ -211,7 +211,7 @@ def cmd_resolve(session_id: str) -> None:
                 "offered_learning_ids": list(offered),
             },
         )
-        _debug(f"resolve ok: {len(offered)} learning(s) for agent {active.agent_id}")
+        _debug(f"resolve ok: {len(offered)} learning(s) for agent {active.agent_name}")
     except Exception as exc:  # noqa: BLE001 - detached recall always fails open
         _debug(f"resolve failed ({type(exc).__name__}): {exc}")
 
@@ -270,7 +270,7 @@ def _finalise(
         session_id,
         PendingTurn(
             run_id=current.run_id,
-            agent_id=current.agent_id,
+            agent_name=current.agent_name,
             goal=current.goal,
             steps=tuple(current_steps),
             is_success=outcome.provisional_outcome(current_steps, native_status),
@@ -285,7 +285,7 @@ def _stage_and_flush(
     session_id: str, pending: PendingTurn, final_is_success: bool
 ) -> None:
     """Gate, stage the redacted episode with its final label, detach a flush."""
-    if not pending.agent_id:
+    if not pending.agent_name:
         return  # nothing to deliver to (turn captured before an agent was set)
     steps = list(pending.steps)
     do_observe = should_observe(steps)
@@ -294,7 +294,7 @@ def _stage_and_flush(
         return
     episode = _build_episode(pending, final_is_success)
     staged = {
-        "agent_id": pending.agent_id,
+        "agent_name": pending.agent_name,
         "episode": redact_ide_episode(episode),
         "do_observe": do_observe,
         "do_reinforce": do_reinforce,
@@ -378,15 +378,15 @@ def _recover_flushes(session_id: str, now: float) -> None:
 
 
 def _resolve(
-    agent_id: str, run_id: str, goal: str
+    agent_name: str, run_id: str, goal: str
 ) -> tuple[str | None, tuple[str, ...]]:
     """Resolve the goal's learnings. Returns (injected_text, offered_ids); fails open."""
     if not goal:
         _debug("resolve skipped: empty goal")
         return None, ()
     try:
-        text, offered = asyncio.run(_aresolve(agent_id, run_id, goal))
-        _debug(f"resolve ok: {len(offered)} learning(s) for agent {agent_id}")
+        text, offered = asyncio.run(_aresolve(agent_name, run_id, goal))
+        _debug(f"resolve ok: {len(offered)} learning(s) for agent {agent_name}")
         return text, offered
     except Exception as exc:  # noqa: BLE001 - explicit recall always fails open
         _debug(f"resolve failed ({type(exc).__name__}): {exc}")
@@ -394,7 +394,7 @@ def _resolve(
 
 
 async def _aresolve(
-    agent_id: str,
+    agent_name: str,
     run_id: str,
     goal: str,
     *,
@@ -408,7 +408,7 @@ async def _aresolve(
     client = HostedLearningClient(resolve_timeout=resolve_timeout)
     try:
         context = await client.resolve(
-            identity=AgentIdentity(agent_id=agent_id), run_id=run_id, goal=goal
+            identity=AgentIdentity(agent_name=agent_name), run_id=run_id, goal=goal
         )
         return context.injected_text, tuple(context.offered_learning_ids)
     finally:
@@ -425,11 +425,11 @@ async def _deliver(payload: dict[str, Any]) -> bool:
     from hyperstruck.client import HostedLearningClient
     from hyperstruck.identity import AgentIdentity
 
-    agent_id = payload.get("agent_id")
+    agent_name = payload.get("agent_name") or payload.get("agent_id")
     episode_data = payload.get("episode") or {}
-    if not agent_id or not episode_data:
+    if not agent_name or not episode_data:
         return True  # malformed staged file: drop it, retrying cannot help
-    identity = AgentIdentity(agent_id=agent_id)
+    identity = AgentIdentity(agent_name=agent_name)
     outcome_data = episode_data.get("outcome") or {}
     episode = Episode(
         run_id=episode_data.get("run_id", ""),
@@ -593,9 +593,9 @@ def _debug(message: str) -> None:
         pass
 
 
-def _new_run_id(agent_id: str, session_id: str) -> str:
+def _new_run_id(agent_name: str, session_id: str) -> str:
     """Mint a run id namespaced by agent and session; the uuid tail is the unique part."""
-    return f"{agent_id}:{session_id}:{uuid.uuid4().hex}"
+    return f"{agent_name}:{session_id}:{uuid.uuid4().hex}"
 
 
 def _spawn_flush(path: str | os.PathLike[str]) -> None:
