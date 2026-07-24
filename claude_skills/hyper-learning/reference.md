@@ -143,6 +143,38 @@ Trust promotion: 5 consecutive positive reinforcements advance `unverified` → 
 `standing.utility` is an application-outcome signal, not a confidence score.
 Recent outcomes carry more weight than older outcomes.
 
+### Distill from a corpus (async)
+
+```
+POST /distill
+```
+
+Extracts grounded learnings from a corpus of evidence (docs, diffs, post-mortems, MCP/tool output) without a real run trace. Standalone — it does not participate in the resolve/observe/reinforce loop.
+
+| Field | Required | Description |
+|-------|----------|-------------|
+| `agent_name` | yes | Boundary agent **name** (`HYPER_LEARNING_AGENT_NAME` when set, otherwise `HYPER_AGENT_NAME`), not the `HYPER_AGENT_ID` UUID. The corpus is distilled into this agent. |
+| `run_id` | yes | Must start with `distill:` (namespaced so it never collides with a loop run id). |
+| `goal` | yes | The extraction intent (≤ 8000 chars). |
+| `evidence` | yes | 2–50 items. Each: `id`, `content` (≤ 8000 chars), optional `label`, `role` (`support`/`contrast`/`neutral`), `status` (`completed`/`failed`), `source_ref` (a non-secret doc id or URL). |
+| `outcome` | yes | `{ "is_success": bool, "summary"?: str }`. |
+| `evaluation` | no | Reviewer verdict / contrast aid (≤ 8000 chars); folded into the grounding corpus. |
+| `synthesis_notes` | no | Optional extra context (≤ 8000 chars). |
+
+**Validation gates** (400 before the 202): fewer than 2 items; total non-whitespace content < 500 or > 120,000 chars; `run_id` missing the `distill:` prefix; `occurred_at` in the future; **no declared contrast signal**. Declare contrast via differing `status`, a `contrast`+`support` pairing, differing roles, or a non-empty `evaluation`. Structural violations (item > 8000 chars, > 50 items, unknown field) surface as `422`.
+
+Response `202`:
+
+```json
+{
+  "status": "accepted",
+  "run_id": "distill:...",
+  "worker_payload_version": "boundary-worker-payload.v1"
+}
+```
+
+A corpus with no declared contrast is rejected before the `202`. A corpus that declares contrast but whose text carries no reusable contrast is accepted and yields nothing (a valid zero-yield 202). Results are searchable via the search endpoint a few seconds later.
+
 ---
 
 ## Error codes

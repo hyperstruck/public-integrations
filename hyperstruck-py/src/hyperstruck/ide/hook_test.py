@@ -2,7 +2,9 @@
 
 from __future__ import annotations
 
+import asyncio
 import json
+from typing import Any
 
 import pytest
 
@@ -997,3 +999,229 @@ def test_resolve_failure_breadcrumb_and_fails_open(capsys, monkeypatch) -> None:
     monkeypatch.setattr(hook, "_aresolve", _aresolve_boom)
     assert hook._resolve("agent-x", "run-1", "do x") == (None, ())
     assert "resolve failed (RuntimeError): boom" in capsys.readouterr().err
+
+
+# -- distill (caller-driven corpus extraction) -------------------------------
+
+
+def _distill_spec(**overrides: Any) -> dict[str, Any]:
+    spec: dict[str, Any] = {
+        "goal": "Extract API design learnings from the referenced design doc",
+        "evidence": [
+            {
+                "id": "before",
+                "role": "contrast",
+                "status": "failed",
+                "content": "x" * 40,
+            },
+            {
+                "id": "after",
+                "role": "support",
+                "status": "completed",
+                "content": "y" * 40,
+            },
+        ],
+    }
+    spec.update(overrides)
+    return spec
+
+
+def test_distill_no_agent_is_skipped(_env, capsys, monkeypatch) -> None:
+    monkeypatch.delenv("HYPER_AGENT_NAME", raising=False)
+    hook.cmd_distill(_distill_spec(), hook._parse_args(["distill", "--emit", "text"]))
+    out = capsys.readouterr().out
+    assert "skipped" in out and "HYPER_AGENT_NAME" in out
+
+
+def test_distill_requires_two_evidence_items(_env, capsys) -> None:
+    spec = _distill_spec(evidence=[{"id": "only", "content": "z" * 40}])
+    hook.cmd_distill(spec, hook._parse_args(["distill", "--emit", "text"]))
+    assert "at least 2" in capsys.readouterr().out
+
+
+def test_distill_forwards_scrubbed_corpus_to_client(_env, capsys, monkeypatch) -> None:
+    captured: dict[str, Any] = {}
+
+    async def fake_adistill(**kwargs):
+        captured.update(kwargs)
+        return {
+            "status": "delivered",
+            "agent": kwargs["agent_name"],
+            "run_id": kwargs["run_id"],
+            "evidence_count": len(kwargs["evidence"]),
+        }
+
+    monkeypatch.setattr(hook, "_adistill", fake_adistill)
+    secret = "sk-livexxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
+    spec = _distill_spec(
+        run_id="design-doc-2026-07",
+        goal=f"goal includes {secret}",
+        evaluation=f"evaluation includes {secret}",
+        evidence=[
+            {
+                "id": f"before-{secret}",
+                "label": f"label-{secret}",
+                "role": "contrast",
+                "status": "failed",
+                "source_ref": f"https://example.com/{secret}",
+                "content": "old " * 12,
+            },
+            {
+                "id": "after",
+                "role": "support",
+                "status": "completed",
+                "content": f"token {secret} rotated",
+            },
+        ],
+    )
+    hook.cmd_distill(spec, hook._parse_args(["distill", "--emit", "text"]))
+
+    assert captured["agent_name"] == "agent-x"  # honours HYPER_AGENT_NAME
+    assert captured["run_id"] == "distill:design-doc-2026-07"  # prefixed
+    joined = " ".join(
+        [
+            captured["goal"],
+            captured["evaluation"],
+            *(item.id for item in captured["evidence"]),
+            *(item.label for item in captured["evidence"]),
+            *(item.content for item in captured["evidence"]),
+            *(item.source_ref or "" for item in captured["evidence"]),
+        ]
+    )
+    assert secret not in joined  # secret-scrubbed before it leaves the machine
+    out = capsys.readouterr().out
+    assert "Distill delivered for agent 'agent-x'" in out
+
+
+def test_distill_rejects_malformed_payload(_env, capsys, monkeypatch) -> None:
+    async def forbidden_adistill(**kwargs):  # pragma: no cover - should not be called
+        raise AssertionError(kwargs)
+
+    monkeypatch.setattr(hook, "_adistill", forbidden_adistill)
+    hook.cmd_distill(
+        {"_hyper_parse_error": "invalid JSON on stdin: nope"},
+        hook._parse_args(["distill", "--emit", "text"]),
+    )
+    assert "invalid JSON" in capsys.readouterr().out
+
+
+def test_distill_requires_non_empty_goal(_env, capsys, monkeypatch) -> None:
+    async def forbidden_adistill(**kwargs):  # pragma: no cover - should not be called
+        raise AssertionError(kwargs)
+
+    monkeypatch.setattr(hook, "_adistill", forbidden_adistill)
+    spec = _distill_spec(goal="  ")
+    hook.cmd_distill(spec, hook._parse_args(["distill", "--emit", "text"]))
+    assert "non-empty goal" in capsys.readouterr().out
+
+
+def test_distill_rejects_no_contrast_before_network(_env, capsys, monkeypatch) -> None:
+    async def forbidden_adistill(**kwargs):  # pragma: no cover - should not be called
+        raise AssertionError(kwargs)
+
+    monkeypatch.setattr(hook, "_adistill", forbidden_adistill)
+    spec = _distill_spec(
+        evidence=[
+            {"id": "a", "role": "neutral", "status": "completed", "content": "a" * 40},
+            {"id": "b", "role": "neutral", "status": "completed", "content": "b" * 40},
+        ],
+    )
+    hook.cmd_distill(spec, hook._parse_args(["distill", "--emit", "text"]))
+    assert "declared contrast" in capsys.readouterr().out
+
+
+def test_distill_rejects_support_neutral_roles_without_contrast(
+    _env, capsys, monkeypatch
+) -> None:
+    async def forbidden_adistill(**kwargs):  # pragma: no cover - should not be called
+        raise AssertionError(kwargs)
+
+    monkeypatch.setattr(hook, "_adistill", forbidden_adistill)
+    spec = _distill_spec(
+        evidence=[
+            {"id": "a", "role": "support", "status": "completed", "content": "a" * 40},
+            {"id": "b", "role": "neutral", "status": "completed", "content": "b" * 40},
+        ],
+    )
+    hook.cmd_distill(spec, hook._parse_args(["distill", "--emit", "text"]))
+    assert "declared contrast" in capsys.readouterr().out
+
+
+def test_distill_run_id_prefix_and_mint() -> None:
+    assert hook._distill_run_id("distill:x") == "distill:x"
+    assert hook._distill_run_id("x") == "distill:x"
+    minted = hook._distill_run_id(None)
+    assert minted.startswith("distill:ide-")
+
+
+def test_evidence_from_spec_drops_empty_and_defaults_role() -> None:
+    items = hook._evidence_from_spec(
+        [
+            {"id": "a", "content": "real content here"},
+            {"id": "b", "content": "   "},  # dropped: blank
+            "not-a-dict",  # dropped: wrong type
+        ]
+    )
+    assert len(items) == 1
+    assert items[0].role == "neutral" and items[0].status == "completed"
+
+
+def test_distill_success_coercion() -> None:
+    assert hook._distill_success(False) is False
+    assert hook._distill_success("false") is False
+    assert hook._distill_success("0") is False
+    assert hook._distill_success("true") is True
+    assert hook._distill_success("not-a-bool") is True
+
+
+def test_read_stdin_preserves_json_parse_error(monkeypatch) -> None:
+    monkeypatch.setattr(hook.sys.stdin, "read", lambda: "{")
+    assert "invalid JSON" in hook._read_stdin()["_hyper_parse_error"]
+
+
+@pytest.mark.parametrize(
+    ("mode", "expected_status"),
+    [("delivered", "delivered"), ("failed", "error"), ("pending", "pending")],
+)
+def test_adistill_reports_delivery_outcome(
+    _env, monkeypatch, mode, expected_status
+) -> None:
+    import hyperstruck.client as client_module
+
+    captured: dict[str, Any] = {}
+
+    class FakeClient:
+        def __init__(self):
+            self.writes_delivered = 0
+            self.writes_failed = 0
+            self.last_write_error = None
+
+        async def distill(self, **kwargs):
+            captured.update(kwargs)
+
+        async def drain(self, timeout=30.0):
+            if mode == "delivered":
+                self.writes_delivered = 1
+            elif mode == "failed":
+                self.writes_failed = 1
+                self.last_write_error = "HTTP 422: bad corpus"
+
+        async def aclose(self, drain_timeout=30.0):
+            captured["drain_timeout"] = drain_timeout
+
+    monkeypatch.setattr(client_module, "HostedLearningClient", FakeClient)
+    secret = "sk-livexxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
+    result = asyncio.run(
+        hook._adistill(
+            agent_name="agent-x",
+            run_id="distill:x",
+            goal="goal",
+            evidence=hook._evidence_from_spec(_distill_spec()["evidence"]),
+            outcome_spec={"is_success": "false", "summary": f"summary {secret}"},
+            evaluation=None,
+        )
+    )
+
+    assert result["status"] == expected_status
+    assert captured["outcome"].is_success is False
+    assert secret not in (captured["outcome"].summary or "")

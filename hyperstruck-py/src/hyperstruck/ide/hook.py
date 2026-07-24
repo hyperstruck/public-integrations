@@ -28,6 +28,7 @@ import asyncio
 import hashlib
 import json
 import os
+import re
 
 # Used only for fixed-argv detached processes; never a shell.
 import subprocess  # nosec B404
@@ -64,6 +65,14 @@ from hyperstruck.ide.state import ActiveTurn, PendingTurn
 
 # Wire fields of a step (the rest of a stored step, e.g. ``kind``, is client-only).
 _WIRE_STEP_FIELDS = ("id", "name", "args", "status", "result", "error")
+_DISTILL_EMBEDDED_SECRET_PATTERN = re.compile(
+    r"(?<![A-Za-z0-9])("
+    r"sk-[A-Za-z0-9_\-]{16,}"
+    r"|[sr]k_(?:live|test)_[A-Za-z0-9]{10,}"
+    r"|gh[pousr]_[A-Za-z0-9]{20,}"
+    r"|xox[baprs]-[A-Za-z0-9-]{10,}"
+    r")"
+)
 
 
 # -- command: prompt (turn start) --------------------------------------------
@@ -217,6 +226,261 @@ def cmd_resolve(session_id: str) -> None:
         _debug(f"resolve ok: {len(offered)} learning(s) for agent {active.agent_name}")
     except Exception as exc:  # noqa: BLE001 - detached recall always fails open
         _debug(f"resolve failed ({type(exc).__name__}): {exc}")
+
+
+# -- command: distill (caller-driven corpus extraction) ----------------------
+
+
+def cmd_distill(payload: dict[str, Any], args: argparse.Namespace) -> None:
+    """Distill durable learnings from a referenced corpus into the boundary agent.
+
+    Unlike the automatic loop this is skill-driven: a referenced document, an MCP
+    result, or a large tool output that carries reusable, *contrasting* knowledge
+    (a design doc, a spec, a diff, a post-mortem) is handed in as a small JSON spec
+    on stdin ``{goal, evidence: [{id, content, role, status, label?, source_ref?}],
+    outcome?, evaluation?, run_id?}``. Identity is the configured boundary agent
+    name (``HYPER_LEARNING_AGENT_NAME`` then ``HYPER_AGENT_NAME``) so a distilled
+    learning lands in the same corpus the loop reads from; there is no
+    repo-derived agent here.
+
+    All caller-supplied strings are secret-scrubbed before they leave the machine
+    because the server stores evidence verbatim as the grounding source. Contrast
+    is required (differing ``status``, a ``contrast``/``support`` pair, or an
+    ``evaluation`` note); a corpus without declared contrast is rejected locally.
+    """
+    parse_error = payload.get("_hyper_parse_error")
+    if parse_error:
+        _emit_distill_result({"status": "skipped", "reason": str(parse_error)}, args)
+        return
+    agent_name = configured_agent_name()
+    if not agent_name:
+        _emit_distill_result(
+            {
+                "status": "skipped",
+                "reason": (
+                    "no agent configured (set HYPER_LEARNING_AGENT_NAME or "
+                    "HYPER_AGENT_NAME)"
+                ),
+            },
+            args,
+        )
+        return
+    raw_goal = args.goal if args.goal is not None else payload.get("goal")
+    goal = raw_goal.strip() if isinstance(raw_goal, str) else ""
+    if not goal:
+        _emit_distill_result(
+            {"status": "skipped", "reason": "distill requires a non-empty goal"},
+            args,
+        )
+        return
+    evidence = _evidence_from_spec(payload.get("evidence"))
+    if len(evidence) < 2:
+        _emit_distill_result(
+            {
+                "status": "skipped",
+                "reason": "distill needs at least 2 contrasting evidence items",
+            },
+            args,
+        )
+        return
+    run_id = _distill_run_id(payload.get("run_id"))
+    outcome_spec = (
+        payload.get("outcome") if isinstance(payload.get("outcome"), dict) else {}
+    )
+    evaluation = payload.get("evaluation")
+    scrubbed_evaluation = (
+        _scrub_distill_string(evaluation.strip())
+        if isinstance(evaluation, str) and evaluation.strip()
+        else None
+    )
+    if not _has_distill_contrast(evidence, scrubbed_evaluation):
+        _emit_distill_result(
+            {
+                "status": "skipped",
+                "reason": (
+                    "distill requires declared contrast (different statuses, "
+                    "contrast/support roles, or evaluation)"
+                ),
+            },
+            args,
+        )
+        return
+    try:
+        result = asyncio.run(
+            _adistill(
+                agent_name=agent_name,
+                run_id=run_id,
+                goal=_scrub_distill_string(goal),
+                evidence=evidence,
+                outcome_spec=outcome_spec,
+                evaluation=scrubbed_evaluation,
+            )
+        )
+    except Exception as exc:  # noqa: BLE001 - caller-driven, fail with a clear message
+        _debug(f"distill failed ({type(exc).__name__}): {exc}")
+        result = {
+            "status": "error",
+            "reason": f"{type(exc).__name__}: {exc}",
+            "agent": agent_name,
+            "run_id": run_id,
+        }
+    _emit_distill_result(result, args)
+
+
+def _evidence_from_spec(raw: Any) -> list[Any]:
+    """Build redacted ``EvidenceItem``s from the skill's spec, dropping empties."""
+    from hyperstruck._wire import EvidenceItem
+
+    if not isinstance(raw, list):
+        return []
+    items: list[EvidenceItem] = []
+    for index, entry in enumerate(raw):
+        if not isinstance(entry, dict):
+            continue
+        content = entry.get("content")
+        if not isinstance(content, str) or not content.strip():
+            continue
+        role = entry.get("role")
+        status = entry.get("status")
+        source_ref = entry.get("source_ref")
+        items.append(
+            EvidenceItem(
+                id=_scrub_distill_string(str(entry.get("id") or f"e{index + 1}")),
+                content=_scrub_distill_string(content),
+                label=_scrub_distill_string(str(entry.get("label") or "")),
+                role=role if role in ("support", "contrast", "neutral") else "neutral",
+                status=status if status in ("completed", "failed") else "completed",
+                source_ref=(
+                    _scrub_distill_string(str(source_ref)) if source_ref else None
+                ),
+            )
+        )
+    return items
+
+
+def _scrub_distill_string(text: str) -> str:
+    """Scrub distill corpus strings, including secrets embedded in labels/URLs."""
+    return _DISTILL_EMBEDDED_SECRET_PATTERN.sub("[REDACTED]", scrub_secrets(text))
+
+
+def _has_distill_contrast(evidence: list[Any], evaluation: str | None) -> bool:
+    """Whether the corpus declares enough contrast for the server to accept it."""
+    if evaluation:
+        return True
+    statuses = {item.status for item in evidence}
+    if len(statuses) > 1:
+        return True
+    roles = {item.role for item in evidence}
+    return {"contrast", "support"}.issubset(roles)
+
+
+def _distill_run_id(provided: Any) -> str:
+    """Namespace the caller's run id with ``distill:`` (minted if absent)."""
+    if isinstance(provided, str) and provided.strip():
+        run_id = _scrub_distill_string(provided.strip())
+        return run_id if run_id.startswith("distill:") else f"distill:{run_id}"
+    return f"distill:ide-{uuid.uuid4().hex[:12]}"
+
+
+def _distill_success(value: Any) -> bool:
+    """Coerce an optional JSON success flag without treating "false" as truthy."""
+    if isinstance(value, bool):
+        return value
+    if isinstance(value, str):
+        lowered = value.strip().lower()
+        if lowered in ("true", "1", "yes"):
+            return True
+        if lowered in ("false", "0", "no"):
+            return False
+    return True
+
+
+async def _adistill(
+    *,
+    agent_name: str,
+    run_id: str,
+    goal: str,
+    evidence: list[Any],
+    outcome_spec: dict[str, Any],
+    evaluation: str | None,
+) -> dict[str, Any]:
+    """Ship one distill job and drain it; return a compact, printable result."""
+    from hyperstruck._wire import DistillOutcome
+    from hyperstruck.client import HostedLearningClient
+    from hyperstruck.identity import AgentIdentity
+
+    try:
+        client = HostedLearningClient()
+    except ValueError:
+        return {
+            "status": "skipped",
+            "reason": "no API key configured",
+            "agent": agent_name,
+        }
+    summary = outcome_spec.get("summary")
+    outcome_obj = DistillOutcome(
+        is_success=_distill_success(outcome_spec.get("is_success", True)),
+        summary=_scrub_distill_string(str(summary)) if summary else None,
+    )
+    closed = False
+    try:
+        await client.distill(
+            identity=AgentIdentity(agent_name=agent_name),
+            run_id=run_id,
+            goal=goal,
+            evidence=evidence,
+            outcome=outcome_obj,
+            evaluation=evaluation,
+        )
+        await client.drain()
+        await client.aclose()
+        closed = True
+        if client.writes_delivered:
+            return {
+                "status": "delivered",
+                "agent": agent_name,
+                "run_id": run_id,
+                "evidence_count": len(evidence),
+            }
+        if client.writes_failed:
+            return {
+                "status": "error",
+                "reason": client.last_write_error or "delivery failed",
+                "agent": agent_name,
+                "run_id": run_id,
+            }
+        return {
+            "status": "pending",
+            "reason": "write still in flight after the drain timeout",
+            "agent": agent_name,
+            "run_id": run_id,
+            "evidence_count": len(evidence),
+        }
+    finally:
+        if not closed:
+            await client.aclose(drain_timeout=0)
+
+
+def _emit_distill_result(result: dict[str, Any], args: argparse.Namespace) -> None:
+    """Print the distill result: human text for the skill, JSON otherwise."""
+    if args.emit != "text":
+        json.dump(result, sys.stdout)
+        return
+    if result.get("status") == "delivered":
+        sys.stdout.write(
+            f"Distill delivered for agent '{result['agent']}' "
+            f"(run {result['run_id']}, {result['evidence_count']} evidence items). "
+            "Extraction runs server-side and may still yield zero learnings if "
+            "the accepted corpus has no real reusable contrast.\n"
+        )
+        return
+    if result.get("status") == "pending":
+        sys.stdout.write(
+            f"Distill pending for agent '{result['agent']}' "
+            f"(run {result['run_id']}): {result.get('reason', '')}.\n"
+        )
+        return
+    sys.stdout.write(f"Distill {result.get('status')}: {result.get('reason', '')}\n")
 
 
 # -- command: flush (detached delivery) --------------------------------------
@@ -797,15 +1061,15 @@ def _read_stdin() -> dict[str, Any]:
         return {}
     try:
         data = json.loads(raw)
-    except ValueError:
-        return {}
+    except ValueError as exc:
+        return {"_hyper_parse_error": f"invalid JSON on stdin: {exc}"}
     return data if isinstance(data, dict) else {}
 
 
 def _parse_args(argv: list[str]) -> argparse.Namespace:
     parser = argparse.ArgumentParser(prog="hyperstruck.ide.hook", add_help=False)
     parser.add_argument(
-        "command", choices=["prompt", "tool", "stop", "resolve", "flush"]
+        "command", choices=["prompt", "tool", "stop", "resolve", "flush", "distill"]
     )
     parser.add_argument("flush_path", nargs="?", default=None)
     parser.add_argument(
@@ -848,6 +1112,8 @@ def main(argv: list[str] | None = None) -> int:
             cmd_tool(payload, args)
         elif args.command == "stop":
             cmd_stop(payload, args)
+        elif args.command == "distill":
+            cmd_distill(payload, args)
     except (
         BaseException
     ):  # noqa: BLE001 - the loop must never break the editor, even on cancellation/interrupt

@@ -22,7 +22,46 @@ truth for the prior turn's outcome. All of this is handled by
 you invoke, and only on Cursor.
 
 Auth and the configured agent come from `~/.hyperstruck/.env`
-(`HYPER_API_KEY`, `HYPER_BASE_URL`, `HYPER_AGENT_NAME`, `HYPER_AGENT_ID`), written by `hyper-install`.
+(`HYPER_API_KEY`, `HYPER_BASE_URL`, `HYPER_LEARNING_AGENT_NAME`,
+`HYPER_AGENT_NAME`, `HYPER_AGENT_ID`), written by `hyper-install`. The hook reads
+this file at start regardless of the current working directory, so both recall
+and distill behave identically across git worktrees where a repo-local `.env` may
+be absent. Agent-name precedence is `HYPER_LEARNING_AGENT_NAME` first, then
+`HYPER_AGENT_NAME`.
+
+---
+
+## Distill (caller-driven, outside the loop)
+
+`POST /distill` extracts grounded learnings from a corpus of evidence (a design
+doc, an MCP result, a diff, a post-mortem) without a real run trace. It sits
+outside the resolve → observe → reinforce loop. The IDE skill drives it through
+the hook so identity, namespacing, and secret-scrubbing are handled for you:
+
+```
+echo '<spec json>' | python3 -m hyperstruck.ide.hook distill --emit text
+```
+
+The spec is `{goal, evidence: [{id, content, role, status, label?, source_ref?}],
+outcome?, evaluation?, run_id?}`. The command:
+
+- Uses the configured boundary agent name (`HYPER_LEARNING_AGENT_NAME` when set,
+  otherwise `HYPER_AGENT_NAME`) as the distill `agent_name` (never a repo-derived
+  agent, never the `HYPER_AGENT_ID` UUID — distill is name-scoped like
+  observe/resolve).
+- Requires at least 2 evidence items and a declared contrast (differing `status`,
+  a `contrast`/`support` pair, or a non-empty `evaluation`); the server rejects a
+  no-contrast corpus.
+- Namespaces `run_id` with `distill:` (minted if omitted) so it never collides
+  with a loop run id.
+- Secret-scrubs caller-supplied distill strings before sending: `goal`,
+  `evaluation`, evidence `id`/`label`/`source_ref`/`content`, run id, and outcome
+  `summary`; the server stores evidence text verbatim as the grounding source.
+
+A corpus with no declared contrast is skipped locally (and would be rejected by
+the server). A delivered corpus that declares contrast can still yield zero
+learnings if the text contains no reusable contrast; extracted learnings are
+searchable via `GET /agents/{id}/learnings/search` a few seconds later.
 
 ---
 

@@ -12,6 +12,7 @@ is the thin, fail-open client that wires it into your editor.
 - [The turn loop](#the-turn-loop)
 - [Install](#install)
 - [What gets learned, and when](#what-gets-learned-and-when)
+- [Distilling a referenced corpus](#distilling-a-referenced-corpus)
 - [Outcome: scoring a turn on what happened next](#outcome-scoring-a-turn-on-what-happened-next)
 - [Privacy](#privacy)
 - [Identity](#identity)
@@ -84,6 +85,33 @@ ones: a turn that recovered from a failure (the highest-signal moment), or a tur
 that materially changed code or ran a command. Pure reading, searching, and chat
 are skipped. The platform critic is the final precision backstop.
 
+Because the loop captures tool *names, paths, and commands* only — never file
+bodies, diffs, or tool results (see [Privacy](#privacy)) — it deliberately does
+**not** learn from the contents of a referenced document, an MCP result, or a tool
+call's output. That corpus is often exactly where reusable knowledge lives (a
+design doc, a spec, a post-mortem). Distill closes that gap on demand.
+
+## Distilling a referenced corpus
+
+When a turn pulls in a corpus worth learning from, the `hyper-learning` skill can
+distill it into the same boundary agent, out of band from the automatic loop:
+
+```
+echo '{"goal":"...","evidence":[{"id":"a","role":"contrast","status":"failed","content":"..."},
+{"id":"b","role":"support","status":"completed","content":"..."}],"evaluation":"..."}' \
+  | python -m hyperstruck.ide.hook distill --emit text
+```
+
+It targets the configured boundary agent name (`HYPER_LEARNING_AGENT_NAME` when
+set, otherwise `HYPER_AGENT_NAME`; never a repo-derived agent), namespaces the run
+id with `distill:`, and secret-scrubs caller-supplied strings before they leave
+the machine. Distillation needs **declared contrast** (a baseline vs a fix, or an
+`evaluation` note); a corpus without that signal is skipped locally and would be
+rejected by the server. A delivered corpus can still yield zero learnings if the
+text contains no reusable contrast. Use it for corpus text only — a real run trace
+is the automatic loop, and a final learning you already have verbatim belongs in
+the curation API.
+
 ## Outcome: scoring a turn on what happened next
 
 Whether a turn *succeeded* is the crux of learning, and it is a delayed-feedback
@@ -122,11 +150,11 @@ Your source never leaves; only scrubbed, pattern-level learnings do.
 ## Identity
 
 The agent a turn reads from and writes to is *your configured boundary agent
-name* (`HYPER_AGENT_NAME`), never anything derived from the repo, because editors
-are general agent platforms, not just code tools. If you have one agent, install
-writes both `HYPER_AGENT_NAME` and `HYPER_AGENT_ID` (REST UUID) automatically. If
-you have several, pick a name with `--agent-name` at install; REST skills still
-use `HYPER_AGENT_ID` or `GET /agents`.
+name* (`HYPER_LEARNING_AGENT_NAME` when set, otherwise `HYPER_AGENT_NAME`), never
+anything derived from the repo, because editors are general agent platforms, not
+just code tools. If you have one agent, install writes both `HYPER_AGENT_NAME` and
+`HYPER_AGENT_ID` (REST UUID) automatically. If you have several, pick a name with
+`--agent-name` at install; REST skills still use `HYPER_AGENT_ID` or `GET /agents`.
 
 ## Fail-open by design
 

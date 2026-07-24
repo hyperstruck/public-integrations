@@ -23,13 +23,29 @@ Store, search, and reinforce learnings on the Hyperstruck platform — the pract
 ## Current environment
 
 ```!
+# Config resolution order: exported env > ./.env > ~/.hyperstruck/.env.
+# The ~/.hyperstruck/.env fallback (written by hyper-install) survives git
+# worktrees and subdirectories where a repo-local ./.env may be absent.
+for f in ".env" "$HOME/.hyperstruck/.env"; do
+  [ -f "$f" ] || continue
+  while IFS='=' read -r k v; do
+    case "$k" in ''|\#*) continue ;; esac
+    k="$(printf '%s' "$k" | tr -d '[:space:]')"
+    case "$k" in HYPER_*|HYPERSTRUCK_*) ;; *) continue ;; esac
+    printenv "$k" >/dev/null 2>&1 && continue
+    v="$(printf '%s' "$v" | sed -e 's/^[[:space:]]*//' -e 's/[[:space:]]*$//')"
+    export "$k=$v"
+  done < "$f"
+done
 echo "HYPER_BASE_URL=${HYPER_BASE_URL:-https://api.hyperstruck.com}"
+echo "HYPER_LEARNING_AGENT_NAME=${HYPER_LEARNING_AGENT_NAME:-<not set>}"
+echo "HYPER_AGENT_NAME=${HYPER_AGENT_NAME:-<not set>}"
 echo "HYPER_AGENT_ID=${HYPER_AGENT_ID:-<not set>}"
-echo "HYPER_API_KEY_SET=$([ -n \"$HYPER_API_KEY\" ] && echo yes || echo no)"
-if [ -f .env ]; then echo "dotenv=found (.env)"; else echo "dotenv=not found"; fi
+if [ -n "$HYPER_API_KEY" ]; then echo "HYPER_API_KEY_SET=yes"; else echo "HYPER_API_KEY_SET=no"; fi
+[ -f .env ] && echo "dotenv=./.env" || { [ -f "$HOME/.hyperstruck/.env" ] && echo "dotenv=~/.hyperstruck/.env" || echo "dotenv=not found"; }
 ```
 
-If `HYPER_API_KEY_SET=no` above, check `.env` for a `HYPER_API_KEY=` line. If still missing, **stop and ask the user** to set `HYPER_API_KEY`.
+If `HYPER_API_KEY_SET=no` above, the block already tried both `./.env` and `~/.hyperstruck/.env`. If still missing, **stop and ask the user** to set `HYPER_API_KEY`.
 
 ---
 
@@ -140,6 +156,38 @@ Store only distilled learnings, not raw logs. If the insight is ambiguous, ask t
 
 ---
 
+## Distill from a referenced corpus
+
+Use `POST /distill` when a **referenced document, an MCP result, or a tool call** brought in a corpus that holds reusable knowledge — a design doc, spec, RFC, diff, or post-mortem — and you want the learnings Core would extract, but you have no real run trace and no final learning text to store verbatim. This is the right tool when the user drops a document into the agent's context and it deserves durable learning.
+
+- **Endpoint**: `POST {BASE_URL}/distill` — this is **not** agent-UUID scoped. Its body carries `agent_name`, which must be the configured boundary agent name (`HYPER_LEARNING_AGENT_NAME` when set, otherwise `HYPER_AGENT_NAME`) — the same corpus the automatic loop learns into — **not** the `HYPER_AGENT_ID` UUID used by `/agents/{id}/...`. If the task selected a different agent, use that agent's name.
+- **Contrast is required** and is what yields a learning: pair a baseline/failure with a fix/success, or supply an `evaluation` note. A single descriptive paragraph yields nothing by design.
+- **`run_id` must start with `distill:`**; supply at least 2 evidence items (each ≤ 8000 chars, ≤ 50 items), with total content between 500 and 120,000 non-whitespace chars.
+- **Strip secrets, PII, and internal hostnames** from evidence `content`; the server stores it verbatim as the grounding source.
+
+```
+curl -sS -X POST "${HYPER_BASE_URL:-https://api.hyperstruck.com}/distill" \
+  -H "Authorization: Bearer $HYPER_API_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "agent_name": "'"${HYPER_LEARNING_AGENT_NAME:-$HYPER_AGENT_NAME}"'",
+    "run_id": "distill:design-doc-checkout-2026-07",
+    "goal": "Extract reusable design learnings from the referenced design doc",
+    "evidence": [
+      {"id": "baseline", "role": "contrast", "status": "failed",
+       "content": "<the old approach / problem the doc describes>"},
+      {"id": "chosen", "role": "support", "status": "completed",
+       "content": "<the chosen approach and why it is better>"}
+    ],
+    "outcome": {"is_success": true, "summary": "Design finalized"},
+    "evaluation": "<the general, reusable principle — not doc-specific naming>"
+  }'
+```
+
+Returns **202 Accepted** after the request passes validation; extraction is asynchronous. A corpus with **no declared contrast is rejected** (fix the evidence roles/statuses or add an `evaluation`). A corpus that declares contrast but contains no reusable contrast may be accepted and later yield zero learnings (the spend reservation is released and nothing is metered) — report that outcome rather than retrying blindly. The extracted learnings are searchable via `GET /agents/{agent_id}/learnings/search` a few seconds later. Do **not** use `/distill` for a real execution trace (that is the automatic observe loop) or for a learning you already have verbatim (use the store endpoint above).
+
+---
+
 ## Reinforce a learning
 
 ```
@@ -153,6 +201,16 @@ POST {BASE_URL}/agents/{agent_id}/learnings/{learning_id}/reinforce
 Or `false`. Updates the learning's standing (utility and reliability) and advances the trust lifecycle (`unverified` → `agent_verified` → `source_verified` → `corroborated`).
 
 When a learning gets used, reinforce it after the outcome is known. Mark it helpful if it improved the run, or unhelpful if it misled the agent.
+
+---
+
+## Report what you found
+
+Whenever this skill recalls, searches, or distills, **surface the result to the user** so it is clear how the learning layer shaped the work — do not silently fold it in:
+
+- **What was found**: the specific learnings (quote `content`, cite `learning_id`), or "none" on an empty result.
+- **From which agent**: the agent name/id the call read from or wrote to (e.g. `HYPER_LEARNING_AGENT_NAME`/`HYPER_AGENT_NAME` for distill, the resolved agent UUID for search).
+- **How it affected the run**: the concrete decisions you changed (approach, ordering, a pitfall avoided). After the outcome is known, **reinforce** every learning you actually applied (helpful or unhelpful).
 
 ---
 
