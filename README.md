@@ -80,6 +80,8 @@ You need a **Hyperstruck API key** and (for learnings) usually an **agent id** t
 2. Environment variable **`HYPER_API_KEY`**.
 3. A **`.env`** file in the project root, or a path pointed to by **`PUBLIC_INTEGRATIONS_ENV_FILE`**.
 
+Skills and the IDE hook parse dotenv values like common dotenv loaders: strip one matching pair of surrounding quotes (`KEY="value"` / `KEY='value'`) and drop a trailing ` # comment` outside quotes, so secrets still produce a valid `Authorization: Bearer <key>` header. Prefer unquoted values in new files.
+
 Send it on every request as:
 
 `Authorization: Bearer <your key>`

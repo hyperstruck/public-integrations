@@ -46,6 +46,29 @@ def _looks_like_uuid(value: str) -> bool:
     return True
 
 
+def _parse_env_value(value: str) -> str:
+    """Parse a dotenv RHS: strip quotes and trailing inline comments.
+
+    Hand-authored ``.env`` files often wrap secrets as ``KEY="value"`` or add
+    ``KEY="value" # note``. Leaving quotes or comment text in the Bearer token
+    yields HTTP 401 Invalid API key from Core. Quoted content keeps interior
+    ``#``; unquoted values trim at the first whitespace-hash comment marker.
+    """
+    value = value.strip()
+    if not value:
+        return value
+    if value[0] in "\"'":
+        quote = value[0]
+        end = value.find(quote, 1)
+        if end != -1:
+            return value[1:end]
+        return value
+    comment_at = value.find(" #")
+    if comment_at != -1:
+        return value[:comment_at].rstrip()
+    return value
+
+
 def load_env() -> None:
     """Load ``~/.hyperstruck/.env`` into ``os.environ`` without overriding it.
 
@@ -54,6 +77,8 @@ def load_env() -> None:
     already present in the real environment wins, so an explicit export is never
     clobbered. Legacy ``HYPER_AGENT_ID`` / ``HYPER_LEARNING_AGENT_ID`` values are
     split into ``HYPER_AGENT_NAME`` vs ``HYPER_AGENT_ID`` when unambiguous.
+    Values are parsed dotenv-style (strip surrounding quotes and trailing
+    `` #`` comments).
     """
     path = env_file()
     if not path.is_file():
@@ -68,7 +93,7 @@ def load_env() -> None:
         if not stripped or stripped.startswith("#") or "=" not in stripped:
             continue
         key, value = stripped.split("=", 1)
-        parsed[key.strip()] = value.strip()
+        parsed[key.strip()] = _parse_env_value(value)
     _apply_legacy_agent_env(parsed)
     for key, value in parsed.items():
         if key in _LOADABLE and not os.environ.get(key):

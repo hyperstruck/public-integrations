@@ -32,13 +32,49 @@ Do **not** invoke for straightforward edits, lookups, or tasks you can complete 
 ## Current environment
 
 ```!
+# Config resolution order: exported env > ./.env > ~/.hyperstruck/.env.
+# Strip matching quotes and trailing " # comment" so Bearer auth does not
+# send literal "…" (that yields HTTP 401 Invalid API key).
+for f in ".env" "$HOME/.hyperstruck/.env"; do
+  [ -f "$f" ] || continue
+  while IFS='=' read -r k v; do
+    case "$k" in ''|\#*) continue ;; esac
+    k="$(printf '%s' "$k" | tr -d '[:space:]')"
+    case "$k" in HYPER_*|HYPERSTRUCK_*) ;; *) continue ;; esac
+    printenv "$k" >/dev/null 2>&1 && continue
+    v="$(printf '%s' "$v" | sed -e 's/^[[:space:]]*//' -e 's/[[:space:]]*$//')"
+    # dotenv: strip matching quotes and trailing " # comment" so Bearer auth
+    # does not send literal "…" (that yields HTTP 401 Invalid API key).
+    case "$v" in
+      \"*)
+        rest="${v#\"}"
+        case "$rest" in
+          *\"*) v="${rest%%\"*}" ;;
+        esac
+        ;;
+      \'*)
+        rest="${v#\'}"
+        case "$rest" in
+          *\'*) v="${rest%%\'*}" ;;
+        esac
+        ;;
+      *)
+        case "$v" in
+          *" #"*) v="${v%% #*}" ;;
+        esac
+        v="$(printf '%s' "$v" | sed -e 's/[[:space:]]*$//')"
+        ;;
+    esac
+    export "$k=$v"
+  done < "$f"
+done
 echo "HYPER_BASE_URL=${HYPER_BASE_URL:-https://api.hyperstruck.com}"
 echo "HYPER_AGENT_ID=${HYPER_AGENT_ID:-<not set>}"
-echo "HYPER_API_KEY_SET=$([ -n \"$HYPER_API_KEY\" ] && echo yes || echo no)"
-if [ -f .env ]; then echo "dotenv=found (.env)"; else echo "dotenv=not found"; fi
+if [ -n "$HYPER_API_KEY" ]; then echo "HYPER_API_KEY_SET=yes"; else echo "HYPER_API_KEY_SET=no"; fi
+[ -f .env ] && echo "dotenv=./.env" || { [ -f "$HOME/.hyperstruck/.env" ] && echo "dotenv=~/.hyperstruck/.env" || echo "dotenv=not found"; }
 ```
 
-If `HYPER_API_KEY_SET=no` above, check `.env` for a `HYPER_API_KEY=` line. If still missing, **stop and ask the user** to set `HYPER_API_KEY`.
+If `HYPER_API_KEY_SET=no` above, the block already tried both `./.env` and `~/.hyperstruck/.env`. If still missing, **stop and ask the user** to set `HYPER_API_KEY`.
 
 ---
 

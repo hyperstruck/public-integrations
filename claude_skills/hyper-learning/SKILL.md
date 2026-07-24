@@ -34,6 +34,28 @@ for f in ".env" "$HOME/.hyperstruck/.env"; do
     case "$k" in HYPER_*|HYPERSTRUCK_*) ;; *) continue ;; esac
     printenv "$k" >/dev/null 2>&1 && continue
     v="$(printf '%s' "$v" | sed -e 's/^[[:space:]]*//' -e 's/[[:space:]]*$//')"
+    # dotenv: strip matching quotes and trailing " # comment" so Bearer auth
+    # does not send literal "…" (that yields HTTP 401 Invalid API key).
+    case "$v" in
+      \"*)
+        rest="${v#\"}"
+        case "$rest" in
+          *\"*) v="${rest%%\"*}" ;;
+        esac
+        ;;
+      \'*)
+        rest="${v#\'}"
+        case "$rest" in
+          *\'*) v="${rest%%\'*}" ;;
+        esac
+        ;;
+      *)
+        case "$v" in
+          *" #"*) v="${v%% #*}" ;;
+        esac
+        v="$(printf '%s' "$v" | sed -e 's/[[:space:]]*$//')"
+        ;;
+    esac
     export "$k=$v"
   done < "$f"
 done

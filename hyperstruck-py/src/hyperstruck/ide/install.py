@@ -33,7 +33,7 @@ from urllib.parse import unquote, urlparse
 
 from uuid import UUID
 
-from hyperstruck.ide.config import load_env
+from hyperstruck.ide.config import _parse_env_value, load_env
 from hyperstruck.ide.constants import (
     SOURCE_CLAUDE_CODE,
     SOURCE_CURSOR,
@@ -715,7 +715,15 @@ def _entry_is_ours(entry: Any) -> bool:
 
 
 def _upsert_env(updates: dict[str, str | None]) -> None:
-    """Merge keys into ``~/.hyperstruck/.env`` without disturbing existing lines."""
+    """Merge keys into ``~/.hyperstruck/.env`` as unquoted ``KEY=value`` lines.
+
+    Preserves relative order of keys that already exist. Existing values are
+    parsed with the same dotenv rules as :func:`load_env` (strip surrounding
+    quotes and trailing `` #`` comments) so rewrites do not keep
+    ``KEY="value"`` forms that break Bearer auth. Blank lines, full-line
+    comments, and literal surrounding quotes on values are not preserved —
+    these keys are secrets and should not need quoted literals.
+    """
     path = env_file()
     existing: dict[str, str] = {}
     order: list[str] = []
@@ -723,7 +731,7 @@ def _upsert_env(updates: dict[str, str | None]) -> None:
         for line in path.read_text(encoding="utf-8").splitlines():
             if "=" in line and not line.strip().startswith("#"):
                 key = line.split("=", 1)[0].strip()
-                existing[key] = line.split("=", 1)[1].strip()
+                existing[key] = _parse_env_value(line.split("=", 1)[1])
                 order.append(key)
     for key, value in updates.items():
         if value is None:

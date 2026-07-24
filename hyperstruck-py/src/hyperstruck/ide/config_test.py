@@ -36,6 +36,40 @@ def test_load_env_populates_missing(monkeypatch) -> None:
     assert os.environ["HYPER_AGENT_NAME"] == "agent-x"
 
 
+@pytest.mark.parametrize(
+    ("raw", "expected"),
+    [
+        ('HYPER_API_KEY="hs_live_demo.secret"\n', "hs_live_demo.secret"),
+        ("HYPER_API_KEY='hs_live_demo.secret'\n", "hs_live_demo.secret"),
+        ("HYPER_API_KEY=hs_live_demo.secret\n", "hs_live_demo.secret"),
+        ('HYPER_API_KEY="still-quoted\n', '"still-quoted'),
+        ('HYPER_API_KEY="hs_live_demo.secret" # note\n', "hs_live_demo.secret"),
+        ("HYPER_API_KEY='hs_live_demo.secret' # note\n", "hs_live_demo.secret"),
+        ("HYPER_API_KEY=hs_live_demo.secret # note\n", "hs_live_demo.secret"),
+        ('HYPER_API_KEY="hash # inside"\n', "hash # inside"),
+    ],
+)
+def test_load_env_parses_quotes_and_inline_comments(
+    monkeypatch, raw: str, expected: str
+) -> None:
+    path = env_file()
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_text(raw, encoding="utf-8")
+    config.load_env()
+    assert os.environ["HYPER_API_KEY"] == expected
+
+
+def test_parse_env_value_helper() -> None:
+    assert config._parse_env_value('"abc"') == "abc"
+    assert config._parse_env_value("'abc'") == "abc"
+    assert config._parse_env_value("abc") == "abc"
+    assert config._parse_env_value('"abc') == '"abc'
+    assert config._parse_env_value("") == ""
+    assert config._parse_env_value('"abc" # note') == "abc"
+    assert config._parse_env_value("abc # note") == "abc"
+    assert config._parse_env_value('"a # b" # c') == "a # b"
+
+
 def test_load_env_migrates_legacy_name_pin(monkeypatch) -> None:
     path = env_file()
     path.parent.mkdir(parents=True, exist_ok=True)
