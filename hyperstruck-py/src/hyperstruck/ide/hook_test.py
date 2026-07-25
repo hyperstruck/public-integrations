@@ -149,6 +149,42 @@ def test_rework_resolution_on_one_session(_env) -> None:
         StepRecord(**step)
 
 
+def test_observed_empty_offer_turn_reinforces(_env, monkeypatch) -> None:
+    """A material turn that offered no learnings still reinforces (closes the loop)."""
+    staged = _env
+    monkeypatch.setattr(hook, "_spawn_resolve", lambda session_id: None)  # no offer
+    session = "s-empty"
+    _run_turn(
+        session,
+        "do work",
+        [
+            {"tool_name": "Edit", "file_path": "a.py", "tool_response": "ok"},
+            {
+                "tool_name": "Bash",
+                "command": "pytest",
+                "tool_response": "2 passed",
+                "exit_code": 0,
+            },
+        ],
+    )
+    assert staged == []  # deferred until the next turn resolves it
+    _run_turn(session, "next", [{"tool_name": "Read", "file_path": "a.py"}])
+
+    flushed = state.read_flush(staged[0])
+    assert flushed["do_observe"] is True
+    assert flushed["do_reinforce"] is True  # empty offer still closes the loop
+
+
+def test_trivial_turn_without_offer_makes_no_call(_env, monkeypatch) -> None:
+    """A read-only turn with nothing offered short-circuits: no observe, no reinforce."""
+    staged = _env
+    monkeypatch.setattr(hook, "_spawn_resolve", lambda session_id: None)  # no offer
+    session = "s-trivial"
+    _run_turn(session, "just read", [{"tool_name": "Read", "file_path": "a.py"}])
+    _run_turn(session, "read again", [{"tool_name": "Read", "file_path": "b.py"}])
+    assert staged == []  # no material steps and no offer -> nothing delivered
+
+
 def test_new_task_keeps_green(_env) -> None:
     staged = _env
     session = "s1"
@@ -900,7 +936,13 @@ def test_cursor_capture_events_do_not_inject(_env, capsys) -> None:
     assert state.claim_recall("c1") is not None
 
 
-def test_uninjected_recall_is_not_reinforced_and_is_removed(_env) -> None:
+def test_uninjected_recall_credits_nothing_and_is_removed(_env) -> None:
+    """An uninjected recall credits no learnings and its stale recall is removed.
+
+    The material turn still closes its loop (observe + reinforce), but with no
+    offered learnings the reinforce credits nothing, so an un-injected recall can
+    never be mistaken for a used one.
+    """
     staged = _env
     conv = {"conversation_id": "c1", "cwd": "/repo"}
     hook.cmd_prompt(
@@ -917,10 +959,12 @@ def test_uninjected_recall_is_not_reinforced_and_is_removed(_env) -> None:
     )
     hook.cmd_stop(conv, hook._parse_args(["stop", "--source", "cursor"]))
     pending = state.read_pending("c1")
-    assert pending is not None and pending.offered_learning_ids == ()
-    assert state.claim_recall("c1") is None
+    assert pending is not None and pending.offered_learning_ids == ()  # nothing credited
+    assert state.claim_recall("c1") is None  # the stale recall is removed
     hook._stage_and_flush("c1", pending, True)
-    assert _last_staged(staged)["do_reinforce"] is False
+    flushed = _last_staged(staged)
+    assert flushed["do_observe"] is True
+    assert flushed["do_reinforce"] is True  # a material turn still closes its loop
 
 
 def test_readonly_recall_does_not_touch_state(_env, capsys) -> None:

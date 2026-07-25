@@ -586,7 +586,10 @@ def _stage_and_flush(
         return  # nothing to deliver to (turn captured before an agent was set)
     steps = list(pending.steps)
     do_observe = should_observe(steps)
-    do_reinforce = bool(pending.offered_learning_ids)
+    # An observed turn that offered nothing still closes its loop server-side, so
+    # reinforce it too; skipping empty offers is what left those runs half-open. A
+    # trivial turn (no material steps, no offer) still short-circuits below.
+    do_reinforce = do_observe or bool(pending.offered_learning_ids)
     if not (do_observe or do_reinforce):
         return
     episode = _build_episode(pending, final_is_success)
