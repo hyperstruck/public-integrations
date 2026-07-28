@@ -8,7 +8,11 @@ from typing import Any
 
 import pytest
 
-from hyperstruck._wire import StepRecord
+from hyperstruck._wire import (
+    REASON_BELOW_MATERIAL_THRESHOLD,
+    REASON_NO_TOOL_CALLS,
+    StepRecord,
+)
 from hyperstruck.ide import hook, state
 from hyperstruck.ide.constants import (
     MAX_BOUNDARY_GOAL_CHARS,
@@ -180,14 +184,38 @@ def test_observed_empty_offer_turn_reinforces(_env, monkeypatch) -> None:
     assert flushed["do_reinforce"] is True  # empty offer still closes the loop
 
 
-def test_trivial_turn_without_offer_makes_no_call(_env, monkeypatch) -> None:
-    """A read-only turn with nothing offered short-circuits: no observe, no reinforce."""
+def test_trivial_turn_without_offer_declines(_env, monkeypatch) -> None:
+    """A read-only turn with nothing offered closes its run instead of going quiet.
+
+    The run was opened at resolve, so staying silent would leave it open forever and
+    make a deliberate skip look exactly like a host that stopped writing back. The
+    episode is still withheld: declining closes the loop without feeding a trivial
+    turn to the corpus.
+    """
     staged = _env
     monkeypatch.setattr(hook, "_spawn_resolve", lambda session_id: None)  # no offer
     session = "s-trivial"
     _run_turn(session, "just read", [{"tool_name": "Read", "file_path": "a.py"}])
     _run_turn(session, "read again", [{"tool_name": "Read", "file_path": "b.py"}])
-    assert staged == []  # no material steps and no offer -> nothing delivered
+
+    assert len(staged) == 1
+    flushed = state.read_flush(staged[0])
+    assert "episode" not in flushed
+    assert flushed["decline"]["reason"] == REASON_BELOW_MATERIAL_THRESHOLD
+    assert flushed["decline"]["is_delivered"] is False
+
+
+def test_turn_with_no_tool_calls_declines_as_no_tool_calls(_env, monkeypatch) -> None:
+    """A pure conversational turn is the common case, and it must still close."""
+    staged = _env
+    monkeypatch.setattr(hook, "_spawn_resolve", lambda session_id: None)
+    session = "s-chat"
+    _run_turn(session, "what does this do?", [])
+    _run_turn(session, "and this?", [])
+
+    assert len(staged) == 1
+    flushed = state.read_flush(staged[0])
+    assert flushed["decline"]["reason"] == REASON_NO_TOOL_CALLS
 
 
 def test_new_task_keeps_green(_env) -> None:
@@ -592,6 +620,40 @@ def test_transient_failure_never_counts_or_drops(_env, monkeypatch) -> None:
     # it retries until the eviction window, well past max attempts.
     assert state.read_flush(path) is not None
     assert state.read_flush_attempts(path) == 0
+
+
+def test_dropped_decline_still_names_its_run(_env, monkeypatch, tmp_path) -> None:
+    """A decline that cannot be delivered must still say which run it lost.
+
+    The dropped record is the only trace that survives a failed write, so an
+    unattributable one recreates the silent hole the decline exists to close. A
+    decline nests its run id differently from an episode, so this pins that the
+    drop path reads both shapes rather than only the episode one.
+    """
+    monkeypatch.setenv("HYPER_FLUSH_MAX_ATTEMPTS", "1")
+    monkeypatch.setattr(hook, "_spawn_flush", lambda path: None)
+    path = state.stage_flush(
+        "s1",
+        "agent-x:s1:declined",
+        {
+            "agent_name": "agent-x",
+            "decline": {
+                "run_id": "agent-x:s1:declined",
+                "reason": REASON_NO_TOOL_CALLS,
+                "is_delivered": False,
+            },
+        },
+    )
+
+    async def terminal(_payload):
+        return hook.FlushOutcome.TERMINAL, "HTTP 422"
+
+    monkeypatch.setattr(hook, "_deliver", terminal)
+    hook.cmd_flush(hook._parse_args(["flush", str(path)]))
+
+    record = json.loads((tmp_path / "dropped.jsonl").read_text().splitlines()[0])
+    assert record["run_id"] == "agent-x:s1:declined"
+    assert record["agent_name"] == "agent-x"
 
 
 def test_flush_drops_after_max_terminal_attempts(_env, monkeypatch, tmp_path) -> None:
@@ -1330,3 +1392,89 @@ def test_adistill_reports_delivery_outcome(
     assert result["status"] == expected_status
     assert captured["outcome"].is_success is False
     assert secret not in (captured["outcome"].summary or "")
+
+
+def test_deliver_decline_calls_the_client_and_reports_outcome(_env, monkeypatch) -> None:
+    """Drive a staged decline all the way through delivery, not just staging.
+
+    Staging assertions alone cannot catch a broken client call: they stop before
+    the client is ever constructed. This runs the real _deliver dispatch so the
+    decline's signature and await are exercised.
+    """
+    import hyperstruck.client as client_module
+
+    captured: dict[str, Any] = {}
+
+    class FakeClient:
+        def __init__(self):
+            self.writes_delivered = 0
+            self.writes_failed = 0
+            self.writes_terminal_failed = False
+            self.last_write_error = None
+
+        async def decline(self, **kwargs):
+            captured.update(kwargs)
+
+        async def drain(self, timeout=30.0):
+            self.writes_delivered = 1
+
+        async def aclose(self, drain_timeout=30.0):
+            captured["closed"] = True
+
+    monkeypatch.setattr(client_module, "HostedLearningClient", FakeClient)
+
+    outcome, cause = asyncio.run(
+        hook._deliver(
+            {
+                "agent_name": "agent-x",
+                "decline": {
+                    "run_id": "agent-x:s1:r",
+                    "reason": REASON_NO_TOOL_CALLS,
+                    "is_delivered": True,
+                    "source_framework": "claude-code",
+                },
+            }
+        )
+    )
+
+    assert outcome is hook.FlushOutcome.DELIVERED
+    assert cause is None
+    assert captured["run_id"] == "agent-x:s1:r"
+    assert captured["reason"] == REASON_NO_TOOL_CALLS
+    assert captured["is_delivered"] is True
+    assert captured["closed"] is True
+
+
+def test_deliver_decline_reports_a_terminal_rejection(_env, monkeypatch) -> None:
+    """A 4xx on a decline must be terminal, so it counts toward the retry cap."""
+    import hyperstruck.client as client_module
+
+    class FakeClient:
+        def __init__(self):
+            self.writes_delivered = 0
+            self.writes_failed = 1
+            self.writes_terminal_failed = True
+            self.last_write_error = "HTTP 422"
+
+        async def decline(self, **kwargs):
+            return None
+
+        async def drain(self, timeout=30.0):
+            return None
+
+        async def aclose(self, drain_timeout=30.0):
+            return None
+
+    monkeypatch.setattr(client_module, "HostedLearningClient", FakeClient)
+
+    outcome, cause = asyncio.run(
+        hook._deliver(
+            {
+                "agent_name": "agent-x",
+                "decline": {"run_id": "r", "reason": REASON_NO_TOOL_CALLS},
+            }
+        )
+    )
+
+    assert outcome is hook.FlushOutcome.TERMINAL
+    assert cause == "HTTP 422"

@@ -30,8 +30,10 @@ from typing import Any, Protocol, runtime_checkable
 
 import httpx
 
+from hyperstruck._version import __version__
 from hyperstruck.env import API_KEY_ENV_VARS, BASE_URL_ENV_VARS, first_env
 from hyperstruck._wire import (
+    DECLINE_REASONS,
     DEFAULT_MAX_LEARNINGS,
     Episode,
     EvidenceItem,
@@ -265,7 +267,13 @@ class HostedLearningClient:
 
     @property
     def _headers(self) -> dict[str, str]:
-        return {"Authorization": f"Bearer {self._api_key}"}
+        # The version is load bearing, not decoration: without it a stale client is
+        # indistinguishable from a current one server-side, so a bad release cannot
+        # be attributed or filtered, and the host cannot be attributed at resolve.
+        return {
+            "Authorization": f"Bearer {self._api_key}",
+            "User-Agent": f"hyperstruck-py/{__version__}",
+        }
 
     def _url(self, path: str) -> str:
         return f"{self._base_url}{path}"
@@ -367,6 +375,44 @@ class HostedLearningClient:
             occurred_at=occurred_at,
         )
         self._schedule_write("/distill", job.to_payload())
+
+    async def decline(
+        self,
+        *,
+        identity: AgentIdentity,
+        run_id: str,
+        reason: str,
+        is_delivered: bool = False,
+        source_framework: str = "",
+    ) -> None:
+        """Close a run whose turn ended with nothing worth learning.
+
+        The terminal alternative to observe/reinforce, not a failure path. A run
+        left unclosed is indistinguishable from a host that stopped writing back,
+        so a host that decides a turn is not worth learning from should say so.
+
+        ``is_delivered`` reports whether the recall reached the model this turn. A
+        turn can be shown its learnings and still not be worth learning from, and
+        only the host knows, so the caller is billed for recall it received and
+        released otherwise.
+        """
+        if not run_id:
+            raise ValueError("decline requires the run_id supplied to resolve")
+        if reason not in DECLINE_REASONS:
+            raise ValueError(
+                f"reason must be one of {sorted(DECLINE_REASONS)}, got {reason!r}"
+            )
+        self._schedule_write(
+            "/decline",
+            {
+                "agent_name": identity.agent_name,
+                "org_id": identity.org_id,
+                "run_id": run_id,
+                "reason": reason,
+                "is_delivered": is_delivered,
+                "source_framework": source_framework,
+            },
+        )
 
     # -- background delivery ------------------------------------------------
 

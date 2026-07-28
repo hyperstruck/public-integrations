@@ -68,6 +68,10 @@ class PendingTurn:
     source_framework: str
     ended_at: float
     offered_learning_ids: tuple[str, ...] = field(default_factory=tuple)
+    # Carried from the active turn so a declined turn can still report whether the
+    # recall reached the model: a turn can be shown its learnings and then do too
+    # little to be worth learning from, and only the host knows which happened.
+    is_injected: bool = False
 
 
 def session_dir(session_id: str) -> Path:

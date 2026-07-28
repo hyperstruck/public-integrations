@@ -16,6 +16,15 @@ from typing import Any, Literal
 # middleware so the two defaults cannot drift.
 DEFAULT_MAX_LEARNINGS = 8
 
+# Why a turn ended with nothing worth learning. The boundary validates against this
+# exact set and rejects anything else, so the two must not drift.
+REASON_NO_TOOL_CALLS = "no_tool_calls"
+REASON_BELOW_MATERIAL_THRESHOLD = "below_material_threshold"
+REASON_EMPTY_OFFER = "empty_offer"
+DECLINE_REASONS = frozenset(
+    {REASON_NO_TOOL_CALLS, REASON_BELOW_MATERIAL_THRESHOLD, REASON_EMPTY_OFFER}
+)
+
 
 @dataclass(frozen=True)
 class ToolSpec:

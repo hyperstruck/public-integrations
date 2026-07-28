@@ -19,11 +19,10 @@ top level so other framework adapters can reuse them.
 
 from __future__ import annotations
 
+from hyperstruck._version import __version__
 from hyperstruck._wire import Episode, ResolvedContext, StepRecord, TerminalOutcome, ToolSpec
 from hyperstruck.client import HostedLearningClient, LearningClient
 from hyperstruck.identity import AgentIdentity
-
-__version__ = "0.1.0"
 
 __all__ = [
     "AgentIdentity",

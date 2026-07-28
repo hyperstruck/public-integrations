@@ -39,6 +39,10 @@ from dataclasses import replace
 from enum import Enum
 from typing import Any
 
+from hyperstruck._wire import (
+    REASON_BELOW_MATERIAL_THRESHOLD,
+    REASON_NO_TOOL_CALLS,
+)
 from hyperstruck.ide import outcome, state
 from hyperstruck.ide.config import configured_agent_name, load_env
 from hyperstruck.ide.constants import (
@@ -532,10 +536,9 @@ def cmd_flush(args: argparse.Namespace) -> None:
     if attempts is None:
         return  # another flush process delivered and removed the staged file
     if attempts >= _max_flush_attempts():
-        episode = payload.get("episode") or {}
         state.record_dropped_flush(
             args.flush_path,
-            run_id=episode.get("run_id", ""),
+            run_id=_staged_run_id(payload),
             agent_name=payload.get("agent_name") or payload.get("agent_id", ""),
             attempts=attempts,
             cause=cause,
@@ -579,6 +582,7 @@ def _finalise(
             source_framework=current.source_framework,
             ended_at=time.time(),
             offered_learning_ids=current.offered_learning_ids,
+            is_injected=current.is_injected,
         ),
     )
 
@@ -596,6 +600,19 @@ def _stage_and_flush(
     # trivial turn (no material steps, no offer) still short-circuits below.
     do_reinforce = do_observe or bool(pending.offered_learning_ids)
     if not (do_observe or do_reinforce):
+        # Not worth learning from, but the run it opened is still open server-side,
+        # and going quiet made a deliberate skip look identical to a broken host.
+        # Staged like any other write so it inherits retry and drop accounting.
+        staged_decline = {
+            "agent_name": pending.agent_name,
+            "decline": {
+                "run_id": pending.run_id,
+                "reason": _decline_reason(steps),
+                "is_delivered": pending.is_injected,
+                "source_framework": pending.source_framework,
+            },
+        }
+        _spawn_flush(state.stage_flush(session_id, pending.run_id, staged_decline))
         return
     episode = _build_episode(pending, final_is_success)
     staged = {
@@ -606,6 +623,34 @@ def _stage_and_flush(
     }
     path = state.stage_flush(session_id, pending.run_id, staged)
     _spawn_flush(path)
+
+
+def _staged_run_id(payload: dict[str, Any]) -> str:
+    """The run a staged payload belongs to, whichever kind of write it carries.
+
+    A dropped write is the one record that survives the loss, so it is worthless
+    without the run id: an unattributable drop is exactly the silent hole a decline
+    exists to close. Episodes and declines nest the id differently, so read both.
+    """
+    for block in ("episode", "decline"):
+        nested = payload.get(block)
+        if isinstance(nested, dict) and nested.get("run_id"):
+            return str(nested["run_id"])
+    return ""
+
+
+def _decline_reason(steps: list[dict[str, Any]]) -> str:
+    """Why this turn was not worth learning from, from the gate that decided it.
+
+    Derived rather than invented, so the reported cause and the gate can never
+    disagree. This is what makes the gate measurable: until now it fired silently,
+    so how often it skipped a turn, and why, was invisible.
+
+    The wire contract also carries ``empty_offer`` for callers whose recall returned
+    nothing to apply. This host cannot reach it: an empty offer with material steps
+    still observes, and one without them is already described by the step count.
+    """
+    return REASON_NO_TOOL_CALLS if not steps else REASON_BELOW_MATERIAL_THRESHOLD
 
 
 def _build_episode(pending: PendingTurn, is_success: bool) -> dict[str, Any]:
@@ -734,6 +779,39 @@ async def _aresolve(
         await client.aclose()
 
 
+async def _deliver_decline(
+    agent_name: str, decline: dict[str, Any]
+) -> tuple[FlushOutcome, str | None]:
+    """Close a run the gate declined. Same outcome taxonomy as an episode write."""
+    from hyperstruck.client import HostedLearningClient
+    from hyperstruck.identity import AgentIdentity
+
+    run_id = decline.get("run_id")
+    reason = decline.get("reason")
+    if not run_id or not reason:
+        return FlushOutcome.UNRECOVERABLE, "malformed staged decline"
+    try:
+        client = HostedLearningClient()
+    except ValueError:
+        return FlushOutcome.UNRECOVERABLE, "no API key configured"
+    try:
+        await client.decline(
+            identity=AgentIdentity(agent_name=agent_name),
+            run_id=run_id,
+            reason=reason,
+            is_delivered=bool(decline.get("is_delivered")),
+            source_framework=decline.get("source_framework", SOURCE_CLAUDE_CODE),
+        )
+        await client.drain()
+        if client.writes_failed == 0:
+            return FlushOutcome.DELIVERED, None
+        if client.writes_terminal_failed:
+            return FlushOutcome.TERMINAL, client.last_write_error
+        return FlushOutcome.TRANSIENT, client.last_write_error
+    finally:
+        await client.aclose()
+
+
 async def _deliver(payload: dict[str, Any]) -> tuple[FlushOutcome, str | None]:
     """Observe (awaited to completion) then reinforce, so the wire order holds.
 
@@ -747,6 +825,9 @@ async def _deliver(payload: dict[str, Any]) -> tuple[FlushOutcome, str | None]:
     from hyperstruck.identity import AgentIdentity
 
     agent_name = payload.get("agent_name") or payload.get("agent_id")
+    decline_data = payload.get("decline")
+    if agent_name and decline_data:
+        return await _deliver_decline(agent_name, decline_data)
     episode_data = payload.get("episode") or {}
     if not agent_name or not episode_data:
         return FlushOutcome.UNRECOVERABLE, "malformed staged payload"

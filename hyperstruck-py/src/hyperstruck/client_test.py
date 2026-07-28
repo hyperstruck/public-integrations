@@ -359,3 +359,45 @@ async def test_at_least_once_safe_same_run_id_sends_each_time() -> None:
     # The client sends each time; the platform dedupes by run id server-side.
     assert posts.count("/observe") == 2
     await client.aclose()
+
+
+@pytest.mark.asyncio
+async def test_decline_posts_the_terminal_signal() -> None:
+    """Await the REAL client, so its signature is pinned, not just a test double.
+
+    The hook awaits this call. A stub with its own async def masks a sync
+    implementation entirely, so the only guard that means anything is awaiting the
+    real thing.
+    """
+    bodies = []
+
+    def handler(request: httpx.Request) -> httpx.Response:
+        import json
+
+        bodies.append((str(request.url), json.loads(request.content)))
+        return httpx.Response(202, json={"status": "accepted", "run_id": "r"})
+
+    client = _client(handler)
+    await client.decline(
+        identity=IDENTITY,
+        run_id="support-bot:abc",
+        reason="no_tool_calls",
+        is_delivered=True,
+        source_framework="claude-code",
+    )
+    await client.drain()
+
+    assert client.writes_delivered == 1
+    url, body = bodies[0]
+    assert url.endswith("/decline")
+    assert body["run_id"] == "support-bot:abc"
+    assert body["reason"] == "no_tool_calls"
+    assert body["is_delivered"] is True
+
+
+@pytest.mark.asyncio
+async def test_decline_rejects_a_reason_outside_the_closed_set() -> None:
+    """The boundary rejects an unknown reason; fail in the caller rather than on the wire."""
+    client = _client(lambda request: httpx.Response(202, json={}))
+    with pytest.raises(ValueError, match="reason must be one of"):
+        await client.decline(identity=IDENTITY, run_id="r", reason="because")
