@@ -248,6 +248,8 @@ POST {BASE_URL}/runs/{run_id}/resume
 
 After resume, poll the **child run id** from the response.
 
+> If the agent's `hitl_required_approvals` is greater than 1, the run stays suspended until that many **distinct** people have approved (the dispatcher is excluded, and any `reject` vetoes). Poll `output.approvals_recorded` to see progress. See `reference.md`.
+
 > Do **not** dispatch a new goal on the same `session_id` while any run is non-terminal — the API returns **409**.
 
 ---

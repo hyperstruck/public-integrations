@@ -29,14 +29,12 @@ Response `200`:
       "core_config": {
         "instructions": "...",
         "description": "...",
-        "temperature": null,
-        "max_tokens": null,
         "hitl_enabled": false,
         "hitl_autonomy_level": 5,
         "hitl_policy_preset": "autonomy",
+        "hitl_required_approvals": 1,
         "metadata": {}
       },
-      "llm_credential": null,
       "created_at": "..."
     }
   ],
@@ -210,6 +208,24 @@ POST /runs/{run_id}/resume
 | `metadata` | no | Arbitrary dict for the child run |
 
 Response `202` — returns a new child `RunResponse`.
+
+The approver is taken from the authenticated caller, never a request field.
+
+#### Multi-approver quorum (four-eyes)
+
+Set `core_config.hitl_required_approvals` (1–5, default 1) to require several
+distinct people to approve before a run proceeds past a gate. It is honoured only
+with `hitl_policy_preset: "milestone_only"`; a value above 1 under any other preset
+(or with HITL disabled) is rejected, never silently ignored.
+
+- Each approval must come from a **distinct authenticated principal** (a distinct
+  API key or portal login). One caller resuming twice replays rather than counting
+  twice.
+- The principal that **dispatched** the run may not approve its own quorum (403);
+  an ordinary single-approval gate still lets its dispatcher approve.
+- Any single `reject` vetoes, regardless of how many have approved.
+- While pending, `GET /runs/{run_id}` reports `output.approvals_recorded` (how many
+  of the required approvals have been recorded so far).
 
 ### Session messages
 
