@@ -10,6 +10,11 @@ import pytest
 
 from hyperstruck._wire import StepRecord
 from hyperstruck.ide import hook, state
+from hyperstruck.ide.constants import (
+    MAX_BOUNDARY_GOAL_CHARS,
+    MAX_EPISODE_STEPS,
+    MAX_STEP_FIELD_CHARS,
+)
 
 # Captured before the autouse fixture patches it, so the resolve breadcrumb tests
 # can exercise the real _resolve rather than the fixture's readonly stub.
@@ -670,6 +675,62 @@ def test_prompt_spawns_resolve_without_inline_network(
     assert active is not None
     assert active.offered_learning_ids == ()
     assert active.is_injected is False
+
+
+def test_prompt_clips_an_oversized_goal_to_the_platform_bound(
+    _env, monkeypatch
+) -> None:
+    monkeypatch.setattr(hook, "_spawn_resolve", lambda _session_id: None)
+    hook.cmd_prompt(
+        {
+            "session_id": "s1",
+            "prompt": "x" * (MAX_BOUNDARY_GOAL_CHARS + 500),
+            "cwd": "/repo",
+        },
+        hook._parse_args(["prompt"]),
+    )
+    active = state.read_active("s1")
+    assert active is not None
+    assert len(active.goal) == MAX_BOUNDARY_GOAL_CHARS
+    assert active.goal.endswith("[TRUNCATED]")
+
+
+def test_prompt_scrubs_the_goal_before_it_can_reach_resolve(_env, monkeypatch) -> None:
+    monkeypatch.setattr(hook, "_spawn_resolve", lambda _session_id: None)
+    hook.cmd_prompt(
+        {"session_id": "s1", "prompt": "deploy with password=abcd", "cwd": "/repo"},
+        hook._parse_args(["prompt"]),
+    )
+    active = state.read_active("s1")
+    assert active is not None
+    assert "abcd" not in active.goal
+
+
+def test_episode_holds_the_step_cap_and_still_counts_the_whole_turn() -> None:
+    steps = [
+        {"id": f"s{n}", "name": "Bash", "args": {}, "status": "completed"}
+        for n in range(MAX_EPISODE_STEPS + 20)
+    ]
+    pending = state.PendingTurn(
+        run_id="a:b:c",
+        agent_name="agent-x",
+        goal="g",
+        steps=tuple(steps),
+        is_success=True,
+        source_framework="claude-code",
+        ended_at=0.0,
+    )
+    episode = hook._build_episode(pending, is_success=True)
+    assert len(episode["steps"]) == MAX_EPISODE_STEPS
+    assert episode["steps"][-1]["id"] == steps[-1]["id"]  # the tail is what survives
+    assert episode["outcome"]["total_steps"] == len(steps)
+    assert episode["outcome"]["completed_steps"] == len(steps)
+
+
+def test_wire_step_clips_an_overlong_tool_name() -> None:
+    wire = hook._wire_step({"id": "x" * 400, "name": "y" * 400})
+    assert len(wire["id"]) == MAX_STEP_FIELD_CHARS
+    assert len(wire["name"]) == MAX_STEP_FIELD_CHARS
 
 
 def test_prompt_spawns_fixed_argv_detached_resolver(_env, monkeypatch) -> None:

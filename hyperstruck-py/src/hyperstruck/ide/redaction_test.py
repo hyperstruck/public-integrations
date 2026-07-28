@@ -2,8 +2,12 @@
 
 from __future__ import annotations
 
-from hyperstruck.ide.constants import MAX_RESULT_CHARS
-from hyperstruck.ide.redaction import clip_result, redact_ide_episode
+from hyperstruck.ide.constants import (
+    MAX_BOUNDARY_GOAL_CHARS,
+    MAX_RESULT_CHARS,
+    TRUNCATION_MARKER,
+)
+from hyperstruck.ide.redaction import _clip, clip_goal, clip_result, redact_ide_episode
 from hyperstruck.redaction import REDACTION_MARKER, scrub_secrets
 
 
@@ -41,9 +45,33 @@ def test_high_entropy_token_scrubbed_low_entropy_preserved() -> None:
 def test_clip_result_truncates() -> None:
     big = "x" * (MAX_RESULT_CHARS + 500)
     clipped = clip_result(big)
-    assert clipped.endswith("[TRUNCATED]")
-    assert len(clipped) <= MAX_RESULT_CHARS + len(" [TRUNCATED]")
+    assert clipped.endswith(TRUNCATION_MARKER)
+    assert len(clipped) == MAX_RESULT_CHARS  # the marker counts toward the ceiling
     assert clip_result(None) is None
+
+
+def test_clip_goal_holds_the_platform_bound() -> None:
+    clipped = clip_goal("x" * (MAX_BOUNDARY_GOAL_CHARS + 1))
+    assert len(clipped) == MAX_BOUNDARY_GOAL_CHARS
+    assert clipped.endswith(TRUNCATION_MARKER)
+    assert clip_goal("x" * MAX_BOUNDARY_GOAL_CHARS) == "x" * MAX_BOUNDARY_GOAL_CHARS
+    assert clip_goal("") == ""
+
+
+def test_clip_never_exceeds_a_limit_too_small_for_the_marker() -> None:
+    for limit in range(0, len(TRUNCATION_MARKER) + 2):
+        assert len(_clip("abcdefghijklmnopqrstuvwxyz", limit)) == limit
+
+
+def test_redact_ide_episode_clips_a_goal_the_scrub_grew_over_the_bound() -> None:
+    # A short key=value credential: the marker substituted in is longer than the
+    # value it replaces, so this goal grows past the bound during the scrub.
+    secret = "password=abcd "
+    goal = secret + "x" * (MAX_BOUNDARY_GOAL_CHARS - len(secret))
+    assert len(goal) == MAX_BOUNDARY_GOAL_CHARS
+    redacted = redact_ide_episode({"goal": goal, "steps": []})
+    assert redacted["goal"].startswith(f"password={REDACTION_MARKER}")
+    assert len(redacted["goal"]) == MAX_BOUNDARY_GOAL_CHARS
 
 
 def test_redact_ide_episode_scrubs_secrets_everywhere() -> None:

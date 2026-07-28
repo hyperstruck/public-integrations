@@ -15,13 +15,22 @@ Layered over the package's declared-field redaction (:func:`redact_episode_paylo
 so a customer who *does* declare tool-arg sensitivity still gets that strip too.
 The trade is recorded in the spec's decisions log: a richer "ship full results"
 mode and a local-abstraction pass are available upgrades, not the default.
+
+Separately from privacy, this module also holds strings inside the *boundary's*
+bounds (:func:`clip_goal`). That ceiling is not ours to choose: over it the write
+is rejected outright and the turn's learning is lost, so clipping to fit is what
+keeps an oversized turn deliverable at all.
 """
 
 from __future__ import annotations
 
 from typing import Any
 
-from hyperstruck.ide.constants import MAX_RESULT_CHARS
+from hyperstruck.ide.constants import (
+    MAX_BOUNDARY_GOAL_CHARS,
+    MAX_RESULT_CHARS,
+    TRUNCATION_MARKER,
+)
 from hyperstruck.redaction import (
     redact_episode_payload,
     scrub_secrets,
@@ -31,9 +40,19 @@ from hyperstruck.redaction import (
 # ``scrub_secrets`` is owned by the shared redaction module and only used here; it
 # is deliberately not re-exported (import it from ``hyperstruck.redaction``).
 __all__ = [
+    "clip_goal",
     "clip_result",
     "redact_ide_episode",
 ]
+
+
+def _clip(text: str, limit: int) -> str:
+    """Truncate to ``limit`` characters in total, marker included."""
+    if len(text) <= limit:
+        return text
+    if limit <= len(TRUNCATION_MARKER):
+        return text[:limit]
+    return text[: limit - len(TRUNCATION_MARKER)] + TRUNCATION_MARKER
 
 
 def clip_result(value: Any) -> Any:
@@ -45,10 +64,17 @@ def clip_result(value: Any) -> Any:
     """
     if value is None:
         return None
-    text = value if isinstance(value, str) else str(value)
-    if len(text) <= MAX_RESULT_CHARS:
-        return text
-    return text[:MAX_RESULT_CHARS] + " [TRUNCATED]"
+    return _clip(value if isinstance(value, str) else str(value), MAX_RESULT_CHARS)
+
+
+def clip_goal(text: str) -> str:
+    """Hold the goal inside the platform's bound, which resolve and observe share.
+
+    Applied at capture and again after the secret scrub: scrubbing substitutes a
+    placeholder that can be longer than the token it replaces, so a goal that fit
+    before the scrub can exceed the bound after it.
+    """
+    return _clip(text, MAX_BOUNDARY_GOAL_CHARS)
 
 
 def redact_ide_episode(payload: dict[str, Any]) -> dict[str, Any]:
@@ -65,7 +91,7 @@ def redact_ide_episode(payload: dict[str, Any]) -> dict[str, Any]:
     redacted = dict(redact_episode_payload(payload))
     goal = redacted.get("goal")
     if isinstance(goal, str):
-        redacted["goal"] = scrub_secrets(goal)
+        redacted["goal"] = clip_goal(scrub_secrets(goal))
     if isinstance(redacted.get("steps"), list):
         redacted["steps"] = scrub_strings(redacted["steps"], scrub_secrets)
     return redacted

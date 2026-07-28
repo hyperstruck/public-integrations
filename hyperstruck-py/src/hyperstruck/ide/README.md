@@ -143,7 +143,15 @@ Redaction happens on your machine, before anything leaves it.
   path, the status, the error, and a clipped result. Learnings are about patterns,
   not literal code.
 - **Secrets are scrubbed**: known credential shapes and high-entropy tokens are
-  removed from every string that does ship.
+  removed from every string that does ship, on both paths. The goal is scrubbed at
+  capture, before recall ever sees it, and the episode is scrubbed again on its way
+  to the write.
+- **Oversized text is clipped to the boundary's bounds**, results at capture and
+  the goal at both capture and after the scrub, because scrubbing can lengthen a
+  string. A goal past the bound is rejected by *recall* as well as by the write, so
+  an unclipped long prompt would cost the turn its learnings and then its episode,
+  silently on both counts. An overlong turn is clipped to the boundary's step cap
+  the same way, keeping the trailing steps that carry the outcome.
 
 Your source never leaves; only scrubbed, pattern-level learnings do.
 
@@ -172,8 +180,16 @@ passing outage never discards a still-deliverable episode. Set
 
 Because a dropped flush is the one place a learning is lost for good, and the
 detached flush process has no reachable stderr, each drop is appended as one JSON
-line to `~/.hyperstruck/dropped.jsonl` (run id, agent, attempts, and a coarse
-cause tag such as `HTTP 422`, never the prompt), so the loss leaves a trace.
+line to `~/.hyperstruck/dropped.jsonl` (run id, agent, attempts, and a cause tag,
+never the prompt), so the loss leaves a trace.
+
+When the boundary rejects a payload as invalid, the cause names the field it
+refused: `HTTP 422 (body.episode.goal:string_too_long)`. Only the *location* and
+*type* of each rejection are kept, never the server's message or the value it
+rejected, because that value is the prompt or command this log must not hold. A
+bare `HTTP 422` says a payload was discarded but not what was wrong with it, and
+the payload is deleted along with it, so the drop would otherwise be impossible to
+diagnose after the fact.
 
 ## Diagnosing a quiet hook
 

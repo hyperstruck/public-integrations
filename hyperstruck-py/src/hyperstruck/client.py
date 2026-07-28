@@ -24,6 +24,7 @@ from __future__ import annotations
 import asyncio
 import logging
 import os
+import re
 from collections.abc import Sequence
 from typing import Any, Protocol, runtime_checkable
 
@@ -55,6 +56,15 @@ WRITE_TIMEOUT_ENV = "HYPER_WRITE_TIMEOUT"
 DEFAULT_RESOLVE_TIMEOUT = 2.0
 DEFAULT_WRITE_TIMEOUT = 30.0
 
+HTTP_UNPROCESSABLE_ENTITY = 422
+# A rejection can name one field per step of a 500-step episode, so both the
+# number of named fields and the length of the resulting tag are bounded.
+MAX_LOGGED_VALIDATION_ERRORS = 5
+MAX_VALIDATION_CAUSE_CHARS = 200
+# A field name or a pydantic error type. Anything else in `loc`/`type` did not come
+# from the schema and is not copied into a log that must hold no payload content.
+_VALIDATION_TOKEN = re.compile(r"[A-Za-z0-9_]{1,40}")
+
 
 def _env_float(name: str, default: float) -> float:
     raw = os.environ.get(name)
@@ -78,8 +88,47 @@ def _describe_write_error(exc: Exception | None) -> str | None:
     if exc is None:
         return None
     if isinstance(exc, httpx.HTTPStatusError):
-        return f"HTTP {exc.response.status_code}"
+        return f"HTTP {exc.response.status_code}{_validation_locations(exc.response)}"
     return type(exc).__name__
+
+
+def _validation_locations(response: httpx.Response) -> str:
+    """Which fields a 422 rejected, taken structurally so no content is carried.
+
+    A rejected write is dropped after its retries and the payload is deleted with
+    it, so ``HTTP 422`` alone leaves nothing to diagnose from. The server's detail
+    names the offending field but echoes the rejected ``input`` verbatim, which for
+    a goal or a command is the very content this log must never hold. So ``msg``
+    and ``input`` are never read, and what is read is admitted only if it looks
+    like a schema token: the guarantee is then ours to keep, not the boundary's to
+    honour, and a compromised or merely buggy one cannot talk its way into the log.
+    """
+    if response.status_code != HTTP_UNPROCESSABLE_ENTITY:
+        return ""
+    try:
+        detail = response.json().get("detail")
+    except (ValueError, AttributeError):
+        return ""  # a non-JSON or non-object error body is still just "HTTP 422"
+    if not isinstance(detail, list):
+        return ""
+    located = []
+    for error in detail[:MAX_LOGGED_VALIDATION_ERRORS]:
+        if not isinstance(error, dict):
+            continue
+        loc = error.get("loc")
+        if not isinstance(loc, (list, tuple)) or not loc:
+            continue
+        path = ".".join(_validation_token(part) for part in loc)
+        located.append(f"{path}:{_validation_token(error.get('type'))}")
+    if not located:
+        return ""
+    return f" ({', '.join(located)})"[:MAX_VALIDATION_CAUSE_CHARS]
+
+
+def _validation_token(value: Any) -> str:
+    """The value if it is a bare schema token, else a placeholder standing in."""
+    text = str(value)
+    return text if _VALIDATION_TOKEN.fullmatch(text) else "?"
 
 
 @runtime_checkable

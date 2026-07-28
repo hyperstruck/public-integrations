@@ -49,6 +49,8 @@ from hyperstruck.ide.constants import (
     FLUSH_STALE_SECONDS,
     HOOK_DEBUG_ENV,
     HOOK_DEBUG_OFF_VALUES,
+    MAX_EPISODE_STEPS,
+    MAX_STEP_FIELD_CHARS,
     NATIVE_FAILURE_STATUSES,
     SOURCE_CLAUDE_CODE,
     SOURCE_CURSOR,
@@ -57,6 +59,7 @@ from hyperstruck.ide.constants import (
 )
 from hyperstruck.ide.gating import classify_tool, should_observe
 from hyperstruck.ide.redaction import (
+    clip_goal,
     clip_result,
     redact_ide_episode,
     scrub_secrets,
@@ -82,7 +85,9 @@ def cmd_prompt(payload: dict[str, Any], args: argparse.Namespace) -> None:
     """Turn start: record and detach resolve; recover any interrupted turn."""
     cwd = _cwd(payload, args)
     session_id = resolve_session_id(payload, cwd, args)
-    goal = (args.goal or payload.get("prompt") or "").strip()
+    # Scrubbed here, not just in redact_ide_episode: this goal also goes to
+    # resolve, which the episode redaction never touches.
+    goal = clip_goal(scrub_secrets((args.goal or payload.get("prompt") or "").strip()))
     agent_name = configured_agent_name()
 
     # Read-only recall (the hyper-learning skill): resolve and print for this goal,
@@ -605,9 +610,11 @@ def _stage_and_flush(
 
 def _build_episode(pending: PendingTurn, is_success: bool) -> dict[str, Any]:
     """Project stored steps onto the wire episode shape (drops client-only fields)."""
+    # Keep the tail when a turn overruns the boundary's cap: the trailing steps
+    # carry the outcome the producer reads. The counts stay over the full turn.
     wire_steps = [
         {field: step.get(field) for field in _WIRE_STEP_FIELDS}
-        for step in pending.steps
+        for step in pending.steps[-MAX_EPISODE_STEPS:]
     ]
     completed = sum(
         1 for step in pending.steps if step.get("status") == STATUS_COMPLETED
@@ -619,7 +626,7 @@ def _build_episode(pending: PendingTurn, is_success: bool) -> dict[str, Any]:
         "steps": wire_steps,
         "outcome": {
             "is_success": is_success,
-            "total_steps": len(wire_steps),
+            "total_steps": len(pending.steps),
             "completed_steps": completed,
             "failed_steps": failed,
         },
@@ -793,6 +800,8 @@ def _wire_step(step: dict[str, Any]) -> dict[str, Any]:
         wire["id"] = uuid.uuid4().hex
     if not wire.get("name"):
         wire["name"] = "tool"
+    for field in ("id", "name"):
+        wire[field] = str(wire[field])[:MAX_STEP_FIELD_CHARS]
     if wire.get("status") not in (STATUS_COMPLETED, STATUS_FAILED):
         wire["status"] = STATUS_COMPLETED
     if not isinstance(wire.get("args"), dict):

@@ -118,6 +118,18 @@ MIN_MATERIAL_STEPS = 2
 # contents or diffs; this caps even the summarised/echoed result string.
 MAX_RESULT_CHARS = 2000
 
+TRUNCATION_MARKER = " [TRUNCATED]"
+
+# The boundary's own bounds, mirrored from api/models/learning_boundary.py, which
+# stays authoritative. Exceeding one is not a soft failure: the request 422s, and
+# for the goal that costs the turn its recall (ResolveRequest) and then its whole
+# episode (EpisodeModel), silently on both counts. So values are clipped to fit
+# rather than sent and lost. Not to be confused with the hosted-run goal bound in
+# api/models/payload_bounds.py, which is a different limit for a different path.
+MAX_BOUNDARY_GOAL_CHARS = 8000
+MAX_EPISODE_STEPS = 500
+MAX_STEP_FIELD_CHARS = 200
+
 # -- step classification -----------------------------------------------------
 
 # What a tool call did, used by gating (material vs read-only) and outcome
