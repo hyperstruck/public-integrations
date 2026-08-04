@@ -142,6 +142,22 @@ Redaction happens on your machine, before anything leaves it.
 - **No raw file contents or diffs are shipped.** A step carries the tool name, the
   path, the status, the error, and a clipped result. Learnings are about patterns,
   not literal code.
+- **Your next prompt is attached to the previous turn.** When you object to what a
+  turn did, you say so on the turn *after* it, so that message travels with the turn
+  it is about. It is the only way a standard you state in passing ("we use British
+  English here") can be learned rather than repeated forever. It means a prompt can
+  leave this machine twice: once as its own turn's goal, once as the previous turn's
+  attached message. Four rules bound it, and a message failing any of them is dropped
+  rather than trimmed:
+  - Only what you typed. It comes from your editor's prompt, never from model output,
+    tool results, or retrieved documents, and `--goal` is ignored except for read-only
+    recall so a tool cannot supply one.
+  - Nothing over 500 characters. A stated standard is short; longer messages are
+    pasted logs, code or documents, and are dropped whole.
+  - Nothing the secret scrub touched, on the grounds that a message carrying a
+    credential is not a standard.
+  - Nothing when your editor supplies no session id, because two conversations can
+    then share one session and the message cannot be tied to the right turn.
 - **Secrets are scrubbed**: known credential shapes and high-entropy tokens are
   removed from every string that does ship, on both paths. The goal is scrubbed at
   capture, before recall ever sees it, and the episode is scrubbed again on its way

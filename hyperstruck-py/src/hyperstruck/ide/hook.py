@@ -45,6 +45,7 @@ from hyperstruck._wire import (
 )
 from hyperstruck.ide import outcome, state
 from hyperstruck.ide.config import configured_agent_name, load_env
+from hyperstruck.redaction import REDACTION_MARKER
 from hyperstruck.ide.constants import (
     DEFAULT_FLUSH_MAX_ATTEMPTS,
     DETACHED_RESOLVE_TIMEOUT,
@@ -91,7 +92,15 @@ def cmd_prompt(payload: dict[str, Any], args: argparse.Namespace) -> None:
     session_id = resolve_session_id(payload, cwd, args)
     # Scrubbed here, not just in redact_ide_episode: this goal also goes to
     # resolve, which the episode redaction never touches.
-    goal = clip_goal(scrub_secrets((args.goal or payload.get("prompt") or "").strip()))
+    # --goal is honoured only for read-only recall. On the recording path the goal must come
+    # from the host's prompt payload and nothing else, because it becomes the principal's
+    # utterance on the previous turn, and a non-empty utterance is what authorises a rule that
+    # is frozen against outcomes and rendered at the top of every future prompt. The installed
+    # hooks already pass stdin, but this CLI is invocable by any agent with a shell, including
+    # one under prompt injection, so the restriction has to live in the code rather than in
+    # which argv the installer happens to write.
+    raw_goal = (args.goal if args.readonly else payload.get("prompt")) or ""
+    goal = clip_goal(scrub_secrets(raw_goal.strip()))
     agent_name = configured_agent_name()
 
     # Read-only recall (the hyper-learning skill): resolve and print for this goal,
@@ -549,6 +558,53 @@ def cmd_flush(args: argparse.Namespace) -> None:
 # -- turn finalisation / flush staging ---------------------------------------
 
 
+# A stated standard is short. Measured over real sessions: 18 messages that actually state
+# one run 30 to 368 characters, while the typed-prompt distribution has a median of 46 and a
+# maximum near 20,000. The long tail is pasted logs, code and documents, which are the least
+# likely to be a standard and the most expensive to ship a second time. This is a data
+# minimisation bound, NOT a quality gate: irrelevant utterances were measured not to become
+# norms, so nothing here is protecting precision. Drops are counted, never truncated: half a
+# stated norm can mean the opposite of the whole one.
+MAX_UTTERANCE_CHARS = 500
+
+
+def _principal_utterance(goal: str, session_id: str) -> str:
+    """The successor's message, when it can honestly be offered as the principal's own words.
+
+    Returns "" rather than a best effort, because downstream a non-empty value is what
+    authorises a rule that is frozen against outcomes, never decays, and renders at the top
+    of every future prompt. Anything we cannot stand behind must be absent, not approximate.
+
+    Suppressed when the session id is derived rather than supplied by the host: two
+    conversations in one terminal and working directory collapse onto one session, so the
+    turn this message belongs to is not established, and attributing it to the pending turn
+    asserts an authority we do not have. That is the same confused-deputy reasoning the
+    field-level guarantee rests on, applied one layer up. It lifts on its own once a host
+    supplies real session ids.
+    """
+    if not goal or session_id.startswith("derived-"):
+        return ""
+    if REDACTION_MARKER in goal:
+        # The scrub already fired on this message. A message carrying a credential is strong
+        # evidence it is not a stated standard, and a placeholder frozen into a rule would
+        # render at primacy forever. Reading our own marker, not guessing at content.
+        return ""
+    if len(goal) > MAX_UTTERANCE_CHARS:
+        _count_dropped_utterance(len(goal))
+        return ""
+    return goal
+
+
+def _count_dropped_utterance(length: int) -> None:
+    """Record a message the bound refused, so a real standard lost to it is not invisible.
+
+    The spec's own rule: no cap ships without logging what it drops.
+    """
+    _debug(
+        f"utterance not attached: {length} chars exceeds the {MAX_UTTERANCE_CHARS} bound"
+    )
+
+
 def _finalise(
     session_id: str,
     current: ActiveTurn,
@@ -568,6 +624,13 @@ def _finalise(
         final_is_success = outcome.resolve_prior_outcome(
             prior.is_success,
             reworked=outcome.reworked(prior.steps, current_steps),
+        )
+        # The objection is typed on this turn but is about the prior one, and this is the
+        # only moment both are in scope: the prior turn is resolved here precisely because
+        # its successor now exists. No buffering, no re-observe, no idempotency problem.
+        prior = replace(
+            prior,
+            principal_utterance=_principal_utterance(current.goal, session_id),
         )
         _stage_and_flush(session_id, prior, final_is_success)
         state.clear_pending(session_id)
@@ -676,6 +739,7 @@ def _build_episode(pending: PendingTurn, is_success: bool) -> dict[str, Any]:
             "failed_steps": failed,
         },
         "source_framework": pending.source_framework,
+        "principal_utterance": pending.principal_utterance or None,
         "thread_id": None,
     }
 
@@ -846,6 +910,12 @@ async def _deliver(payload: dict[str, Any]) -> tuple[FlushOutcome, str | None]:
             failed_steps=int(outcome_data.get("failed_steps", 0)),
         ),
         source_framework=episode_data.get("source_framework", SOURCE_CLAUDE_CODE),
+        # Rebuilt field by field, so anything omitted here is staged, scrubbed, written to
+        # disk and then silently dropped at the moment of delivery. That is how the utterance
+        # came to be plumbed through five layers and never transmitted; thread_id had the same
+        # omission already. Keep this list in step with _build_episode.
+        principal_utterance=episode_data.get("principal_utterance"),
+        thread_id=episode_data.get("thread_id"),
     )
     try:
         client = HostedLearningClient()

@@ -11,9 +11,12 @@ import pytest
 from hyperstruck._wire import (
     REASON_BELOW_MATERIAL_THRESHOLD,
     REASON_NO_TOOL_CALLS,
+    Episode,
     StepRecord,
+    TerminalOutcome,
 )
 from hyperstruck.ide import hook, state
+from hyperstruck.redaction import REDACTION_MARKER
 from hyperstruck.ide.constants import (
     MAX_BOUNDARY_GOAL_CHARS,
     MAX_EPISODE_STEPS,
@@ -1082,7 +1085,9 @@ def test_uninjected_recall_credits_nothing_and_is_removed(_env) -> None:
     )
     hook.cmd_stop(conv, hook._parse_args(["stop", "--source", "cursor"]))
     pending = state.read_pending("c1")
-    assert pending is not None and pending.offered_learning_ids == ()  # nothing credited
+    assert (
+        pending is not None and pending.offered_learning_ids == ()
+    )  # nothing credited
     assert state.claim_recall("c1") is None  # the stale recall is removed
     hook._stage_and_flush("c1", pending, True)
     flushed = _last_staged(staged)
@@ -1394,7 +1399,9 @@ def test_adistill_reports_delivery_outcome(
     assert secret not in (captured["outcome"].summary or "")
 
 
-def test_deliver_decline_calls_the_client_and_reports_outcome(_env, monkeypatch) -> None:
+def test_deliver_decline_calls_the_client_and_reports_outcome(
+    _env, monkeypatch
+) -> None:
     """Drive a staged decline all the way through delivery, not just staging.
 
     Staging assertions alone cannot catch a broken client call: they stop before
@@ -1478,3 +1485,123 @@ def test_deliver_decline_reports_a_terminal_rejection(_env, monkeypatch) -> None
 
     assert outcome is hook.FlushOutcome.TERMINAL
     assert cause == "HTTP 422"
+
+
+def test_the_successors_message_lands_on_the_prior_turns_episode() -> None:
+    """The objection is typed on turn N+1 and is about turn N."""
+    pending = state.PendingTurn(
+        run_id="r1",
+        agent_name="a",
+        goal="fix the vacuity gate",
+        steps=({"status": "completed", "description": "edit"},),
+        is_success=True,
+        source_framework="claude-code",
+        ended_at=0.0,
+        principal_utterance="we do not add word lists to our code",
+    )
+
+    episode = hook._build_episode(pending, is_success=False)
+
+    assert episode["principal_utterance"] == "we do not add word lists to our code"
+
+
+def test_a_turn_with_no_successor_message_sends_none() -> None:
+    pending = state.PendingTurn(
+        run_id="r1",
+        agent_name="a",
+        goal="fix the vacuity gate",
+        steps=({"status": "completed", "description": "edit"},),
+        is_success=True,
+        source_framework="claude-code",
+        ended_at=0.0,
+    )
+
+    assert hook._build_episode(pending, is_success=True)["principal_utterance"] is None
+
+
+class TestUtteranceAdmission:
+    """A non-empty utterance authorises a frozen, undecayable, primacy-rendered rule."""
+
+    def test_an_ordinary_message_is_admitted(self) -> None:
+        assert (
+            hook._principal_utterance("we use British English here", "sess-1")
+            == "we use British English here"
+        )
+
+    def test_a_derived_session_admits_nothing(self) -> None:
+        """Two conversations collapse onto one derived session, so the turn is not established."""
+        assert (
+            hook._principal_utterance("we use British English here", "derived-42-abc")
+            == ""
+        )
+
+    def test_a_message_the_scrub_touched_is_refused(self) -> None:
+        scrubbed = f"the key is {REDACTION_MARKER} so be careful"
+
+        assert hook._principal_utterance(scrubbed, "sess-1") == ""
+
+    def test_a_message_past_the_bound_is_refused_not_truncated(self) -> None:
+        """Half a stated norm can mean the opposite of the whole one."""
+        assert (
+            hook._principal_utterance("x" * (hook.MAX_UTTERANCE_CHARS + 1), "sess-1")
+            == ""
+        )
+
+    def test_a_message_at_the_bound_is_kept(self) -> None:
+        at_bound = "y" * hook.MAX_UTTERANCE_CHARS
+
+        assert hook._principal_utterance(at_bound, "sess-1") == at_bound
+
+    def test_every_measured_norm_statement_fits(self) -> None:
+        """Calibrated on real sessions: the longest observed statement was 368 characters."""
+        assert hook.MAX_UTTERANCE_CHARS > 368
+
+
+def test_delivery_carries_the_utterance_to_the_client() -> None:
+    """Staging assertions alone cannot catch a field dropped when the wire object is rebuilt."""
+    staged = {
+        "run_id": "r1",
+        "goal": "write the README",
+        "steps": [],
+        "outcome": {
+            "is_success": False,
+            "total_steps": 0,
+            "completed_steps": 0,
+            "failed_steps": 0,
+        },
+        "source_framework": "claude-code",
+        "principal_utterance": "we use British English in this repository",
+        "thread_id": None,
+    }
+
+    episode = Episode(
+        run_id=staged["run_id"],
+        goal=staged["goal"],
+        steps=(),
+        outcome=TerminalOutcome(
+            is_success=False, total_steps=0, completed_steps=0, failed_steps=0
+        ),
+        source_framework=staged["source_framework"],
+        principal_utterance=staged.get("principal_utterance"),
+        thread_id=staged.get("thread_id"),
+    )
+
+    assert (
+        episode.to_payload()["principal_utterance"]
+        == "we use British English in this repository"
+    )
+
+
+def test_the_payload_omits_the_key_when_there_is_no_utterance() -> None:
+    """The API forbids extra keys and rejects a forbidden one even when its value is null."""
+    episode = Episode(
+        run_id="r1",
+        goal="g",
+        steps=(),
+        outcome=TerminalOutcome(
+            is_success=True, total_steps=0, completed_steps=0, failed_steps=0
+        ),
+        source_framework="claude-code",
+    )
+
+    assert "principal_utterance" not in episode.to_payload()

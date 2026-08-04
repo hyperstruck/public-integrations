@@ -208,3 +208,23 @@ def test_session_id_cannot_escape_session_dir() -> None:
         sdir = state.session_dir(evil)
         assert sdir.parent == base  # stays one level under sessions/
         assert sdir.name not in ("", ".", "..")
+
+
+def test_a_pending_turn_round_trips_every_field() -> None:
+    """Anything written but not read back is dead on disk, which is how is_injected broke."""
+    pending = PendingTurn(
+        run_id="r1",
+        agent_name="a",
+        goal="fix the vacuity gate",
+        steps=({"status": "completed"},),
+        is_success=True,
+        source_framework="claude-code",
+        ended_at=1.0,
+        offered_learning_ids=("l1",),
+        is_injected=True,
+        principal_utterance="we do not add word lists to our code",
+    )
+
+    restored = state._pending_from_dict(state._pending_to_dict(pending))
+
+    assert restored == pending

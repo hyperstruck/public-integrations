@@ -70,11 +70,16 @@ class Episode:
         default_factory=lambda: TerminalOutcome(is_success=True)
     )
     source_framework: str = "langgraph"
+    # Populate only from a human-input channel. Model output, tool results and retrieved
+    # documents must never reach this: the guarantee it carries is about which writer can
+    # set it, not about what it contains, so a host that fills it from anything else has
+    # silently handed authority to whatever wrote the text.
+    principal_utterance: str | None = None
     thread_id: str | None = None
 
     def to_payload(self) -> dict[str, Any]:
         """Serialise to the JSON body the platform expects."""
-        return {
+        payload: dict[str, Any] = {
             "run_id": self.run_id,
             "goal": self.goal,
             "steps": [asdict(step) for step in self.steps],
@@ -82,6 +87,13 @@ class Episode:
             "source_framework": self.source_framework,
             "thread_id": self.thread_id,
         }
+        # Omitted entirely when unset. The API model forbids extra keys and rejects a
+        # forbidden one even with a null value, so emitting it unconditionally would 422
+        # every write for anyone who upgrades this package before the API deploy lands,
+        # and a 4xx is terminal to the flush retry, so those episodes are dropped for good.
+        if self.principal_utterance:
+            payload["principal_utterance"] = self.principal_utterance
+        return payload
 
 
 @dataclass(frozen=True)

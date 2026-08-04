@@ -81,8 +81,8 @@ def redact_ide_episode(payload: dict[str, Any]) -> dict[str, Any]:
     """Return a send-safe copy of an episode payload.
 
     Declared-sensitive args are stripped first (package redaction), then the
-    secret scrub is applied ONLY to the free-text fields (goal and steps), never
-    to identifiers. Scrubbing the whole dict would corrupt ``run_id`` (its uuid
+    secret scrub is applied ONLY to the free-text fields (goal, the principal's utterance,
+    and steps), never to identifiers. Scrubbing the whole dict would corrupt ``run_id`` (its uuid
     tail clears the high-entropy gate), which the server keys its offer log and
     dedup on, silently breaking reinforce. ``run_id``/``thread_id``/
     ``source_framework``/``outcome`` are preserved verbatim. The input is not
@@ -92,6 +92,12 @@ def redact_ide_episode(payload: dict[str, Any]) -> dict[str, Any]:
     goal = redacted.get("goal")
     if isinstance(goal, str):
         redacted["goal"] = clip_goal(scrub_secrets(goal))
+    utterance = redacted.get("principal_utterance")
+    if isinstance(utterance, str):
+        # Scrubbed but never clipped. A clipped goal costs some retrieval quality; a clipped
+        # utterance becomes a frozen rule whose meaning a cut qualifier can reverse, so the
+        # length decision is made at admission where it can refuse rather than truncate.
+        redacted["principal_utterance"] = scrub_secrets(utterance)
     if isinstance(redacted.get("steps"), list):
         redacted["steps"] = scrub_strings(redacted["steps"], scrub_secrets)
     return redacted

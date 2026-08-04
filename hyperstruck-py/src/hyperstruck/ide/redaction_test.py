@@ -141,3 +141,51 @@ def test_kv_assignment_value_redacted() -> None:
     assert "hunter2plain" not in out
     assert out.lower().startswith("db_password=")  # key kept, value redacted
     assert "topsecret" not in scrub_secrets("token: topsecret123")
+
+
+def test_the_principal_utterance_is_scrubbed_like_the_goal() -> None:
+    """It is the same class of data as the goal, so it inherits the goal's treatment."""
+    redacted = redact_ide_episode(
+        {
+            "run_id": "r1",
+            "goal": "write the README",
+            "principal_utterance": "use the key sk-ant-api03-AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA and British English",
+            "steps": [],
+        }
+    )
+
+    assert (
+        "sk-ant-api03-AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"
+        not in redacted["principal_utterance"]
+    )
+    assert "British English" in redacted["principal_utterance"]
+
+
+def test_a_null_utterance_survives_redaction_as_null() -> None:
+    """The shape production actually emits: _build_episode always sets the key."""
+    redacted = redact_ide_episode(
+        {
+            "run_id": "r1",
+            "goal": "write the README",
+            "principal_utterance": None,
+            "steps": [],
+        }
+    )
+
+    assert redacted["principal_utterance"] is None
+
+
+def test_an_utterance_is_scrubbed_but_never_clipped() -> None:
+    """Length is decided at admission, which refuses; truncating here could invert meaning."""
+    long_utterance = "we use British English " * 500
+
+    redacted = redact_ide_episode(
+        {
+            "run_id": "r1",
+            "goal": "g",
+            "principal_utterance": long_utterance,
+            "steps": [],
+        }
+    )
+
+    assert redacted["principal_utterance"] == long_utterance

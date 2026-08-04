@@ -72,6 +72,11 @@ class PendingTurn:
     # recall reached the model: a turn can be shown its learnings and then do too
     # little to be worth learning from, and only the host knows which happened.
     is_injected: bool = False
+    # The message the principal typed on the NEXT turn, attached here because that is when an
+    # objection to this turn actually arrives. Empty when there was no successor, or when the
+    # message could not honestly be offered as the principal's own words (see
+    # hook._principal_utterance for the four rules that decide).
+    principal_utterance: str = ""
 
 
 def session_dir(session_id: str) -> Path:
@@ -371,6 +376,11 @@ def _pending_from_dict(data: dict[str, Any] | None) -> PendingTurn | None:
             source_framework=data.get("source_framework", ""),
             ended_at=float(data.get("ended_at", 0.0)),
             offered_learning_ids=tuple(data.get("offered_learning_ids") or ()),
+            # Every field written must be read back. is_injected was already missing here,
+            # so a pending turn reloaded from disk always reported False and the decline
+            # payload's is_delivered was permanently wrong.
+            is_injected=bool(data.get("is_injected", False)),
+            principal_utterance=data.get("principal_utterance", ""),
         )
     except (KeyError, TypeError, ValueError):
         return None
