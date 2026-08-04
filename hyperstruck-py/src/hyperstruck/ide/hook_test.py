@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import argparse
 import asyncio
 import json
 from typing import Any
@@ -1326,6 +1327,60 @@ def test_distill_run_id_prefix_and_mint() -> None:
     assert minted.startswith("distill:ide-")
 
 
+def test_a_run_id_is_never_rewritten() -> None:
+    # Rewriting is what caused the incident: the scrubber flattened every long
+    # descriptive id to one literal, so an idempotent distil silently discarded
+    # all but the first. An identifier must survive verbatim or be refused.
+    suspect = "learning-gate-observability-2026-08-02"
+    assert hook._scrub_distill_string(suspect) != suspect, "fixture must actually trip the scrubber"
+
+    assert hook._distill_run_id(suspect) == f"distill:{suspect}"
+
+
+def test_a_suspect_run_id_is_refused_with_a_reason() -> None:
+    suspect = "learning-gate-observability-2026-08-02"
+    rejection = hook._distill_run_id_rejection(suspect)
+
+    assert rejection is not None
+    assert "refused" in rejection
+
+
+def test_ordinary_run_ids_are_accepted() -> None:
+    for clean in ("ci-lint-bandit-gate-2026-08-02", "meeting-8220", "distill:already-prefixed", None, "  "):
+        assert hook._distill_run_id_rejection(clean) is None
+
+
+def test_clean_run_id_keeps_its_prefix_exactly_once() -> None:
+    assert hook._distill_run_id("ci-lint-bandit-gate-2026-08-02") == "distill:ci-lint-bandit-gate-2026-08-02"
+    assert hook._distill_run_id("distill:already-prefixed") == "distill:already-prefixed"
+
+
+def test_a_refused_run_id_never_reaches_the_wire(monkeypatch: pytest.MonkeyPatch) -> None:
+    # The unit tests above exercise a pure function; the original defect was that a
+    # bad id reached the server. This asserts the refusal actually stops dispatch.
+    monkeypatch.setattr(hook, "configured_agent_name", lambda: "dev-copilot")
+    dispatched: list[str] = []
+    monkeypatch.setattr(hook, "_adistill", lambda **kw: dispatched.append(kw["run_id"]))
+
+    emitted: list[dict[str, Any]] = []
+    monkeypatch.setattr(hook, "_emit_distill_result", lambda result, args: emitted.append(result))
+
+    hook.cmd_distill(
+        {
+            "goal": "teach the agent a house rule",
+            "run_id": "learning-gate-observability-2026-08-02",
+            "evidence": [
+                {"id": "a", "role": "contrast", "status": "failed", "content": "the rejected approach"},
+                {"id": "b", "role": "support", "status": "completed", "content": "the accepted approach"},
+            ],
+        },
+        argparse.Namespace(emit="json", source="claude-code", goal=None),
+    )
+
+    assert dispatched == [], "a refused run id must never be dispatched"
+    assert emitted and emitted[0]["status"] == "skipped"
+
+
 def test_evidence_from_spec_drops_empty_and_defaults_role() -> None:
     items = hook._evidence_from_spec(
         [
@@ -1353,7 +1408,14 @@ def test_read_stdin_preserves_json_parse_error(monkeypatch) -> None:
 
 @pytest.mark.parametrize(
     ("mode", "expected_status"),
-    [("delivered", "delivered"), ("failed", "error"), ("pending", "pending")],
+    [
+        ("delivered", "delivered"),
+        ("failed", "error"),
+        ("pending", "pending"),
+        # A duplicate is a 2xx that dispatched nothing. Reporting it as delivered
+        # is the misreport that let silently discarded distils go unnoticed.
+        ("duplicated", "skipped"),
+    ],
 )
 def test_adistill_reports_delivery_outcome(
     _env, monkeypatch, mode, expected_status
@@ -1365,6 +1427,7 @@ def test_adistill_reports_delivery_outcome(
     class FakeClient:
         def __init__(self):
             self.writes_delivered = 0
+            self.writes_duplicated = 0
             self.writes_failed = 0
             self.last_write_error = None
 
@@ -1374,6 +1437,9 @@ def test_adistill_reports_delivery_outcome(
         async def drain(self, timeout=30.0):
             if mode == "delivered":
                 self.writes_delivered = 1
+            elif mode == "duplicated":
+                self.writes_delivered = 1
+                self.writes_duplicated = 1
             elif mode == "failed":
                 self.writes_failed = 1
                 self.last_write_error = "HTTP 422: bad corpus"

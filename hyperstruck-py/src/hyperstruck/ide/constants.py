@@ -130,6 +130,16 @@ MAX_BOUNDARY_GOAL_CHARS = 8000
 MAX_EPISODE_STEPS = 500
 MAX_STEP_FIELD_CHARS = 200
 
+# -- distil run ids ----------------------------------------------------------
+
+# The server keys distil idempotency on the run id, so this prefix decides whether
+# two distils are the same run. A run id is never scrubbed or rewritten: the secret
+# scrubber keys on high entropy, which is what makes an identifier an identifier,
+# so a suspect id is refused rather than transformed (see _distill_run_id_rejection).
+DISTILL_RUN_ID_PREFIX = "distill:"
+MINTED_RUN_ID_TOKEN = "ide-"
+MINTED_RUN_ID_CHARS = 12
+
 # -- step classification -----------------------------------------------------
 
 # What a tool call did, used by gating (material vs read-only) and outcome

@@ -49,6 +49,7 @@ from hyperstruck.redaction import REDACTION_MARKER
 from hyperstruck.ide.constants import (
     DEFAULT_FLUSH_MAX_ATTEMPTS,
     DETACHED_RESOLVE_TIMEOUT,
+    DISTILL_RUN_ID_PREFIX,
     EVICTION_WINDOW_SECONDS,
     FLUSH_MAX_ATTEMPTS_ENV,
     FLUSH_STALE_SECONDS,
@@ -56,6 +57,8 @@ from hyperstruck.ide.constants import (
     HOOK_DEBUG_OFF_VALUES,
     MAX_EPISODE_STEPS,
     MAX_STEP_FIELD_CHARS,
+    MINTED_RUN_ID_CHARS,
+    MINTED_RUN_ID_TOKEN,
     NATIVE_FAILURE_STATUSES,
     SOURCE_CLAUDE_CODE,
     SOURCE_CURSOR,
@@ -301,6 +304,10 @@ def cmd_distill(payload: dict[str, Any], args: argparse.Namespace) -> None:
             args,
         )
         return
+    run_id_rejection = _distill_run_id_rejection(payload.get("run_id"))
+    if run_id_rejection:
+        _emit_distill_result({"status": "skipped", "reason": run_id_rejection}, args)
+        return
     run_id = _distill_run_id(payload.get("run_id"))
     outcome_spec = (
         payload.get("outcome") if isinstance(payload.get("outcome"), dict) else {}
@@ -392,12 +399,47 @@ def _has_distill_contrast(evidence: list[Any], evaluation: str | None) -> bool:
     return {"contrast", "support"}.issubset(roles)
 
 
+def _distill_run_id_rejection(provided: Any) -> str | None:
+    """Why this run id cannot be accepted, or ``None`` when it is fine.
+
+    A run id is an opaque identifier, never free text, so it is never rewritten.
+    The secret scrubber keys on high entropy in a long token, which is precisely
+    the property a good identifier has by design, so it cannot separate a leaked
+    credential from a uuid: its positives and its false positives are the same
+    population. Running it over identifiers is a category error, and the episode
+    path already says so, scrubbing only goal and steps and "never identifiers"
+    because a corrupted ``run_id`` silently breaks the server's dedup.
+
+    The distil path did rewrite it, and the damage was exactly that: every id the
+    scrubber flattened collapsed onto one shared identity, so an idempotent distil
+    made all but the first a silent server-side no-op.
+
+    Refusing is stronger than rewriting on every axis that matters. Nothing
+    suspect egresses at all rather than egressing in derived form, the caller
+    keeps an id they can correlate with their own run, and the failure is loud
+    instead of silent.
+    """
+    if not (isinstance(provided, str) and provided.strip()):
+        return None
+    original = provided.strip()
+    if _scrub_distill_string(original) == original:
+        return None
+    return (
+        "run id looks like it carries a credential, so it was refused rather than "
+        "rewritten (rewriting it would silently collide with other distils); pass an "
+        "opaque run id that contains no secret"
+    )
+
+
 def _distill_run_id(provided: Any) -> str:
-    """Namespace the caller's run id with ``distill:`` (minted if absent)."""
-    if isinstance(provided, str) and provided.strip():
-        run_id = _scrub_distill_string(provided.strip())
-        return run_id if run_id.startswith("distill:") else f"distill:{run_id}"
-    return f"distill:ide-{uuid.uuid4().hex[:12]}"
+    """Namespace the caller's run id with ``distill:`` (minted if absent).
+
+    Deliberately never scrubbed; see :func:`_distill_run_id_rejection`.
+    """
+    original = provided.strip() if isinstance(provided, str) else ""
+    if not original:
+        return f"{DISTILL_RUN_ID_PREFIX}{MINTED_RUN_ID_TOKEN}{uuid.uuid4().hex[:MINTED_RUN_ID_CHARS]}"
+    return original if original.startswith(DISTILL_RUN_ID_PREFIX) else f"{DISTILL_RUN_ID_PREFIX}{original}"
 
 
 def _distill_success(value: Any) -> bool:
@@ -453,6 +495,16 @@ async def _adistill(
         await client.drain()
         await client.aclose()
         closed = True
+        if client.writes_duplicated:
+            return {
+                "status": "skipped",
+                "reason": (
+                    "this run id was already distilled, so nothing was extracted; "
+                    "use a new run id to distil this corpus again"
+                ),
+                "agent": agent_name,
+                "run_id": run_id,
+            }
         if client.writes_delivered:
             return {
                 "status": "delivered",

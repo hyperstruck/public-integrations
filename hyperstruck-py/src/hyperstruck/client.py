@@ -78,6 +78,21 @@ def _env_float(name: str, default: float) -> float:
         return default
 
 
+def _is_duplicate_receipt(response: Any) -> bool:
+    """Whether the server accepted the write but dispatched nothing.
+
+    A duplicate is still a 2xx, because at-least-once delivery makes a repeat
+    legitimate. It is not, however, work: reporting one as delivered is what let a
+    class of silently discarded distils go unnoticed. Absent on older servers,
+    where it reads False and behaviour is unchanged.
+    """
+    try:
+        body = response.json()
+    except Exception:  # noqa: BLE001 - a receipt we cannot parse is not a duplicate
+        return False
+    return bool(body.get("is_duplicate")) if isinstance(body, dict) else False
+
+
 def _is_terminal_write_error(exc: Exception | None) -> bool:
     """A 4xx response means the payload is rejected; retrying it cannot succeed."""
     return (
@@ -141,6 +156,7 @@ class LearningClient(Protocol):
     # after a drain (e.g. to report an honest loop-closure status) without reaching
     # past the port into a concrete implementation.
     writes_delivered: int
+    writes_duplicated: int
     writes_failed: int
 
     async def resolve(
@@ -257,6 +273,7 @@ class HostedLearningClient:
         # Visibility counters.
         self.resolves = 0
         self.writes_delivered = 0
+        self.writes_duplicated = 0
         self.writes_failed = 0
         # A 4xx rejection means the payload itself is bad, so a retry cannot help.
         # Tracked apart from transient 5xx/network failures so a caller (the IDE
@@ -451,6 +468,8 @@ class HostedLearningClient:
                 )
                 response.raise_for_status()
                 self.writes_delivered += 1
+                if _is_duplicate_receipt(response):
+                    self.writes_duplicated += 1
                 return
             except Exception as exc:  # noqa: BLE001 - background best-effort
                 last_error = exc
