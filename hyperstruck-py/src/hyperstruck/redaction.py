@@ -229,27 +229,122 @@ def _is_sensitive_key(key: str) -> bool:
     return any(fragment in collapsed for fragment in _NORMALISED_SECRET_FRAGMENTS)
 
 
-# Known credential shapes (the curated hot-path subset of the gitleaks /
-# detect-secrets reference set), plus a generic long-token catch gated by
-# entropy. One alternation, one pass per string.
-_SECRET_PATTERN = re.compile(
-    r"(?P<known>"
+# Known credential shapes: the curated hot-path subset of the gitleaks /
+# detect-secrets reference set. Shared, so the scrubber and the identifier-safe
+# detector below cannot drift on what counts as a credential by construction.
+#
+# Two shapes are held apart because ordinary words produce their prefixes. Both
+# key on a word ending in "sk" or "rk": "risk-", "task-" and "desk-" give
+# sk-[A-Za-z0-9_-]{16,}, and "risk_live_monitoring_dashboard" and
+# "desk_test_automation_pipeline" give [sr]k_(live|test)_[A-Za-z0-9]{10,} (the
+# tail must reach 10 characters, so "desk_test_run" does not). Only these need a
+# token boundary to stay usable on identifiers; the rest have prefixes no English
+# word yields.
+_PRIVATE_KEY_BLOCK = (
     r"-----BEGIN[ A-Z]*PRIVATE KEY-----[\s\S]*?-----END[ A-Z]*PRIVATE KEY-----"
-    r"|sk-[A-Za-z0-9_\-]{16,}"
-    r"|[sr]k_(?:live|test)_[A-Za-z0-9]{10,}"
-    r"|AKIA[0-9A-Z]{16}"
+)
+_WORD_AMBIGUOUS_SHAPES = (
+    r"sk-[A-Za-z0-9_\-]{16,}|[sr]k_(?:live|test)_[A-Za-z0-9]{10,}"
+)
+# Each length floor is the real credential's, not a round number: a shape loose
+# enough to admit a descriptive identifier refuses legitimate work, which on the
+# identifier path is the expensive direction. `SG.` additionally takes a token
+# boundary, being the one added prefix short enough to end an ordinary word
+# ("MSG.", "OSG."). `AIza` is open-ended rather than exactly 35 so a longer
+# lookalike redacts whole instead of leaving its tail behind.
+_DISTINCT_SHAPES = (
+    r"AKIA[0-9A-Z]{16}"
     r"|gh[pousr]_[A-Za-z0-9]{20,}"
+    r"|github_pat_[A-Za-z0-9_]{50,}"
     r"|xox[baprs]-[A-Za-z0-9-]{10,}"
+    r"|AIza[0-9A-Za-z_\-]{35,}"
+    r"|ya29\.[0-9A-Za-z_\-]{20,}"
+    r"|eyJ[A-Za-z0-9_\-]{8,}\.[A-Za-z0-9_\-]{8,}\.[A-Za-z0-9_\-]{8,}"
+    r"|(?<![A-Za-z0-9])SG\.[A-Za-z0-9_\-]{20,}\.[A-Za-z0-9_\-]{30,}"
+    r"|hf_[A-Za-z0-9]{30,}"
+    r"|npm_[A-Za-z0-9]{30,}"
     r"|(?i:bearer\s+[A-Za-z0-9._\-]{16,})"
-    r")"
-    r"|(?P<kv>(?i:(?:" + _KEY_NAME_ALTERNATION + r")\s*[:=]\s*)(?P<kvval>[^\s'\"]{4,}))"
-    r"|(?P<generic>[A-Za-z0-9+/=_\-]{32,})"
+)
+_KNOWN_CREDENTIAL_SHAPES = (
+    _PRIVATE_KEY_BLOCK + r"|" + _WORD_AMBIGUOUS_SHAPES + r"|" + _DISTINCT_SHAPES
+)
+
+# The key and the value may each be quoted, which is what a stringified JSON or
+# YAML fragment in a tool error looks like. Without those alternatives the rule
+# needed `[:=]` immediately after the key word and a value that started with a
+# non-quote, so `password: "hunter2000"` and `{"password": "hunter2000"}` matched
+# nothing here and, being short, nothing in the entropy arm either.
+#
+# The quoted value excludes newlines and its closing quote is optional. Both
+# matter on a clipped stderr, which is what this hook ships. Without the newline
+# bound a quoted value runs to the next quote lines away, taking the failure
+# detail the step exists to carry; without the optional close, an unterminated
+# quote (the shape clipping produces) matched nothing and leaked the value whole.
+#
+# TODO(ceiling): the optional close means a quoted literal ENDING in the separator
+# ("token=", "api_key=") has its closing quote read as an opening one, so the
+# redaction runs to end of line. Measured at 4 lines in 217,701, all of them this
+# module's own comments and tests. Over-redaction only, and bounded to one line.
+# Re-requiring the close is the only narrowing available and it reinstates the
+# leak, so this stands until a value carries enough context to tell the two
+# apart.
+_KEY_VALUE_RULE = (
+    r"(?P<kv>(?i:[\"']?(?:" + _KEY_NAME_ALTERNATION + r")[\"']?\s*[:=]\s*)"
+    r"(?P<kvval>\"[^\"\r\n]{4,}\"?|'[^'\r\n]{4,}'?|[^\s'\"]{4,}))"
+)
+
+_SECRET_PATTERN = re.compile(
+    r"(?P<known>" + _KNOWN_CREDENTIAL_SHAPES + r")"
+    r"|" + _KEY_VALUE_RULE + r"|(?P<generic>[A-Za-z0-9+/=_\-]{32,})"
+)
+
+# The same shapes with no generic arm, for judging an identifier. Dropping the
+# generic arm is what lets a known shape match at an inner offset at all: in the
+# combined pattern above it swallows the whole token first, so an embedded
+# credential is never reached.
+#
+# The token boundary is applied per shape rather than to the whole alternation,
+# because a blanket boundary and no boundary are both wrong. A blanket one misses
+# a credential glued to preceding characters; none refuses "risk-management-review"
+# and every other ordinary word ending in "sk" or "rk".
+#
+# A key name also starts wherever it begins with a capital, not only after a
+# delimiter. Requiring a delimiter alone would accept "myPassword=hunter2000",
+# "DBPASSWORD=hunter2000" and "XPassword=hunter2000", all of which the scrubber
+# catches; that is under-detection in the direction that egresses a secret.
+# Keying on the capital rather than on a lowercase-to-uppercase hump is what
+# covers the all-caps and uppercase-preceded spellings. Allowing any preceding
+# character instead would refuse "notatoken=abcd" for merely containing "token".
+#
+# TODO(ceiling): the all-lowercase glued spelling ("mytoken=hunter2000",
+# "thepassword=hunter2000") is therefore accepted, though the scrubber catches it.
+# It is the price of not refusing "notatoken=abcd", and unlike the shape ceiling
+# above it cannot be split by capitalisation. Revisit alongside a declared run-id
+# format. Note the delimiter test is ASCII-only, so a non-ASCII letter reads as a
+# delimiter: "cafétoken:abcd1234" is refused where "übertoken:abcd1234" is not.
+_CREDENTIAL_KEY_START = r"(?:(?<![A-Za-z0-9])|(?=[A-Z]))"
+
+# TODO(ceiling): a word-ambiguous credential glued directly to letters
+# ("xxsk-AbCdEf0123456789", "myrk_live_ABCDEFGHIJ") is still accepted, because it
+# is indistinguishable from "risk-management-review-2026-08" without knowing which
+# is intended. The same ambiguity refuses a descriptive id that genuinely starts
+# "sk-". Revisit if run ids ever carry a declared format, which settles it by
+# construction.
+_KNOWN_CREDENTIAL_PATTERN = re.compile(
+    _PRIVATE_KEY_BLOCK
+    + r"|" + _DISTINCT_SHAPES
+    + r"|(?<![A-Za-z0-9])(?:" + _WORD_AMBIGUOUS_SHAPES + r")"
+    + r"|" + _CREDENTIAL_KEY_START + r"(?:" + _KEY_VALUE_RULE + r")"
 )
 
 # Minimum bits-of-entropy per character for a generic long token to count as a
-# secret. Random base64/hex keys sit near their alphabet's ceiling; English prose
-# and repetitive strings sit well below, so this lets identifiers through while
-# catching keys.
+# secret. This does NOT separate keys from identifiers:
+# "sk-proj-AbCdEf0123456789AbCdEf0123456789AbCdEf" measures 4.43 bits/char and
+# "the quick brown fox jumps over the lazy dog" measures 4.39. Prose
+# is spared only because the generic character class excludes whitespace, so prose
+# is never one 32+ char token. A hyphen-joined identifier has no whitespace either
+# and so is always caught, which is harmless when flattening free text and wrong
+# for an identifier. Identifiers use known_credential_match instead.
 _ENTROPY_THRESHOLD = 3.5
 
 
@@ -289,6 +384,33 @@ def scrub_secrets(
         return replacement(token) if _is_high_entropy(token) else token
 
     return _SECRET_PATTERN.sub(_sub, text)
+
+
+def known_credential_match(text: str) -> str | None:
+    """The credential of a *recognised shape* inside ``text``, or ``None``.
+
+    Returns the matched substring rather than a bool so a caller refusing on it can
+    say what it objected to. Callers must not echo the return value into a message
+    or a log; it is the suspect text itself.
+
+    The same detector as :func:`scrub_secrets` minus its generic entropy arm, for
+    callers that must judge an **identifier** rather than free text. Scrubbing may
+    flatten a false positive harmlessly; refusing one blocks legitimate work, and
+    the entropy arm cannot tell an identifier from a key (see
+    :data:`_ENTROPY_THRESHOLD`), so it is excluded here rather than re-tuned.
+
+    Matches only a shape that is a credential by construction: a private key
+    block, a provider-prefixed token, or a ``password=``-style key/value pair.
+
+    Deliberately stricter than the scrubber on the key/value rule: here it must
+    start at a token boundary, so ``notatoken=abcd`` is not a credential merely for
+    containing "token". The scrubber keeps the looser rule on purpose, because
+    over-redacting free text costs nothing while under-redacting leaks.
+    """
+    if not text:
+        return None
+    match = _KNOWN_CREDENTIAL_PATTERN.search(text)
+    return match.group(0) if match else None
 
 
 # Validated structured-PII detectors. Each regex is a candidate finder; a

@@ -54,9 +54,12 @@ outcome?, evaluation?, run_id?}`. The command:
   no-contrast corpus.
 - Namespaces `run_id` with `distill:` (minted if omitted) so it never collides
   with a loop run id.
-- Secret-scrubs caller-supplied distill strings before sending: `goal`,
-  `evaluation`, evidence `id`/`label`/`source_ref`/`content`, run id, and outcome
-  `summary`; the server stores evidence text verbatim as the grounding source.
+- Secret-scrubs caller-supplied *descriptive* distill strings before sending:
+  `goal`, `evaluation`, evidence `label`/`content`, and outcome `summary`; the
+  server stores evidence text verbatim as the grounding source.
+- Never rewrites an *identifier*. The run id and each evidence `id`/`source_ref`
+  are sent exactly as given, or the corpus is refused naming the field, because a
+  rewritten identifier collides rather than degrading.
 
 A corpus with no declared contrast is skipped locally (and would be rejected by
 the server). A delivered corpus that declares contrast can still yield zero

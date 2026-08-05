@@ -42,11 +42,12 @@ from typing import Any
 from hyperstruck._wire import (
     REASON_BELOW_MATERIAL_THRESHOLD,
     REASON_NO_TOOL_CALLS,
+    EvidenceItem,
 )
 from hyperstruck.ide import outcome, state
 from hyperstruck.ide.config import configured_agent_name, load_env
-from hyperstruck.redaction import REDACTION_MARKER
 from hyperstruck.ide.constants import (
+    CREDENTIAL_HEAD_CHARS,
     DEFAULT_FLUSH_MAX_ATTEMPTS,
     DETACHED_RESOLVE_TIMEOUT,
     DISTILL_RUN_ID_PREFIX,
@@ -73,6 +74,7 @@ from hyperstruck.ide.redaction import (
     scrub_secrets,
 )
 from hyperstruck.ide.state import ActiveTurn, PendingTurn
+from hyperstruck.redaction import REDACTION_MARKER, known_credential_match
 
 # Wire fields of a step (the rest of a stored step, e.g. ``kind``, is client-only).
 _WIRE_STEP_FIELDS = ("id", "name", "args", "status", "result", "error")
@@ -294,7 +296,20 @@ def cmd_distill(payload: dict[str, Any], args: argparse.Namespace) -> None:
             args,
         )
         return
-    evidence = _evidence_from_spec(payload.get("evidence"))
+    evidence, complaints = _evidence_from_spec(payload.get("evidence"))
+    if complaints:
+        _emit_distill_result(
+            {
+                "status": "skipped",
+                "reason": (
+                    "distill refused a corpus it could not use as given: "
+                    + "; ".join(complaints)
+                    + ". Nothing was sent, so fix these and retry on the same run id."
+                ),
+            },
+            args,
+        )
+        return
     if len(evidence) < 2:
         _emit_distill_result(
             {
@@ -304,9 +319,11 @@ def cmd_distill(payload: dict[str, Any], args: argparse.Namespace) -> None:
             args,
         )
         return
-    run_id_rejection = _distill_run_id_rejection(payload.get("run_id"))
-    if run_id_rejection:
-        _emit_distill_result({"status": "skipped", "reason": run_id_rejection}, args)
+    rejection = _distill_run_id_rejection(
+        payload.get("run_id")
+    ) or _evidence_credential_rejection(evidence)
+    if rejection:
+        _emit_distill_result({"status": "skipped", "reason": rejection}, args)
         return
     run_id = _distill_run_id(payload.get("run_id"))
     outcome_spec = (
@@ -352,35 +369,51 @@ def cmd_distill(payload: dict[str, Any], args: argparse.Namespace) -> None:
     _emit_distill_result(result, args)
 
 
-def _evidence_from_spec(raw: Any) -> list[Any]:
-    """Build redacted ``EvidenceItem``s from the skill's spec, dropping empties."""
-    from hyperstruck._wire import EvidenceItem
+def _evidence_from_spec(raw: Any) -> tuple[list[EvidenceItem], list[str]]:
+    """Build ``EvidenceItem``s from the skill's spec, plus what could not be used.
 
+    Returns the complaints rather than swallowing them. A dropped item changes
+    what is learned and a coerced ``status`` can invert it, since status is one of
+    the three signals establishing contrast, so neither may pass silently: that is
+    the same silent-discard failure this whole path was rewritten to end.
+    """
     if not isinstance(raw, list):
-        return []
+        return [], ["evidence must be a list"]
     items: list[EvidenceItem] = []
+    complaints: list[str] = []
     for index, entry in enumerate(raw):
         if not isinstance(entry, dict):
+            complaints.append(f"evidence[{index}] is not an object")
             continue
         content = entry.get("content")
         if not isinstance(content, str) or not content.strip():
+            complaints.append(f"evidence[{index}] has no content")
             continue
         role = entry.get("role")
         status = entry.get("status")
+        if role is not None and role not in ("support", "contrast", "neutral"):
+            complaints.append(
+                f"evidence[{index}].role {role!r} is not "
+                "'support', 'contrast' or 'neutral'"
+            )
+        if status is not None and status not in ("completed", "failed"):
+            complaints.append(
+                f"evidence[{index}].status {status!r} is not 'completed' or 'failed'"
+            )
         source_ref = entry.get("source_ref")
         items.append(
             EvidenceItem(
-                id=_scrub_distill_string(str(entry.get("id") or f"e{index + 1}")),
+                # id and source_ref are identifiers and are never rewritten; they
+                # are refused instead, by _evidence_credential_rejection.
+                id=str(entry.get("id") or f"e{index + 1}"),
                 content=_scrub_distill_string(content),
                 label=_scrub_distill_string(str(entry.get("label") or "")),
                 role=role if role in ("support", "contrast", "neutral") else "neutral",
                 status=status if status in ("completed", "failed") else "completed",
-                source_ref=(
-                    _scrub_distill_string(str(source_ref)) if source_ref else None
-                ),
+                source_ref=str(source_ref) if source_ref else None,
             )
         )
-    return items
+    return items, complaints
 
 
 def _scrub_distill_string(text: str) -> str:
@@ -404,31 +437,85 @@ def _distill_run_id_rejection(provided: Any) -> str | None:
 
     A run id is an opaque identifier, never free text, so it is never rewritten.
     The secret scrubber keys on high entropy in a long token, which is precisely
-    the property a good identifier has by design, so it cannot separate a leaked
-    credential from a uuid: its positives and its false positives are the same
-    population. Running it over identifiers is a category error, and the episode
-    path already says so, scrubbing only goal and steps and "never identifiers"
-    because a corrupted ``run_id`` silently breaks the server's dedup.
-
-    The distil path did rewrite it, and the damage was exactly that: every id the
-    scrubber flattened collapsed onto one shared identity, so an idempotent distil
-    made all but the first a silent server-side no-op.
+    the property a descriptive identifier has by design, so it cannot separate a
+    leaked credential from one: measured, ``sk-proj-AbCdEf0123456789AbCdEf0123456789AbCdEf``
+    is 4.43 bits/char and ``pr-305-review-round-2-fixes-and-followups`` is 4.09,
+    both over the 3.5 gate.
+    Running it over identifiers is a category error, and the episode path already
+    says so, scrubbing only goal and steps and "never identifiers" because a
+    corrupted ``run_id`` silently breaks the server's dedup.
 
     Refusing is stronger than rewriting on every axis that matters. Nothing
     suspect egresses at all rather than egressing in derived form, the caller
     keeps an id they can correlate with their own run, and the failure is loud
     instead of silent.
+
+    The judgement is ``known_credential_match``, not the full scrubber. Asking the
+    scrubber "would you change this?" reinstates the entropy arm that this
+    docstring rejects, one layer down: it refuses every descriptive id of 32+
+    characters, which is the population the refusal exists to serve.
+    """
+    return _identifier_credential_rejection(
+        provided,
+        "run id",
+        "Pass a run id carrying no secret, or omit run_id entirely and one will "
+        "be minted for you.",
+    )
+
+
+def _identifier_credential_rejection(
+    provided: Any, field: str, remedy: str
+) -> str | None:
+    """Why this identifier cannot be accepted, or ``None`` when it is fine.
+
+    Shared by every field whose meaning *is* its value. Redaction replaces many
+    inputs with one marker, and a many-to-one map over a key manufactures
+    collisions, which is the whole of the 2026-07-24 incident rather than a
+    property of that one field. So an identifier is judged and refused, never
+    rewritten, and the caller keeps something they can correlate.
     """
     if not (isinstance(provided, str) and provided.strip()):
         return None
-    original = provided.strip()
-    if _scrub_distill_string(original) == original:
+    match = known_credential_match(provided.strip())
+    if match is None:
         return None
     return (
-        "run id looks like it carries a credential, so it was refused rather than "
-        "rewritten (rewriting it would silently collide with other distils); pass an "
-        "opaque run id that contains no secret"
+        f"{field} contains {_describe_credential_match(match)}, which reads as a "
+        "credential, so it was refused rather than rewritten (rewriting an "
+        f"identifier is many-to-one, so it would silently collide). {remedy}"
     )
+
+
+def _evidence_credential_rejection(evidence: list[EvidenceItem]) -> str | None:
+    """Why this corpus cannot be accepted, or ``None`` when it is fine.
+
+    ``id`` and ``source_ref`` are identifiers, not prose: the first keys a step
+    and the second is documented in the API as "non-secret provenance: a doc id or
+    URL". Scrubbing them collapsed distinct ids onto one marker and shredded the
+    citation a distilled learning rests on. ``label`` and ``content`` stay
+    scrubbed, because a redacted span still reads as what it was.
+    """
+    for index, item in enumerate(evidence):
+        for field, value in (
+            (f"evidence[{index}].id", item.id),
+            (f"evidence[{index}].source_ref", item.source_ref),
+        ):
+            reason = _identifier_credential_rejection(
+                value, field, "Pass provenance carrying no secret."
+            )
+            if reason:
+                return reason
+    return None
+
+
+def _describe_credential_match(match: str) -> str:
+    """Name the offending run-id substring without echoing a real secret.
+
+    Only the prefix is shown, which is the part that identifies the shape and
+    carries no key material. Never widen this, and never add a branch that returns
+    the match whole: the argument is the suspect text itself.
+    """
+    return f"'{match[:CREDENTIAL_HEAD_CHARS]}...' ({len(match)} characters)"
 
 
 def _distill_run_id(provided: Any) -> str:

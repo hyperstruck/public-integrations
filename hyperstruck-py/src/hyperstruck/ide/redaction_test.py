@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+import uuid
+
 from hyperstruck.ide.constants import (
     MAX_BOUNDARY_GOAL_CHARS,
     MAX_RESULT_CHARS,
@@ -189,3 +191,76 @@ def test_an_utterance_is_scrubbed_but_never_clipped() -> None:
     )
 
     assert redacted["principal_utterance"] == long_utterance
+
+
+def _episode_with_step_ids(step_ids: list[str]) -> dict:
+    return {
+        "run_id": "bot:1",
+        "goal": "fix the failing test",
+        "steps": [
+            {
+                "id": step_id,
+                "name": "Edit",
+                "args": {"path": "a.py"},
+                "status": "completed",
+                "result": "ok",
+                "error": None,
+            }
+            for step_id in step_ids
+        ],
+        "outcome": {
+            "is_success": True,
+            "total_steps": len(step_ids),
+            "completed_steps": len(step_ids),
+            "failed_steps": 0,
+        },
+        "source_framework": "cursor",
+        "thread_id": None,
+    }
+
+
+def test_cursor_step_ids_stay_distinct() -> None:
+    # A Cursor step id is a bare uuid4().hex, which cleared the entropy gate about
+    # 83% of the time, so every step in an episode arrived as [REDACTED]. A step id
+    # joins a decision to its outcome and is documented unique within the episode.
+    step_ids = [uuid.uuid4().hex for _ in range(3)]
+
+
+    steps = redact_ide_episode(_episode_with_step_ids(step_ids))["steps"]
+
+    assert [step["id"] for step in steps] == step_ids
+    assert len({step["id"] for step in steps}) == 3
+
+
+def test_a_claude_code_step_id_is_preserved() -> None:
+    # 30 characters against a 32-character rule, so it survives today by two
+    # characters. Pinned so a format change is caught here rather than in prod.
+    step_ids = ["toolu_01A09q90qw90lq917835lq9", "toolu_01LV4894wgjDjYHU6amS7JVT"]
+
+    steps = redact_ide_episode(_episode_with_step_ids(step_ids))["steps"]
+
+    assert [step["id"] for step in steps] == step_ids
+
+
+def test_a_credential_shaped_step_id_is_re_minted_not_flattened() -> None:
+    # This path must fail open, so refusing is unavailable. Re-minting drops the
+    # suspect text while keeping the id unique, which the shared marker does not.
+    leaked = "ghp_ABCDEFGHIJKLMNOPQRSTUVWXYZ012345"
+    clean = "toolu_01A09q90qw90lq917835lq9"
+
+    steps = redact_ide_episode(_episode_with_step_ids([leaked, clean]))["steps"]
+
+    got = [step["id"] for step in steps]
+    assert got[0] != leaked and "ghp_" not in got[0]
+    assert got[0] != REDACTION_MARKER, "a marker would collide with every other one"
+    assert got[1] == clean, "a clean id is untouched"
+    assert len(set(got)) == 2
+
+
+def test_step_descriptive_fields_are_still_scrubbed() -> None:
+    episode = _episode_with_step_ids(["toolu_01A09q90qw90lq917835lq9"])
+    episode["steps"][0]["args"] = {"command": "export K=ghp_ABCDEFGHIJKLMNOPQRSTUVWXYZ012345"}
+
+    steps = redact_ide_episode(episode)["steps"]
+
+    assert "ghp_" not in str(steps[0]["args"])

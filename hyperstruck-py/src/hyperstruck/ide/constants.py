@@ -140,6 +140,11 @@ DISTILL_RUN_ID_PREFIX = "distill:"
 MINTED_RUN_ID_TOKEN = "ide-"
 MINTED_RUN_ID_CHARS = 12
 
+# How much of a refused run id's credential match is quoted back to the caller.
+# Enough to identify the shape (ghp_, AKIA, xoxb, pass), never enough to be key
+# material, so a refusal can say what it objected to without echoing the secret.
+CREDENTIAL_HEAD_CHARS = 4
+
 # -- step classification -----------------------------------------------------
 
 # What a tool call did, used by gating (material vs read-only) and outcome

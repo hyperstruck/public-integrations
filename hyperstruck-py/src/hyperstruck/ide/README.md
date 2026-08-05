@@ -104,13 +104,56 @@ echo '{"goal":"...","evidence":[{"id":"a","role":"contrast","status":"failed","c
 
 It targets the configured boundary agent name (`HYPER_LEARNING_AGENT_NAME` when
 set, otherwise `HYPER_AGENT_NAME`; never a repo-derived agent), namespaces the run
-id with `distill:`, and secret-scrubs caller-supplied strings before they leave
-the machine. Distillation needs **declared contrast** (a baseline vs a fix, or an
+id with `distill:`, and secret-scrubs the caller-supplied *descriptive* strings
+before they leave the machine (the identifiers are handled differently, see below).
+Distillation needs **declared contrast** (a baseline vs a fix, or an
 `evaluation` note); a corpus without that signal is skipped locally and would be
 rejected by the server. A delivered corpus can still yield zero learnings if the
 text contains no reusable contrast. Use it for corpus text only — a real run trace
 is the automatic loop, and a final learning you already have verbatim belongs in
 the curation API.
+
+**Your `run_id` is never rewritten, only ever accepted or refused.** It is the
+dedup key, so a distil is idempotent on it: if two distils arrive under one id,
+all but the first do nothing. That makes silently altering an id the worst
+available outcome, because every altered id collapses onto the same value and the
+work is discarded while the client still reports success. So an accepted id is
+preserved exactly, and one carrying a recognised credential shape is refused
+outright with a reason rather than sanitised. Descriptive ids are safe to use and
+are the point: pass something you can correlate with your own run.
+
+One class of ordinary id is refused anyway, so it is worth knowing rather than
+discovering: an id that reads as a credential *key* followed by a value, such as
+`auth-token:refresh-flow-2026` or `api-key:rotation-runbook`. Nothing can tell that
+from a real leaked key at a glance, so it fails loudly rather than quietly. Rename
+it, or omit `run_id` and take a minted one.
+
+**The same rule governs each evidence item's `id` and `source_ref`**, and for the
+same reason: an `id` keys a step, and `source_ref` is the provenance a distilled
+learning cites. Both mean what they *are*, so both are passed through exactly or
+refused, never rewritten. Redaction maps many inputs onto one marker, and a
+many-to-one map over a key manufactures collisions: two evidence items whose ids
+were rewritten would arrive sharing one id, and a rewritten `source_ref` is a
+citation pointing nowhere.
+
+By contrast `content` and `label` mean what they *say*, so a redacted span still
+reads as what it was. Those stay fully scrubbed, and are where a secret in your
+corpus is handled.
+
+**A credential in any identifier refuses the whole corpus, not just that item.**
+That is deliberate. Dropping the offending item silently would change what is
+learned, and can invert it: drop the only `failed` item and the remaining evidence
+asserts the opposite of what you meant. The refusal names the exact field and
+index, such as `evidence[3].source_ref`, so it is a one-line fix and a free retry.
+Nothing was delivered and no run id was consumed.
+
+Two mechanical details if you correlate by exact match: surrounding whitespace is
+trimmed, and your id is namespaced under `distill:` unless it already carries that
+prefix. So `my-run`, `  my-run  ` and `distill:my-run` are all stored as
+`distill:my-run`, and are the same run as far as dedup is concerned. That is the
+one way two ids you thought were distinct can still meet, so pick ids that differ
+by more than whitespace or the prefix. Omit `run_id` entirely and a clean one is
+minted for you, which is also the escape hatch if an id of yours is ever refused.
 
 ## Outcome: scoring a turn on what happened next
 
@@ -158,10 +201,17 @@ Redaction happens on your machine, before anything leaves it.
     credential is not a standard.
   - Nothing when your editor supplies no session id, because two conversations can
     then share one session and the message cannot be tied to the right turn.
-- **Secrets are scrubbed**: known credential shapes and high-entropy tokens are
-  removed from every string that does ship, on both paths. The goal is scrubbed at
-  capture, before recall ever sees it, and the episode is scrubbed again on its way
-  to the write.
+- **Secrets are scrubbed from descriptive text**: known credential shapes and
+  high-entropy tokens are removed from every descriptive string that ships, on both
+  paths. The goal is scrubbed at capture, before recall ever sees it, and the
+  episode is scrubbed again on its way to the write.
+- **Identifiers are never scrubbed**, because replacing many of them with one
+  marker makes them collide rather than degrade. What happens instead depends on
+  whether the path is allowed to stop. Distil is something you invoke, so it
+  **refuses** and tells you which field to fix. The automatic turn loop must never
+  block your editing, so it cannot refuse: a step id that looks like a credential
+  is **re-minted** to a fresh unique id instead. Both keep identifiers distinct;
+  neither ever collapses them onto a shared value.
 - **Oversized text is clipped to the boundary's bounds**, results at capture and
   the goal at both capture and after the scrub, because scrubbing can lengthen a
   string. A goal past the bound is rejected by *recall* as well as by the write, so

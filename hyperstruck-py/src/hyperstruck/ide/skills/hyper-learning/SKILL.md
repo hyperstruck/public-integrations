@@ -104,10 +104,13 @@ echo '{
   for that task; distill never derives an agent from the repo.
 - **Requirements**: at least 2 evidence items with a declared contrast; the
   command mints a `distill:`-namespaced `run_id` if you omit one. Caller-supplied
-  strings are **secret-scrubbed on this machine** before they are sent: `goal`,
-  `evaluation`, evidence `id`/`label`/`source_ref`/`content`, run id, and outcome
-  `summary`. The server stores evidence text verbatim as the grounding source, so
-  you should still keep secrets, PII, and internal hostnames out of the text.
+  **descriptive** strings are secret-scrubbed on this machine before they are sent:
+  `goal`, `evaluation`, evidence `label`/`content`, and outcome `summary`. The
+  **identifiers** are not scrubbed, because rewriting an identifier is many-to-one
+  and would silently collide: the run id and each evidence `id`/`source_ref` are
+  sent exactly as given, or the whole corpus is refused with the offending field
+  named. The server stores evidence text verbatim as the grounding source, so keep
+  secrets, PII, and internal hostnames out of the text and out of the ids.
 - **Result**: extraction runs server-side and is asynchronous; the command reports
   whether delivery to the boundary was confirmed, still pending, or failed. A
   corpus with **no declared contrast is skipped locally**; a delivered corpus with

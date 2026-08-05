@@ -17,6 +17,7 @@ from hyperstruck._wire import (
     TerminalOutcome,
 )
 from hyperstruck.ide import hook, state
+from hyperstruck.ide.constants import CREDENTIAL_HEAD_CHARS
 from hyperstruck.redaction import REDACTION_MARKER
 from hyperstruck.ide.constants import (
     MAX_BOUNDARY_GOAL_CHARS,
@@ -1232,11 +1233,11 @@ def test_distill_forwards_scrubbed_corpus_to_client(_env, capsys, monkeypatch) -
         evaluation=f"evaluation includes {secret}",
         evidence=[
             {
-                "id": f"before-{secret}",
+                "id": "before",
                 "label": f"label-{secret}",
                 "role": "contrast",
                 "status": "failed",
-                "source_ref": f"https://example.com/{secret}",
+                "source_ref": "https://example.com/design-doc-2026-07",
                 "content": "old " * 12,
             },
             {
@@ -1251,17 +1252,21 @@ def test_distill_forwards_scrubbed_corpus_to_client(_env, capsys, monkeypatch) -
 
     assert captured["agent_name"] == "agent-x"  # honours HYPER_AGENT_NAME
     assert captured["run_id"] == "distill:design-doc-2026-07"  # prefixed
+    # The descriptive fields are scrubbed; the identifiers are not scrubbed but
+    # refused, which is asserted by
+    # test_a_credential_in_an_evidence_identifier_refuses_the_whole_corpus. So a
+    # credential can never reach the wire by either route.
     joined = " ".join(
         [
             captured["goal"],
             captured["evaluation"],
-            *(item.id for item in captured["evidence"]),
             *(item.label for item in captured["evidence"]),
             *(item.content for item in captured["evidence"]),
-            *(item.source_ref or "" for item in captured["evidence"]),
         ]
     )
     assert secret not in joined  # secret-scrubbed before it leaves the machine
+    assert [item.id for item in captured["evidence"]] == ["before", "after"]
+    assert captured["evidence"][0].source_ref == "https://example.com/design-doc-2026-07"
     out = capsys.readouterr().out
     assert "Distill delivered for agent 'agent-x'" in out
 
@@ -1331,18 +1336,54 @@ def test_a_run_id_is_never_rewritten() -> None:
     # Rewriting is what caused the incident: the scrubber flattened every long
     # descriptive id to one literal, so an idempotent distil silently discarded
     # all but the first. An identifier must survive verbatim or be refused.
-    suspect = "learning-gate-observability-2026-08-02"
-    assert hook._scrub_distill_string(suspect) != suspect, "fixture must actually trip the scrubber"
+    descriptive = "learning-gate-observability-2026-08-02"
+    assert hook._scrub_distill_string(descriptive) != descriptive, "fixture must actually trip the scrubber"
 
-    assert hook._distill_run_id(suspect) == f"distill:{suspect}"
+    assert hook._distill_run_id(descriptive) == f"distill:{descriptive}"
 
 
-def test_a_suspect_run_id_is_refused_with_a_reason() -> None:
-    suspect = "learning-gate-observability-2026-08-02"
-    rejection = hook._distill_run_id_rejection(suspect)
+def test_a_run_id_carrying_a_real_credential_is_refused_with_a_reason() -> None:
+    rejection = hook._distill_run_id_rejection("run-sk-AbCdEf0123456789AbCdEf")
 
     assert rejection is not None
     assert "refused" in rejection
+
+
+@pytest.mark.parametrize(
+    "credential",
+    [
+        "run-sk-AbCdEf0123456789AbCdEf",
+        "job-ghp_AbCdEf0123456789AbCdEf0123",
+        "xoxb-0123456789-AbCdEfGhIj",
+        "deploy-AKIA0123456789ABCDEF",
+        "password=hunter2000",
+    ],
+)
+def test_every_known_credential_shape_is_refused(credential: str) -> None:
+    # The refusal must span the shapes the shared detector knows, not just the
+    # one the incident happened to involve.
+    assert hook._distill_run_id_rejection(credential) is not None
+
+
+@pytest.mark.parametrize(
+    "descriptive",
+    [
+        # Each is 32+ chars with no whitespace, so the scrubber's generic entropy
+        # arm flattens it. Refusing these is the defect this test pins: they are
+        # the correlatable ids the refusal exists to protect, not credentials.
+        "learning-gate-observability-2026-08-02",
+        "pr-305-review-round-2-fixes-and-followups",
+        "superloop-supplier-code-of-conduct-review-2026-08-04",
+        "distill-run-id-collision-fix-verification",
+    ],
+)
+def test_a_long_descriptive_run_id_is_accepted_though_the_scrubber_would_flatten_it(
+    descriptive: str,
+) -> None:
+    assert hook._scrub_distill_string(descriptive) != descriptive, "fixture must actually trip the scrubber"
+
+    assert hook._distill_run_id_rejection(descriptive) is None
+    assert hook._distill_run_id(descriptive) == f"distill:{descriptive}"
 
 
 def test_ordinary_run_ids_are_accepted() -> None:
@@ -1355,9 +1396,9 @@ def test_clean_run_id_keeps_its_prefix_exactly_once() -> None:
     assert hook._distill_run_id("distill:already-prefixed") == "distill:already-prefixed"
 
 
-def test_a_refused_run_id_never_reaches_the_wire(monkeypatch: pytest.MonkeyPatch) -> None:
-    # The unit tests above exercise a pure function; the original defect was that a
-    # bad id reached the server. This asserts the refusal actually stops dispatch.
+def _run_distill_with_run_id(
+    monkeypatch: pytest.MonkeyPatch, run_id: str
+) -> tuple[list[str], list[dict[str, Any]]]:
     monkeypatch.setattr(hook, "configured_agent_name", lambda: "dev-copilot")
     dispatched: list[str] = []
     monkeypatch.setattr(hook, "_adistill", lambda **kw: dispatched.append(kw["run_id"]))
@@ -1368,7 +1409,7 @@ def test_a_refused_run_id_never_reaches_the_wire(monkeypatch: pytest.MonkeyPatch
     hook.cmd_distill(
         {
             "goal": "teach the agent a house rule",
-            "run_id": "learning-gate-observability-2026-08-02",
+            "run_id": run_id,
             "evidence": [
                 {"id": "a", "role": "contrast", "status": "failed", "content": "the rejected approach"},
                 {"id": "b", "role": "support", "status": "completed", "content": "the accepted approach"},
@@ -1376,13 +1417,193 @@ def test_a_refused_run_id_never_reaches_the_wire(monkeypatch: pytest.MonkeyPatch
         },
         argparse.Namespace(emit="json", source="claude-code", goal=None),
     )
+    return dispatched, emitted
+
+
+def test_a_refused_run_id_never_reaches_the_wire(monkeypatch: pytest.MonkeyPatch) -> None:
+    # The unit tests above exercise a pure function; the original defect was that a
+    # bad id reached the server. This asserts the refusal actually stops dispatch.
+    dispatched, emitted = _run_distill_with_run_id(monkeypatch, "run-sk-AbCdEf0123456789AbCdEf")
 
     assert dispatched == [], "a refused run id must never be dispatched"
     assert emitted and emitted[0]["status"] == "skipped"
 
 
-def test_evidence_from_spec_drops_empty_and_defaults_role() -> None:
-    items = hook._evidence_from_spec(
+def test_the_refusal_reason_survives_onto_the_emitted_result(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    # Asserted on the dispatch path, not just the pure function: a caller who is
+    # refused learns why only from what cmd_distill emits, so a regression that
+    # dropped the reason there would leave every other assertion green.
+    _, emitted = _run_distill_with_run_id(monkeypatch, "run-sk-AbCdEf0123456789AbCdEf")
+
+    reason = emitted[0]["reason"]
+    assert "refused rather than rewritten" in reason
+    assert "omit run_id" in reason, "the reason must carry the escape hatch"
+    assert "sk-AbCdEf0123456789AbCdEf" not in reason, "the reason must not echo the secret"
+
+
+def test_the_refusal_reveals_at_most_the_shape_head() -> None:
+    # Pins CREDENTIAL_HEAD_CHARS itself. Asserting only that the whole secret is
+    # absent passes for any width up to len-1: raising the constant to 20 left the
+    # suite green while the reason printed 17 characters of a 25-character key.
+    assert CREDENTIAL_HEAD_CHARS == 4
+    secret = "sk-AbCdEf0123456789AbCdEf"
+
+    reason = hook._distill_run_id_rejection(secret) or ""
+
+    assert secret[:CREDENTIAL_HEAD_CHARS] in reason
+    assert secret[: CREDENTIAL_HEAD_CHARS + 1] not in reason
+
+
+def test_a_descriptive_run_id_reaches_the_wire_verbatim(monkeypatch: pytest.MonkeyPatch) -> None:
+    # The complement, and the regression that matters: refusing this is what made
+    # a correlatable id unusable, so dispatch must happen and carry it unaltered.
+    descriptive = "superloop-supplier-code-of-conduct-review-2026-08-04"
+    assert hook._scrub_distill_string(descriptive) != descriptive, (
+        "fixture must actually trip the scrubber, or this proves nothing"
+    )
+
+    dispatched, emitted = _run_distill_with_run_id(monkeypatch, descriptive)
+
+    assert dispatched == [f"distill:{descriptive}"]
+    assert not any(result["status"] == "skipped" for result in emitted)
+
+
+def test_distinct_evidence_ids_stay_distinct() -> None:
+    # The run-id defect one level down. Both of these tripped the entropy scrubber
+    # and were flattened to the same marker, so two evidence items arrived sharing
+    # one step id. A many-to-one map over a key manufactures collisions.
+    first, second = (
+        "baseline-approach-before-the-fix-2026",
+        "the-accepted-approach-after-fix-2026",
+    )
+    assert hook._scrub_distill_string(first) == hook._scrub_distill_string(second), (
+        "fixture must actually collide under the scrubber"
+    )
+
+    evidence, _ = hook._evidence_from_spec(
+        [
+            {"id": first, "role": "contrast", "status": "failed", "content": "a"},
+            {"id": second, "role": "support", "status": "completed", "content": "b"},
+        ]
+    )
+
+    assert [item.id for item in evidence] == [first, second]
+
+
+def test_a_source_ref_url_survives_intact() -> None:
+    # source_ref is documented in the API as "non-secret provenance: a doc id or
+    # URL". Flattening it shredded the citation a distilled learning rests on.
+    url = "https://github.com/hyperstruck/core-platform/blob/main/docs/prompt_leak_backfill.md"
+    assert hook._scrub_distill_string(url) != url, "fixture must trip the scrubber"
+
+    evidence, _ = hook._evidence_from_spec(
+        [{"id": "a", "content": "x", "source_ref": url, "status": "completed"}]
+    )
+
+    assert evidence[0].source_ref == url
+
+
+def test_evidence_label_and_content_are_still_scrubbed() -> None:
+    # The other half of the rule: these carry meaning by content, so a redacted
+    # span still reads as what it was and scrubbing stays correct.
+    secret = "ghp_ABCDEFGHIJKLMNOPQRSTUVWXYZ012345"
+    evidence, _ = hook._evidence_from_spec(
+        [{"id": "a", "content": f"we used {secret}", "label": secret, "status": "completed"}]
+    )
+
+    assert secret not in evidence[0].content
+    assert secret not in evidence[0].label
+
+
+@pytest.mark.parametrize("field", ["id", "source_ref"])
+def test_a_credential_in_an_evidence_identifier_refuses_the_whole_corpus(
+    field: str, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    monkeypatch.setattr(hook, "configured_agent_name", lambda: "dev-copilot")
+    dispatched: list[str] = []
+    monkeypatch.setattr(hook, "_adistill", lambda **kw: dispatched.append(kw["run_id"]))
+    emitted: list[dict[str, Any]] = []
+    monkeypatch.setattr(hook, "_emit_distill_result", lambda result, args: emitted.append(result))
+
+    entry: dict[str, Any] = {"id": "a", "role": "contrast", "status": "failed", "content": "x"}
+    entry[field] = "run-ghp_ABCDEFGHIJKLMNOPQRSTUVWXYZ012345"
+    hook.cmd_distill(
+        {
+            "goal": "teach the agent a house rule",
+            "run_id": "an-ordinary-descriptive-run-id-2026",
+            "evidence": [entry, {"id": "b", "role": "support", "status": "completed", "content": "y"}],
+        },
+        argparse.Namespace(emit="json", source="claude-code", goal=None),
+    )
+
+    assert dispatched == [], "a corpus with a credential in an identifier must not dispatch"
+    assert emitted[0]["status"] == "skipped"
+    assert field in emitted[0]["reason"]
+    assert "ghp_ABCDEFGHIJKLMNOPQRSTUVWXYZ012345" not in emitted[0]["reason"]
+
+
+def test_an_unusable_evidence_entry_is_reported_not_swallowed(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    # Five items in, two usable: the other three used to vanish and the client
+    # then printed "delivered, 2 evidence items". A dropped item changes what is
+    # learned, so it cannot be silent, which is this path's whole premise.
+    monkeypatch.setattr(hook, "configured_agent_name", lambda: "dev-copilot")
+    dispatched: list[str] = []
+    monkeypatch.setattr(hook, "_adistill", lambda **kw: dispatched.append(kw["run_id"]))
+    emitted: list[dict[str, Any]] = []
+    monkeypatch.setattr(hook, "_emit_distill_result", lambda result, args: emitted.append(result))
+
+    hook.cmd_distill(
+        {
+            "goal": "teach the agent a house rule",
+            "run_id": "an-ordinary-descriptive-run-id-2026",
+            "evidence": [
+                {"id": "a", "content": "real one", "status": "failed", "role": "contrast"},
+                {"id": "b", "content": "", "status": "completed"},
+                "not-a-dict",
+                {"id": "d", "content": "real two", "status": "completed", "role": "support"},
+            ],
+        },
+        argparse.Namespace(emit="json", source="claude-code", goal=None),
+    )
+
+    assert dispatched == [], "a corpus that lost items must not be delivered"
+    reason = emitted[0]["reason"]
+    assert "evidence[1] has no content" in reason
+    assert "evidence[2] is not an object" in reason
+    assert "retry on the same run id" in reason
+
+
+def test_an_unknown_status_is_reported_rather_than_coerced(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    # status is one of the three signals establishing contrast, so coercing
+    # "error" to "completed" can invert what the corpus asserts.
+    monkeypatch.setattr(hook, "configured_agent_name", lambda: "dev-copilot")
+    monkeypatch.setattr(hook, "_adistill", lambda **kw: None)
+    emitted: list[dict[str, Any]] = []
+    monkeypatch.setattr(hook, "_emit_distill_result", lambda result, args: emitted.append(result))
+
+    hook.cmd_distill(
+        {
+            "goal": "teach the agent a house rule",
+            "run_id": "an-ordinary-descriptive-run-id-2026",
+            "evidence": [
+                {"id": "a", "content": "one", "status": "error"},
+                {"id": "b", "content": "two", "status": "completed"},
+            ],
+        },
+        argparse.Namespace(emit="json", source="claude-code", goal=None),
+    )
+
+    assert "evidence[0].status 'error'" in emitted[0]["reason"]
+
+
+def test_evidence_from_spec_reports_empty_and_defaults_role() -> None:
+    items, _ = hook._evidence_from_spec(
         [
             {"id": "a", "content": "real content here"},
             {"id": "b", "content": "   "},  # dropped: blank
@@ -1454,7 +1675,7 @@ def test_adistill_reports_delivery_outcome(
             agent_name="agent-x",
             run_id="distill:x",
             goal="goal",
-            evidence=hook._evidence_from_spec(_distill_spec()["evidence"]),
+            evidence=hook._evidence_from_spec(_distill_spec()["evidence"])[0],
             outcome_spec={"is_success": "false", "summary": f"summary {secret}"},
             evaluation=None,
         )

@@ -4,7 +4,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "hyperstruck"
-version = "0.2.1"
+version = "0.2.2"
 description = "Hyperstruck learning for your agents. Plug in a middleware, your agent gets sharper run over run."
 readme = "README.md"
 requires-python = ">=3.10"

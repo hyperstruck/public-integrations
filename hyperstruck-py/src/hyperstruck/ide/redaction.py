@@ -24,6 +24,7 @@ keeps an oversized turn deliverable at all.
 
 from __future__ import annotations
 
+import uuid
 from typing import Any
 
 from hyperstruck.ide.constants import (
@@ -32,6 +33,7 @@ from hyperstruck.ide.constants import (
     TRUNCATION_MARKER,
 )
 from hyperstruck.redaction import (
+    known_credential_match,
     redact_episode_payload,
     scrub_secrets,
     scrub_strings,
@@ -82,11 +84,11 @@ def redact_ide_episode(payload: dict[str, Any]) -> dict[str, Any]:
 
     Declared-sensitive args are stripped first (package redaction), then the
     secret scrub is applied ONLY to the free-text fields (goal, the principal's utterance,
-    and steps), never to identifiers. Scrubbing the whole dict would corrupt ``run_id`` (its uuid
-    tail clears the high-entropy gate), which the server keys its offer log and
-    dedup on, silently breaking reinforce. ``run_id``/``thread_id``/
-    ``source_framework``/``outcome`` are preserved verbatim. The input is not
-    mutated.
+    and a step's descriptive fields), never to identifiers. Scrubbing the whole dict would
+    corrupt ``run_id`` (its uuid tail clears the high-entropy gate), which the
+    server keys its offer log and dedup on, silently breaking reinforce.
+    ``run_id``/``thread_id``/``source_framework``/``outcome`` are preserved
+    verbatim, and so is each step's ``id``. The input is not mutated.
     """
     redacted = dict(redact_episode_payload(payload))
     goal = redacted.get("goal")
@@ -99,5 +101,33 @@ def redact_ide_episode(payload: dict[str, Any]) -> dict[str, Any]:
         # length decision is made at admission where it can refuse rather than truncate.
         redacted["principal_utterance"] = scrub_secrets(utterance)
     if isinstance(redacted.get("steps"), list):
-        redacted["steps"] = scrub_strings(redacted["steps"], scrub_secrets)
+        redacted["steps"] = [_redact_step(step) for step in redacted["steps"]]
     return redacted
+
+
+def _redact_step(step: Any) -> Any:
+    """Scrub a step's descriptive fields while keeping its ``id`` an identifier."""
+    if not isinstance(step, dict):
+        return scrub_strings(step, scrub_secrets)
+    scrubbed = scrub_strings(step, scrub_secrets)
+    if "id" in step:
+        scrubbed["id"] = _safe_step_id(step["id"])
+    return scrubbed
+
+
+def _safe_step_id(original: Any) -> Any:
+    """Preserve a step id, or re-mint it, but never flatten it to the marker.
+
+    A step id joins a decision to its outcome and is documented unique within the
+    episode, so replacing it with a shared marker collides every step onto one.
+    That was live: a Cursor step id is a bare ``uuid4().hex``, which clears the
+    entropy gate about 83% of the time, and a Claude Code ``toolu_`` id escapes
+    only by being 30 characters against a 32-character rule.
+
+    This path must fail open, so refusing (the distil answer for an identifier) is
+    not available. Re-minting is the third option and the right one here: a fresh
+    id drops the suspect text while staying unique, which a marker does not.
+    """
+    if not isinstance(original, str) or not original:
+        return original
+    return original if known_credential_match(original) is None else uuid.uuid4().hex
