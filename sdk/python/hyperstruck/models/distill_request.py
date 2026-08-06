@@ -37,7 +37,8 @@ class DistillRequest(object):
         'evaluation': 'object',
         'synthesis_notes': 'object',
         'source_framework': 'object',
-        'occurred_at': 'object'
+        'occurred_at': 'object',
+        'max_learnings': 'object'
     }
 
     attribute_map = {
@@ -50,10 +51,11 @@ class DistillRequest(object):
         'evaluation': 'evaluation',
         'synthesis_notes': 'synthesis_notes',
         'source_framework': 'source_framework',
-        'occurred_at': 'occurred_at'
+        'occurred_at': 'occurred_at',
+        'max_learnings': 'max_learnings'
     }
 
-    def __init__(self, agent_name=None, org_id=None, run_id=None, goal=None, evidence=None, outcome=None, evaluation=None, synthesis_notes=None, source_framework=None, occurred_at=None):  # noqa: E501
+    def __init__(self, agent_name=None, org_id=None, run_id=None, goal=None, evidence=None, outcome=None, evaluation=None, synthesis_notes=None, source_framework=None, occurred_at=None, max_learnings=None):  # noqa: E501
         """DistillRequest - a model defined in Swagger"""  # noqa: E501
         self._agent_name = None
         self._org_id = None
@@ -65,6 +67,7 @@ class DistillRequest(object):
         self._synthesis_notes = None
         self._source_framework = None
         self._occurred_at = None
+        self._max_learnings = None
         self.discriminator = None
         self.agent_name = agent_name
         if org_id is not None:
@@ -82,12 +85,14 @@ class DistillRequest(object):
             self.source_framework = source_framework
         if occurred_at is not None:
             self.occurred_at = occurred_at
+        if max_learnings is not None:
+            self.max_learnings = max_learnings
 
     @property
     def agent_name(self):
         """Gets the agent_name of this DistillRequest.  # noqa: E501
 
-        Human-readable agent name. This is a string, not the hosted agent UUID used in `/agents/{agent_id}` paths.  # noqa: E501
+        Human-readable agent name, unique within your tenant. This is not the hosted agent UUID used in `/agents/{agent_id}` REST paths. If no agent with this name exists yet, the platform creates one automatically on the first boundary call (a minimal learning agent scoped to your tenant). Reuse the same name on resolve, observe, reinforce, and distill to target the same learning corpus.  # noqa: E501
 
         :return: The agent_name of this DistillRequest.  # noqa: E501
         :rtype: object
@@ -98,7 +103,7 @@ class DistillRequest(object):
     def agent_name(self, agent_name):
         """Sets the agent_name of this DistillRequest.
 
-        Human-readable agent name. This is a string, not the hosted agent UUID used in `/agents/{agent_id}` paths.  # noqa: E501
+        Human-readable agent name, unique within your tenant. This is not the hosted agent UUID used in `/agents/{agent_id}` REST paths. If no agent with this name exists yet, the platform creates one automatically on the first boundary call (a minimal learning agent scoped to your tenant). Reuse the same name on resolve, observe, reinforce, and distill to target the same learning corpus.  # noqa: E501
 
         :param agent_name: The agent_name of this DistillRequest.  # noqa: E501
         :type: object
@@ -310,6 +315,29 @@ class DistillRequest(object):
         """
 
         self._occurred_at = occurred_at
+
+    @property
+    def max_learnings(self):
+        """Gets the max_learnings of this DistillRequest.  # noqa: E501
+
+        Maximum number of learnings to extract from this distill job. Defaults to 10; lower for sparse corpora or raise for large, dense documents.  # noqa: E501
+
+        :return: The max_learnings of this DistillRequest.  # noqa: E501
+        :rtype: object
+        """
+        return self._max_learnings
+
+    @max_learnings.setter
+    def max_learnings(self, max_learnings):
+        """Sets the max_learnings of this DistillRequest.
+
+        Maximum number of learnings to extract from this distill job. Defaults to 10; lower for sparse corpora or raise for large, dense documents.  # noqa: E501
+
+        :param max_learnings: The max_learnings of this DistillRequest.  # noqa: E501
+        :type: object
+        """
+
+        self._max_learnings = max_learnings
 
     def to_dict(self):
         """Returns the model properties as a dict"""

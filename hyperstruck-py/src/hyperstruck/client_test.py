@@ -154,6 +154,36 @@ async def test_distill_posts_flat_body_in_background() -> None:
     assert bodies[0]["agent_name"] == "support-bot"
     assert bodies[0]["run_id"] == "distill:pm-1"
     assert len(bodies[0]["evidence"]) == 2
+    # Omit unless overridden so older APIs do not 422 unknown keys.
+    assert "max_learnings" not in bodies[0]
+    await client.aclose()
+
+
+async def test_distill_includes_max_learnings_only_when_set() -> None:
+    bodies = []
+
+    def handler(request: httpx.Request) -> httpx.Response:
+        import json
+
+        bodies.append(json.loads(request.content))
+        return httpx.Response(
+            202, json={"status": "accepted", "run_id": "distill:pm-1"}
+        )
+
+    client = _client(handler)
+    evidence = (
+        EvidenceItem(id="e1", content="a" * 300, role="contrast", status="failed"),
+        EvidenceItem(id="e2", content="b" * 300, role="support"),
+    )
+    await client.distill(
+        identity=IDENTITY,
+        run_id="distill:pm-1",
+        goal="extract learnings",
+        evidence=evidence,
+        max_learnings=15,
+    )
+    await client.drain()
+    assert bodies[0]["max_learnings"] == 15
     await client.aclose()
 
 
@@ -181,6 +211,22 @@ async def test_distill_raises_on_deterministic_client_errors() -> None:
             run_id="distill:pm-1",
             goal="g",
             evidence=ok_evidence[:1],
+        )
+    with pytest.raises(ValueError, match="max_learnings"):
+        await client.distill(
+            identity=IDENTITY,
+            run_id="distill:pm-1",
+            goal="g",
+            evidence=ok_evidence,
+            max_learnings=0,
+        )
+    with pytest.raises(ValueError, match="max_learnings"):
+        await client.distill(
+            identity=IDENTITY,
+            run_id="distill:pm-1",
+            goal="g",
+            evidence=ok_evidence,
+            max_learnings=51,
         )
     await client.drain()
     assert sent["count"] == 0  # nothing dispatched for the rejected calls

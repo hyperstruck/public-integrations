@@ -36,3 +36,25 @@ def test_learning_boundary_request_models_serialize_agent_name() -> None:
         data = request.to_dict()
         assert data["agent_name"] == "agent-a"
         assert "agent_id" not in data
+
+
+def test_distill_request_accepts_and_serializes_max_learnings() -> None:
+    request = DistillRequest(
+        agent_name="agent-a",
+        run_id="distill:run-1",
+        goal="ship",
+        outcome="fixed",
+        max_learnings=15,
+    )
+    assert request.max_learnings == 15
+    assert request.to_dict()["max_learnings"] == 15
+
+
+def test_distill_request_leaves_max_learnings_unset_by_default() -> None:
+    request = DistillRequest(
+        agent_name="agent-a",
+        run_id="distill:run-1",
+        goal="ship",
+        outcome="fixed",
+    )
+    assert request.max_learnings is None

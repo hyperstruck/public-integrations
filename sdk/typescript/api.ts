@@ -2044,6 +2044,12 @@ export interface DistillRequest {
      * @memberof DistillRequest
      */
     occurredAt?: any;
+    /**
+     * Maximum number of learnings to extract from this distill job. Defaults to 10; lower for sparse corpora or raise for large, dense documents.
+     * @type {any}
+     * @memberof DistillRequest
+     */
+    maxLearnings?: any;
 }
 /**
  * One topic or taxonomy axis the agent should prefer when learning.

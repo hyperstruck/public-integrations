@@ -31,17 +31,19 @@ from typing import Any, Protocol, runtime_checkable
 import httpx
 
 from hyperstruck._version import __version__
-from hyperstruck.env import API_KEY_ENV_VARS, BASE_URL_ENV_VARS, first_env
 from hyperstruck._wire import (
     DECLINE_REASONS,
     DEFAULT_MAX_LEARNINGS,
+    DISTILL_MAX_LEARNINGS,
+    DISTILL_MIN_LEARNINGS,
+    DistillJob,
+    DistillOutcome,
     Episode,
     EvidenceItem,
-    DistillOutcome,
-    DistillJob,
     ResolvedContext,
     ToolSpec,
 )
+from hyperstruck.env import API_KEY_ENV_VARS, BASE_URL_ENV_VARS, first_env
 from hyperstruck.identity import AgentIdentity
 from hyperstruck.redaction import redact_episode_payload
 
@@ -206,6 +208,7 @@ class LearningClient(Protocol):
         synthesis_notes: str | None = None,
         source_framework: str = "api:distill",
         occurred_at: str | None = None,
+        max_learnings: int | None = None,
     ) -> None:
         """Distill learnings from a corpus of evidence. Non-blocking."""
         ...
@@ -364,12 +367,13 @@ class HostedLearningClient:
         synthesis_notes: str | None = None,
         source_framework: str = "api:distill",
         occurred_at: str | None = None,
+        max_learnings: int | None = None,
     ) -> None:
-        # Writes are fire-and-forget, so a server 400 would be swallowed silently.
-        # Fail loud here on the two structural mistakes a caller is most likely to hit
-        # (unnamespaced run id, too few items). The server's content-size and
-        # occurred_at gates are not mirrored to avoid duplicating its thresholds; those
-        # surface only server-side.
+        # Writes are fire-and-forget, so a server 4xx would be swallowed silently.
+        # Fail loud here on the structural mistakes a caller is most likely to hit
+        # (unnamespaced run id, too few items, out-of-range max_learnings). The
+        # server's content-size and occurred_at gates are not mirrored to avoid
+        # duplicating its thresholds; those surface only server-side.
         if not run_id.startswith("distill:"):
             raise ValueError(
                 "run_id must be namespaced with the 'distill:' prefix "
@@ -377,6 +381,13 @@ class HostedLearningClient:
             )
         if len(evidence) < 2:
             raise ValueError("distill requires at least 2 evidence items")
+        if max_learnings is not None and not (
+            DISTILL_MIN_LEARNINGS <= max_learnings <= DISTILL_MAX_LEARNINGS
+        ):
+            raise ValueError(
+                f"max_learnings must be between {DISTILL_MIN_LEARNINGS} and "
+                f"{DISTILL_MAX_LEARNINGS}"
+            )
         # Identity is authoritative (as for observe/reinforce); the caller must
         # pre-redact secrets in evidence content, which is stored verbatim server-side.
         job = DistillJob(
@@ -390,6 +401,7 @@ class HostedLearningClient:
             synthesis_notes=synthesis_notes,
             source_framework=source_framework,
             occurred_at=occurred_at,
+            max_learnings=max_learnings,
         )
         self._schedule_write("/distill", job.to_payload())
 

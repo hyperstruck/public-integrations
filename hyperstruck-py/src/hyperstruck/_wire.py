@@ -16,6 +16,13 @@ from typing import Any, Literal
 # middleware so the two defaults cannot drift.
 DEFAULT_MAX_LEARNINGS = 8
 
+# Server default when the client omits max_learnings on distill. Keep the client
+# field optional and omit the wire key unless the caller overrides, so a client
+# release can land before the API knows the field.
+DEFAULT_DISTILL_MAX_LEARNINGS = 10
+DISTILL_MIN_LEARNINGS = 1
+DISTILL_MAX_LEARNINGS = 50
+
 # Why a turn ended with nothing worth learning. The boundary validates against this
 # exact set and rejects anything else, so the two must not drift.
 REASON_NO_TOOL_CALLS = "no_tool_calls"
@@ -137,10 +144,11 @@ class DistillJob:
     synthesis_notes: str | None = None
     source_framework: str = "api:distill"
     occurred_at: str | None = None
+    max_learnings: int | None = None
 
     def to_payload(self) -> dict[str, Any]:
         """Serialise to the JSON body the platform expects."""
-        return {
+        payload: dict[str, Any] = {
             "agent_name": self.agent_name,
             "org_id": self.org_id,
             "run_id": self.run_id,
@@ -152,6 +160,10 @@ class DistillJob:
             "source_framework": self.source_framework,
             "occurred_at": self.occurred_at,
         }
+        # Omit unless the caller set an override; the server applies its default.
+        if self.max_learnings is not None:
+            payload["max_learnings"] = self.max_learnings
+        return payload
 
 
 @dataclass(frozen=True)
