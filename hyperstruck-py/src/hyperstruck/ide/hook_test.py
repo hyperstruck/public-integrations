@@ -823,7 +823,13 @@ def test_prompt_spawns_fixed_argv_detached_resolver(_env, monkeypatch) -> None:
     assert kwargs["start_new_session"] is True
     assert kwargs["stdin"] is hook.subprocess.DEVNULL
     assert kwargs["stdout"] is hook.subprocess.DEVNULL
-    assert kwargs["stderr"] is hook.subprocess.DEVNULL
+    # The parent's -P does not reach a child: it is a fresh interpreter, and the
+    # flag sets no environment. Without this the child dies on a project file
+    # named after a stdlib module, which is what the wired flag fixes for the parent.
+    assert kwargs["env"]["PYTHONSAFEPATH"] == "1"
+    # A trail, not DEVNULL: a child dying before main's fail-open contract would
+    # otherwise leave nothing behind at all.
+    assert kwargs["stderr"] is not hook.subprocess.DEVNULL
 
 
 @pytest.mark.parametrize("replacement", [None, "new-run"])

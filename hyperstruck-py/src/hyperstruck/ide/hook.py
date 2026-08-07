@@ -25,6 +25,7 @@ from __future__ import annotations
 
 import argparse
 import asyncio
+import contextlib
 import hashlib
 import json
 import os
@@ -37,6 +38,7 @@ import time
 import uuid
 from dataclasses import replace
 from enum import Enum
+from pathlib import Path
 from typing import Any
 
 from hyperstruck._wire import (
@@ -56,6 +58,8 @@ from hyperstruck.ide.constants import (
     FLUSH_STALE_SECONDS,
     HOOK_DEBUG_ENV,
     HOOK_DEBUG_OFF_VALUES,
+    HOOK_FAILURES_LOG,
+    HOOK_FAILURES_LOG_MAX_BYTES,
     MAX_EPISODE_STEPS,
     MAX_STEP_FIELD_CHARS,
     MINTED_RUN_ID_CHARS,
@@ -65,6 +69,7 @@ from hyperstruck.ide.constants import (
     SOURCE_CURSOR,
     STATUS_COMPLETED,
     STATUS_FAILED,
+    hyper_home,
 )
 from hyperstruck.ide.gating import classify_tool, should_observe
 from hyperstruck.ide.redaction import (
@@ -1216,18 +1221,73 @@ def _new_run_id(agent_name: str, session_id: str) -> str:
     return f"{agent_name}:{session_id}:{uuid.uuid4().hex}"
 
 
-def _spawn_flush(path: str | os.PathLike[str]) -> None:
-    """Spawn a detached flush process so delivery never delays the prompt."""
+def _child_env() -> dict[str, str]:
+    """Environment for a detached child, keeping the session's cwd off ``sys.path``.
+
+    A child is a fresh interpreter, so the parent's ``-P`` does not reach it:
+    ``sys.flags.safe_path`` is not inherited and ``PYTHONSAFEPATH`` is not set by
+    the flag. Without this, a project file named after a stdlib module shadows the
+    real one and the child cannot boot ``runpy``, so flush and resolve die in
+    exactly the directories the wired flag protects the parent from. The variable
+    is honoured from 3.11 and ignored before it, which ``-P`` is not, so it is
+    safe on every interpreter this package supports.
+    """
+    return {**os.environ, "PYTHONSAFEPATH": "1"}
+
+
+def _spawn_stderr(home: Path) -> Any:
+    """Append handle for child stderr, so a child that dies leaves a trace.
+
+    Discarding it is why this class of failure stayed invisible: the child died
+    before reaching the fail-open contract in ``main``, so nothing anywhere
+    recorded that it had run. Truncated past a bound, because a machine stuck in
+    the broken state writes one traceback per hook event forever. Falls back to
+    ``DEVNULL``: a diagnostic must never itself be the reason the loop breaks.
+    """
+    try:
+        home.mkdir(parents=True, exist_ok=True)
+        log = home / HOOK_FAILURES_LOG
+        if log.exists() and log.stat().st_size > HOOK_FAILURES_LOG_MAX_BYTES:
+            log.replace(log.with_suffix(log.suffix + ".1"))
+        return log.open("ab")
+    except OSError:
+        return subprocess.DEVNULL
+
+
+def _spawn_detached(*args: str) -> None:
+    """Start a detached hook subprocess, insulated from the session's directory.
+
+    ``cwd`` is the loop's own state directory rather than the editor's, so a
+    project file named after a stdlib module cannot shadow it however the child
+    interpreter resolves imports. ``PYTHONSAFEPATH`` says the same thing to 3.11
+    and later; this says it to every version, which is what the 3.10 floor needs.
+    Neither detached command reads the working directory: ``resolve`` is keyed by
+    session id and ``flush`` by an absolute path.
+    """
+    home = hyper_home()
+    stderr = _spawn_stderr(home)
     try:
         # Fixed argv from sys.executable, never a shell: not an injection surface.
         subprocess.Popen(  # nosec B603
-            [sys.executable, "-m", "hyperstruck.ide.hook", "flush", str(path)],
+            [sys.executable, "-m", "hyperstruck.ide.hook", *args],
             stdin=subprocess.DEVNULL,
             stdout=subprocess.DEVNULL,
-            stderr=subprocess.DEVNULL,
+            stderr=stderr,
             start_new_session=True,
             close_fds=True,
+            env=_child_env(),
+            cwd=str(home),
         )
+    finally:
+        if stderr is not subprocess.DEVNULL:
+            with contextlib.suppress(OSError):
+                stderr.close()
+
+
+def _spawn_flush(path: str | os.PathLike[str]) -> None:
+    """Spawn a detached flush process so delivery never delays the prompt."""
+    try:
+        _spawn_detached("flush", str(path))
     except (OSError, ValueError):
         pass
 
@@ -1235,14 +1295,7 @@ def _spawn_flush(path: str | os.PathLike[str]) -> None:
 def _spawn_resolve(session_id: str) -> None:
     """Spawn a detached resolve process so recall never delays prompt submission."""
     try:
-        subprocess.Popen(  # nosec B603
-            [sys.executable, "-m", "hyperstruck.ide.hook", "resolve", session_id],
-            stdin=subprocess.DEVNULL,
-            stdout=subprocess.DEVNULL,
-            stderr=subprocess.DEVNULL,
-            start_new_session=True,
-            close_fds=True,
-        )
+        _spawn_detached("resolve", session_id)
         _debug(f"resolve spawned: session {session_id}")
     except (OSError, ValueError) as exc:
         _debug(f"resolve spawn failed ({type(exc).__name__}): {exc}")
@@ -1416,9 +1469,7 @@ def main(argv: list[str] | None = None) -> int:
             cmd_stop(payload, args)
         elif args.command == "distill":
             cmd_distill(payload, args)
-    except (
-        BaseException
-    ):  # noqa: BLE001 - the loop must never break the editor, even on cancellation/interrupt
+    except BaseException:  # noqa: BLE001 - the loop must never break the editor, even on cancellation/interrupt
         return 0
     return 0
 

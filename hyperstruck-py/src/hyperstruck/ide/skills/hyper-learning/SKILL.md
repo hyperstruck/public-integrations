@@ -38,7 +38,7 @@ prompt that started the turn).
 Print the learnings relevant to a goal and apply them:
 
 ```!
-python3 -m hyperstruck.ide.hook prompt --readonly --emit text --goal "$ARGUMENTS"
+PYTHONSAFEPATH=1 python3 -m hyperstruck.ide.hook prompt --readonly --emit text --goal "$ARGUMENTS"
 ```
 
 - If `$ARGUMENTS` is empty, pass a one-line summary of the goal you want recall for.
@@ -95,7 +95,7 @@ echo '{
   ],
   "outcome": {"is_success": true, "summary": "Design finalized"},
   "evaluation": "<the general, reusable principle — not doc-specific naming>"
-}' | python3 -m hyperstruck.ide.hook distill --emit text
+}' | PYTHONSAFEPATH=1 python3 -m hyperstruck.ide.hook distill --emit text
 ```
 
 - **Agent**: distill always targets the configured boundary agent name

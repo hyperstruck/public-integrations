@@ -224,6 +224,13 @@ def _hook_python() -> str:
     return str(_venv_python(ide_venv_dir()))
 
 
+# Keeps the editor session's cwd off sys.path. Without it a project file named
+# after a stdlib module (types.py, json.py) shadows the real one, the interpreter
+# cannot boot runpy, and every hook event fired from that directory is lost
+# silently. Unconditional because the package floor is 3.11, where -P exists.
+SAFE_PATH_FLAGS = ("-P",)
+
+
 def _ensure_durable_venv(report: Report) -> bool:
     """Create ``~/.hyperstruck/venv`` if needed and sync the running package into it.
 
@@ -258,7 +265,9 @@ def _durable_venv_importable(report: Report, venv_dir: Path) -> bool:
         return False
     try:
         result = subprocess.run(
-            [str(python), "-c", "import hyperstruck"],
+            # Probe the command shape that gets wired, flags included. Probing a
+            # bare interpreter would pass while the wired command cannot start.
+            [str(python), *SAFE_PATH_FLAGS, "-c", "import hyperstruck"],
             capture_output=True,
             text=True,
             check=False,
@@ -395,7 +404,15 @@ def _direct_url_path(dist: metadata.Distribution) -> Path | None:
 
 
 def _hook_cmd(command: str, *extra: str) -> str:
-    parts = [shlex.quote(_hook_python()), "-m", "hyperstruck.ide.hook", command, *extra]
+    python = _hook_python()
+    parts = [
+        shlex.quote(python),
+        *SAFE_PATH_FLAGS,
+        "-m",
+        "hyperstruck.ide.hook",
+        command,
+        *extra,
+    ]
     return " ".join(parts)
 
 
@@ -615,9 +632,7 @@ def _list_agents(key: str, base_url: str | None) -> list[dict[str, Any]]:
         )
         response.raise_for_status()
         data = response.json()
-    except (
-        Exception
-    ):  # noqa: BLE001 - listing is best-effort; warn paths handle empties
+    except Exception:  # noqa: BLE001 - listing is best-effort; warn paths handle empties
         return []
     items = data.get("items") if isinstance(data, dict) else data
     return [a for a in (items or []) if isinstance(a, dict)]

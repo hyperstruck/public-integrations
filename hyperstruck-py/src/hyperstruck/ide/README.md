@@ -78,6 +78,16 @@ place. Restart your editor afterwards. Uninstall with
 `python -m hyperstruck.ide.install --uninstall` (hooks and skills only; the
 durable venv is left in place).
 
+Wired commands also keep your project directory off the interpreter's import path.
+Without that, a file in your repo named after a standard library module (a
+`types.py`, a `json.py`) shadows the real one, the interpreter cannot start, and
+every hook event fired from that directory is lost with no sign that anything went
+wrong. Detached work is insulated the same way, by running from the loop's own
+state directory rather than yours. This is why the package requires Python 3.11 or
+later: the interpreter flag that provides the isolation does not exist before it,
+and wiring a command an older interpreter refuses to start is worse than the
+problem it solves.
+
 ## What gets learned, and when
 
 Not every turn is worth learning from, so capture is gated to the informative
@@ -99,7 +109,7 @@ distill it into the same boundary agent, out of band from the automatic loop:
 ```
 echo '{"goal":"...","evidence":[{"id":"a","role":"contrast","status":"failed","content":"..."},
 {"id":"b","role":"support","status":"completed","content":"..."}],"evaluation":"..."}' \
-  | python -m hyperstruck.ide.hook distill --emit text
+  | PYTHONSAFEPATH=1 python -m hyperstruck.ide.hook distill --emit text
 ```
 
 It targets the configured boundary agent name (`HYPER_LEARNING_AGENT_NAME` when
@@ -261,7 +271,10 @@ diagnose after the fact.
 
 The flip side of failing open is that a hook producing no output is ambiguous: it
 could have never fired, fired with no agent configured, resolved zero learnings,
-or hit a network error. In a cloud or remote agent (for example a Cursor
+or hit a network error. A hook that died before it could report anything at all,
+for instance because a file in your project shadowed a standard library module,
+appends to `~/.hyperstruck/hook-failures.log` (rotated once past a megabyte), so
+start there: an entry names the working directory the failure came from. In a cloud or remote agent (for example a Cursor
 background agent) the hooks do not run at all, because they are local processes
 wired into your editor and reading local config; only a local editing session
 fires them.

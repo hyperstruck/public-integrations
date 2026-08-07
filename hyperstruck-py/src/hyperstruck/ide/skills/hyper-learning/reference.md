@@ -39,7 +39,7 @@ outside the resolve → observe → reinforce loop. The IDE skill drives it thro
 the hook so identity, namespacing, and secret-scrubbing are handled for you:
 
 ```
-echo '<spec json>' | python3 -m hyperstruck.ide.hook distill --emit text
+echo '<spec json>' | PYTHONSAFEPATH=1 python3 -m hyperstruck.ide.hook distill --emit text
 ```
 
 The spec is `{goal, evidence: [{id, content, role, status, label?, source_ref?}],

@@ -17,6 +17,15 @@ from pathlib import Path
 HYPER_HOME_ENV = "HYPER_HOME"
 
 
+# Where a detached child's stderr is appended when it dies before the fail-open
+# contract in ``main`` can record anything. Kept beside the loop state it explains.
+HOOK_FAILURES_LOG = "hook-failures.log"
+
+# One traceback per hook event accrues forever on a machine stuck in the broken
+# state, so the trail is rotated once rather than allowed to grow without bound.
+HOOK_FAILURES_LOG_MAX_BYTES = 1_000_000
+
+
 def hyper_home() -> Path:
     """The root directory for loop state (``~/.hyperstruck`` by default)."""
     override = os.environ.get(HYPER_HOME_ENV)

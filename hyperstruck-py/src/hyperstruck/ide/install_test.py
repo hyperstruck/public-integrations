@@ -3,6 +3,8 @@
 from __future__ import annotations
 
 import json
+import shlex
+import subprocess
 import sys
 from pathlib import Path
 
@@ -69,6 +71,77 @@ def test_wires_both_editors_and_is_idempotent(_dirs) -> None:
     assert sys.executable not in cmds[0]
     assert expected in cursor_cfg["hooks"]["beforeSubmitPrompt"][0]["command"]
     assert not (cursor / "rules" / "hyperstruck-learning.mdc").exists()
+
+
+def _wired_commands(claude: Path, cursor: Path) -> tuple[list[str], list[str]]:
+    claude_cmds = [
+        c
+        for event in json.loads((claude / "settings.json").read_text())["hooks"]
+        for c in _claude_cmds(claude, event)
+    ]
+    cursor_cfg = json.loads((cursor / "hooks.json").read_text())
+    cursor_cmds = [
+        h["command"] for hooks in cursor_cfg["hooks"].values() for h in hooks
+    ]
+    return claude_cmds, cursor_cmds
+
+
+def test_every_wired_command_keeps_cwd_off_sys_path(_dirs) -> None:
+    """A repo file named after a stdlib module must not shadow it and kill the hook."""
+    claude, cursor, _ = _dirs
+    install.install(validate=False)
+
+    claude_cmds, cursor_cmds = _wired_commands(claude, cursor)
+    assert len(claude_cmds) == 3
+    assert len(cursor_cmds) == 5
+
+    for command in claude_cmds + cursor_cmds:
+        parts = shlex.split(command)
+        # Exact, not "contains": after -m every token is a hook argument, so the
+        # flag isolates sys.path only while it stays ahead of it.
+        assert parts[1 : parts.index("-m")] == ["-P"], command
+
+
+def test_wired_flags_are_accepted_by_the_interpreter_that_runs_them() -> None:
+    """Asserting the flag string is not enough: an interpreter must accept it.
+
+    This is what pins the package floor to the flag. If ``requires-python`` ever
+    drops below 3.11 again, the CI leg for that version fails here rather than
+    shipping a wired command that aborts before any hook code runs.
+    """
+    probe = subprocess.run(
+        [sys.executable, *install.SAFE_PATH_FLAGS, "-c", "import sys"],
+        capture_output=True,
+        check=False,
+    )
+    assert probe.returncode == 0, probe.stderr
+
+
+def test_legacy_command_shape_is_migrated_not_duplicated(_dirs) -> None:
+    """An install predating the flag must be rewired, not left broken beside a new one."""
+    claude, _, _ = _dirs
+    (claude / "settings.json").write_text(
+        json.dumps(
+            {
+                "hooks": {
+                    "UserPromptSubmit": [
+                        {
+                            "hooks": [
+                                {
+                                    "type": "command",
+                                    "command": "/old/python -m hyperstruck.ide.hook prompt",
+                                }
+                            ]
+                        }
+                    ]
+                }
+            }
+        )
+    )
+    install.install(validate=False)
+    cmds = _claude_cmds(claude)
+    assert sum("hyperstruck.ide.hook" in c for c in cmds) == 1
+    assert not any(c.startswith("/old/python") for c in cmds)
 
 
 def test_preserves_foreign_hooks(_dirs) -> None:
@@ -215,9 +288,7 @@ def test_rerun_migrates_managed_legacy_agent_uuid(_dirs, monkeypatch) -> None:
     assert f"HYPER_AGENT_ID={_AGENT_UUID}" in env
 
 
-def test_rerun_migrates_managed_legacy_learning_agent_uuid(
-    _dirs, monkeypatch
-) -> None:
+def test_rerun_migrates_managed_legacy_learning_agent_uuid(_dirs, monkeypatch) -> None:
     monkeypatch.setattr(
         install,
         "_list_agents",
