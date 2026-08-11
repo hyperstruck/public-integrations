@@ -62,7 +62,7 @@ processes, so network work never delays the prompt you are waiting on.
 The package is distributed from this repository, not PyPI:
 
 ```
-pip install "hyperstruck @ git+https://github.com/hyperstruck/public-integrations.git#subdirectory=hyperstruck-py"
+pip install --upgrade "hyperstruck @ git+https://github.com/hyperstruck/public-integrations.git#subdirectory=hyperstruck-py"
 python -m hyperstruck.ide.install
 ```
 
