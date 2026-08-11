@@ -128,9 +128,19 @@ class HyperstruckLearningMiddleware(AgentMiddleware):
         if client is None:
             # Imported lazily so the package imports without httpx side effects in
             # exotic environments, and so a custom client needs no hosted deps.
-            from hyperstruck.client import HostedLearningClient
+            from hyperstruck.client import (
+                DEFAULT_RECALL_TIMEOUT,
+                HostedLearningClient,
+            )
 
-            client = HostedLearningClient(api_key=api_key, base_url=base_url)
+            # Resolve is prefetched as a background task rather than awaited
+            # inline, so it takes the recall budget: the inline default cannot
+            # clear a real hosted resolve and every prefetch would time out.
+            client = HostedLearningClient(
+                api_key=api_key,
+                base_url=base_url,
+                resolve_timeout=DEFAULT_RECALL_TIMEOUT,
+            )
         self._client = client
         self._goal_extractor = goal_extractor or _latest_human_goal
         self._tool_sensitivity: dict[str, Mapping[str, str]] = dict(tool_sensitivity or {})

@@ -23,7 +23,6 @@ from __future__ import annotations
 
 import asyncio
 import logging
-import os
 import re
 from collections.abc import Sequence
 from typing import Any, Protocol, runtime_checkable
@@ -43,7 +42,14 @@ from hyperstruck._wire import (
     ResolvedContext,
     ToolSpec,
 )
-from hyperstruck.env import API_KEY_ENV_VARS, BASE_URL_ENV_VARS, first_env
+from hyperstruck.env import (
+    API_KEY_ENV_VARS,
+    BASE_URL_ENV_VARS,
+    RESOLVE_TIMEOUT_ENV,
+    WRITE_TIMEOUT_ENV,
+    env_float,
+    first_env,
+)
 from hyperstruck.identity import AgentIdentity
 from hyperstruck.redaction import redact_episode_payload
 
@@ -51,14 +57,14 @@ logger = logging.getLogger(__name__)
 
 DEFAULT_BASE_URL = "https://api.hyperstruck.com"
 
-# Deadlines are env-tunable so hosts that construct the client with defaults
-# (the IDE hooks) can be adjusted without a code change. Resolve sits on the
-# model-call hot path and stays tight; writes run in the background and can
-# afford to wait out a slow boundary.
-RESOLVE_TIMEOUT_ENV = "HYPER_RESOLVE_TIMEOUT"
-WRITE_TIMEOUT_ENV = "HYPER_WRITE_TIMEOUT"
-DEFAULT_RESOLVE_TIMEOUT = 2.0
+# Writes run in the background and can afford to wait out a slow boundary.
 DEFAULT_WRITE_TIMEOUT = 30.0
+# The inline budget, for a resolve awaited between a caller and its model call.
+DEFAULT_RESOLVE_TIMEOUT = 2.0
+# A hosted resolve was measured at 13.1s against api.hyperstruck.com, so the
+# inline budget above cannot land one. Any recall that is prefetched or explicit,
+# and so is not what the caller is waiting on, gets this instead.
+DEFAULT_RECALL_TIMEOUT = 20.0
 
 HTTP_UNPROCESSABLE_ENTITY = 422
 # A rejection can name one field per step of a 500-step episode, so both the
@@ -68,16 +74,6 @@ MAX_VALIDATION_CAUSE_CHARS = 200
 # A field name or a pydantic error type. Anything else in `loc`/`type` did not come
 # from the schema and is not copied into a log that must hold no payload content.
 _VALIDATION_TOKEN = re.compile(r"[A-Za-z0-9_]{1,40}")
-
-
-def _env_float(name: str, default: float) -> float:
-    raw = os.environ.get(name)
-    if not raw:
-        return default
-    try:
-        return float(raw)
-    except ValueError:
-        return default
 
 
 def _is_duplicate_receipt(response: Any) -> bool:
@@ -262,7 +258,7 @@ class HostedLearningClient:
         self._resolve_timeout = (
             resolve_timeout
             if resolve_timeout is not None
-            else _env_float(RESOLVE_TIMEOUT_ENV, DEFAULT_RESOLVE_TIMEOUT)
+            else env_float(RESOLVE_TIMEOUT_ENV, DEFAULT_RESOLVE_TIMEOUT)
         )
         self._max_write_retries = max(1, max_write_retries)
         self._retry_backoff = retry_backoff
@@ -270,7 +266,7 @@ class HostedLearningClient:
         # Writes get their own, longer deadline; resolve stays bounded by
         # asyncio.wait_for(self._resolve_timeout) regardless of this client timeout.
         self._http = http_client or httpx.AsyncClient(
-            timeout=_env_float(WRITE_TIMEOUT_ENV, DEFAULT_WRITE_TIMEOUT)
+            timeout=env_float(WRITE_TIMEOUT_ENV, DEFAULT_WRITE_TIMEOUT)
         )
         self._pending: set[asyncio.Task[None]] = set()
         # Visibility counters.

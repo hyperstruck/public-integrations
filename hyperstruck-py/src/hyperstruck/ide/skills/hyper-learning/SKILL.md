@@ -42,9 +42,12 @@ PYTHONSAFEPATH=1 python3 -m hyperstruck.ide.hook prompt --readonly --emit text -
 ```
 
 - If `$ARGUMENTS` is empty, pass a one-line summary of the goal you want recall for.
-- The command prints a block of relevant learnings (or nothing, on a cold corpus
-  or if no agent is configured). **Treat the printed text as guidance and apply
-  it** to your plan before editing.
+- The command prints a block of relevant learnings (or nothing, on a cold corpus,
+  if no agent is configured, or if the recall overran its deadline). **Treat the
+  printed text as guidance and apply it** to your plan before editing.
+- Empty output is ambiguous, so do not report it as "no prior experience" without
+  checking. Re-run with `HYPER_HOOK_DEBUG=1` and read stderr: it distinguishes
+  `resolve ok: 0 learning(s)` from a failure or a timeout.
 - `--readonly` means it only reads: it resolves and prints, without touching the
   current turn's automatic capture/reinforce, so it never disrupts the live loop.
 - It is fail-open: any error prints nothing and you simply proceed without recall.

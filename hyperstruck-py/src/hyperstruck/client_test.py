@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+import asyncio
+
 import httpx
 import pytest
 
@@ -13,10 +15,13 @@ from hyperstruck._wire import (
     TerminalOutcome,
 )
 from hyperstruck.client import (
+    DEFAULT_RECALL_TIMEOUT,
+    DEFAULT_RESOLVE_TIMEOUT,
     HostedLearningClient,
     MAX_LOGGED_VALIDATION_ERRORS,
     MAX_VALIDATION_CAUSE_CHARS,
 )
+from hyperstruck.env import RESOLVE_TIMEOUT_ENV
 from hyperstruck.identity import AgentIdentity
 
 IDENTITY = AgentIdentity(agent_name="support-bot", org_id="org-1")
@@ -56,6 +61,50 @@ def test_missing_api_key_fails_fast(monkeypatch: pytest.MonkeyPatch) -> None:
     monkeypatch.delenv("HYPER_API_KEY", raising=False)
     with pytest.raises(ValueError, match="API key"):
         HostedLearningClient()
+
+
+@pytest.mark.parametrize(
+    ("passed", "env_value", "expected"),
+    [
+        (7.5, None, 7.5),
+        (7.5, "99", 7.5),
+        (None, None, DEFAULT_RESOLVE_TIMEOUT),
+        (None, "12.5", 12.5),
+        (None, "nonsense", DEFAULT_RESOLVE_TIMEOUT),
+    ],
+)
+def test_resolve_deadline_resolution(
+    monkeypatch: pytest.MonkeyPatch, passed, env_value, expected
+) -> None:
+    if env_value is None:
+        monkeypatch.delenv(RESOLVE_TIMEOUT_ENV, raising=False)
+    else:
+        monkeypatch.setenv(RESOLVE_TIMEOUT_ENV, env_value)
+    def _ok(_request: httpx.Request) -> httpx.Response:
+        return httpx.Response(200, json={})
+
+    kwargs = {} if passed is None else {"resolve_timeout": passed}
+    assert _client(_ok, **kwargs)._resolve_timeout == expected
+
+
+async def test_resolve_applies_its_deadline_to_a_slow_boundary() -> None:
+    """The budget must reach asyncio.wait_for, not merely be stored on the client."""
+
+    async def never_answers(_request: httpx.Request) -> httpx.Response:
+        await asyncio.sleep(5)
+        return httpx.Response(200, json={})
+
+    client = _client(never_answers, resolve_timeout=0.05)
+    with pytest.raises(TimeoutError):
+        await client.resolve(
+            identity=AgentIdentity(agent_name="a"), run_id="r", goal="g"
+        )
+    await client.aclose()
+
+
+def test_recall_budget_exceeds_the_inline_one() -> None:
+    """A prefetched or explicit recall cannot share the inline model-call budget."""
+    assert DEFAULT_RECALL_TIMEOUT > DEFAULT_RESOLVE_TIMEOUT
 
 
 async def test_resolve_returns_bound_context() -> None:

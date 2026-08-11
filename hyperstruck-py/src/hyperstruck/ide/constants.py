@@ -115,9 +115,9 @@ def dropped_flush_log() -> Path:
     return hyper_home() / DROPPED_FLUSH_LOG
 
 
-# Resolve is detached from the prompt hook, so it can afford to wait out the
-# production boundary without adding latency to prompt submission.
-DETACHED_RESOLVE_TIMEOUT = 20.0
+# A floor under HYPER_RESOLVE_TIMEOUT: an override below this cannot clear a real
+# hosted resolve, so honouring it would silently turn recall off.
+MIN_RECALL_TIMEOUT = 5.0
 
 # A turn is only observed if it has at least this many material steps. This also
 # subsumes the rapid-tiny-turn debounce: a trivial burst cannot clear it.

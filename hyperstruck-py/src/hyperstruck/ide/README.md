@@ -254,6 +254,12 @@ network blip) does not count: it keeps retrying until the eviction window, so a
 passing outage never discards a still-deliverable episode. Set
 `HYPER_FLUSH_MAX_ATTEMPTS` to a positive integer to change the terminal-retry cap.
 
+Recall has its own deadline, set by `HYPER_RESOLVE_TIMEOUT` (seconds). It governs
+both the detached resolver and the explicit `/hyper-learning` recall, and it is
+floored, because a budget too small to clear a real boundary round trip turns
+recall off rather than tuning it: every call times out and fails open as though
+the corpus were empty.
+
 Because a dropped flush is the one place a learning is lost for good, and the
 detached flush process has no reachable stderr, each drop is appended as one JSON
 line to `~/.hyperstruck/dropped.jsonl` (run id, agent, attempts, and a cause tag,
@@ -271,7 +277,7 @@ diagnose after the fact.
 
 The flip side of failing open is that a hook producing no output is ambiguous: it
 could have never fired, fired with no agent configured, resolved zero learnings,
-or hit a network error. A hook that died before it could report anything at all,
+overran its recall deadline, or hit a network error. A hook that died before it could report anything at all,
 for instance because a file in your project shadowed a standard library module,
 appends to `~/.hyperstruck/hook-failures.log` (rotated once past a megabyte), so
 start there: an entry names the working directory the failure came from. In a cloud or remote agent (for example a Cursor

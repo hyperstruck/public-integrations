@@ -5,6 +5,7 @@ from __future__ import annotations
 import argparse
 import asyncio
 import json
+from types import SimpleNamespace
 from typing import Any
 
 import pytest
@@ -16,6 +17,7 @@ from hyperstruck._wire import (
     StepRecord,
     TerminalOutcome,
 )
+from hyperstruck import client
 from hyperstruck.ide import hook, state
 from hyperstruck.ide.constants import CREDENTIAL_HEAD_CHARS
 from hyperstruck.redaction import REDACTION_MARKER
@@ -912,14 +914,20 @@ def test_resolver_skips_publish_when_no_learnings(_env, monkeypatch) -> None:
     assert state.peek_recall("s1") is None
 
 
-@pytest.mark.parametrize(
-    ("env_value", "expected"), [(None, hook.DETACHED_RESOLVE_TIMEOUT), ("12.5", 12.5)]
-)
-def test_resolver_timeout_default_and_env_override(
-    _env, monkeypatch, env_value, expected
-) -> None:
+# A hosted resolve measured 13.1s against api.hyperstruck.com on 2026-08-10. The
+# budget has to clear that, which is the property that actually failed: asserting
+# only that the two hook paths agree stays green if the constant is lowered.
+MEASURED_HOSTED_RESOLVE_SECONDS = 13.1
+
+
+def test_recall_budget_clears_a_real_hosted_resolve() -> None:
+    assert hook.DEFAULT_RECALL_TIMEOUT > MEASURED_HOSTED_RESOLVE_SECONDS
+    assert hook.MIN_RECALL_TIMEOUT > client.DEFAULT_RESOLVE_TIMEOUT
+
+
+def _seeded_active(session_id: str) -> None:
     state.write_active(
-        "s1",
+        session_id,
         state.ActiveTurn(
             run_id="run-1",
             agent_name="agent-x",
@@ -928,19 +936,69 @@ def test_resolver_timeout_default_and_env_override(
             started_at=1.0,
         ),
     )
+
+
+@pytest.mark.parametrize("caller", ["detached", "explicit"])
+@pytest.mark.parametrize(
+    ("env_value", "expected"),
+    [
+        (None, hook.DEFAULT_RECALL_TIMEOUT),
+        ("12.5", 12.5),
+        ("0", hook.MIN_RECALL_TIMEOUT),
+        ("-4", hook.MIN_RECALL_TIMEOUT),
+        ("nonsense", hook.DEFAULT_RECALL_TIMEOUT),
+    ],
+)
+def test_every_hook_recall_reaches_the_client_with_the_recall_budget(
+    _env, monkeypatch, caller, env_value, expected
+) -> None:
+    """The budget must land on the client, not merely on the _aresolve seam.
+
+    Both entry points are covered here, so a third one that constructs its own
+    client is the only way left to reintroduce the 2s default.
+    """
     seen = []
 
-    async def resolved(*_args, **kwargs):
-        seen.append(kwargs["resolve_timeout"])
-        return "TEXT", ()
+    class _RecordingClient:
+        def __init__(self, **kwargs):
+            seen.append(kwargs["resolve_timeout"])
+
+        async def resolve(self, **_kwargs):
+            return SimpleNamespace(injected_text="TEXT", offered_learning_ids=())
+
+        async def aclose(self):
+            return None
 
     if env_value is None:
-        monkeypatch.delenv("HYPER_RESOLVE_TIMEOUT", raising=False)
+        monkeypatch.delenv(hook.RESOLVE_TIMEOUT_ENV, raising=False)
     else:
-        monkeypatch.setenv("HYPER_RESOLVE_TIMEOUT", env_value)
-    monkeypatch.setattr(hook, "_aresolve", resolved)
-    hook.cmd_resolve("s1")
+        monkeypatch.setenv(hook.RESOLVE_TIMEOUT_ENV, env_value)
+    monkeypatch.setattr(hook, "HostedLearningClient", _RecordingClient)
+    monkeypatch.setattr(hook, "_resolve", _REAL_RESOLVE)
+
+    if caller == "detached":
+        _seeded_active("s1")
+        hook.cmd_resolve("s1")
+    else:
+        hook._resolve("agent-x", "run-1", "do x")
+
     assert seen == [expected]
+
+
+def test_explicit_recall_says_so_on_stderr_when_it_times_out(
+    _env, capsys, monkeypatch
+) -> None:
+    """A timed-out recall must not read as an empty corpus, per the outage it caused."""
+    monkeypatch.delenv("HYPER_HOOK_DEBUG", raising=False)
+
+    async def timed_out(*_args, **_kwargs):
+        raise TimeoutError
+
+    monkeypatch.setattr(hook, "_resolve", _REAL_RESOLVE)
+    monkeypatch.setattr(hook, "_aresolve", timed_out)
+
+    assert hook._resolve("agent-x", "run-1", "do x") == (None, ())
+    assert "recall timed out" in capsys.readouterr().err
 
 
 def test_claude_posttooluse_injects_once_and_attributes_offers(_env, capsys) -> None:
@@ -1126,11 +1184,11 @@ def test_readonly_recall_does_not_touch_state(_env, capsys) -> None:
 # -- debug breadcrumbs -------------------------------------------------------
 
 
-async def _aresolve_ok(agent_id, run_id, goal):
+async def _aresolve_ok(agent_id, run_id, goal, **_kwargs):
     return "TEXT", ("L1", "L2")
 
 
-async def _aresolve_boom(agent_id, run_id, goal):
+async def _aresolve_boom(agent_id, run_id, goal, **_kwargs):
     raise RuntimeError("boom")
 
 

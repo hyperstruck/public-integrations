@@ -46,12 +46,14 @@ from hyperstruck._wire import (
     REASON_NO_TOOL_CALLS,
     EvidenceItem,
 )
+from hyperstruck.client import DEFAULT_RECALL_TIMEOUT, HostedLearningClient
+from hyperstruck.env import RESOLVE_TIMEOUT_ENV, env_float
+from hyperstruck.identity import AgentIdentity
 from hyperstruck.ide import outcome, state
 from hyperstruck.ide.config import configured_agent_name, load_env
 from hyperstruck.ide.constants import (
     CREDENTIAL_HEAD_CHARS,
     DEFAULT_FLUSH_MAX_ATTEMPTS,
-    DETACHED_RESOLVE_TIMEOUT,
     DISTILL_RUN_ID_PREFIX,
     EVICTION_WINDOW_SECONDS,
     FLUSH_MAX_ATTEMPTS_ENV,
@@ -62,6 +64,7 @@ from hyperstruck.ide.constants import (
     HOOK_FAILURES_LOG_MAX_BYTES,
     MAX_EPISODE_STEPS,
     MAX_STEP_FIELD_CHARS,
+    MIN_RECALL_TIMEOUT,
     MINTED_RUN_ID_CHARS,
     MINTED_RUN_ID_TOKEN,
     NATIVE_FAILURE_STATUSES,
@@ -223,16 +226,8 @@ def cmd_resolve(session_id: str) -> None:
         if not active.goal:
             _debug("resolve skipped: empty goal")
             return
-        from hyperstruck.client import RESOLVE_TIMEOUT_ENV, _env_float
-
-        timeout = _env_float(RESOLVE_TIMEOUT_ENV, DETACHED_RESOLVE_TIMEOUT)
         text, offered = asyncio.run(
-            _aresolve(
-                active.agent_name,
-                active.run_id,
-                active.goal,
-                resolve_timeout=timeout,
-            )
+            _aresolve(active.agent_name, active.run_id, active.goal)
         )
         if not text:
             # An empty stash can never validate for injection; publishing it
@@ -949,6 +944,15 @@ def _max_flush_attempts() -> int:
 # -- network (resolve / deliver) ---------------------------------------------
 
 
+def _recall_timeout() -> float:
+    """Seconds a hook recall waits.
+
+    Floored, because a zero or negative override reproduces the original defect:
+    every recall times out and fails open as though the corpus were empty.
+    """
+    return max(MIN_RECALL_TIMEOUT, env_float(RESOLVE_TIMEOUT_ENV, DEFAULT_RECALL_TIMEOUT))
+
+
 def _resolve(
     agent_name: str, run_id: str, goal: str
 ) -> tuple[str | None, tuple[str, ...]]:
@@ -960,6 +964,13 @@ def _resolve(
         text, offered = asyncio.run(_aresolve(agent_name, run_id, goal))
         _debug(f"resolve ok: {len(offered)} learning(s) for agent {agent_name}")
         return text, offered
+    except TimeoutError:
+        print(
+            f"[hyperstruck] recall timed out after {_recall_timeout():g}s; "
+            "proceeding without learnings",
+            file=sys.stderr,
+        )
+        return None, ()
     except Exception as exc:  # noqa: BLE001 - explicit recall always fails open
         _debug(f"resolve failed ({type(exc).__name__}): {exc}")
         return None, ()
@@ -972,12 +983,11 @@ async def _aresolve(
     *,
     resolve_timeout: float | None = None,
 ) -> tuple[str | None, tuple[str, ...]]:
-    # Imported lazily: each hook is a short-lived subprocess, so deferring the
-    # httpx-backed client import keeps startup latency off the no-network paths.
-    from hyperstruck.client import HostedLearningClient
-    from hyperstruck.identity import AgentIdentity
-
-    client = HostedLearningClient(resolve_timeout=resolve_timeout)
+    client = HostedLearningClient(
+        resolve_timeout=(
+            _recall_timeout() if resolve_timeout is None else resolve_timeout
+        )
+    )
     try:
         context = await client.resolve(
             identity=AgentIdentity(agent_name=agent_name), run_id=run_id, goal=goal

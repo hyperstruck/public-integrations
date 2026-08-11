@@ -14,6 +14,11 @@ from collections.abc import Mapping, Sequence
 API_KEY_ENV_VARS = ("HYPERSTRUCK_API_KEY", "HYPER_API_KEY")
 BASE_URL_ENV_VARS = ("HYPERSTRUCK_BASE_URL", "HYPER_BASE_URL")
 
+# Here rather than beside the client so a caller can read a deadline without
+# importing the httpx-backed client module.
+RESOLVE_TIMEOUT_ENV = "HYPER_RESOLVE_TIMEOUT"
+WRITE_TIMEOUT_ENV = "HYPER_WRITE_TIMEOUT"
+
 
 def first_env(
     names: Sequence[str], env: Mapping[str, str] | None = None
@@ -25,3 +30,18 @@ def first_env(
         if value:
             return value
     return None
+
+
+def env_float(name: str, default: float) -> float:
+    """Return ``name`` parsed as a float, falling back to ``default``.
+
+    An unset, empty or unparseable value yields the default rather than raising:
+    a malformed deadline must not stop a host from starting.
+    """
+    raw = os.environ.get(name)
+    if not raw:
+        return default
+    try:
+        return float(raw)
+    except ValueError:
+        return default
