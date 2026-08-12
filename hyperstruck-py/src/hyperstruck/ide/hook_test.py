@@ -40,7 +40,9 @@ def _env(tmp_path, monkeypatch):
     # Readonly resolve always offers one learning. Detached resolve is modelled as
     # immediately ready so lifecycle tests can exercise the tool-time handoff.
     monkeypatch.setattr(
-        hook, "_resolve", lambda agent_id, run_id, goal: ("INJECTED", ("L1",))
+        hook,
+        "_resolve",
+        lambda agent_id, run_id, goal, source_framework: ("INJECTED", ("L1",)),
     )
 
     def resolve_now(session_id: str) -> None:
@@ -980,7 +982,7 @@ def test_every_hook_recall_reaches_the_client_with_the_recall_budget(
         _seeded_active("s1")
         hook.cmd_resolve("s1")
     else:
-        hook._resolve("agent-x", "run-1", "do x")
+        hook._resolve("agent-x", "run-1", "do x", hook.SOURCE_CLAUDE_CODE)
 
     assert seen == [expected]
 
@@ -997,7 +999,7 @@ def test_explicit_recall_says_so_on_stderr_when_it_times_out(
     monkeypatch.setattr(hook, "_resolve", _REAL_RESOLVE)
     monkeypatch.setattr(hook, "_aresolve", timed_out)
 
-    assert hook._resolve("agent-x", "run-1", "do x") == (None, ())
+    assert hook._resolve("agent-x", "run-1", "do x", hook.SOURCE_CLAUDE_CODE) == (None, ())
     assert "recall timed out" in capsys.readouterr().err
 
 
@@ -1222,11 +1224,60 @@ def test_prompt_no_agent_emits_breadcrumb(_env, capsys, monkeypatch) -> None:
     assert state.read_active("s1") is None  # still fails open, no turn written
 
 
+def test_readonly_recall_sends_its_host_to_resolve(_env, monkeypatch) -> None:
+    """The recall names the host that made it.
+
+    Every retrieval event in production carried no attribution because this
+    argument was never threaded through, while observe and decline carried it
+    all along, so the per-host funnel saw applies and nothing else.
+    """
+    seen: list[str] = []
+    monkeypatch.setattr(
+        hook,
+        "_resolve",
+        lambda agent_id, run_id, goal, source_framework: (
+            seen.append(source_framework),
+            ("INJECTED", ("L1",)),
+        )[1],
+    )
+    hook.cmd_prompt(
+        {"conversation_id": "c1", "cwd": "/repo"},
+        hook._parse_args(
+            ["prompt", "--source", "cursor", "--readonly", "--emit", "text", "--goal", "do x"]
+        ),
+    )
+    assert seen == ["cursor"]
+
+
+def test_detached_recall_sends_the_turns_host_to_resolve(monkeypatch) -> None:
+    """cmd_resolve has no argv, so the host comes off the active turn."""
+    seen: list[str] = []
+
+    async def _capture(agent_name, run_id, goal, *, source_framework, **_kwargs):
+        seen.append(source_framework)
+        return None, ()
+
+    monkeypatch.setattr(hook, "_aresolve", _capture)
+    monkeypatch.setattr(
+        hook.state,
+        "read_active",
+        lambda _session: state.ActiveTurn(
+            run_id="run-1",
+            agent_name="agent-x",
+            goal="do x",
+            source_framework="cursor",
+            started_at=0.0,
+        ),
+    )
+    hook.cmd_resolve("s1")
+    assert seen == ["cursor"]
+
+
 def test_resolve_ok_breadcrumb_counts_learnings(capsys, monkeypatch) -> None:
     monkeypatch.setenv("HYPER_HOOK_DEBUG", "1")
     monkeypatch.setattr(hook, "_resolve", _REAL_RESOLVE)
     monkeypatch.setattr(hook, "_aresolve", _aresolve_ok)
-    text, offered = hook._resolve("agent-x", "run-1", "do x")
+    text, offered = hook._resolve("agent-x", "run-1", "do x", hook.SOURCE_CLAUDE_CODE)
     assert (text, offered) == ("TEXT", ("L1", "L2"))
     assert "resolve ok: 2 learning(s)" in capsys.readouterr().err
 
@@ -1235,7 +1286,7 @@ def test_resolve_failure_breadcrumb_and_fails_open(capsys, monkeypatch) -> None:
     monkeypatch.setenv("HYPER_HOOK_DEBUG", "1")
     monkeypatch.setattr(hook, "_resolve", _REAL_RESOLVE)
     monkeypatch.setattr(hook, "_aresolve", _aresolve_boom)
-    assert hook._resolve("agent-x", "run-1", "do x") == (None, ())
+    assert hook._resolve("agent-x", "run-1", "do x", hook.SOURCE_CLAUDE_CODE) == (None, ())
     assert "resolve failed (RuntimeError): boom" in capsys.readouterr().err
 
 

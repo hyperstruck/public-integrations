@@ -121,7 +121,12 @@ def cmd_prompt(payload: dict[str, Any], args: argparse.Namespace) -> None:
     # automatic loop. A throwaway run id keeps the offer un-reinforced.
     if args.readonly:
         if agent_name:
-            text, _ = _resolve(agent_name, _new_run_id(agent_name, session_id), goal)
+            text, _ = _resolve(
+                agent_name,
+                _new_run_id(agent_name, session_id),
+                goal,
+                _source(args),
+            )
             _emit_injection(text, args)
         else:
             _debug("prompt(readonly): no agent configured")
@@ -227,7 +232,12 @@ def cmd_resolve(session_id: str) -> None:
             _debug("resolve skipped: empty goal")
             return
         text, offered = asyncio.run(
-            _aresolve(active.agent_name, active.run_id, active.goal)
+            _aresolve(
+                active.agent_name,
+                active.run_id,
+                active.goal,
+                source_framework=active.source_framework or SOURCE_CLAUDE_CODE,
+            )
         )
         if not text:
             # An empty stash can never validate for injection; publishing it
@@ -954,14 +964,16 @@ def _recall_timeout() -> float:
 
 
 def _resolve(
-    agent_name: str, run_id: str, goal: str
+    agent_name: str, run_id: str, goal: str, source_framework: str
 ) -> tuple[str | None, tuple[str, ...]]:
     """Resolve the goal's learnings. Returns (injected_text, offered_ids); fails open."""
     if not goal:
         _debug("resolve skipped: empty goal")
         return None, ()
     try:
-        text, offered = asyncio.run(_aresolve(agent_name, run_id, goal))
+        text, offered = asyncio.run(
+            _aresolve(agent_name, run_id, goal, source_framework=source_framework)
+        )
         _debug(f"resolve ok: {len(offered)} learning(s) for agent {agent_name}")
         return text, offered
     except TimeoutError:
@@ -981,6 +993,7 @@ async def _aresolve(
     run_id: str,
     goal: str,
     *,
+    source_framework: str = SOURCE_CLAUDE_CODE,
     resolve_timeout: float | None = None,
 ) -> tuple[str | None, tuple[str, ...]]:
     client = HostedLearningClient(
@@ -990,7 +1003,10 @@ async def _aresolve(
     )
     try:
         context = await client.resolve(
-            identity=AgentIdentity(agent_name=agent_name), run_id=run_id, goal=goal
+            identity=AgentIdentity(agent_name=agent_name),
+            run_id=run_id,
+            goal=goal,
+            source_framework=source_framework,
         )
         return context.injected_text, tuple(context.offered_learning_ids)
     finally:
