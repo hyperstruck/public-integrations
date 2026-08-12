@@ -32,10 +32,109 @@ class LearningBoundaryApi(object):
             api_client = ApiClient()
         self.api_client = api_client
 
+    def decline_endpoint_decline_post(self, body, **kwargs):  # noqa: E501
+        """Close a run whose turn had nothing worth learning  # noqa: E501
+
+        Close a run the caller resolved but will not write back for, because the turn ended with nothing worth learning from. Supply ``agent_name`` (your agent's human-readable name, not the hosted UUID from `/agents/{agent_id}`). If no agent with that name exists yet, one is created automatically on first use within your tenant. Use this instead of going silent: an unclosed run is indistinguishable from a host that stopped writing back, and only the caller knows which it is. Nothing is added to the corpus. Set `is_delivered` when the recall reached the model this turn, so the resolve is billed for what was received and released otherwise. A `run_id` this agent never resolved is accepted and ignored.  # noqa: E501
+        This method makes a synchronous HTTP request by default. To make an
+        asynchronous HTTP request, please pass async_req=True
+        >>> thread = api.decline_endpoint_decline_post(body, async_req=True)
+        >>> result = thread.get()
+
+        :param async_req bool
+        :param DeclineRequest body: (required)
+        :return: BoundaryAcceptedResponse
+                 If the method is called asynchronously,
+                 returns the request thread.
+        """
+        kwargs['_return_http_data_only'] = True
+        if kwargs.get('async_req'):
+            return self.decline_endpoint_decline_post_with_http_info(body, **kwargs)  # noqa: E501
+        else:
+            (data) = self.decline_endpoint_decline_post_with_http_info(body, **kwargs)  # noqa: E501
+            return data
+
+    def decline_endpoint_decline_post_with_http_info(self, body, **kwargs):  # noqa: E501
+        """Close a run whose turn had nothing worth learning  # noqa: E501
+
+        Close a run the caller resolved but will not write back for, because the turn ended with nothing worth learning from. Supply ``agent_name`` (your agent's human-readable name, not the hosted UUID from `/agents/{agent_id}`). If no agent with that name exists yet, one is created automatically on first use within your tenant. Use this instead of going silent: an unclosed run is indistinguishable from a host that stopped writing back, and only the caller knows which it is. Nothing is added to the corpus. Set `is_delivered` when the recall reached the model this turn, so the resolve is billed for what was received and released otherwise. A `run_id` this agent never resolved is accepted and ignored.  # noqa: E501
+        This method makes a synchronous HTTP request by default. To make an
+        asynchronous HTTP request, please pass async_req=True
+        >>> thread = api.decline_endpoint_decline_post_with_http_info(body, async_req=True)
+        >>> result = thread.get()
+
+        :param async_req bool
+        :param DeclineRequest body: (required)
+        :return: BoundaryAcceptedResponse
+                 If the method is called asynchronously,
+                 returns the request thread.
+        """
+
+        all_params = ['body']  # noqa: E501
+        all_params.append('async_req')
+        all_params.append('_return_http_data_only')
+        all_params.append('_preload_content')
+        all_params.append('_request_timeout')
+
+        params = locals()
+        for key, val in six.iteritems(params['kwargs']):
+            if key not in all_params:
+                raise TypeError(
+                    "Got an unexpected keyword argument '%s'"
+                    " to method decline_endpoint_decline_post" % key
+                )
+            params[key] = val
+        del params['kwargs']
+        # verify the required parameter 'body' is set
+        if ('body' not in params or
+                params['body'] is None):
+            raise ValueError("Missing the required parameter `body` when calling `decline_endpoint_decline_post`")  # noqa: E501
+
+        collection_formats = {}
+
+        path_params = {}
+
+        query_params = []
+
+        header_params = {}
+
+        form_params = []
+        local_var_files = {}
+
+        body_params = None
+        if 'body' in params:
+            body_params = params['body']
+        # HTTP header `Accept`
+        header_params['Accept'] = self.api_client.select_header_accept(
+            ['application/json'])  # noqa: E501
+
+        # HTTP header `Content-Type`
+        header_params['Content-Type'] = self.api_client.select_header_content_type(  # noqa: E501
+            ['application/json'])  # noqa: E501
+
+        # Authentication setting
+        auth_settings = ['BearerApiKey']  # noqa: E501
+
+        return self.api_client.call_api(
+            '/decline', 'POST',
+            path_params,
+            query_params,
+            header_params,
+            body=body_params,
+            post_params=form_params,
+            files=local_var_files,
+            response_type='BoundaryAcceptedResponse',  # noqa: E501
+            auth_settings=auth_settings,
+            async_req=params.get('async_req'),
+            _return_http_data_only=params.get('_return_http_data_only'),
+            _preload_content=params.get('_preload_content', True),
+            _request_timeout=params.get('_request_timeout'),
+            collection_formats=collection_formats)
+
     def distill_endpoint_distill_post(self, body, **kwargs):  # noqa: E501
         """Distill learnings from a corpus of evidence  # noqa: E501
 
-        Distill durable learnings from post-mortems, documents, diffs, or analysis without inventing tool steps. Submit at least two evidence items and a contrast signal. `run_id` is a caller-created idempotency and tracing value, must begin with `distill:`, and does not reference `GET /runs/{run_id}`. A valid request may yield no learning. Pre-redact secrets from evidence.  # noqa: E501
+        Distill durable learnings from post-mortems, documents, diffs, or analysis without inventing tool steps. Supply ``agent_name`` (your agent's human-readable name, not the hosted UUID from `/agents/{agent_id}`). If no agent with that name exists yet, one is created automatically on first use within your tenant. Submit at least two evidence items and a contrast signal. `run_id` is a caller-created idempotency and tracing value, must begin with `distill:`, and does not reference `GET /runs/{run_id}`. A valid request may yield no learning. Pre-redact secrets from evidence.  # noqa: E501
         This method makes a synchronous HTTP request by default. To make an
         asynchronous HTTP request, please pass async_req=True
         >>> thread = api.distill_endpoint_distill_post(body, async_req=True)
@@ -57,7 +156,7 @@ class LearningBoundaryApi(object):
     def distill_endpoint_distill_post_with_http_info(self, body, **kwargs):  # noqa: E501
         """Distill learnings from a corpus of evidence  # noqa: E501
 
-        Distill durable learnings from post-mortems, documents, diffs, or analysis without inventing tool steps. Submit at least two evidence items and a contrast signal. `run_id` is a caller-created idempotency and tracing value, must begin with `distill:`, and does not reference `GET /runs/{run_id}`. A valid request may yield no learning. Pre-redact secrets from evidence.  # noqa: E501
+        Distill durable learnings from post-mortems, documents, diffs, or analysis without inventing tool steps. Supply ``agent_name`` (your agent's human-readable name, not the hosted UUID from `/agents/{agent_id}`). If no agent with that name exists yet, one is created automatically on first use within your tenant. Submit at least two evidence items and a contrast signal. `run_id` is a caller-created idempotency and tracing value, must begin with `distill:`, and does not reference `GET /runs/{run_id}`. A valid request may yield no learning. Pre-redact secrets from evidence.  # noqa: E501
         This method makes a synchronous HTTP request by default. To make an
         asynchronous HTTP request, please pass async_req=True
         >>> thread = api.distill_endpoint_distill_post_with_http_info(body, async_req=True)
@@ -229,7 +328,7 @@ class LearningBoundaryApi(object):
     def observe_endpoint_observe_post(self, body, **kwargs):  # noqa: E501
         """Observe a finished episode  # noqa: E501
 
-        Submit a completed episode for asynchronous learning extraction. Direct API callers may construct the episode themselves; LangGraph is not required. Use a meaningful execution trace rather than documents or invented tool steps—use `/distill` for corpus evidence. The caller-owned episode `run_id` is an idempotency and correlation key, not a hosted run UUID.  # noqa: E501
+        Submit a completed episode for asynchronous learning extraction. Supply ``agent_name`` (your agent's human-readable name, not the hosted UUID from `/agents/{agent_id}`). If no agent with that name exists yet, one is created automatically on first use within your tenant. Direct API callers may construct the episode themselves; LangGraph is not required. Use a meaningful execution trace rather than documents or invented tool steps—use `/distill` for corpus evidence. The caller-owned episode `run_id` is an idempotency and correlation key, not a hosted run UUID.  # noqa: E501
         This method makes a synchronous HTTP request by default. To make an
         asynchronous HTTP request, please pass async_req=True
         >>> thread = api.observe_endpoint_observe_post(body, async_req=True)
@@ -251,7 +350,7 @@ class LearningBoundaryApi(object):
     def observe_endpoint_observe_post_with_http_info(self, body, **kwargs):  # noqa: E501
         """Observe a finished episode  # noqa: E501
 
-        Submit a completed episode for asynchronous learning extraction. Direct API callers may construct the episode themselves; LangGraph is not required. Use a meaningful execution trace rather than documents or invented tool steps—use `/distill` for corpus evidence. The caller-owned episode `run_id` is an idempotency and correlation key, not a hosted run UUID.  # noqa: E501
+        Submit a completed episode for asynchronous learning extraction. Supply ``agent_name`` (your agent's human-readable name, not the hosted UUID from `/agents/{agent_id}`). If no agent with that name exists yet, one is created automatically on first use within your tenant. Direct API callers may construct the episode themselves; LangGraph is not required. Use a meaningful execution trace rather than documents or invented tool steps—use `/distill` for corpus evidence. The caller-owned episode `run_id` is an idempotency and correlation key, not a hosted run UUID.  # noqa: E501
         This method makes a synchronous HTTP request by default. To make an
         asynchronous HTTP request, please pass async_req=True
         >>> thread = api.observe_endpoint_observe_post_with_http_info(body, async_req=True)
@@ -328,7 +427,7 @@ class LearningBoundaryApi(object):
     def reinforce_endpoint_reinforce_post(self, body, **kwargs):  # noqa: E501
         """Reinforce the learnings a run used  # noqa: E501
 
-        Submit the completed outcome used to credit or correct learnings previously offered by resolve. Reuse the same caller-owned `run_id`; it is an idempotency and attribution key, not a hosted run UUID. Processing is asynchronous and the endpoint returns 202 when accepted.  # noqa: E501
+        Submit the completed outcome used to credit or correct learnings previously offered by resolve. Supply ``agent_name`` (your agent's human-readable name, not the hosted UUID from `/agents/{agent_id}`). If no agent with that name exists yet, one is created automatically on first use within your tenant. Reuse the same caller-owned `run_id`; it is an idempotency and attribution key, not a hosted run UUID. Processing is asynchronous and the endpoint returns 202 when accepted.  # noqa: E501
         This method makes a synchronous HTTP request by default. To make an
         asynchronous HTTP request, please pass async_req=True
         >>> thread = api.reinforce_endpoint_reinforce_post(body, async_req=True)
@@ -350,7 +449,7 @@ class LearningBoundaryApi(object):
     def reinforce_endpoint_reinforce_post_with_http_info(self, body, **kwargs):  # noqa: E501
         """Reinforce the learnings a run used  # noqa: E501
 
-        Submit the completed outcome used to credit or correct learnings previously offered by resolve. Reuse the same caller-owned `run_id`; it is an idempotency and attribution key, not a hosted run UUID. Processing is asynchronous and the endpoint returns 202 when accepted.  # noqa: E501
+        Submit the completed outcome used to credit or correct learnings previously offered by resolve. Supply ``agent_name`` (your agent's human-readable name, not the hosted UUID from `/agents/{agent_id}`). If no agent with that name exists yet, one is created automatically on first use within your tenant. Reuse the same caller-owned `run_id`; it is an idempotency and attribution key, not a hosted run UUID. Processing is asynchronous and the endpoint returns 202 when accepted.  # noqa: E501
         This method makes a synchronous HTTP request by default. To make an
         asynchronous HTTP request, please pass async_req=True
         >>> thread = api.reinforce_endpoint_reinforce_post_with_http_info(body, async_req=True)
@@ -427,7 +526,7 @@ class LearningBoundaryApi(object):
     def resolve_endpoint_resolve_post(self, body, **kwargs):  # noqa: E501
         """Resolve the learnings bound to a goal  # noqa: E501
 
-        Retrieve relevant learnings before external work begins. `run_id` is a caller-created correlation identifier, not a hosted run UUID. Reuse the same value with observe and reinforce so feedback can be attributed to the learnings offered here.  # noqa: E501
+        Retrieve relevant learnings before external work begins. Supply ``agent_name`` (your agent's human-readable name, not the hosted UUID from `/agents/{agent_id}`). If no agent with that name exists yet, one is created automatically on first use within your tenant. `run_id` is a caller-created correlation identifier, not a hosted run UUID. Reuse the same value with observe and reinforce so feedback can be attributed to the learnings offered here.  # noqa: E501
         This method makes a synchronous HTTP request by default. To make an
         asynchronous HTTP request, please pass async_req=True
         >>> thread = api.resolve_endpoint_resolve_post(body, async_req=True)
@@ -449,7 +548,7 @@ class LearningBoundaryApi(object):
     def resolve_endpoint_resolve_post_with_http_info(self, body, **kwargs):  # noqa: E501
         """Resolve the learnings bound to a goal  # noqa: E501
 
-        Retrieve relevant learnings before external work begins. `run_id` is a caller-created correlation identifier, not a hosted run UUID. Reuse the same value with observe and reinforce so feedback can be attributed to the learnings offered here.  # noqa: E501
+        Retrieve relevant learnings before external work begins. Supply ``agent_name`` (your agent's human-readable name, not the hosted UUID from `/agents/{agent_id}`). If no agent with that name exists yet, one is created automatically on first use within your tenant. `run_id` is a caller-created correlation identifier, not a hosted run UUID. Reuse the same value with observe and reinforce so feedback can be attributed to the learnings offered here.  # noqa: E501
         This method makes a synchronous HTTP request by default. To make an
         asynchronous HTTP request, please pass async_req=True
         >>> thread = api.resolve_endpoint_resolve_post_with_http_info(body, async_req=True)

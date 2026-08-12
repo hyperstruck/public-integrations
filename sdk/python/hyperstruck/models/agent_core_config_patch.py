@@ -30,13 +30,12 @@ class AgentCoreConfigPatch(object):
     swagger_types = {
         'instructions': 'object',
         'description': 'object',
-        'temperature': 'object',
-        'max_tokens': 'object',
         'mcp_servers': 'object',
         'guardrails_config': 'object',
         'hitl_enabled': 'object',
         'hitl_autonomy_level': 'object',
         'hitl_policy_preset': 'object',
+        'hitl_required_approvals': 'object',
         'metadata': 'object',
         'domain_dimensions': 'object'
     }
@@ -44,28 +43,26 @@ class AgentCoreConfigPatch(object):
     attribute_map = {
         'instructions': 'instructions',
         'description': 'description',
-        'temperature': 'temperature',
-        'max_tokens': 'max_tokens',
         'mcp_servers': 'mcp_servers',
         'guardrails_config': 'guardrails_config',
         'hitl_enabled': 'hitl_enabled',
         'hitl_autonomy_level': 'hitl_autonomy_level',
         'hitl_policy_preset': 'hitl_policy_preset',
+        'hitl_required_approvals': 'hitl_required_approvals',
         'metadata': 'metadata',
         'domain_dimensions': 'domain_dimensions'
     }
 
-    def __init__(self, instructions=None, description=None, temperature=None, max_tokens=None, mcp_servers=None, guardrails_config=None, hitl_enabled=None, hitl_autonomy_level=None, hitl_policy_preset=None, metadata=None, domain_dimensions=None):  # noqa: E501
+    def __init__(self, instructions=None, description=None, mcp_servers=None, guardrails_config=None, hitl_enabled=None, hitl_autonomy_level=None, hitl_policy_preset=None, hitl_required_approvals=None, metadata=None, domain_dimensions=None):  # noqa: E501
         """AgentCoreConfigPatch - a model defined in Swagger"""  # noqa: E501
         self._instructions = None
         self._description = None
-        self._temperature = None
-        self._max_tokens = None
         self._mcp_servers = None
         self._guardrails_config = None
         self._hitl_enabled = None
         self._hitl_autonomy_level = None
         self._hitl_policy_preset = None
+        self._hitl_required_approvals = None
         self._metadata = None
         self._domain_dimensions = None
         self.discriminator = None
@@ -73,10 +70,6 @@ class AgentCoreConfigPatch(object):
             self.instructions = instructions
         if description is not None:
             self.description = description
-        if temperature is not None:
-            self.temperature = temperature
-        if max_tokens is not None:
-            self.max_tokens = max_tokens
         if mcp_servers is not None:
             self.mcp_servers = mcp_servers
         if guardrails_config is not None:
@@ -87,6 +80,8 @@ class AgentCoreConfigPatch(object):
             self.hitl_autonomy_level = hitl_autonomy_level
         if hitl_policy_preset is not None:
             self.hitl_policy_preset = hitl_policy_preset
+        if hitl_required_approvals is not None:
+            self.hitl_required_approvals = hitl_required_approvals
         if metadata is not None:
             self.metadata = metadata
         if domain_dimensions is not None:
@@ -135,48 +130,6 @@ class AgentCoreConfigPatch(object):
         """
 
         self._description = description
-
-    @property
-    def temperature(self):
-        """Gets the temperature of this AgentCoreConfigPatch.  # noqa: E501
-
-
-        :return: The temperature of this AgentCoreConfigPatch.  # noqa: E501
-        :rtype: object
-        """
-        return self._temperature
-
-    @temperature.setter
-    def temperature(self, temperature):
-        """Sets the temperature of this AgentCoreConfigPatch.
-
-
-        :param temperature: The temperature of this AgentCoreConfigPatch.  # noqa: E501
-        :type: object
-        """
-
-        self._temperature = temperature
-
-    @property
-    def max_tokens(self):
-        """Gets the max_tokens of this AgentCoreConfigPatch.  # noqa: E501
-
-
-        :return: The max_tokens of this AgentCoreConfigPatch.  # noqa: E501
-        :rtype: object
-        """
-        return self._max_tokens
-
-    @max_tokens.setter
-    def max_tokens(self, max_tokens):
-        """Sets the max_tokens of this AgentCoreConfigPatch.
-
-
-        :param max_tokens: The max_tokens of this AgentCoreConfigPatch.  # noqa: E501
-        :type: object
-        """
-
-        self._max_tokens = max_tokens
 
     @property
     def mcp_servers(self):
@@ -282,6 +235,27 @@ class AgentCoreConfigPatch(object):
         """
 
         self._hitl_policy_preset = hitl_policy_preset
+
+    @property
+    def hitl_required_approvals(self):
+        """Gets the hitl_required_approvals of this AgentCoreConfigPatch.  # noqa: E501
+
+
+        :return: The hitl_required_approvals of this AgentCoreConfigPatch.  # noqa: E501
+        :rtype: object
+        """
+        return self._hitl_required_approvals
+
+    @hitl_required_approvals.setter
+    def hitl_required_approvals(self, hitl_required_approvals):
+        """Sets the hitl_required_approvals of this AgentCoreConfigPatch.
+
+
+        :param hitl_required_approvals: The hitl_required_approvals of this AgentCoreConfigPatch.  # noqa: E501
+        :type: object
+        """
+
+        self._hitl_required_approvals = hitl_required_approvals
 
     @property
     def metadata(self):

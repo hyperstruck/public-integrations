@@ -31,11 +31,7 @@ class AgentUpdateRequest(object):
         'name': 'object',
         'description': 'object',
         'status': 'object',
-        'model_provider': 'object',
-        'model_name': 'object',
         'reasoning_profile': 'object',
-        'memory_profile': 'object',
-        'knowledge_scope': 'object',
         'home_space_id': 'object',
         'core_config': 'object'
     }
@@ -44,25 +40,17 @@ class AgentUpdateRequest(object):
         'name': 'name',
         'description': 'description',
         'status': 'status',
-        'model_provider': 'model_provider',
-        'model_name': 'model_name',
         'reasoning_profile': 'reasoning_profile',
-        'memory_profile': 'memory_profile',
-        'knowledge_scope': 'knowledge_scope',
         'home_space_id': 'home_space_id',
         'core_config': 'core_config'
     }
 
-    def __init__(self, name=None, description=None, status=None, model_provider=None, model_name=None, reasoning_profile=None, memory_profile=None, knowledge_scope=None, home_space_id=None, core_config=None):  # noqa: E501
+    def __init__(self, name=None, description=None, status=None, reasoning_profile=None, home_space_id=None, core_config=None):  # noqa: E501
         """AgentUpdateRequest - a model defined in Swagger"""  # noqa: E501
         self._name = None
         self._description = None
         self._status = None
-        self._model_provider = None
-        self._model_name = None
         self._reasoning_profile = None
-        self._memory_profile = None
-        self._knowledge_scope = None
         self._home_space_id = None
         self._core_config = None
         self.discriminator = None
@@ -72,16 +60,8 @@ class AgentUpdateRequest(object):
             self.description = description
         if status is not None:
             self.status = status
-        if model_provider is not None:
-            self.model_provider = model_provider
-        if model_name is not None:
-            self.model_name = model_name
         if reasoning_profile is not None:
             self.reasoning_profile = reasoning_profile
-        if memory_profile is not None:
-            self.memory_profile = memory_profile
-        if knowledge_scope is not None:
-            self.knowledge_scope = knowledge_scope
         if home_space_id is not None:
             self.home_space_id = home_space_id
         if core_config is not None:
@@ -151,48 +131,6 @@ class AgentUpdateRequest(object):
         self._status = status
 
     @property
-    def model_provider(self):
-        """Gets the model_provider of this AgentUpdateRequest.  # noqa: E501
-
-
-        :return: The model_provider of this AgentUpdateRequest.  # noqa: E501
-        :rtype: object
-        """
-        return self._model_provider
-
-    @model_provider.setter
-    def model_provider(self, model_provider):
-        """Sets the model_provider of this AgentUpdateRequest.
-
-
-        :param model_provider: The model_provider of this AgentUpdateRequest.  # noqa: E501
-        :type: object
-        """
-
-        self._model_provider = model_provider
-
-    @property
-    def model_name(self):
-        """Gets the model_name of this AgentUpdateRequest.  # noqa: E501
-
-
-        :return: The model_name of this AgentUpdateRequest.  # noqa: E501
-        :rtype: object
-        """
-        return self._model_name
-
-    @model_name.setter
-    def model_name(self, model_name):
-        """Sets the model_name of this AgentUpdateRequest.
-
-
-        :param model_name: The model_name of this AgentUpdateRequest.  # noqa: E501
-        :type: object
-        """
-
-        self._model_name = model_name
-
-    @property
     def reasoning_profile(self):
         """Gets the reasoning_profile of this AgentUpdateRequest.  # noqa: E501
 
@@ -212,48 +150,6 @@ class AgentUpdateRequest(object):
         """
 
         self._reasoning_profile = reasoning_profile
-
-    @property
-    def memory_profile(self):
-        """Gets the memory_profile of this AgentUpdateRequest.  # noqa: E501
-
-
-        :return: The memory_profile of this AgentUpdateRequest.  # noqa: E501
-        :rtype: object
-        """
-        return self._memory_profile
-
-    @memory_profile.setter
-    def memory_profile(self, memory_profile):
-        """Sets the memory_profile of this AgentUpdateRequest.
-
-
-        :param memory_profile: The memory_profile of this AgentUpdateRequest.  # noqa: E501
-        :type: object
-        """
-
-        self._memory_profile = memory_profile
-
-    @property
-    def knowledge_scope(self):
-        """Gets the knowledge_scope of this AgentUpdateRequest.  # noqa: E501
-
-
-        :return: The knowledge_scope of this AgentUpdateRequest.  # noqa: E501
-        :rtype: object
-        """
-        return self._knowledge_scope
-
-    @knowledge_scope.setter
-    def knowledge_scope(self, knowledge_scope):
-        """Sets the knowledge_scope of this AgentUpdateRequest.
-
-
-        :param knowledge_scope: The knowledge_scope of this AgentUpdateRequest.  # noqa: E501
-        :type: object
-        """
-
-        self._knowledge_scope = knowledge_scope
 
     @property
     def home_space_id(self):

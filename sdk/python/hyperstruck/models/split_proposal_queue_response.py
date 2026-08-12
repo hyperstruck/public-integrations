@@ -28,23 +28,79 @@ class SplitProposalQueueResponse(object):
                             and the value is json key in definition.
     """
     swagger_types = {
+        'filtered': 'object',
+        'withheld_count': 'object',
         'items': 'object',
         'next_cursor': 'object'
     }
 
     attribute_map = {
+        'filtered': 'filtered',
+        'withheld_count': 'withheld_count',
         'items': 'items',
         'next_cursor': 'next_cursor'
     }
 
-    def __init__(self, items=None, next_cursor=None):  # noqa: E501
+    def __init__(self, filtered=None, withheld_count=None, items=None, next_cursor=None):  # noqa: E501
         """SplitProposalQueueResponse - a model defined in Swagger"""  # noqa: E501
+        self._filtered = None
+        self._withheld_count = None
         self._items = None
         self._next_cursor = None
         self.discriminator = None
+        if filtered is not None:
+            self.filtered = filtered
+        if withheld_count is not None:
+            self.withheld_count = withheld_count
         self.items = items
         if next_cursor is not None:
             self.next_cursor = next_cursor
+
+    @property
+    def filtered(self):
+        """Gets the filtered of this SplitProposalQueueResponse.  # noqa: E501
+
+        True when the caller's readable-space set is restricted and space filtering applied to this page.  # noqa: E501
+
+        :return: The filtered of this SplitProposalQueueResponse.  # noqa: E501
+        :rtype: object
+        """
+        return self._filtered
+
+    @filtered.setter
+    def filtered(self, filtered):
+        """Sets the filtered of this SplitProposalQueueResponse.
+
+        True when the caller's readable-space set is restricted and space filtering applied to this page.  # noqa: E501
+
+        :param filtered: The filtered of this SplitProposalQueueResponse.  # noqa: E501
+        :type: object
+        """
+
+        self._filtered = filtered
+
+    @property
+    def withheld_count(self):
+        """Gets the withheld_count of this SplitProposalQueueResponse.  # noqa: E501
+
+        Best-effort count of rows this page omitted because the caller's space filter excluded them.  # noqa: E501
+
+        :return: The withheld_count of this SplitProposalQueueResponse.  # noqa: E501
+        :rtype: object
+        """
+        return self._withheld_count
+
+    @withheld_count.setter
+    def withheld_count(self, withheld_count):
+        """Sets the withheld_count of this SplitProposalQueueResponse.
+
+        Best-effort count of rows this page omitted because the caller's space filter excluded them.  # noqa: E501
+
+        :param withheld_count: The withheld_count of this SplitProposalQueueResponse.  # noqa: E501
+        :type: object
+        """
+
+        self._withheld_count = withheld_count
 
     @property
     def items(self):

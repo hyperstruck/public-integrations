@@ -32,14 +32,9 @@ class AgentListItem(object):
         'name': 'object',
         'description': 'object',
         'status': 'object',
-        'model_provider': 'HostedAgentModelProvider',
-        'model_name': 'object',
         'reasoning_profile': 'ReasoningTier',
-        'memory_profile': 'object',
-        'knowledge_scope': 'object',
         'home_space_id': 'object',
-        'core_config': 'AgentCoreConfigOutput',
-        'llm_credential': 'object',
+        'core_config': 'AgentCoreConfig',
         'created_at': 'object',
         'updated_at': 'object',
         'summary': 'object'
@@ -50,33 +45,23 @@ class AgentListItem(object):
         'name': 'name',
         'description': 'description',
         'status': 'status',
-        'model_provider': 'model_provider',
-        'model_name': 'model_name',
         'reasoning_profile': 'reasoning_profile',
-        'memory_profile': 'memory_profile',
-        'knowledge_scope': 'knowledge_scope',
         'home_space_id': 'home_space_id',
         'core_config': 'core_config',
-        'llm_credential': 'llm_credential',
         'created_at': 'created_at',
         'updated_at': 'updated_at',
         'summary': 'summary'
     }
 
-    def __init__(self, id=None, name=None, description=None, status=None, model_provider=None, model_name=None, reasoning_profile=None, memory_profile=None, knowledge_scope=None, home_space_id=None, core_config=None, llm_credential=None, created_at=None, updated_at=None, summary=None):  # noqa: E501
+    def __init__(self, id=None, name=None, description=None, status=None, reasoning_profile=None, home_space_id=None, core_config=None, created_at=None, updated_at=None, summary=None):  # noqa: E501
         """AgentListItem - a model defined in Swagger"""  # noqa: E501
         self._id = None
         self._name = None
         self._description = None
         self._status = None
-        self._model_provider = None
-        self._model_name = None
         self._reasoning_profile = None
-        self._memory_profile = None
-        self._knowledge_scope = None
         self._home_space_id = None
         self._core_config = None
-        self._llm_credential = None
         self._created_at = None
         self._updated_at = None
         self._summary = None
@@ -85,16 +70,10 @@ class AgentListItem(object):
         self.name = name
         self.description = description
         self.status = status
-        self.model_provider = model_provider
-        self.model_name = model_name
         self.reasoning_profile = reasoning_profile
-        self.memory_profile = memory_profile
-        self.knowledge_scope = knowledge_scope
         if home_space_id is not None:
             self.home_space_id = home_space_id
         self.core_config = core_config
-        if llm_credential is not None:
-            self.llm_credential = llm_credential
         self.created_at = created_at
         self.updated_at = updated_at
         if summary is not None:
@@ -193,52 +172,6 @@ class AgentListItem(object):
         self._status = status
 
     @property
-    def model_provider(self):
-        """Gets the model_provider of this AgentListItem.  # noqa: E501
-
-
-        :return: The model_provider of this AgentListItem.  # noqa: E501
-        :rtype: HostedAgentModelProvider
-        """
-        return self._model_provider
-
-    @model_provider.setter
-    def model_provider(self, model_provider):
-        """Sets the model_provider of this AgentListItem.
-
-
-        :param model_provider: The model_provider of this AgentListItem.  # noqa: E501
-        :type: HostedAgentModelProvider
-        """
-        if model_provider is None:
-            raise ValueError("Invalid value for `model_provider`, must not be `None`")  # noqa: E501
-
-        self._model_provider = model_provider
-
-    @property
-    def model_name(self):
-        """Gets the model_name of this AgentListItem.  # noqa: E501
-
-
-        :return: The model_name of this AgentListItem.  # noqa: E501
-        :rtype: object
-        """
-        return self._model_name
-
-    @model_name.setter
-    def model_name(self, model_name):
-        """Sets the model_name of this AgentListItem.
-
-
-        :param model_name: The model_name of this AgentListItem.  # noqa: E501
-        :type: object
-        """
-        if model_name is None:
-            raise ValueError("Invalid value for `model_name`, must not be `None`")  # noqa: E501
-
-        self._model_name = model_name
-
-    @property
     def reasoning_profile(self):
         """Gets the reasoning_profile of this AgentListItem.  # noqa: E501
 
@@ -260,52 +193,6 @@ class AgentListItem(object):
             raise ValueError("Invalid value for `reasoning_profile`, must not be `None`")  # noqa: E501
 
         self._reasoning_profile = reasoning_profile
-
-    @property
-    def memory_profile(self):
-        """Gets the memory_profile of this AgentListItem.  # noqa: E501
-
-
-        :return: The memory_profile of this AgentListItem.  # noqa: E501
-        :rtype: object
-        """
-        return self._memory_profile
-
-    @memory_profile.setter
-    def memory_profile(self, memory_profile):
-        """Sets the memory_profile of this AgentListItem.
-
-
-        :param memory_profile: The memory_profile of this AgentListItem.  # noqa: E501
-        :type: object
-        """
-        if memory_profile is None:
-            raise ValueError("Invalid value for `memory_profile`, must not be `None`")  # noqa: E501
-
-        self._memory_profile = memory_profile
-
-    @property
-    def knowledge_scope(self):
-        """Gets the knowledge_scope of this AgentListItem.  # noqa: E501
-
-
-        :return: The knowledge_scope of this AgentListItem.  # noqa: E501
-        :rtype: object
-        """
-        return self._knowledge_scope
-
-    @knowledge_scope.setter
-    def knowledge_scope(self, knowledge_scope):
-        """Sets the knowledge_scope of this AgentListItem.
-
-
-        :param knowledge_scope: The knowledge_scope of this AgentListItem.  # noqa: E501
-        :type: object
-        """
-        if knowledge_scope is None:
-            raise ValueError("Invalid value for `knowledge_scope`, must not be `None`")  # noqa: E501
-
-        self._knowledge_scope = knowledge_scope
 
     @property
     def home_space_id(self):
@@ -336,7 +223,7 @@ class AgentListItem(object):
 
 
         :return: The core_config of this AgentListItem.  # noqa: E501
-        :rtype: AgentCoreConfigOutput
+        :rtype: AgentCoreConfig
         """
         return self._core_config
 
@@ -346,35 +233,12 @@ class AgentListItem(object):
 
 
         :param core_config: The core_config of this AgentListItem.  # noqa: E501
-        :type: AgentCoreConfigOutput
+        :type: AgentCoreConfig
         """
         if core_config is None:
             raise ValueError("Invalid value for `core_config`, must not be `None`")  # noqa: E501
 
         self._core_config = core_config
-
-    @property
-    def llm_credential(self):
-        """Gets the llm_credential of this AgentListItem.  # noqa: E501
-
-        Effective runtime LLM credential summary. Customer `agent_override` wins over `tenant_default`; if neither exists, platform fallback can identify the resolved provider/model with `credential_id=null`.  # noqa: E501
-
-        :return: The llm_credential of this AgentListItem.  # noqa: E501
-        :rtype: object
-        """
-        return self._llm_credential
-
-    @llm_credential.setter
-    def llm_credential(self, llm_credential):
-        """Sets the llm_credential of this AgentListItem.
-
-        Effective runtime LLM credential summary. Customer `agent_override` wins over `tenant_default`; if neither exists, platform fallback can identify the resolved provider/model with `credential_id=null`.  # noqa: E501
-
-        :param llm_credential: The llm_credential of this AgentListItem.  # noqa: E501
-        :type: object
-        """
-
-        self._llm_credential = llm_credential
 
     @property
     def created_at(self):

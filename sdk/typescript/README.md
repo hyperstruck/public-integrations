@@ -4,8 +4,6 @@ TypeScript client SDK for the Hyperstruck Core API.
 
 This package is generated from the Hyperstruck OpenAPI document with [Swagger Codegen](https://github.com/swagger-api/swagger-codegen) using the `typescript-fetch` generator.
 
-For agent learning in Python (LangGraph middleware, IDE hooks, and bundled skills), use the hand-written [`hyperstruck-py`](../../hyperstruck-py/) package. Reach for this SDK when you need raw, fully typed access to every API endpoint from TypeScript.
-
 ## Installation
 
 ```bash
@@ -30,6 +28,12 @@ const configuration = new Configuration({
 const agentsApi = new AgentsApi(configuration);
 
 const agents = await agentsApi.listAgentsEndpointAgentsGet(
+  undefined,
+  undefined,
+  undefined,
+  undefined,
+  undefined,
+  undefined,
   false,
   20,
   undefined,
@@ -80,7 +84,6 @@ import {
   AgentsApi,
   LearningsApi,
   PlansApi,
-  ProviderCredentialsApi,
   RunsApi,
   SessionsApi,
   UsageApi,
@@ -94,6 +97,14 @@ The generated method names are derived from the OpenAPI operation IDs. For examp
 - `AgentsApi.createAgentEndpointAgentsPost(...)`
 - `RunsApi.getRunEndpointRunsRunIdGet(...)`
 - `LearningsApi.searchLearningsEndpointAgentsAgentIdLearningsSearchGet(...)`
+
+## Regeneration Notes
+
+This SDK was fully regenerated from the platform OpenAPI after the learnings
+inventory search change. The regeneration also catches up earlier API contract
+drift: provider-credential endpoints are no longer part of the public API, so
+`ProviderCredentialsApi` is removed, and agent-list signatures no longer include
+the retired `includeLlmCredential` positional argument.
 
 ## Publishing
 

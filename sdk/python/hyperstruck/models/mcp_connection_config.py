@@ -31,28 +31,22 @@ class MCPConnectionConfig(object):
         'reconnect_attempts': 'object',
         'reconnect_delay_ms': 'object',
         'reconnect_backoff_multiplier': 'object',
-        'reconnect_max_delay_ms': 'object',
-        'poll_interval_seconds': 'object',
-        'max_poll_attempts': 'object'
+        'reconnect_max_delay_ms': 'object'
     }
 
     attribute_map = {
         'reconnect_attempts': 'reconnect_attempts',
         'reconnect_delay_ms': 'reconnect_delay_ms',
         'reconnect_backoff_multiplier': 'reconnect_backoff_multiplier',
-        'reconnect_max_delay_ms': 'reconnect_max_delay_ms',
-        'poll_interval_seconds': 'poll_interval_seconds',
-        'max_poll_attempts': 'max_poll_attempts'
+        'reconnect_max_delay_ms': 'reconnect_max_delay_ms'
     }
 
-    def __init__(self, reconnect_attempts=None, reconnect_delay_ms=None, reconnect_backoff_multiplier=None, reconnect_max_delay_ms=None, poll_interval_seconds=None, max_poll_attempts=None):  # noqa: E501
+    def __init__(self, reconnect_attempts=None, reconnect_delay_ms=None, reconnect_backoff_multiplier=None, reconnect_max_delay_ms=None):  # noqa: E501
         """MCPConnectionConfig - a model defined in Swagger"""  # noqa: E501
         self._reconnect_attempts = None
         self._reconnect_delay_ms = None
         self._reconnect_backoff_multiplier = None
         self._reconnect_max_delay_ms = None
-        self._poll_interval_seconds = None
-        self._max_poll_attempts = None
         self.discriminator = None
         if reconnect_attempts is not None:
             self.reconnect_attempts = reconnect_attempts
@@ -62,10 +56,6 @@ class MCPConnectionConfig(object):
             self.reconnect_backoff_multiplier = reconnect_backoff_multiplier
         if reconnect_max_delay_ms is not None:
             self.reconnect_max_delay_ms = reconnect_max_delay_ms
-        if poll_interval_seconds is not None:
-            self.poll_interval_seconds = poll_interval_seconds
-        if max_poll_attempts is not None:
-            self.max_poll_attempts = max_poll_attempts
 
     @property
     def reconnect_attempts(self):
@@ -150,48 +140,6 @@ class MCPConnectionConfig(object):
         """
 
         self._reconnect_max_delay_ms = reconnect_max_delay_ms
-
-    @property
-    def poll_interval_seconds(self):
-        """Gets the poll_interval_seconds of this MCPConnectionConfig.  # noqa: E501
-
-
-        :return: The poll_interval_seconds of this MCPConnectionConfig.  # noqa: E501
-        :rtype: object
-        """
-        return self._poll_interval_seconds
-
-    @poll_interval_seconds.setter
-    def poll_interval_seconds(self, poll_interval_seconds):
-        """Sets the poll_interval_seconds of this MCPConnectionConfig.
-
-
-        :param poll_interval_seconds: The poll_interval_seconds of this MCPConnectionConfig.  # noqa: E501
-        :type: object
-        """
-
-        self._poll_interval_seconds = poll_interval_seconds
-
-    @property
-    def max_poll_attempts(self):
-        """Gets the max_poll_attempts of this MCPConnectionConfig.  # noqa: E501
-
-
-        :return: The max_poll_attempts of this MCPConnectionConfig.  # noqa: E501
-        :rtype: object
-        """
-        return self._max_poll_attempts
-
-    @max_poll_attempts.setter
-    def max_poll_attempts(self, max_poll_attempts):
-        """Sets the max_poll_attempts of this MCPConnectionConfig.
-
-
-        :param max_poll_attempts: The max_poll_attempts of this MCPConnectionConfig.  # noqa: E501
-        :type: object
-        """
-
-        self._max_poll_attempts = max_poll_attempts
 
     def to_dict(self):
         """Returns the model properties as a dict"""

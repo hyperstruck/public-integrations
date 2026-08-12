@@ -340,7 +340,7 @@ class LearningsApi(object):
     def list_agent_learnings_endpoint_agents_agent_id_learnings_get(self, agent_id, **kwargs):  # noqa: E501
         """List agent learnings (audit inventory)  # noqa: E501
 
-        Paginated, filterable inventory of an agent's learnings for the curation workbench. Non-semantic (unlike /search). Defaults to the active bucket (excludes archived/superseded); use `state` for other buckets. Pagination is created_at keyset via the opaque cursor.  # noqa: E501
+        Paginated, filterable inventory of an agent's learnings for the curation workbench. Non-semantic (unlike /search). Defaults to the active bucket (excludes archived/superseded); use `state` for other buckets. Optional `q` ANDs free-text / learning-id match with the selected facet (requires a full-text index on learning content). Pagination is created_at keyset via the opaque cursor.  # noqa: E501
         This method makes a synchronous HTTP request by default. To make an
         asynchronous HTTP request, please pass async_req=True
         >>> thread = api.list_agent_learnings_endpoint_agents_agent_id_learnings_get(agent_id, async_req=True)
@@ -352,6 +352,7 @@ class LearningsApi(object):
         :param object limit: Maximum number of items to return on this page.
         :param object cursor: Opaque pagination token from the previous response's `next_cursor`. Pass it back unchanged; omit it to start again from the first page.
         :param LearningStateFilter state: Review bucket: active (default), needs_review, archived, superseded, or all.
+        :param object q: Optional inventory text filter (content MatchText or exact learning id). ANDed with `state`. Omit or blank to disable.
         :return: LearningAuditListResponse
                  If the method is called asynchronously,
                  returns the request thread.
@@ -366,7 +367,7 @@ class LearningsApi(object):
     def list_agent_learnings_endpoint_agents_agent_id_learnings_get_with_http_info(self, agent_id, **kwargs):  # noqa: E501
         """List agent learnings (audit inventory)  # noqa: E501
 
-        Paginated, filterable inventory of an agent's learnings for the curation workbench. Non-semantic (unlike /search). Defaults to the active bucket (excludes archived/superseded); use `state` for other buckets. Pagination is created_at keyset via the opaque cursor.  # noqa: E501
+        Paginated, filterable inventory of an agent's learnings for the curation workbench. Non-semantic (unlike /search). Defaults to the active bucket (excludes archived/superseded); use `state` for other buckets. Optional `q` ANDs free-text / learning-id match with the selected facet (requires a full-text index on learning content). Pagination is created_at keyset via the opaque cursor.  # noqa: E501
         This method makes a synchronous HTTP request by default. To make an
         asynchronous HTTP request, please pass async_req=True
         >>> thread = api.list_agent_learnings_endpoint_agents_agent_id_learnings_get_with_http_info(agent_id, async_req=True)
@@ -378,12 +379,13 @@ class LearningsApi(object):
         :param object limit: Maximum number of items to return on this page.
         :param object cursor: Opaque pagination token from the previous response's `next_cursor`. Pass it back unchanged; omit it to start again from the first page.
         :param LearningStateFilter state: Review bucket: active (default), needs_review, archived, superseded, or all.
+        :param object q: Optional inventory text filter (content MatchText or exact learning id). ANDed with `state`. Omit or blank to disable.
         :return: LearningAuditListResponse
                  If the method is called asynchronously,
                  returns the request thread.
         """
 
-        all_params = ['agent_id', 'include_instances', 'limit', 'cursor', 'state']  # noqa: E501
+        all_params = ['agent_id', 'include_instances', 'limit', 'cursor', 'state', 'q']  # noqa: E501
         all_params.append('async_req')
         all_params.append('_return_http_data_only')
         all_params.append('_preload_content')
@@ -418,6 +420,8 @@ class LearningsApi(object):
             query_params.append(('cursor', params['cursor']))  # noqa: E501
         if 'state' in params:
             query_params.append(('state', params['state']))  # noqa: E501
+        if 'q' in params:
+            query_params.append(('q', params['q']))  # noqa: E501
 
         header_params = {}
 
@@ -441,6 +445,121 @@ class LearningsApi(object):
             post_params=form_params,
             files=local_var_files,
             response_type='LearningAuditListResponse',  # noqa: E501
+            auth_settings=auth_settings,
+            async_req=params.get('async_req'),
+            _return_http_data_only=params.get('_return_http_data_only'),
+            _preload_content=params.get('_preload_content', True),
+            _request_timeout=params.get('_request_timeout'),
+            collection_formats=collection_formats)
+
+    def list_learning_claims_endpoint_agents_agent_id_learnings_learning_id_claims_get(self, agent_id, learning_id, **kwargs):  # noqa: E501
+        """List claims linked to a learning  # noqa: E501
+
+        Claims connected to this learning via composition provenance edges, for the claim curation panel. Filter by review status (or list open split proposals on entities the learning touched). latest_edge_at keyset pagination; an empty edge set is a 200 with no items, not a 404.  # noqa: E501
+        This method makes a synchronous HTTP request by default. To make an
+        asynchronous HTTP request, please pass async_req=True
+        >>> thread = api.list_learning_claims_endpoint_agents_agent_id_learnings_learning_id_claims_get(agent_id, learning_id, async_req=True)
+        >>> result = thread.get()
+
+        :param async_req bool
+        :param object agent_id: Hosted agent UUID returned by the agent create or list endpoint. (required)
+        :param object learning_id: Learning identifier returned by a learning list or search endpoint. (required)
+        :param object status: Review status filter. `all` is everything: every claim status plus open split proposals on entities this learning touched. `split_proposed` is open splits only; other values filter claims only.
+        :param object limit: Maximum number of items to return on this page.
+        :param object cursor: Opaque pagination token from the previous response's `next_cursor`. Pass it back unchanged; omit it to start again from the first page.
+        :return: LearningClaimsListResponse
+                 If the method is called asynchronously,
+                 returns the request thread.
+        """
+        kwargs['_return_http_data_only'] = True
+        if kwargs.get('async_req'):
+            return self.list_learning_claims_endpoint_agents_agent_id_learnings_learning_id_claims_get_with_http_info(agent_id, learning_id, **kwargs)  # noqa: E501
+        else:
+            (data) = self.list_learning_claims_endpoint_agents_agent_id_learnings_learning_id_claims_get_with_http_info(agent_id, learning_id, **kwargs)  # noqa: E501
+            return data
+
+    def list_learning_claims_endpoint_agents_agent_id_learnings_learning_id_claims_get_with_http_info(self, agent_id, learning_id, **kwargs):  # noqa: E501
+        """List claims linked to a learning  # noqa: E501
+
+        Claims connected to this learning via composition provenance edges, for the claim curation panel. Filter by review status (or list open split proposals on entities the learning touched). latest_edge_at keyset pagination; an empty edge set is a 200 with no items, not a 404.  # noqa: E501
+        This method makes a synchronous HTTP request by default. To make an
+        asynchronous HTTP request, please pass async_req=True
+        >>> thread = api.list_learning_claims_endpoint_agents_agent_id_learnings_learning_id_claims_get_with_http_info(agent_id, learning_id, async_req=True)
+        >>> result = thread.get()
+
+        :param async_req bool
+        :param object agent_id: Hosted agent UUID returned by the agent create or list endpoint. (required)
+        :param object learning_id: Learning identifier returned by a learning list or search endpoint. (required)
+        :param object status: Review status filter. `all` is everything: every claim status plus open split proposals on entities this learning touched. `split_proposed` is open splits only; other values filter claims only.
+        :param object limit: Maximum number of items to return on this page.
+        :param object cursor: Opaque pagination token from the previous response's `next_cursor`. Pass it back unchanged; omit it to start again from the first page.
+        :return: LearningClaimsListResponse
+                 If the method is called asynchronously,
+                 returns the request thread.
+        """
+
+        all_params = ['agent_id', 'learning_id', 'status', 'limit', 'cursor']  # noqa: E501
+        all_params.append('async_req')
+        all_params.append('_return_http_data_only')
+        all_params.append('_preload_content')
+        all_params.append('_request_timeout')
+
+        params = locals()
+        for key, val in six.iteritems(params['kwargs']):
+            if key not in all_params:
+                raise TypeError(
+                    "Got an unexpected keyword argument '%s'"
+                    " to method list_learning_claims_endpoint_agents_agent_id_learnings_learning_id_claims_get" % key
+                )
+            params[key] = val
+        del params['kwargs']
+        # verify the required parameter 'agent_id' is set
+        if ('agent_id' not in params or
+                params['agent_id'] is None):
+            raise ValueError("Missing the required parameter `agent_id` when calling `list_learning_claims_endpoint_agents_agent_id_learnings_learning_id_claims_get`")  # noqa: E501
+        # verify the required parameter 'learning_id' is set
+        if ('learning_id' not in params or
+                params['learning_id'] is None):
+            raise ValueError("Missing the required parameter `learning_id` when calling `list_learning_claims_endpoint_agents_agent_id_learnings_learning_id_claims_get`")  # noqa: E501
+
+        collection_formats = {}
+
+        path_params = {}
+        if 'agent_id' in params:
+            path_params['agent_id'] = params['agent_id']  # noqa: E501
+        if 'learning_id' in params:
+            path_params['learning_id'] = params['learning_id']  # noqa: E501
+
+        query_params = []
+        if 'status' in params:
+            query_params.append(('status', params['status']))  # noqa: E501
+        if 'limit' in params:
+            query_params.append(('limit', params['limit']))  # noqa: E501
+        if 'cursor' in params:
+            query_params.append(('cursor', params['cursor']))  # noqa: E501
+
+        header_params = {}
+
+        form_params = []
+        local_var_files = {}
+
+        body_params = None
+        # HTTP header `Accept`
+        header_params['Accept'] = self.api_client.select_header_accept(
+            ['application/json'])  # noqa: E501
+
+        # Authentication setting
+        auth_settings = ['BearerApiKey']  # noqa: E501
+
+        return self.api_client.call_api(
+            '/agents/{agent_id}/learnings/{learning_id}/claims', 'GET',
+            path_params,
+            query_params,
+            header_params,
+            body=body_params,
+            post_params=form_params,
+            files=local_var_files,
+            response_type='LearningClaimsListResponse',  # noqa: E501
             auth_settings=auth_settings,
             async_req=params.get('async_req'),
             _return_http_data_only=params.get('_return_http_data_only'),

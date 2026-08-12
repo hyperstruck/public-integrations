@@ -4,8 +4,6 @@ Python client SDK for the Hyperstruck Core API.
 
 This package is generated from the Hyperstruck OpenAPI document with [Swagger Codegen](https://github.com/swagger-api/swagger-codegen) using the `python` generator.
 
-For the ergonomic learning surface (LangGraph middleware, IDE hooks, and bundled skills), use the hand-written [`hyperstruck-py`](../../hyperstruck-py/) package instead. Reach for this SDK when you need raw, fully typed access to an endpoint the package does not wrap.
-
 ## Installation
 
 ```bash
@@ -32,7 +30,7 @@ agents_api = hyperstruck.AgentsApi(api_client)
 
 try:
     agents = agents_api.list_agents_endpoint_agents_get(
-        include_llm_credential=False,
+        include_summary=False,
         limit=20,
     )
     print(agents)
@@ -81,6 +79,14 @@ The generated method names are derived from the OpenAPI operation IDs. For examp
 - `AgentsApi.create_agent_endpoint_agents_post(...)`
 - `RunsApi.get_run_endpoint_runs_run_id_get(...)`
 - `LearningsApi.search_learnings_endpoint_agents_agent_id_learnings_search_get(...)`
+
+## Regeneration Notes
+
+This SDK was fully regenerated from the platform OpenAPI after the learnings
+inventory search change. The regeneration also catches up earlier API contract
+drift: provider-credential endpoints are no longer part of the public API, so
+`ProviderCredentialsApi` is removed, and agent-list signatures no longer include
+the retired `include_llm_credential` argument.
 
 ## Publishing
 

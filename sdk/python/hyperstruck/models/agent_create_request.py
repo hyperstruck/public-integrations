@@ -30,39 +30,27 @@ class AgentCreateRequest(object):
     swagger_types = {
         'name': 'object',
         'description': 'object',
-        'status': 'object',
-        'model_provider': 'ModelProvider',
-        'model_name': 'object',
+        'status': 'AgentStatus',
         'reasoning_profile': 'ReasoningTier',
-        'memory_profile': 'object',
-        'knowledge_scope': 'object',
         'home_space_id': 'object',
-        'core_config': 'AgentCoreConfigInput'
+        'core_config': 'AgentCoreConfig'
     }
 
     attribute_map = {
         'name': 'name',
         'description': 'description',
         'status': 'status',
-        'model_provider': 'model_provider',
-        'model_name': 'model_name',
         'reasoning_profile': 'reasoning_profile',
-        'memory_profile': 'memory_profile',
-        'knowledge_scope': 'knowledge_scope',
         'home_space_id': 'home_space_id',
         'core_config': 'core_config'
     }
 
-    def __init__(self, name=None, description=None, status=None, model_provider=None, model_name=None, reasoning_profile=None, memory_profile=None, knowledge_scope=None, home_space_id=None, core_config=None):  # noqa: E501
+    def __init__(self, name=None, description=None, status=None, reasoning_profile=None, home_space_id=None, core_config=None):  # noqa: E501
         """AgentCreateRequest - a model defined in Swagger"""  # noqa: E501
         self._name = None
         self._description = None
         self._status = None
-        self._model_provider = None
-        self._model_name = None
         self._reasoning_profile = None
-        self._memory_profile = None
-        self._knowledge_scope = None
         self._home_space_id = None
         self._core_config = None
         self.discriminator = None
@@ -71,16 +59,8 @@ class AgentCreateRequest(object):
             self.description = description
         if status is not None:
             self.status = status
-        if model_provider is not None:
-            self.model_provider = model_provider
-        if model_name is not None:
-            self.model_name = model_name
         if reasoning_profile is not None:
             self.reasoning_profile = reasoning_profile
-        if memory_profile is not None:
-            self.memory_profile = memory_profile
-        if knowledge_scope is not None:
-            self.knowledge_scope = knowledge_scope
         if home_space_id is not None:
             self.home_space_id = home_space_id
         self.core_config = core_config
@@ -137,10 +117,10 @@ class AgentCreateRequest(object):
     def status(self):
         """Gets the status of this AgentCreateRequest.  # noqa: E501
 
-        Hosted lifecycle flag (e.g. active, paused).  # noqa: E501
+        Hosted lifecycle state (active, paused, archived).  # noqa: E501
 
         :return: The status of this AgentCreateRequest.  # noqa: E501
-        :rtype: object
+        :rtype: AgentStatus
         """
         return self._status
 
@@ -148,59 +128,13 @@ class AgentCreateRequest(object):
     def status(self, status):
         """Sets the status of this AgentCreateRequest.
 
-        Hosted lifecycle flag (e.g. active, paused).  # noqa: E501
+        Hosted lifecycle state (active, paused, archived).  # noqa: E501
 
         :param status: The status of this AgentCreateRequest.  # noqa: E501
-        :type: object
+        :type: AgentStatus
         """
 
         self._status = status
-
-    @property
-    def model_provider(self):
-        """Gets the model_provider of this AgentCreateRequest.  # noqa: E501
-
-        Model provider for this agent. Defaults to the platform fallback provider (`openai`).  # noqa: E501
-
-        :return: The model_provider of this AgentCreateRequest.  # noqa: E501
-        :rtype: ModelProvider
-        """
-        return self._model_provider
-
-    @model_provider.setter
-    def model_provider(self, model_provider):
-        """Sets the model_provider of this AgentCreateRequest.
-
-        Model provider for this agent. Defaults to the platform fallback provider (`openai`).  # noqa: E501
-
-        :param model_provider: The model_provider of this AgentCreateRequest.  # noqa: E501
-        :type: ModelProvider
-        """
-
-        self._model_provider = model_provider
-
-    @property
-    def model_name(self):
-        """Gets the model_name of this AgentCreateRequest.  # noqa: E501
-
-        Provider-specific model id (maps to `AgentConfig.model`). Defaults to the platform fallback model.  # noqa: E501
-
-        :return: The model_name of this AgentCreateRequest.  # noqa: E501
-        :rtype: object
-        """
-        return self._model_name
-
-    @model_name.setter
-    def model_name(self, model_name):
-        """Sets the model_name of this AgentCreateRequest.
-
-        Provider-specific model id (maps to `AgentConfig.model`). Defaults to the platform fallback model.  # noqa: E501
-
-        :param model_name: The model_name of this AgentCreateRequest.  # noqa: E501
-        :type: object
-        """
-
-        self._model_name = model_name
 
     @property
     def reasoning_profile(self):
@@ -224,52 +158,6 @@ class AgentCreateRequest(object):
         """
 
         self._reasoning_profile = reasoning_profile
-
-    @property
-    def memory_profile(self):
-        """Gets the memory_profile of this AgentCreateRequest.  # noqa: E501
-
-        Platform memory integration preset (e.g. default, rich).  # noqa: E501
-
-        :return: The memory_profile of this AgentCreateRequest.  # noqa: E501
-        :rtype: object
-        """
-        return self._memory_profile
-
-    @memory_profile.setter
-    def memory_profile(self, memory_profile):
-        """Sets the memory_profile of this AgentCreateRequest.
-
-        Platform memory integration preset (e.g. default, rich).  # noqa: E501
-
-        :param memory_profile: The memory_profile of this AgentCreateRequest.  # noqa: E501
-        :type: object
-        """
-
-        self._memory_profile = memory_profile
-
-    @property
-    def knowledge_scope(self):
-        """Gets the knowledge_scope of this AgentCreateRequest.  # noqa: E501
-
-        Knowledge isolation label stored on the agent row for the runtime.  # noqa: E501
-
-        :return: The knowledge_scope of this AgentCreateRequest.  # noqa: E501
-        :rtype: object
-        """
-        return self._knowledge_scope
-
-    @knowledge_scope.setter
-    def knowledge_scope(self, knowledge_scope):
-        """Sets the knowledge_scope of this AgentCreateRequest.
-
-        Knowledge isolation label stored on the agent row for the runtime.  # noqa: E501
-
-        :param knowledge_scope: The knowledge_scope of this AgentCreateRequest.  # noqa: E501
-        :type: object
-        """
-
-        self._knowledge_scope = knowledge_scope
 
     @property
     def home_space_id(self):
@@ -301,7 +189,7 @@ class AgentCreateRequest(object):
         Runtime instructions and optional execution settings.  # noqa: E501
 
         :return: The core_config of this AgentCreateRequest.  # noqa: E501
-        :rtype: AgentCoreConfigInput
+        :rtype: AgentCoreConfig
         """
         return self._core_config
 
@@ -312,7 +200,7 @@ class AgentCreateRequest(object):
         Runtime instructions and optional execution settings.  # noqa: E501
 
         :param core_config: The core_config of this AgentCreateRequest.  # noqa: E501
-        :type: AgentCoreConfigInput
+        :type: AgentCoreConfig
         """
         if core_config is None:
             raise ValueError("Invalid value for `core_config`, must not be `None`")  # noqa: E501

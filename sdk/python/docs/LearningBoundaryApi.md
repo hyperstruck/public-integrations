@@ -4,18 +4,73 @@ All URIs are relative to */*
 
 Method | HTTP request | Description
 ------------- | ------------- | -------------
+[**decline_endpoint_decline_post**](LearningBoundaryApi.md#decline_endpoint_decline_post) | **POST** /decline | Close a run whose turn had nothing worth learning
 [**distill_endpoint_distill_post**](LearningBoundaryApi.md#distill_endpoint_distill_post) | **POST** /distill | Distill learnings from a corpus of evidence
 [**funnel_endpoint_funnel_get**](LearningBoundaryApi.md#funnel_endpoint_funnel_get) | **GET** /funnel | Per-host loop-closure funnel
 [**observe_endpoint_observe_post**](LearningBoundaryApi.md#observe_endpoint_observe_post) | **POST** /observe | Observe a finished episode
 [**reinforce_endpoint_reinforce_post**](LearningBoundaryApi.md#reinforce_endpoint_reinforce_post) | **POST** /reinforce | Reinforce the learnings a run used
 [**resolve_endpoint_resolve_post**](LearningBoundaryApi.md#resolve_endpoint_resolve_post) | **POST** /resolve | Resolve the learnings bound to a goal
 
+# **decline_endpoint_decline_post**
+> BoundaryAcceptedResponse decline_endpoint_decline_post(body)
+
+Close a run whose turn had nothing worth learning
+
+Close a run the caller resolved but will not write back for, because the turn ended with nothing worth learning from. Supply ``agent_name`` (your agent's human-readable name, not the hosted UUID from `/agents/{agent_id}`). If no agent with that name exists yet, one is created automatically on first use within your tenant. Use this instead of going silent: an unclosed run is indistinguishable from a host that stopped writing back, and only the caller knows which it is. Nothing is added to the corpus. Set `is_delivered` when the recall reached the model this turn, so the resolve is billed for what was received and released otherwise. A `run_id` this agent never resolved is accepted and ignored.
+
+### Example
+```python
+from __future__ import print_function
+import time
+import hyperstruck
+from hyperstruck.rest import ApiException
+from pprint import pprint
+
+# Configure API key authorization: BearerApiKey
+configuration = hyperstruck.Configuration()
+configuration.api_key['Authorization'] = 'YOUR_API_KEY'
+# Uncomment below to setup prefix (e.g. Bearer) for API key, if needed
+# configuration.api_key_prefix['Authorization'] = 'Bearer'
+
+# create an instance of the API class
+api_instance = hyperstruck.LearningBoundaryApi(hyperstruck.ApiClient(configuration))
+body = hyperstruck.DeclineRequest() # DeclineRequest |
+
+try:
+    # Close a run whose turn had nothing worth learning
+    api_response = api_instance.decline_endpoint_decline_post(body)
+    pprint(api_response)
+except ApiException as e:
+    print("Exception when calling LearningBoundaryApi->decline_endpoint_decline_post: %s\n" % e)
+```
+
+### Parameters
+
+Name | Type | Description  | Notes
+------------- | ------------- | ------------- | -------------
+ **body** | [**DeclineRequest**](DeclineRequest.md)|  |
+
+### Return type
+
+[**BoundaryAcceptedResponse**](BoundaryAcceptedResponse.md)
+
+### Authorization
+
+[BearerApiKey](../README.md#BearerApiKey)
+
+### HTTP request headers
+
+ - **Content-Type**: application/json
+ - **Accept**: application/json
+
+[[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
+
 # **distill_endpoint_distill_post**
 > BoundaryAcceptedResponse distill_endpoint_distill_post(body)
 
 Distill learnings from a corpus of evidence
 
-Distill durable learnings from post-mortems, documents, diffs, or analysis without inventing tool steps. Submit at least two evidence items and a contrast signal. `run_id` is a caller-created idempotency and tracing value, must begin with `distill:`, and does not reference `GET /runs/{run_id}`. A valid request may yield no learning. Pre-redact secrets from evidence.
+Distill durable learnings from post-mortems, documents, diffs, or analysis without inventing tool steps. Supply ``agent_name`` (your agent's human-readable name, not the hosted UUID from `/agents/{agent_id}`). If no agent with that name exists yet, one is created automatically on first use within your tenant. Submit at least two evidence items and a contrast signal. `run_id` is a caller-created idempotency and tracing value, must begin with `distill:`, and does not reference `GET /runs/{run_id}`. A valid request may yield no learning. Pre-redact secrets from evidence.
 
 ### Example
 ```python
@@ -125,7 +180,7 @@ Name | Type | Description  | Notes
 
 Observe a finished episode
 
-Submit a completed episode for asynchronous learning extraction. Direct API callers may construct the episode themselves; LangGraph is not required. Use a meaningful execution trace rather than documents or invented tool steps—use `/distill` for corpus evidence. The caller-owned episode `run_id` is an idempotency and correlation key, not a hosted run UUID.
+Submit a completed episode for asynchronous learning extraction. Supply ``agent_name`` (your agent's human-readable name, not the hosted UUID from `/agents/{agent_id}`). If no agent with that name exists yet, one is created automatically on first use within your tenant. Direct API callers may construct the episode themselves; LangGraph is not required. Use a meaningful execution trace rather than documents or invented tool steps—use `/distill` for corpus evidence. The caller-owned episode `run_id` is an idempotency and correlation key, not a hosted run UUID.
 
 ### Example
 ```python
@@ -179,7 +234,7 @@ Name | Type | Description  | Notes
 
 Reinforce the learnings a run used
 
-Submit the completed outcome used to credit or correct learnings previously offered by resolve. Reuse the same caller-owned `run_id`; it is an idempotency and attribution key, not a hosted run UUID. Processing is asynchronous and the endpoint returns 202 when accepted.
+Submit the completed outcome used to credit or correct learnings previously offered by resolve. Supply ``agent_name`` (your agent's human-readable name, not the hosted UUID from `/agents/{agent_id}`). If no agent with that name exists yet, one is created automatically on first use within your tenant. Reuse the same caller-owned `run_id`; it is an idempotency and attribution key, not a hosted run UUID. Processing is asynchronous and the endpoint returns 202 when accepted.
 
 ### Example
 ```python
@@ -233,7 +288,7 @@ Name | Type | Description  | Notes
 
 Resolve the learnings bound to a goal
 
-Retrieve relevant learnings before external work begins. `run_id` is a caller-created correlation identifier, not a hosted run UUID. Reuse the same value with observe and reinforce so feedback can be attributed to the learnings offered here.
+Retrieve relevant learnings before external work begins. Supply ``agent_name`` (your agent's human-readable name, not the hosted UUID from `/agents/{agent_id}`). If no agent with that name exists yet, one is created automatically on first use within your tenant. `run_id` is a caller-created correlation identifier, not a hosted run UUID. Reuse the same value with observe and reinforce so feedback can be attributed to the learnings offered here.
 
 ### Example
 ```python

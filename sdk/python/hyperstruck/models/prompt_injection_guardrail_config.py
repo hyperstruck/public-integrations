@@ -28,52 +28,24 @@ class PromptInjectionGuardrailConfig(object):
                             and the value is json key in definition.
     """
     swagger_types = {
-        'is_enabled': 'object',
         'action': 'GuardrailAction',
         'score_threshold': 'object'
     }
 
     attribute_map = {
-        'is_enabled': 'is_enabled',
         'action': 'action',
         'score_threshold': 'score_threshold'
     }
 
-    def __init__(self, is_enabled=None, action=None, score_threshold=None):  # noqa: E501
+    def __init__(self, action=None, score_threshold=None):  # noqa: E501
         """PromptInjectionGuardrailConfig - a model defined in Swagger"""  # noqa: E501
-        self._is_enabled = None
         self._action = None
         self._score_threshold = None
         self.discriminator = None
-        if is_enabled is not None:
-            self.is_enabled = is_enabled
         if action is not None:
             self.action = action
         if score_threshold is not None:
             self.score_threshold = score_threshold
-
-    @property
-    def is_enabled(self):
-        """Gets the is_enabled of this PromptInjectionGuardrailConfig.  # noqa: E501
-
-        Master switch for guardrail  # noqa: E501
-
-        :return: The is_enabled of this PromptInjectionGuardrailConfig.  # noqa: E501
-        :rtype: object
-        """
-        return self._is_enabled
-
-    @is_enabled.setter
-    def is_enabled(self, is_enabled):
-        """Sets the is_enabled of this PromptInjectionGuardrailConfig.
-
-        Master switch for guardrail  # noqa: E501
-
-        :param is_enabled: The is_enabled of this PromptInjectionGuardrailConfig.  # noqa: E501
-        :type: object
-        """
-
-        self._is_enabled = is_enabled
 
     @property
     def action(self):

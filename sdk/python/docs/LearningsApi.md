@@ -8,6 +8,7 @@ Method | HTTP request | Description
 [**get_agent_learnings_graph_endpoint_agents_agent_id_learnings_graph_get**](LearningsApi.md#get_agent_learnings_graph_endpoint_agents_agent_id_learnings_graph_get) | **GET** /agents/{agent_id}/learnings/graph | Agent learning evidence graph
 [**get_learning_endpoint_agents_agent_id_learnings_learning_id_get**](LearningsApi.md#get_learning_endpoint_agents_agent_id_learnings_learning_id_get) | **GET** /agents/{agent_id}/learnings/{learning_id} | Get a learning
 [**list_agent_learnings_endpoint_agents_agent_id_learnings_get**](LearningsApi.md#list_agent_learnings_endpoint_agents_agent_id_learnings_get) | **GET** /agents/{agent_id}/learnings | List agent learnings (audit inventory)
+[**list_learning_claims_endpoint_agents_agent_id_learnings_learning_id_claims_get**](LearningsApi.md#list_learning_claims_endpoint_agents_agent_id_learnings_learning_id_claims_get) | **GET** /agents/{agent_id}/learnings/{learning_id}/claims | List claims linked to a learning
 [**reinforce_learning_endpoint_agents_agent_id_learnings_learning_id_reinforce_post**](LearningsApi.md#reinforce_learning_endpoint_agents_agent_id_learnings_learning_id_reinforce_post) | **POST** /agents/{agent_id}/learnings/{learning_id}/reinforce | Reinforce a learning
 [**reject_learning_endpoint_agents_agent_id_learnings_learning_id_reject_post**](LearningsApi.md#reject_learning_endpoint_agents_agent_id_learnings_learning_id_reject_post) | **POST** /agents/{agent_id}/learnings/{learning_id}/reject | Reject (archive) a learning
 [**search_learnings_endpoint_agents_agent_id_learnings_search_get**](LearningsApi.md#search_learnings_endpoint_agents_agent_id_learnings_search_get) | **GET** /agents/{agent_id}/learnings/search | Search learnings
@@ -182,11 +183,11 @@ Name | Type | Description  | Notes
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 
 # **list_agent_learnings_endpoint_agents_agent_id_learnings_get**
-> LearningAuditListResponse list_agent_learnings_endpoint_agents_agent_id_learnings_get(agent_id, include_instances=include_instances, limit=limit, cursor=cursor, state=state)
+> LearningAuditListResponse list_agent_learnings_endpoint_agents_agent_id_learnings_get(agent_id, include_instances=include_instances, limit=limit, cursor=cursor, state=state, q=q)
 
 List agent learnings (audit inventory)
 
-Paginated, filterable inventory of an agent's learnings for the curation workbench. Non-semantic (unlike /search). Defaults to the active bucket (excludes archived/superseded); use `state` for other buckets. Pagination is created_at keyset via the opaque cursor.
+Paginated, filterable inventory of an agent's learnings for the curation workbench. Non-semantic (unlike /search). Defaults to the active bucket (excludes archived/superseded); use `state` for other buckets. Optional `q` ANDs free-text / learning-id match with the selected facet (requires a full-text index on learning content). Pagination is created_at keyset via the opaque cursor.
 
 ### Example
 ```python
@@ -209,10 +210,11 @@ include_instances = true # object | Include evidence instances on each item. (op
 limit = 50 # object | Maximum number of items to return on this page. (optional) (default to 50)
 cursor = NULL # object | Opaque pagination token from the previous response's `next_cursor`. Pass it back unchanged; omit it to start again from the first page. (optional)
 state = hyperstruck.LearningStateFilter() # LearningStateFilter | Review bucket: active (default), needs_review, archived, superseded, or all. (optional) (default to active)
+q = NULL # object | Optional inventory text filter (content MatchText or exact learning id). ANDed with `state`. Omit or blank to disable. (optional)
 
 try:
     # List agent learnings (audit inventory)
-    api_response = api_instance.list_agent_learnings_endpoint_agents_agent_id_learnings_get(agent_id, include_instances=include_instances, limit=limit, cursor=cursor, state=state)
+    api_response = api_instance.list_agent_learnings_endpoint_agents_agent_id_learnings_get(agent_id, include_instances=include_instances, limit=limit, cursor=cursor, state=state, q=q)
     pprint(api_response)
 except ApiException as e:
     print("Exception when calling LearningsApi->list_agent_learnings_endpoint_agents_agent_id_learnings_get: %s\n" % e)
@@ -227,10 +229,73 @@ Name | Type | Description  | Notes
  **limit** | [**object**](.md)| Maximum number of items to return on this page. | [optional] [default to 50]
  **cursor** | [**object**](.md)| Opaque pagination token from the previous response&#x27;s &#x60;next_cursor&#x60;. Pass it back unchanged; omit it to start again from the first page. | [optional]
  **state** | [**LearningStateFilter**](.md)| Review bucket: active (default), needs_review, archived, superseded, or all. | [optional] [default to active]
+ **q** | [**object**](.md)| Optional inventory text filter (content MatchText or exact learning id). ANDed with &#x60;state&#x60;. Omit or blank to disable. | [optional]
 
 ### Return type
 
 [**LearningAuditListResponse**](LearningAuditListResponse.md)
+
+### Authorization
+
+[BearerApiKey](../README.md#BearerApiKey)
+
+### HTTP request headers
+
+ - **Content-Type**: Not defined
+ - **Accept**: application/json
+
+[[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
+
+# **list_learning_claims_endpoint_agents_agent_id_learnings_learning_id_claims_get**
+> LearningClaimsListResponse list_learning_claims_endpoint_agents_agent_id_learnings_learning_id_claims_get(agent_id, learning_id, status=status, limit=limit, cursor=cursor)
+
+List claims linked to a learning
+
+Claims connected to this learning via composition provenance edges, for the claim curation panel. Filter by review status (or list open split proposals on entities the learning touched). latest_edge_at keyset pagination; an empty edge set is a 200 with no items, not a 404.
+
+### Example
+```python
+from __future__ import print_function
+import time
+import hyperstruck
+from hyperstruck.rest import ApiException
+from pprint import pprint
+
+# Configure API key authorization: BearerApiKey
+configuration = hyperstruck.Configuration()
+configuration.api_key['Authorization'] = 'YOUR_API_KEY'
+# Uncomment below to setup prefix (e.g. Bearer) for API key, if needed
+# configuration.api_key_prefix['Authorization'] = 'Bearer'
+
+# create an instance of the API class
+api_instance = hyperstruck.LearningsApi(hyperstruck.ApiClient(configuration))
+agent_id = NULL # object | Hosted agent UUID returned by the agent create or list endpoint.
+learning_id = NULL # object | Learning identifier returned by a learning list or search endpoint.
+status = all # object | Review status filter. `all` is everything: every claim status plus open split proposals on entities this learning touched. `split_proposed` is open splits only; other values filter claims only. (optional) (default to all)
+limit = 25 # object | Maximum number of items to return on this page. (optional) (default to 25)
+cursor = NULL # object | Opaque pagination token from the previous response's `next_cursor`. Pass it back unchanged; omit it to start again from the first page. (optional)
+
+try:
+    # List claims linked to a learning
+    api_response = api_instance.list_learning_claims_endpoint_agents_agent_id_learnings_learning_id_claims_get(agent_id, learning_id, status=status, limit=limit, cursor=cursor)
+    pprint(api_response)
+except ApiException as e:
+    print("Exception when calling LearningsApi->list_learning_claims_endpoint_agents_agent_id_learnings_learning_id_claims_get: %s\n" % e)
+```
+
+### Parameters
+
+Name | Type | Description  | Notes
+------------- | ------------- | ------------- | -------------
+ **agent_id** | [**object**](.md)| Hosted agent UUID returned by the agent create or list endpoint. |
+ **learning_id** | [**object**](.md)| Learning identifier returned by a learning list or search endpoint. |
+ **status** | [**object**](.md)| Review status filter. &#x60;all&#x60; is everything: every claim status plus open split proposals on entities this learning touched. &#x60;split_proposed&#x60; is open splits only; other values filter claims only. | [optional] [default to all]
+ **limit** | [**object**](.md)| Maximum number of items to return on this page. | [optional] [default to 25]
+ **cursor** | [**object**](.md)| Opaque pagination token from the previous response&#x27;s &#x60;next_cursor&#x60;. Pass it back unchanged; omit it to start again from the first page. | [optional]
+
+### Return type
+
+[**LearningClaimsListResponse**](LearningClaimsListResponse.md)
 
 ### Authorization
 

@@ -28,7 +28,6 @@ class GuardrailConfig(object):
                             and the value is json key in definition.
     """
     swagger_types = {
-        'is_enabled': 'object',
         'entities': 'object',
         'actions': 'object',
         'language': 'object',
@@ -37,7 +36,6 @@ class GuardrailConfig(object):
     }
 
     attribute_map = {
-        'is_enabled': 'is_enabled',
         'entities': 'entities',
         'actions': 'actions',
         'language': 'language',
@@ -45,17 +43,14 @@ class GuardrailConfig(object):
         'operators': 'operators'
     }
 
-    def __init__(self, is_enabled=None, entities=None, actions=None, language=None, score_threshold=None, operators=None):  # noqa: E501
+    def __init__(self, entities=None, actions=None, language=None, score_threshold=None, operators=None):  # noqa: E501
         """GuardrailConfig - a model defined in Swagger"""  # noqa: E501
-        self._is_enabled = None
         self._entities = None
         self._actions = None
         self._language = None
         self._score_threshold = None
         self._operators = None
         self.discriminator = None
-        if is_enabled is not None:
-            self.is_enabled = is_enabled
         if entities is not None:
             self.entities = entities
         if actions is not None:
@@ -66,29 +61,6 @@ class GuardrailConfig(object):
             self.score_threshold = score_threshold
         if operators is not None:
             self.operators = operators
-
-    @property
-    def is_enabled(self):
-        """Gets the is_enabled of this GuardrailConfig.  # noqa: E501
-
-        Master switch for guardrails  # noqa: E501
-
-        :return: The is_enabled of this GuardrailConfig.  # noqa: E501
-        :rtype: object
-        """
-        return self._is_enabled
-
-    @is_enabled.setter
-    def is_enabled(self, is_enabled):
-        """Sets the is_enabled of this GuardrailConfig.
-
-        Master switch for guardrails  # noqa: E501
-
-        :param is_enabled: The is_enabled of this GuardrailConfig.  # noqa: E501
-        :type: object
-        """
-
-        self._is_enabled = is_enabled
 
     @property
     def entities(self):

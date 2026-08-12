@@ -3,7 +3,6 @@
 ## Properties
 Name | Type | Description | Notes
 ------------ | ------------- | ------------- | -------------
-**is_enabled** | **object** | Master switch for guardrails | [optional]
 **entities** | **object** | Entity types to detect (Presidio entity names) | [optional]
 **actions** | **object** | Action to take per entity type | [optional]
 **language** | **object** | Language for Presidio analyzer | [optional]

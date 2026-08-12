@@ -88,7 +88,7 @@ class ResolveRequest(object):
     def agent_name(self):
         """Gets the agent_name of this ResolveRequest.  # noqa: E501
 
-        Human-readable agent name. This is a string, not the hosted agent UUID used in `/agents/{agent_id}` paths.  # noqa: E501
+        Human-readable agent name, unique within your tenant. This is not the hosted agent UUID used in `/agents/{agent_id}` REST paths. If no agent with this name exists yet, the platform creates one automatically on the first boundary call (a minimal learning agent scoped to your tenant). Reuse the same name on resolve, observe, reinforce, and distill to target the same learning corpus. Clients conventionally namespace an agent-loop `run_id` as `<agent_name>:...`; if yours does, avoid the name `distill`, because `distill:` is reserved for corpus distillation run ids and every agent-loop write would be refused.  # noqa: E501
 
         :return: The agent_name of this ResolveRequest.  # noqa: E501
         :rtype: object
@@ -99,7 +99,7 @@ class ResolveRequest(object):
     def agent_name(self, agent_name):
         """Sets the agent_name of this ResolveRequest.
 
-        Human-readable agent name. This is a string, not the hosted agent UUID used in `/agents/{agent_id}` paths.  # noqa: E501
+        Human-readable agent name, unique within your tenant. This is not the hosted agent UUID used in `/agents/{agent_id}` REST paths. If no agent with this name exists yet, the platform creates one automatically on the first boundary call (a minimal learning agent scoped to your tenant). Reuse the same name on resolve, observe, reinforce, and distill to target the same learning corpus. Clients conventionally namespace an agent-loop `run_id` as `<agent_name>:...`; if yours does, avoid the name `distill`, because `distill:` is reserved for corpus distillation run ids and every agent-loop write would be refused.  # noqa: E501
 
         :param agent_name: The agent_name of this ResolveRequest.  # noqa: E501
         :type: object
@@ -136,7 +136,7 @@ class ResolveRequest(object):
     def run_id(self):
         """Gets the run_id of this ResolveRequest.  # noqa: E501
 
-        Caller-created correlation key. Reuse it with observe and reinforce; it does not reference a hosted `/runs/{run_id}` resource.  # noqa: E501
+        Caller-created correlation key. Reuse it with observe and reinforce; it does not reference a hosted `/runs/{run_id}` resource, and must not start with `distill:`, which is reserved for distillation jobs.  # noqa: E501
 
         :return: The run_id of this ResolveRequest.  # noqa: E501
         :rtype: object
@@ -147,7 +147,7 @@ class ResolveRequest(object):
     def run_id(self, run_id):
         """Sets the run_id of this ResolveRequest.
 
-        Caller-created correlation key. Reuse it with observe and reinforce; it does not reference a hosted `/runs/{run_id}` resource.  # noqa: E501
+        Caller-created correlation key. Reuse it with observe and reinforce; it does not reference a hosted `/runs/{run_id}` resource, and must not start with `distill:`, which is reserved for distillation jobs.  # noqa: E501
 
         :param run_id: The run_id of this ResolveRequest.  # noqa: E501
         :type: object
@@ -186,7 +186,7 @@ class ResolveRequest(object):
     def source_framework(self):
         """Gets the source_framework of this ResolveRequest.  # noqa: E501
 
-        Producing host/framework (e.g. 'mcp:cursor'), used to attribute the per-host funnel. Optional; backfilled from the episode at write-back.  # noqa: E501
+        Producing host/framework (e.g. 'mcp:cursor'), used to attribute the per-host funnel. Optional; backfilled from the episode at write-back. `unknown` is reserved: the loop-closure funnel groups runs with no attribution under that label and excludes them from alerting, so a value equal to it is normalised to unset rather than stored as a host.  # noqa: E501
 
         :return: The source_framework of this ResolveRequest.  # noqa: E501
         :rtype: object
@@ -197,7 +197,7 @@ class ResolveRequest(object):
     def source_framework(self, source_framework):
         """Sets the source_framework of this ResolveRequest.
 
-        Producing host/framework (e.g. 'mcp:cursor'), used to attribute the per-host funnel. Optional; backfilled from the episode at write-back.  # noqa: E501
+        Producing host/framework (e.g. 'mcp:cursor'), used to attribute the per-host funnel. Optional; backfilled from the episode at write-back. `unknown` is reserved: the loop-closure funnel groups runs with no attribution under that label and excludes them from alerting, so a value equal to it is normalised to unset rather than stored as a host.  # noqa: E501
 
         :param source_framework: The source_framework of this ResolveRequest.  # noqa: E501
         :type: object

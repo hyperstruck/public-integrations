@@ -179,11 +179,11 @@ Name | Type | Description  | Notes
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 
 # **get_agent_endpoint_agents_agent_id_get**
-> AgentDetailResponse get_agent_endpoint_agents_agent_id_get(agent_id, include_llm_credential=include_llm_credential, include_summary=include_summary, include_access=include_access, window=window)
+> AgentDetailResponse get_agent_endpoint_agents_agent_id_get(agent_id, include_summary=include_summary, include_access=include_access, window=window)
 
 Get Agent
 
-Retrieve one hosted agent and its effective configuration. Optional query flags can include usage or non-secret provider-credential metadata.
+Retrieve one hosted agent and its effective configuration. An optional query flag can include a per-agent usage summary.
 
 ### Example
 ```python
@@ -202,14 +202,13 @@ configuration.api_key['Authorization'] = 'YOUR_API_KEY'
 # create an instance of the API class
 api_instance = hyperstruck.AgentsApi(hyperstruck.ApiClient(configuration))
 agent_id = NULL # object | Hosted agent UUID returned by the agent create or list endpoint.
-include_llm_credential = true # object | When true (default), resolve effective provider credential metadata for this agent's `model_provider` without exposing secrets. (optional) (default to true)
 include_summary = false # object | When true, include a per-agent usage summary. (optional) (default to false)
 include_access = false # object | Reserved for future access details. Currently accepted as a no-op for forward compatibility. (optional) (default to false)
 window = hyperstruck.UsageTimeWindow() # UsageTimeWindow | Window applied when `include_summary` is true. (optional) (default to last_30_days)
 
 try:
     # Get Agent
-    api_response = api_instance.get_agent_endpoint_agents_agent_id_get(agent_id, include_llm_credential=include_llm_credential, include_summary=include_summary, include_access=include_access, window=window)
+    api_response = api_instance.get_agent_endpoint_agents_agent_id_get(agent_id, include_summary=include_summary, include_access=include_access, window=window)
     pprint(api_response)
 except ApiException as e:
     print("Exception when calling AgentsApi->get_agent_endpoint_agents_agent_id_get: %s\n" % e)
@@ -220,7 +219,6 @@ except ApiException as e:
 Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
  **agent_id** | [**object**](.md)| Hosted agent UUID returned by the agent create or list endpoint. |
- **include_llm_credential** | [**object**](.md)| When true (default), resolve effective provider credential metadata for this agent&#x27;s &#x60;model_provider&#x60; without exposing secrets. | [optional] [default to true]
  **include_summary** | [**object**](.md)| When true, include a per-agent usage summary. | [optional] [default to false]
  **include_access** | [**object**](.md)| Reserved for future access details. Currently accepted as a no-op for forward compatibility. | [optional] [default to false]
  **window** | [**UsageTimeWindow**](.md)| Window applied when &#x60;include_summary&#x60; is true. | [optional] [default to last_30_days]

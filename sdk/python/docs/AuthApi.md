@@ -11,7 +11,7 @@ Method | HTTP request | Description
 
 Get Current Portal Identity
 
-Return the signed-in portal user's identity, active tenant, memberships, role, and effective scopes. This endpoint requires a portal session; Bearer API keys should call resource endpoints directly.
+Return the signed-in portal user's identity, active tenant, memberships, role, effective scopes, and UI-facing tenant feature flags. This endpoint requires a portal session; Bearer API keys should call resource endpoints directly.
 
 ### Example
 ```python

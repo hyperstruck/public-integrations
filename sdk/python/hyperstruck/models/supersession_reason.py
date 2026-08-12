@@ -28,6 +28,9 @@ class SupersessionReason(object):
     CORRECTION = "correction"
     RETRACTION = "retraction"
     REFINEMENT = "refinement"
+    ATTRIBUTE_MERGE = "attribute_merge"
+    RETROACTIVE_KEY = "retroactive_key"
+    RETROACTIVE_CORROBORATION = "retroactive_corroboration"
     """
     Attributes:
       swagger_types (dict): The key is attribute name

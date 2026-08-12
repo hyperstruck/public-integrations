@@ -36,11 +36,10 @@ describe("AgentsApi", () => {
   })
   test("getAgentEndpointAgentsAgentIdGet", () => {
     const agentId: any = undefined
-    const includeLlmCredential: any = undefined
     const includeSummary: any = undefined
     const includeAccess: any = undefined
     const window: UsageTimeWindow = undefined
-    return expect(instance.getAgentEndpointAgentsAgentIdGet(agentId, includeLlmCredential, includeSummary, includeAccess, window, {})).resolves.toBe(null)
+    return expect(instance.getAgentEndpointAgentsAgentIdGet(agentId, includeSummary, includeAccess, window, {})).resolves.toBe(null)
   })
   test("getAgentUsageSummaryEndpointAgentsAgentIdUsageSummaryGet", () => {
     const agentId: any = undefined
@@ -163,6 +162,11 @@ describe("ClaimsApi", () => {
     const entityId: any = undefined
     return expect(instance.eraseEntityEndpointAgentsAgentIdClaimsEntitiesEntityIdErasurePost(agentId, entityId, {})).resolves.toBe(null)
   })
+  test("getAttributeEndpointAgentsAgentIdClaimsAttributesAttributeIdGet", () => {
+    const agentId: any = undefined
+    const attributeId: any = undefined
+    return expect(instance.getAttributeEndpointAgentsAgentIdClaimsAttributesAttributeIdGet(agentId, attributeId, {})).resolves.toBe(null)
+  })
   test("getEntityDossierEndpointAgentsAgentIdClaimsEntitiesEntityIdGet", () => {
     const agentId: any = undefined
     const entityId: any = undefined
@@ -177,6 +181,15 @@ describe("ClaimsApi", () => {
     const limit: any = undefined
     const cursor: any = undefined
     return expect(instance.listAbstainedQueueEndpointOrgClaimsAbstainedGet(limit, cursor, {})).resolves.toBe(null)
+  })
+  test("listAttributeMergesEndpointAgentsAgentIdClaimsAttributeMergesGet", () => {
+    const agentId: any = undefined
+    return expect(instance.listAttributeMergesEndpointAgentsAgentIdClaimsAttributeMergesGet(agentId, {})).resolves.toBe(null)
+  })
+  test("listEntityAliasesEndpointAgentsAgentIdClaimsEntitiesEntityIdAliasesGet", () => {
+    const agentId: any = undefined
+    const entityId: any = undefined
+    return expect(instance.listEntityAliasesEndpointAgentsAgentIdClaimsEntitiesEntityIdAliasesGet(agentId, entityId, {})).resolves.toBe(null)
   })
   test("listQuarantineQueueEndpointOrgClaimsQuarantineGet", () => {
     const limit: any = undefined
@@ -207,6 +220,11 @@ describe("ClaimsApi", () => {
     const proposalId: any = undefined
     return expect(instance.resolveSplitProposalEndpointAgentsAgentIdClaimsSplitProposalsProposalIdResolvePost(body, agentId, proposalId, {})).resolves.toBe(null)
   })
+  test("reverseAttributeMergeEndpointAgentsAgentIdClaimsAttributeMergesMergeIdReversePost", () => {
+    const agentId: any = undefined
+    const mergeId: any = undefined
+    return expect(instance.reverseAttributeMergeEndpointAgentsAgentIdClaimsAttributeMergesMergeIdReversePost(agentId, mergeId, {})).resolves.toBe(null)
+  })
 })
 
 describe("EntitlementsApi", () => {
@@ -222,11 +240,14 @@ describe("EntitlementsApi", () => {
 
 describe("LearningBoundaryApi", () => {
   let instance: api.LearningBoundaryApi
-  const boundaryParams = api.LearningBoundaryApiFetchParamCreator(config)
   beforeEach(function() {
     instance = new api.LearningBoundaryApi(config)
   });
 
+  test("declineEndpointDeclinePost", () => {
+    const body: api.DeclineRequest = undefined
+    return expect(instance.declineEndpointDeclinePost(body, {})).resolves.toBe(null)
+  })
   test("distillEndpointDistillPost", () => {
     const body: api.DistillRequest = undefined
     return expect(instance.distillEndpointDistillPost(body, {})).resolves.toBe(null)
@@ -247,167 +268,6 @@ describe("LearningBoundaryApi", () => {
   test("resolveEndpointResolvePost", () => {
     const body: api.ResolveRequest = undefined
     return expect(instance.resolveEndpointResolvePost(body, {})).resolves.toBe(null)
-  })
-
-  test("serializes boundary requests with snake_case wire keys", () => {
-    const episode: api.EpisodeModel = {
-      runId: "run-1",
-      goal: "ship safely",
-      steps: [
-        {
-          id: "step-1",
-          name: "lookup",
-          args: { keepCamelCase: true },
-          status: "completed",
-          result: { keepNestedData: true },
-        },
-      ],
-      outcome: {
-        isSuccess: true,
-        totalSteps: 1,
-        completedSteps: 1,
-        failedSteps: 0,
-      },
-      sourceFramework: "jest",
-    }
-    const resolve = JSON.parse(boundaryParams.resolveEndpointResolvePost({
-      agentName: "agent-a",
-      orgId: "org-a",
-      runId: "run-1",
-      goal: "ship safely",
-      sourceFramework: "jest",
-      availableTools: [{ name: "lookup" }],
-      maxLearnings: 3,
-      modelContextWindow: 1000,
-      retrieval: "fast",
-      resolveIdempotencyKey: "turn-1",
-    }, {}).options.body as string)
-    const observe = JSON.parse(boundaryParams.observeEndpointObservePost({
-      agentName: "agent-a",
-      episode,
-    }, {}).options.body as string)
-    const reinforce = JSON.parse(boundaryParams.reinforceEndpointReinforcePost({
-      agentName: "agent-a",
-      episode,
-      isOrgPromotionAllowed: true,
-    }, {}).options.body as string)
-    const distill = JSON.parse(boundaryParams.distillEndpointDistillPost({
-      agentName: "agent-a",
-      runId: "distill:run-1",
-      goal: "extract",
-      evidence: [{ id: "e1", content: "text", sourceRef: "doc" }],
-      outcome: { isSuccess: true, summary: "done" },
-      synthesisNotes: "notes",
-      sourceFramework: "jest",
-      occurredAt: "2026-07-23T00:00:00Z",
-    }, {}).options.body as string)
-
-    expect(resolve).toMatchObject({
-      agent_name: "agent-a",
-      org_id: "org-a",
-      run_id: "run-1",
-      source_framework: "jest",
-      available_tools: [{ name: "lookup" }],
-      max_learnings: 3,
-      model_context_window: 1000,
-      resolve_idempotency_key: "turn-1",
-    })
-    expect(resolve.agentName).toBeUndefined()
-    expect(observe).toMatchObject({
-      agent_name: "agent-a",
-      episode: {
-        run_id: "run-1",
-        source_framework: "jest",
-        outcome: { is_success: true, total_steps: 1 },
-      },
-    })
-    expect(observe.episode.steps[0].args).toEqual({ keepCamelCase: true })
-    expect(reinforce).toMatchObject({
-      agent_name: "agent-a",
-      is_org_promotion_allowed: true,
-      episode: { run_id: "run-1" },
-    })
-    expect(distill).toMatchObject({
-      agent_name: "agent-a",
-      run_id: "distill:run-1",
-      evidence: [{ id: "e1", content: "text", source_ref: "doc" }],
-      outcome: { is_success: true, summary: "done" },
-      synthesis_notes: "notes",
-      source_framework: "jest",
-      occurred_at: "2026-07-23T00:00:00Z",
-    })
-  })
-
-  test("preserves already snake_case boundary request inputs", () => {
-    const resolve = JSON.parse(boundaryParams.resolveEndpointResolvePost({
-      agent_name: "agent-a",
-      org_id: "org-a",
-      run_id: "run-1",
-      goal: "ship safely",
-      source_framework: "jest",
-      available_tools: [{ name: "lookup" }],
-      max_learnings: 3,
-      model_context_window: 1000,
-      resolve_idempotency_key: "turn-1",
-    } as any, {}).options.body as string)
-    const observe = JSON.parse(boundaryParams.observeEndpointObservePost({
-      agent_name: "agent-a",
-      episode: {
-        run_id: "run-1",
-        goal: "ship safely",
-        steps: [{ id: "step-1", name: "lookup", declared_sensitivity: { token: { level: "secret" } } }],
-        outcome: { is_success: true, total_steps: 1, completed_steps: 1, failed_steps: 0 },
-        source_framework: "jest",
-      },
-    } as any, {}).options.body as string)
-    const reinforce = JSON.parse(boundaryParams.reinforceEndpointReinforcePost({
-      agent_name: "agent-a",
-      episode: observe.episode,
-      is_org_promotion_allowed: true,
-    } as any, {}).options.body as string)
-    const distill = JSON.parse(boundaryParams.distillEndpointDistillPost({
-      agent_name: "agent-a",
-      run_id: "distill:run-1",
-      goal: "extract",
-      evidence: [{ id: "e1", content: "text", source_ref: "doc" }],
-      outcome: { is_success: true, summary: "done" },
-      synthesis_notes: "notes",
-      source_framework: "jest",
-      occurred_at: "2026-07-23T00:00:00Z",
-    } as any, {}).options.body as string)
-
-    expect(resolve).toMatchObject({
-      agent_name: "agent-a",
-      org_id: "org-a",
-      run_id: "run-1",
-      available_tools: [{ name: "lookup" }],
-      max_learnings: 3,
-      model_context_window: 1000,
-      resolve_idempotency_key: "turn-1",
-    })
-    expect(observe).toMatchObject({
-      agent_name: "agent-a",
-      episode: {
-        run_id: "run-1",
-        source_framework: "jest",
-        outcome: { is_success: true, total_steps: 1 },
-        steps: [{ declared_sensitivity: { token: { level: "secret" } } }],
-      },
-    })
-    expect(reinforce).toMatchObject({
-      agent_name: "agent-a",
-      is_org_promotion_allowed: true,
-      episode: { run_id: "run-1" },
-    })
-    expect(distill).toMatchObject({
-      agent_name: "agent-a",
-      run_id: "distill:run-1",
-      evidence: [{ source_ref: "doc" }],
-      outcome: { is_success: true },
-      synthesis_notes: "notes",
-      source_framework: "jest",
-      occurred_at: "2026-07-23T00:00:00Z",
-    })
   })
 })
 
@@ -438,7 +298,16 @@ describe("LearningsApi", () => {
     const limit: any = undefined
     const cursor: any = undefined
     const state: LearningStateFilter = undefined
-    return expect(instance.listAgentLearningsEndpointAgentsAgentIdLearningsGet(agentId, includeInstances, limit, cursor, state, {})).resolves.toBe(null)
+    const q: any = undefined
+    return expect(instance.listAgentLearningsEndpointAgentsAgentIdLearningsGet(agentId, includeInstances, limit, cursor, state, q, {})).resolves.toBe(null)
+  })
+  test("listLearningClaimsEndpointAgentsAgentIdLearningsLearningIdClaimsGet", () => {
+    const agentId: any = undefined
+    const learningId: any = undefined
+    const status: any = undefined
+    const limit: any = undefined
+    const cursor: any = undefined
+    return expect(instance.listLearningClaimsEndpointAgentsAgentIdLearningsLearningIdClaimsGet(agentId, learningId, status, limit, cursor, {})).resolves.toBe(null)
   })
   test("reinforceLearningEndpointAgentsAgentIdLearningsLearningIdReinforcePost", () => {
     const body: api.ReinforceLearningRequest = undefined
@@ -467,6 +336,20 @@ describe("LearningsApi", () => {
   })
 })
 
+describe("OrgDirectoryApi", () => {
+  let instance: api.OrgDirectoryApi
+  beforeEach(function() {
+    instance = new api.OrgDirectoryApi(config)
+  });
+
+  test("listOrgDirectoryEndpointOrgOrgIdDirectoryGet", () => {
+    const orgId: any = undefined
+    const limit: any = undefined
+    const cursor: any = undefined
+    return expect(instance.listOrgDirectoryEndpointOrgOrgIdDirectoryGet(orgId, limit, cursor, {})).resolves.toBe(null)
+  })
+})
+
 describe("OrgLearningsApi", () => {
   let instance: api.OrgLearningsApi
   beforeEach(function() {
@@ -477,6 +360,61 @@ describe("OrgLearningsApi", () => {
     const limit: any = undefined
     const cursor: any = undefined
     return expect(instance.listOrgLearningsEndpointOrgLearningsGet(limit, cursor, {})).resolves.toBe(null)
+  })
+})
+
+describe("OrgMembersApi", () => {
+  let instance: api.OrgMembersApi
+  beforeEach(function() {
+    instance = new api.OrgMembersApi(config)
+  });
+
+  test("listOrgMembersEndpointOrgOrgIdMembersGet", () => {
+    const orgId: any = undefined
+    const limit: any = undefined
+    const cursor: any = undefined
+    return expect(instance.listOrgMembersEndpointOrgOrgIdMembersGet(orgId, limit, cursor, {})).resolves.toBe(null)
+  })
+  test("updateOrgMemberRoleEndpointOrgOrgIdMembersIdentityUserIdPatch", () => {
+    const body: api.OrgMemberRoleUpdateRequest = undefined
+    const orgId: any = undefined
+    const identityUserId: any = undefined
+    return expect(instance.updateOrgMemberRoleEndpointOrgOrgIdMembersIdentityUserIdPatch(body, orgId, identityUserId, {})).resolves.toBe(null)
+  })
+})
+
+describe("OrgSpacesApi", () => {
+  let instance: api.OrgSpacesApi
+  beforeEach(function() {
+    instance = new api.OrgSpacesApi(config)
+  });
+
+  test("createOrgSpaceEndpointOrgOrgIdSpacesPost", () => {
+    const body: api.CreateSpaceRequest = undefined
+    const orgId: any = undefined
+    return expect(instance.createOrgSpaceEndpointOrgOrgIdSpacesPost(body, orgId, {})).resolves.toBe(null)
+  })
+  test("deleteOrgSpaceEndpointOrgOrgIdSpacesSpaceIdDelete", () => {
+    const orgId: any = undefined
+    const spaceId: any = undefined
+    return expect(instance.deleteOrgSpaceEndpointOrgOrgIdSpacesSpaceIdDelete(orgId, spaceId, {})).resolves.toBe(null)
+  })
+  test("inviteSpaceMemberEndpointOrgOrgIdSpacesSpaceIdMembersPost", () => {
+    const body: api.SpaceMemberInviteRequest = undefined
+    const orgId: any = undefined
+    const spaceId: any = undefined
+    return expect(instance.inviteSpaceMemberEndpointOrgOrgIdSpacesSpaceIdMembersPost(body, orgId, spaceId, {})).resolves.toBe(null)
+  })
+  test("listSpaceMembersEndpointOrgOrgIdSpacesSpaceIdMembersGet", () => {
+    const orgId: any = undefined
+    const spaceId: any = undefined
+    return expect(instance.listSpaceMembersEndpointOrgOrgIdSpacesSpaceIdMembersGet(orgId, spaceId, {})).resolves.toBe(null)
+  })
+  test("revokeSpaceMemberEndpointOrgOrgIdSpacesSpaceIdMembersIdentityUserIdDelete", () => {
+    const orgId: any = undefined
+    const spaceId: any = undefined
+    const identityUserId: any = undefined
+    return expect(instance.revokeSpaceMemberEndpointOrgOrgIdSpacesSpaceIdMembersIdentityUserIdDelete(orgId, spaceId, identityUserId, {})).resolves.toBe(null)
   })
 })
 
@@ -498,35 +436,79 @@ describe("PlansApi", () => {
   })
 })
 
-describe("ProviderCredentialsApi", () => {
-  let instance: api.ProviderCredentialsApi
+describe("ReportingApi", () => {
+  let instance: api.ReportingApi
   beforeEach(function() {
-    instance = new api.ProviderCredentialsApi(config)
+    instance = new api.ReportingApi(config)
   });
 
-  test("createCredentialCredentialsProvidersPost", () => {
-    const body: api.ProviderCredentialCreateRequest = undefined
-    return expect(instance.createCredentialCredentialsProvidersPost(body, {})).resolves.toBe(null)
+  test("chartDataEndpointReportingChartsChartIdDataPost", () => {
+    const chartId: any = undefined
+    const body: any = undefined
+    return expect(instance.chartDataEndpointReportingChartsChartIdDataPost(chartId, body, {})).resolves.toBe(null)
   })
-  test("deleteCredentialCredentialsProvidersCredentialIdDelete", () => {
-    const credentialId: any = undefined
-    return expect(instance.deleteCredentialCredentialsProvidersCredentialIdDelete(credentialId, {})).resolves.toBe(null)
+  test("createChartEndpointReportingChartsPost", () => {
+    const body: api.ChartCreateRequest = undefined
+    return expect(instance.createChartEndpointReportingChartsPost(body, {})).resolves.toBe(null)
   })
-  test("getCredentialCredentialsProvidersCredentialIdGet", () => {
-    const credentialId: any = undefined
-    return expect(instance.getCredentialCredentialsProvidersCredentialIdGet(credentialId, {})).resolves.toBe(null)
+  test("createDashboardEndpointReportingDashboardsPost", () => {
+    const body: api.DashboardCreateRequest = undefined
+    return expect(instance.createDashboardEndpointReportingDashboardsPost(body, {})).resolves.toBe(null)
   })
-  test("listCredentialsCredentialsProvidersGet", () => {
-    const provider: any = undefined
-    const bindingType: any = undefined
-    const agentId: any = undefined
-    const includeInactive: any = undefined
-    return expect(instance.listCredentialsCredentialsProvidersGet(provider, bindingType, agentId, includeInactive, {})).resolves.toBe(null)
+  test("deleteChartEndpointReportingChartsChartIdDelete", () => {
+    const chartId: any = undefined
+    return expect(instance.deleteChartEndpointReportingChartsChartIdDelete(chartId, {})).resolves.toBe(null)
   })
-  test("updateCredentialCredentialsProvidersCredentialIdPatch", () => {
-    const body: api.ProviderCredentialUpdateRequest = undefined
-    const credentialId: any = undefined
-    return expect(instance.updateCredentialCredentialsProvidersCredentialIdPatch(body, credentialId, {})).resolves.toBe(null)
+  test("deleteDashboardEndpointReportingDashboardsDashboardIdDelete", () => {
+    const dashboardId: any = undefined
+    return expect(instance.deleteDashboardEndpointReportingDashboardsDashboardIdDelete(dashboardId, {})).resolves.toBe(null)
+  })
+  test("getChartEndpointReportingChartsChartIdGet", () => {
+    const chartId: any = undefined
+    return expect(instance.getChartEndpointReportingChartsChartIdGet(chartId, {})).resolves.toBe(null)
+  })
+  test("getDashboardEndpointReportingDashboardsDashboardIdGet", () => {
+    const dashboardId: any = undefined
+    return expect(instance.getDashboardEndpointReportingDashboardsDashboardIdGet(dashboardId, {})).resolves.toBe(null)
+  })
+  test("getDefaultsEndpointReportingDefaultsSpaceIdGet", () => {
+    const spaceId: any = undefined
+    return expect(instance.getDefaultsEndpointReportingDefaultsSpaceIdGet(spaceId, {})).resolves.toBe(null)
+  })
+  test("getMetricCatalogEndpointReportingMetricCatalogGet", () => {
+    return expect(instance.getMetricCatalogEndpointReportingMetricCatalogGet({})).resolves.toBe(null)
+  })
+  test("listChartsEndpointReportingChartsGet", () => {
+    const spaceId: any = undefined
+    return expect(instance.listChartsEndpointReportingChartsGet(spaceId, {})).resolves.toBe(null)
+  })
+  test("listDashboardsEndpointReportingDashboardsGet", () => {
+    const spaceId: any = undefined
+    return expect(instance.listDashboardsEndpointReportingDashboardsGet(spaceId, {})).resolves.toBe(null)
+  })
+  test("putDashboardItemsEndpointReportingDashboardsDashboardIdItemsPut", () => {
+    const body: api.DashboardItemsPutRequest = undefined
+    const dashboardId: any = undefined
+    return expect(instance.putDashboardItemsEndpointReportingDashboardsDashboardIdItemsPut(body, dashboardId, {})).resolves.toBe(null)
+  })
+  test("putDefaultsEndpointReportingDefaultsSpaceIdPut", () => {
+    const body: api.ReportingDefaultsPutRequest = undefined
+    const spaceId: any = undefined
+    return expect(instance.putDefaultsEndpointReportingDefaultsSpaceIdPut(body, spaceId, {})).resolves.toBe(null)
+  })
+  test("reportingQueryEndpointReportingQueryPost", () => {
+    const body: api.ReportingQueryRequest = undefined
+    return expect(instance.reportingQueryEndpointReportingQueryPost(body, {})).resolves.toBe(null)
+  })
+  test("updateChartEndpointReportingChartsChartIdPatch", () => {
+    const body: api.ChartUpdateRequest = undefined
+    const chartId: any = undefined
+    return expect(instance.updateChartEndpointReportingChartsChartIdPatch(body, chartId, {})).resolves.toBe(null)
+  })
+  test("updateDashboardEndpointReportingDashboardsDashboardIdPatch", () => {
+    const body: api.DashboardUpdateRequest = undefined
+    const dashboardId: any = undefined
+    return expect(instance.updateDashboardEndpointReportingDashboardsDashboardIdPatch(body, dashboardId, {})).resolves.toBe(null)
   })
 })
 
@@ -603,7 +585,8 @@ describe("SpacesApi", () => {
   test("listSpacesEndpointSpacesGet", () => {
     const limit: any = undefined
     const cursor: any = undefined
-    return expect(instance.listSpacesEndpointSpacesGet(limit, cursor, {})).resolves.toBe(null)
+    const _for: any = undefined
+    return expect(instance.listSpacesEndpointSpacesGet(limit, cursor, _for, {})).resolves.toBe(null)
   })
 })
 

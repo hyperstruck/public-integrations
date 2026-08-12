@@ -145,6 +145,18 @@ export interface AbstainedQueueItem {
  */
 export interface AbstainedQueueResponse {
     /**
+     * True when the caller's readable-space set is restricted and space filtering applied to this page.
+     * @type {any}
+     * @memberof AbstainedQueueResponse
+     */
+    filtered?: any;
+    /**
+     * Best-effort count of rows this page omitted because the caller's space filter excluded them.
+     * @type {any}
+     * @memberof AbstainedQueueResponse
+     */
+    withheldCount?: any;
+    /**
      * 
      * @type {any}
      * @memberof AbstainedQueueResponse
@@ -173,146 +185,67 @@ export interface AdoptClaimRequest {
 /**
  * Runtime instructions and optional execution settings for a hosted agent.
  * @export
- * @interface AgentCoreConfigInput
+ * @interface AgentCoreConfig
  */
-export interface AgentCoreConfigInput {
+export interface AgentCoreConfig {
     /**
      * System prompt / instructions for `AgentConfig.instructions`. Create requests must provide a non-empty value; empty strings may appear for legacy rows until backfilled.
      * @type {any}
-     * @memberof AgentCoreConfigInput
+     * @memberof AgentCoreConfig
      */
     instructions?: any;
     /**
      * Optional short description (`AgentConfig.description`).
      * @type {any}
-     * @memberof AgentCoreConfigInput
+     * @memberof AgentCoreConfig
      */
     description?: any;
     /**
-     * Sampling temperature (`AgentConfig.temperature`).
-     * @type {any}
-     * @memberof AgentCoreConfigInput
-     */
-    temperature?: any;
-    /**
-     * Max tokens to generate (`AgentConfig.max_tokens`).
-     * @type {any}
-     * @memberof AgentCoreConfigInput
-     */
-    maxTokens?: any;
-    /**
      * MCP tool servers (`AgentConfig.mcp_servers`). Use `auth_type` + `auth_token_env` for hosted-safe references to secrets, or explicit `auth` objects when injecting credentials out-of-band.
      * @type {any}
-     * @memberof AgentCoreConfigInput
+     * @memberof AgentCoreConfig
      */
     mcpServers?: any;
     /**
      * PII and prompt-injection guardrails (`AgentConfig.guardrails_config`).
      * @type {any}
-     * @memberof AgentCoreConfigInput
+     * @memberof AgentCoreConfig
      */
     guardrailsConfig?: any;
     /**
      * Enable Human-in-the-Loop suspensions for this agent runtime.
      * @type {any}
-     * @memberof AgentCoreConfigInput
+     * @memberof AgentCoreConfig
      */
     hitlEnabled?: any;
     /**
      * HITL autonomy level (1=most supervised, 5=least supervised). Used when ``hitl_policy_preset`` is ``autonomy``.
      * @type {any}
-     * @memberof AgentCoreConfigInput
+     * @memberof AgentCoreConfig
      */
     hitlAutonomyLevel?: any;
     /**
      * How hosted runs build HITL policies: ``autonomy`` uses ``hitl_autonomy_level``; ``milestone_only`` gates only at milestone boundaries (simpler resume/checkpoints).
      * @type {HitlPolicyPreset}
-     * @memberof AgentCoreConfigInput
+     * @memberof AgentCoreConfig
      */
     hitlPolicyPreset?: HitlPolicyPreset;
     /**
+     * Distinct approvals required before a milestone gate lets the run proceed (a four-eyes / maker-checker quorum). Only supported with ``hitl_policy_preset=milestone_only``. Each approval must come from a distinct authenticated principal (a distinct API key or portal login, not necessarily a distinct human), the run's dispatcher is excluded, and any single rejection vetoes. One caller resuming twice replays rather than counting twice.
+     * @type {any}
+     * @memberof AgentCoreConfig
+     */
+    hitlRequiredApprovals?: any;
+    /**
      * Arbitrary extension metadata (`AgentConfig.metadata`).
      * @type {any}
-     * @memberof AgentCoreConfigInput
+     * @memberof AgentCoreConfig
      */
     metadata?: any;
     /**
      * Domain dimensions this agent focuses on when extracting and keeping learnings. Each entry has a name, description, and optional example values. Learnings store the matching names in ``domain_dimensions`` (list of strings). Omit or null when unguided; on PATCH, pass null or [] to clear.
      * @type {any}
-     * @memberof AgentCoreConfigInput
-     */
-    domainDimensions?: any;
-}
-/**
- * Runtime instructions and optional execution settings for a hosted agent.
- * @export
- * @interface AgentCoreConfigOutput
- */
-export interface AgentCoreConfigOutput {
-    /**
-     * System prompt / instructions for `AgentConfig.instructions`. Create requests must provide a non-empty value; empty strings may appear for legacy rows until backfilled.
-     * @type {any}
-     * @memberof AgentCoreConfigOutput
-     */
-    instructions?: any;
-    /**
-     * Optional short description (`AgentConfig.description`).
-     * @type {any}
-     * @memberof AgentCoreConfigOutput
-     */
-    description?: any;
-    /**
-     * Sampling temperature (`AgentConfig.temperature`).
-     * @type {any}
-     * @memberof AgentCoreConfigOutput
-     */
-    temperature?: any;
-    /**
-     * Max tokens to generate (`AgentConfig.max_tokens`).
-     * @type {any}
-     * @memberof AgentCoreConfigOutput
-     */
-    maxTokens?: any;
-    /**
-     * MCP tool servers (`AgentConfig.mcp_servers`). Use `auth_type` + `auth_token_env` for hosted-safe references to secrets, or explicit `auth` objects when injecting credentials out-of-band.
-     * @type {any}
-     * @memberof AgentCoreConfigOutput
-     */
-    mcpServers?: any;
-    /**
-     * PII and prompt-injection guardrails (`AgentConfig.guardrails_config`).
-     * @type {any}
-     * @memberof AgentCoreConfigOutput
-     */
-    guardrailsConfig?: any;
-    /**
-     * Enable Human-in-the-Loop suspensions for this agent runtime.
-     * @type {any}
-     * @memberof AgentCoreConfigOutput
-     */
-    hitlEnabled?: any;
-    /**
-     * HITL autonomy level (1=most supervised, 5=least supervised). Used when ``hitl_policy_preset`` is ``autonomy``.
-     * @type {any}
-     * @memberof AgentCoreConfigOutput
-     */
-    hitlAutonomyLevel?: any;
-    /**
-     * How hosted runs build HITL policies: ``autonomy`` uses ``hitl_autonomy_level``; ``milestone_only`` gates only at milestone boundaries (simpler resume/checkpoints).
-     * @type {HitlPolicyPreset}
-     * @memberof AgentCoreConfigOutput
-     */
-    hitlPolicyPreset?: HitlPolicyPreset;
-    /**
-     * Arbitrary extension metadata (`AgentConfig.metadata`).
-     * @type {any}
-     * @memberof AgentCoreConfigOutput
-     */
-    metadata?: any;
-    /**
-     * Domain dimensions this agent focuses on when extracting and keeping learnings. Each entry has a name, description, and optional example values. Learnings store the matching names in ``domain_dimensions`` (list of strings). Omit or null when unguided; on PATCH, pass null or [] to clear.
-     * @type {any}
-     * @memberof AgentCoreConfigOutput
+     * @memberof AgentCoreConfig
      */
     domainDimensions?: any;
 }
@@ -334,18 +267,6 @@ export interface AgentCoreConfigPatch {
      * @memberof AgentCoreConfigPatch
      */
     description?: any;
-    /**
-     * 
-     * @type {any}
-     * @memberof AgentCoreConfigPatch
-     */
-    temperature?: any;
-    /**
-     * 
-     * @type {any}
-     * @memberof AgentCoreConfigPatch
-     */
-    maxTokens?: any;
     /**
      * 
      * @type {any}
@@ -381,6 +302,12 @@ export interface AgentCoreConfigPatch {
      * @type {any}
      * @memberof AgentCoreConfigPatch
      */
+    hitlRequiredApprovals?: any;
+    /**
+     * 
+     * @type {any}
+     * @memberof AgentCoreConfigPatch
+     */
     metadata?: any;
     /**
      * Replace the agent's domain_dimensions when set. Pass null or [] to clear; omit to leave unchanged.
@@ -408,41 +335,17 @@ export interface AgentCreateRequest {
      */
     description?: any;
     /**
-     * Hosted lifecycle flag (e.g. active, paused).
-     * @type {any}
+     * Hosted lifecycle state (active, paused, archived).
+     * @type {AgentStatus}
      * @memberof AgentCreateRequest
      */
-    status?: any;
-    /**
-     * Model provider for this agent. Defaults to the platform fallback provider (`openai`).
-     * @type {ModelProvider}
-     * @memberof AgentCreateRequest
-     */
-    modelProvider?: ModelProvider;
-    /**
-     * Provider-specific model id (maps to `AgentConfig.model`). Defaults to the platform fallback model.
-     * @type {any}
-     * @memberof AgentCreateRequest
-     */
-    modelName?: any;
+    status?: AgentStatus;
     /**
      * Hosted reasoning tier applied to runs dispatched for this agent.
      * @type {ReasoningTier}
      * @memberof AgentCreateRequest
      */
     reasoningProfile?: ReasoningTier;
-    /**
-     * Platform memory integration preset (e.g. default, rich).
-     * @type {any}
-     * @memberof AgentCreateRequest
-     */
-    memoryProfile?: any;
-    /**
-     * Knowledge isolation label stored on the agent row for the runtime.
-     * @type {any}
-     * @memberof AgentCreateRequest
-     */
-    knowledgeScope?: any;
     /**
      * Optional UUID of the accessible space that owns this agent.
      * @type {any}
@@ -451,10 +354,10 @@ export interface AgentCreateRequest {
     homeSpaceId?: any;
     /**
      * Runtime instructions and optional execution settings.
-     * @type {AgentCoreConfigInput}
+     * @type {AgentCoreConfig}
      * @memberof AgentCreateRequest
      */
-    coreConfig: AgentCoreConfigInput;
+    coreConfig: AgentCoreConfig;
 }
 /**
  * One curated suggestion (template / profile / example) for the create wizard.
@@ -501,8 +404,6 @@ export interface AgentDefinitionSuggestion {
 export enum AgentDefinitionSuggestionKind {
     Template = <any> 'template',
     ReasoningProfile = <any> 'reasoning_profile',
-    MemoryProfile = <any> 'memory_profile',
-    KnowledgeScope = <any> 'knowledge_scope',
     McpServer = <any> 'mcp_server',
     Guardrail = <any> 'guardrail',
     CodeExample = <any> 'code_example'
@@ -558,34 +459,10 @@ export interface AgentDetailResponse {
     status: any;
     /**
      * 
-     * @type {HostedAgentModelProvider}
-     * @memberof AgentDetailResponse
-     */
-    modelProvider: HostedAgentModelProvider;
-    /**
-     * 
-     * @type {any}
-     * @memberof AgentDetailResponse
-     */
-    modelName: any;
-    /**
-     * 
      * @type {ReasoningTier}
      * @memberof AgentDetailResponse
      */
     reasoningProfile: ReasoningTier;
-    /**
-     * 
-     * @type {any}
-     * @memberof AgentDetailResponse
-     */
-    memoryProfile: any;
-    /**
-     * 
-     * @type {any}
-     * @memberof AgentDetailResponse
-     */
-    knowledgeScope: any;
     /**
      * Home space UUID for this agent, if any.
      * @type {any}
@@ -594,16 +471,10 @@ export interface AgentDetailResponse {
     homeSpaceId?: any;
     /**
      * 
-     * @type {AgentCoreConfigOutput}
+     * @type {AgentCoreConfig}
      * @memberof AgentDetailResponse
      */
-    coreConfig: AgentCoreConfigOutput;
-    /**
-     * Effective runtime LLM credential summary. Customer `agent_override` wins over `tenant_default`; if neither exists, platform fallback can identify the resolved provider/model with `credential_id=null`.
-     * @type {any}
-     * @memberof AgentDetailResponse
-     */
-    llmCredential?: any;
+    coreConfig: AgentCoreConfig;
     /**
      * 
      * @type {any}
@@ -686,34 +557,10 @@ export interface AgentListItem {
     status: any;
     /**
      * 
-     * @type {HostedAgentModelProvider}
-     * @memberof AgentListItem
-     */
-    modelProvider: HostedAgentModelProvider;
-    /**
-     * 
-     * @type {any}
-     * @memberof AgentListItem
-     */
-    modelName: any;
-    /**
-     * 
      * @type {ReasoningTier}
      * @memberof AgentListItem
      */
     reasoningProfile: ReasoningTier;
-    /**
-     * 
-     * @type {any}
-     * @memberof AgentListItem
-     */
-    memoryProfile: any;
-    /**
-     * 
-     * @type {any}
-     * @memberof AgentListItem
-     */
-    knowledgeScope: any;
     /**
      * Home space UUID for this agent, if any.
      * @type {any}
@@ -722,16 +569,10 @@ export interface AgentListItem {
     homeSpaceId?: any;
     /**
      * 
-     * @type {AgentCoreConfigOutput}
+     * @type {AgentCoreConfig}
      * @memberof AgentListItem
      */
-    coreConfig: AgentCoreConfigOutput;
-    /**
-     * Effective runtime LLM credential summary. Customer `agent_override` wins over `tenant_default`; if neither exists, platform fallback can identify the resolved provider/model with `credential_id=null`.
-     * @type {any}
-     * @memberof AgentListItem
-     */
-    llmCredential?: any;
+    coreConfig: AgentCoreConfig;
     /**
      * 
      * @type {any}
@@ -750,67 +591,6 @@ export interface AgentListItem {
      * @memberof AgentListItem
      */
     summary?: any;
-}
-/**
- * Non-secret view of the effective runtime LLM credential for this agent.
- * @export
- * @interface AgentLlmCredentialSummary
- */
-export interface AgentLlmCredentialSummary {
-    /**
-     * 
-     * @type {LlmCredentialSource}
-     * @memberof AgentLlmCredentialSummary
-     */
-    source: LlmCredentialSource;
-    /**
-     * Customer credential id; null for platform-owned fallback.
-     * @type {any}
-     * @memberof AgentLlmCredentialSummary
-     */
-    credentialId?: any;
-    /**
-     * 
-     * @type {ModelProvider}
-     * @memberof AgentLlmCredentialSummary
-     */
-    provider: ModelProvider;
-    /**
-     * 
-     * @type {any}
-     * @memberof AgentLlmCredentialSummary
-     */
-    modelName: any;
-    /**
-     * Customer binding type; null for platform-owned fallback.
-     * @type {any}
-     * @memberof AgentLlmCredentialSummary
-     */
-    bindingType?: any;
-    /**
-     * 
-     * @type {any}
-     * @memberof AgentLlmCredentialSummary
-     */
-    displayName: any;
-    /**
-     * 
-     * @type {any}
-     * @memberof AgentLlmCredentialSummary
-     */
-    isActive?: any;
-    /**
-     * 
-     * @type {any}
-     * @memberof AgentLlmCredentialSummary
-     */
-    platformOverride?: any;
-    /**
-     * Populated for `agent_override`; null when using `tenant_default`.
-     * @type {any}
-     * @memberof AgentLlmCredentialSummary
-     */
-    boundAgentId?: any;
 }
 /**
  * 
@@ -844,34 +624,10 @@ export interface AgentResponse {
     status: any;
     /**
      * 
-     * @type {HostedAgentModelProvider}
-     * @memberof AgentResponse
-     */
-    modelProvider: HostedAgentModelProvider;
-    /**
-     * 
-     * @type {any}
-     * @memberof AgentResponse
-     */
-    modelName: any;
-    /**
-     * 
      * @type {ReasoningTier}
      * @memberof AgentResponse
      */
     reasoningProfile: ReasoningTier;
-    /**
-     * 
-     * @type {any}
-     * @memberof AgentResponse
-     */
-    memoryProfile: any;
-    /**
-     * 
-     * @type {any}
-     * @memberof AgentResponse
-     */
-    knowledgeScope: any;
     /**
      * Home space UUID for this agent, if any.
      * @type {any}
@@ -880,16 +636,10 @@ export interface AgentResponse {
     homeSpaceId?: any;
     /**
      * 
-     * @type {AgentCoreConfigOutput}
+     * @type {AgentCoreConfig}
      * @memberof AgentResponse
      */
-    coreConfig: AgentCoreConfigOutput;
-    /**
-     * Effective runtime LLM credential summary. Customer `agent_override` wins over `tenant_default`; if neither exists, platform fallback can identify the resolved provider/model with `credential_id=null`.
-     * @type {any}
-     * @memberof AgentResponse
-     */
-    llmCredential?: any;
+    coreConfig: AgentCoreConfig;
     /**
      * 
      * @type {any}
@@ -1000,6 +750,16 @@ export interface AgentRunStatusAggregates {
      * @memberof AgentRunStatusAggregates
      */
     lastRunAt?: any;
+}
+/**
+ * Hosted agent lifecycle state.  ``paused`` rejects new goal dispatch while in-flight and suspended runs may still complete; ``archived`` also blocks further mutation until unarchived.
+ * @export
+ * @enum {string}
+ */
+export enum AgentStatus {
+    Active = <any> 'active',
+    Paused = <any> 'paused',
+    Archived = <any> 'archived'
 }
 /**
  * Per-agent activity totals for the requested reporting window.
@@ -1115,31 +875,7 @@ export interface AgentUpdateRequest {
      * @type {any}
      * @memberof AgentUpdateRequest
      */
-    modelProvider?: any;
-    /**
-     * 
-     * @type {any}
-     * @memberof AgentUpdateRequest
-     */
-    modelName?: any;
-    /**
-     * 
-     * @type {any}
-     * @memberof AgentUpdateRequest
-     */
     reasoningProfile?: any;
-    /**
-     * 
-     * @type {any}
-     * @memberof AgentUpdateRequest
-     */
-    memoryProfile?: any;
-    /**
-     * 
-     * @type {any}
-     * @memberof AgentUpdateRequest
-     */
-    knowledgeScope?: any;
     /**
      * Move the agent's home space; null leaves it unchanged.
      * @type {any}
@@ -1437,6 +1173,136 @@ export interface ApiKeyRevokeResponse {
     revokedAt: any;
 }
 /**
+ * One assertion that two attribute keys name the same property.  Unordered: a merge is a union over equivalence classes, so neither key is subordinate to the other and the pair carries no direction. ``is_active`` is what makes it reversible; an edge is never deleted, because every supersession it caused is recorded against it and withdrawing the edge is what reopens exactly those.
+ * @export
+ * @interface AttributeMergeResponse
+ */
+export interface AttributeMergeResponse {
+    /**
+     * 
+     * @type {any}
+     * @memberof AttributeMergeResponse
+     */
+    mergeId: any;
+    /**
+     * 
+     * @type {any}
+     * @memberof AttributeMergeResponse
+     */
+    attributeIdA: any;
+    /**
+     * 
+     * @type {any}
+     * @memberof AttributeMergeResponse
+     */
+    attributeIdB: any;
+    /**
+     * 
+     * @type {any}
+     * @memberof AttributeMergeResponse
+     */
+    attributeKeyA: any;
+    /**
+     * 
+     * @type {any}
+     * @memberof AttributeMergeResponse
+     */
+    attributeKeyB: any;
+    /**
+     * 
+     * @type {any}
+     * @memberof AttributeMergeResponse
+     */
+    proposedByRun?: any;
+    /**
+     * 
+     * @type {any}
+     * @memberof AttributeMergeResponse
+     */
+    isActive: any;
+    /**
+     * 
+     * @type {any}
+     * @memberof AttributeMergeResponse
+     */
+    createdAt: any;
+    /**
+     * 
+     * @type {any}
+     * @memberof AttributeMergeResponse
+     */
+    deactivatedAt?: any;
+}
+/**
+ * What withdrawing a merge actually did.  ``claims_reopened`` counts the versions the merge had closed and this reversal put back. ``corroboration_unwound`` counts the survivors whose folded-in evidence was taken back, which matters because that evidence feeds the bar a quarantine release is measured against.
+ * @export
+ * @interface AttributeMergeReversalResponse
+ */
+export interface AttributeMergeReversalResponse {
+    /**
+     * 
+     * @type {any}
+     * @memberof AttributeMergeReversalResponse
+     */
+    mergeId: any;
+    /**
+     * 
+     * @type {any}
+     * @memberof AttributeMergeReversalResponse
+     */
+    claimsReopened: any;
+    /**
+     * 
+     * @type {any}
+     * @memberof AttributeMergeReversalResponse
+     */
+    corroborationUnwound: any;
+}
+/**
+ * The merge edges recorded for one agent, newest first.
+ * @export
+ * @interface AttributeMergesResponse
+ */
+export interface AttributeMergesResponse {
+    /**
+     * 
+     * @type {any}
+     * @memberof AttributeMergesResponse
+     */
+    agentId: any;
+    /**
+     * 
+     * @type {any}
+     * @memberof AttributeMergesResponse
+     */
+    items: any;
+}
+/**
+ * A structural attribute registry row, for curator confirm-before-adopt UIs.
+ * @export
+ * @interface AttributeRef
+ */
+export interface AttributeRef {
+    /**
+     * 
+     * @type {any}
+     * @memberof AttributeRef
+     */
+    attributeId: any;
+    /**
+     * 
+     * @type {any}
+     * @memberof AttributeRef
+     */
+    agentId: any;
+    /**
+     * 
+     * @type {any}
+     * @memberof AttributeRef
+     */
+    attributeKey: any;
+}
+/**
  * Read-only tenant billing snapshot for the active enforcement window.
  * @export
  * @interface BillingSummaryResponse
@@ -1554,6 +1420,12 @@ export interface BoundaryAcceptedResponse {
      */
     runId: any;
     /**
+     * True when this run was already done or already in flight, so nothing was dispatched. The request is still accepted, because at-least-once delivery makes a repeat legitimate, but no work follows. Callers that report success to a human must distinguish the two: reporting a no-op as delivered is what let a whole class of silently discarded distils go unnoticed. Absent on older servers, where it reads False.
+     * @type {any}
+     * @memberof BoundaryAcceptedResponse
+     */
+    isDuplicate?: any;
+    /**
      * Compatibility version returned with the acceptance receipt.
      * @type {any}
      * @memberof BoundaryAcceptedResponse
@@ -1590,6 +1462,222 @@ export interface CandidateLearningResponse {
      * @memberof CandidateLearningResponse
      */
     trustLevel: any;
+}
+/**
+ * 
+ * @export
+ * @interface ChartCreateRequest
+ */
+export interface ChartCreateRequest {
+    /**
+     * 
+     * @type {any}
+     * @memberof ChartCreateRequest
+     */
+    spaceId: any;
+    /**
+     * 
+     * @type {any}
+     * @memberof ChartCreateRequest
+     */
+    title: any;
+    /**
+     * 
+     * @type {any}
+     * @memberof ChartCreateRequest
+     */
+    description?: any;
+    /**
+     * 
+     * @type {any}
+     * @memberof ChartCreateRequest
+     */
+    vizSpec: any;
+    /**
+     * 
+     * @type {QueryBinding}
+     * @memberof ChartCreateRequest
+     */
+    queryBinding: QueryBinding;
+}
+/**
+ * Optional overrides when running a stored chart binding.
+ * @export
+ * @interface ChartDataRequest
+ */
+export interface ChartDataRequest {
+    /**
+     * 
+     * @type {any}
+     * @memberof ChartDataRequest
+     */
+    window?: any;
+    /**
+     * 
+     * @type {any}
+     * @memberof ChartDataRequest
+     */
+    asOf?: any;
+}
+/**
+ * 
+ * @export
+ * @interface ChartListItem
+ */
+export interface ChartListItem {
+    /**
+     * 
+     * @type {any}
+     * @memberof ChartListItem
+     */
+    id: any;
+    /**
+     * 
+     * @type {any}
+     * @memberof ChartListItem
+     */
+    spaceId: any;
+    /**
+     * 
+     * @type {any}
+     * @memberof ChartListItem
+     */
+    title: any;
+    /**
+     * 
+     * @type {any}
+     * @memberof ChartListItem
+     */
+    description: any;
+    /**
+     * 
+     * @type {QueryBinding}
+     * @memberof ChartListItem
+     */
+    queryBinding: QueryBinding;
+    /**
+     * 
+     * @type {any}
+     * @memberof ChartListItem
+     */
+    updatedAt: any;
+}
+/**
+ * 
+ * @export
+ * @interface ChartListResponse
+ */
+export interface ChartListResponse {
+    /**
+     * 
+     * @type {any}
+     * @memberof ChartListResponse
+     */
+    items: any;
+}
+/**
+ * 
+ * @export
+ * @interface ChartResponse
+ */
+export interface ChartResponse {
+    /**
+     * 
+     * @type {any}
+     * @memberof ChartResponse
+     */
+    id: any;
+    /**
+     * 
+     * @type {any}
+     * @memberof ChartResponse
+     */
+    spaceId: any;
+    /**
+     * 
+     * @type {any}
+     * @memberof ChartResponse
+     */
+    title: any;
+    /**
+     * 
+     * @type {any}
+     * @memberof ChartResponse
+     */
+    description: any;
+    /**
+     * 
+     * @type {any}
+     * @memberof ChartResponse
+     */
+    vizSpec: any;
+    /**
+     * 
+     * @type {QueryBinding}
+     * @memberof ChartResponse
+     */
+    queryBinding: QueryBinding;
+    /**
+     * 
+     * @type {any}
+     * @memberof ChartResponse
+     */
+    schemaVersion: any;
+    /**
+     * 
+     * @type {any}
+     * @memberof ChartResponse
+     */
+    createdBy?: any;
+    /**
+     * 
+     * @type {any}
+     * @memberof ChartResponse
+     */
+    updatedBy?: any;
+    /**
+     * 
+     * @type {any}
+     * @memberof ChartResponse
+     */
+    createdAt: any;
+    /**
+     * 
+     * @type {any}
+     * @memberof ChartResponse
+     */
+    updatedAt: any;
+}
+/**
+ * 
+ * @export
+ * @interface ChartUpdateRequest
+ */
+export interface ChartUpdateRequest {
+    /**
+     * 
+     * @type {any}
+     * @memberof ChartUpdateRequest
+     */
+    title?: any;
+    /**
+     * 
+     * @type {any}
+     * @memberof ChartUpdateRequest
+     */
+    description?: any;
+    /**
+     * 
+     * @type {any}
+     * @memberof ChartUpdateRequest
+     */
+    vizSpec?: any;
+    /**
+     * 
+     * @type {any}
+     * @memberof ChartUpdateRequest
+     */
+    queryBinding?: any;
 }
 /**
  * How often the claim corpus assisted a tenant's runs over a recent window.  Aggregated from the usage outbox's assist events (a bound claim proven right or wrong at execution). These never bill; they surface the corpus's realised value.
@@ -1849,6 +1937,19 @@ export interface CreateAliasRequest {
     provenance?: any;
 }
 /**
+ * Admin request to create a space.  The kind is fixed to ``domain`` server-side; only the name is caller-supplied.
+ * @export
+ * @interface CreateSpaceRequest
+ */
+export interface CreateSpaceRequest {
+    /**
+     * 
+     * @type {any}
+     * @memberof CreateSpaceRequest
+     */
+    name: any;
+}
+/**
  * The state of a claim after a curation mutation.
  * @export
  * @interface CuratedClaim
@@ -1934,7 +2035,315 @@ export interface CuratedClaim {
     statement: RenderedText;
 }
 /**
- * The type of decision the human is making.
+ * 
+ * @export
+ * @interface DashboardCreateRequest
+ */
+export interface DashboardCreateRequest {
+    /**
+     * 
+     * @type {any}
+     * @memberof DashboardCreateRequest
+     */
+    spaceId: any;
+    /**
+     * 
+     * @type {any}
+     * @memberof DashboardCreateRequest
+     */
+    title: any;
+    /**
+     * 
+     * @type {any}
+     * @memberof DashboardCreateRequest
+     */
+    description?: any;
+    /**
+     * 
+     * @type {any}
+     * @memberof DashboardCreateRequest
+     */
+    columns?: any;
+    /**
+     * 
+     * @type {UsageTimeWindow}
+     * @memberof DashboardCreateRequest
+     */
+    windowPreset?: UsageTimeWindow;
+}
+/**
+ * 
+ * @export
+ * @interface DashboardItemInput
+ */
+export interface DashboardItemInput {
+    /**
+     * 
+     * @type {any}
+     * @memberof DashboardItemInput
+     */
+    chartId: any;
+    /**
+     * 
+     * @type {any}
+     * @memberof DashboardItemInput
+     */
+    rowIndex: any;
+    /**
+     * 
+     * @type {any}
+     * @memberof DashboardItemInput
+     */
+    colIndex: any;
+    /**
+     * 
+     * @type {any}
+     * @memberof DashboardItemInput
+     */
+    colSpan?: any;
+    /**
+     * 
+     * @type {any}
+     * @memberof DashboardItemInput
+     */
+    sortKey?: any;
+}
+/**
+ * 
+ * @export
+ * @interface DashboardItemResponse
+ */
+export interface DashboardItemResponse {
+    /**
+     * 
+     * @type {any}
+     * @memberof DashboardItemResponse
+     */
+    id: any;
+    /**
+     * 
+     * @type {any}
+     * @memberof DashboardItemResponse
+     */
+    chartId: any;
+    /**
+     * 
+     * @type {any}
+     * @memberof DashboardItemResponse
+     */
+    rowIndex: any;
+    /**
+     * 
+     * @type {any}
+     * @memberof DashboardItemResponse
+     */
+    colIndex: any;
+    /**
+     * 
+     * @type {any}
+     * @memberof DashboardItemResponse
+     */
+    colSpan: any;
+    /**
+     * 
+     * @type {any}
+     * @memberof DashboardItemResponse
+     */
+    sortKey: any;
+    /**
+     * 
+     * @type {any}
+     * @memberof DashboardItemResponse
+     */
+    createdAt: any;
+}
+/**
+ * 
+ * @export
+ * @interface DashboardItemsPutRequest
+ */
+export interface DashboardItemsPutRequest {
+    /**
+     * 
+     * @type {any}
+     * @memberof DashboardItemsPutRequest
+     */
+    items?: any;
+}
+/**
+ * 
+ * @export
+ * @interface DashboardListItem
+ */
+export interface DashboardListItem {
+    /**
+     * 
+     * @type {any}
+     * @memberof DashboardListItem
+     */
+    id: any;
+    /**
+     * 
+     * @type {any}
+     * @memberof DashboardListItem
+     */
+    spaceId: any;
+    /**
+     * 
+     * @type {any}
+     * @memberof DashboardListItem
+     */
+    title: any;
+    /**
+     * 
+     * @type {any}
+     * @memberof DashboardListItem
+     */
+    description: any;
+    /**
+     * 
+     * @type {any}
+     * @memberof DashboardListItem
+     */
+    columns: any;
+    /**
+     * 
+     * @type {UsageTimeWindow}
+     * @memberof DashboardListItem
+     */
+    windowPreset: UsageTimeWindow;
+    /**
+     * 
+     * @type {any}
+     * @memberof DashboardListItem
+     */
+    updatedAt: any;
+}
+/**
+ * 
+ * @export
+ * @interface DashboardListResponse
+ */
+export interface DashboardListResponse {
+    /**
+     * 
+     * @type {any}
+     * @memberof DashboardListResponse
+     */
+    items: any;
+}
+/**
+ * 
+ * @export
+ * @interface DashboardResponse
+ */
+export interface DashboardResponse {
+    /**
+     * 
+     * @type {any}
+     * @memberof DashboardResponse
+     */
+    id: any;
+    /**
+     * 
+     * @type {any}
+     * @memberof DashboardResponse
+     */
+    spaceId: any;
+    /**
+     * 
+     * @type {any}
+     * @memberof DashboardResponse
+     */
+    title: any;
+    /**
+     * 
+     * @type {any}
+     * @memberof DashboardResponse
+     */
+    description: any;
+    /**
+     * 
+     * @type {any}
+     * @memberof DashboardResponse
+     */
+    columns: any;
+    /**
+     * 
+     * @type {UsageTimeWindow}
+     * @memberof DashboardResponse
+     */
+    windowPreset: UsageTimeWindow;
+    /**
+     * 
+     * @type {any}
+     * @memberof DashboardResponse
+     */
+    schemaVersion: any;
+    /**
+     * 
+     * @type {any}
+     * @memberof DashboardResponse
+     */
+    createdBy?: any;
+    /**
+     * 
+     * @type {any}
+     * @memberof DashboardResponse
+     */
+    updatedBy?: any;
+    /**
+     * 
+     * @type {any}
+     * @memberof DashboardResponse
+     */
+    createdAt: any;
+    /**
+     * 
+     * @type {any}
+     * @memberof DashboardResponse
+     */
+    updatedAt: any;
+    /**
+     * 
+     * @type {any}
+     * @memberof DashboardResponse
+     */
+    items?: any;
+}
+/**
+ * 
+ * @export
+ * @interface DashboardUpdateRequest
+ */
+export interface DashboardUpdateRequest {
+    /**
+     * 
+     * @type {any}
+     * @memberof DashboardUpdateRequest
+     */
+    title?: any;
+    /**
+     * 
+     * @type {any}
+     * @memberof DashboardUpdateRequest
+     */
+    description?: any;
+    /**
+     * 
+     * @type {any}
+     * @memberof DashboardUpdateRequest
+     */
+    columns?: any;
+    /**
+     * 
+     * @type {any}
+     * @memberof DashboardUpdateRequest
+     */
+    windowPreset?: any;
+}
+/**
+ * The type of decision the human is making.  Inherits ``str`` for the same JSON-boundary reason as :class:`GateLevel`.
  * @export
  * @enum {string}
  */
@@ -1945,6 +2354,59 @@ export enum DecisionType {
     Skip = <any> 'skip',
     ProvideInput = <any> 'provide_input',
     PartialApprove = <any> 'partial_approve'
+}
+/**
+ * Why a turn ended with nothing worth learning.  A closed set: an unrecognised value is rejected rather than stored, so the column stays queryable and cannot accrue junk cardinality. These mirror the gates a host applies before shipping an episode, and they are what makes an otherwise invisible client-side decision measurable.
+ * @export
+ * @enum {string}
+ */
+export enum DeclineReason {
+    NoToolCalls = <any> 'no_tool_calls',
+    BelowMaterialThreshold = <any> 'below_material_threshold',
+    EmptyOffer = <any> 'empty_offer'
+}
+/**
+ * Close a run whose turn ended with nothing worth learning.  The terminal counterpart to observe/reinforce. A host that resolves and then finds the turn not worth learning from must say so rather than going silent: silence is indistinguishable from a host that broke, and that ambiguity is what makes a loop-closure alert uninterpretable.  Declining does not add the episode to the corpus. It records the run as closed, attributes it to a host, and settles the resolve reservation.
+ * @export
+ * @interface DeclineRequest
+ */
+export interface DeclineRequest {
+    /**
+     * Human-readable agent name, unique within your tenant. This is not the hosted agent UUID used in `/agents/{agent_id}` REST paths. If no agent with this name exists yet, the platform creates one automatically on the first boundary call (a minimal learning agent scoped to your tenant). Reuse the same name on resolve, observe, reinforce, and distill to target the same learning corpus. Clients conventionally namespace an agent-loop `run_id` as `<agent_name>:...`; if yours does, avoid the name `distill`, because `distill:` is reserved for corpus distillation run ids and every agent-loop write would be refused.
+     * @type {any}
+     * @memberof DeclineRequest
+     */
+    agent_name: any;
+    /**
+     * Optional caller-owned organisation reference.
+     * @type {any}
+     * @memberof DeclineRequest
+     */
+    org_id?: any;
+    /**
+     * The caller-owned `run_id` supplied to resolve; it must not start with `distill:`, which is reserved for distillation jobs.
+     * @type {any}
+     * @memberof DeclineRequest
+     */
+    run_id: any;
+    /**
+     * Why the turn had nothing worth learning from.
+     * @type {DeclineReason}
+     * @memberof DeclineRequest
+     */
+    reason: DeclineReason;
+    /**
+     * Whether the recall was actually delivered to the model this turn. A turn can receive the injection and still decline, so this decides whether the resolve is billed or released: the caller is charged for recall it received, never for recall it never saw.
+     * @type {any}
+     * @memberof DeclineRequest
+     */
+    is_delivered?: any;
+    /**
+     * Producing host/framework, used to attribute the per-host funnel. Optional; the server derives one when it is absent. `unknown` is reserved: the loop-closure funnel groups runs with no attribution under that label and excludes them from alerting, so a value equal to it is normalised to unset rather than stored as a host.
+     * @type {any}
+     * @memberof DeclineRequest
+     */
+    source_framework?: any;
 }
 /**
  * Response after deleting all learnings for an agent.
@@ -1970,7 +2432,7 @@ export interface DistillOutcomeModel {
      * @type {any}
      * @memberof DistillOutcomeModel
      */
-    isSuccess: any;
+    is_success: any;
     /**
      * 
      * @type {any}
@@ -1985,23 +2447,23 @@ export interface DistillOutcomeModel {
  */
 export interface DistillRequest {
     /**
-     * Human-readable agent name, unique within your tenant. Not the hosted agent UUID used in `/agents/{agent_id}` REST paths. If no agent with this name exists yet, the platform creates one automatically on the first boundary call. Reuse the same name to target the same learning corpus.
+     * Human-readable agent name, unique within your tenant. This is not the hosted agent UUID used in `/agents/{agent_id}` REST paths. If no agent with this name exists yet, the platform creates one automatically on the first boundary call (a minimal learning agent scoped to your tenant). Reuse the same name on resolve, observe, reinforce, and distill to target the same learning corpus. Clients conventionally namespace an agent-loop `run_id` as `<agent_name>:...`; if yours does, avoid the name `distill`, because `distill:` is reserved for corpus distillation run ids and every agent-loop write would be refused.
      * @type {any}
      * @memberof DistillRequest
      */
-    agentName: any;
+    agent_name: any;
     /**
      * Optional caller-owned organisation reference.
      * @type {any}
      * @memberof DistillRequest
      */
-    orgId?: any;
+    org_id?: any;
     /**
      * Caller-created idempotency and tracing identifier. It must start with `distill:` and does not reference a hosted run.
      * @type {any}
      * @memberof DistillRequest
      */
-    runId: any;
+    run_id: any;
     /**
      * The extraction intent.
      * @type {any}
@@ -2031,25 +2493,25 @@ export interface DistillRequest {
      * @type {any}
      * @memberof DistillRequest
      */
-    synthesisNotes?: any;
+    synthesis_notes?: any;
     /**
      * 
      * @type {any}
      * @memberof DistillRequest
      */
-    sourceFramework?: any;
+    source_framework?: any;
     /**
      * 
      * @type {any}
      * @memberof DistillRequest
      */
-    occurredAt?: any;
+    occurred_at?: any;
     /**
      * Maximum number of learnings to extract from this distill job. Defaults to 10; lower for sparse corpora or raise for large, dense documents.
      * @type {any}
      * @memberof DistillRequest
      */
-    maxLearnings?: any;
+    max_learnings?: any;
 }
 /**
  * One topic or taxonomy axis the agent should prefer when learning.
@@ -2223,17 +2685,42 @@ export interface EntitlementsResponse {
     scopes?: any;
 }
 /**
+ * Active and inactive aliases for one entity, newest first.
+ * @export
+ * @interface EntityAliasesResponse
+ */
+export interface EntityAliasesResponse {
+    /**
+     * 
+     * @type {any}
+     * @memberof EntityAliasesResponse
+     */
+    entityId: any;
+    /**
+     * 
+     * @type {any}
+     * @memberof EntityAliasesResponse
+     */
+    agentId: any;
+    /**
+     * 
+     * @type {any}
+     * @memberof EntityAliasesResponse
+     */
+    items: any;
+}
+/**
  * A finished foreign run, the unit of the write path.
  * @export
  * @interface EpisodeModel
  */
 export interface EpisodeModel {
     /**
-     * Caller-created correlation and idempotency identifier. It does not reference a hosted `/runs/{run_id}` resource.
+     * Caller-created correlation and idempotency identifier. It does not reference a hosted `/runs/{run_id}` resource, and must not start with `distill:`, which is reserved for distillation jobs.
      * @type {any}
      * @memberof EpisodeModel
      */
-    runId: any;
+    run_id: any;
     /**
      * Goal attempted by the external agent.
      * @type {any}
@@ -2253,17 +2740,23 @@ export interface EpisodeModel {
      */
     outcome: OutcomeModel;
     /**
-     * Optional external framework or host identifier.
+     * Optional external framework or host identifier. `unknown` is reserved: the loop-closure funnel groups runs with no attribution under that label and excludes them from alerting, so a value equal to it is normalised to unset rather than stored as a host.
      * @type {any}
      * @memberof EpisodeModel
      */
-    sourceFramework?: any;
+    source_framework?: any;
+    /**
+     * Verbatim message the principal sent on this turn, when the caller has a human-input channel to populate it from. It is the only evidence for a rule no tool result could have revealed, such as a standard or convention the principal states. Send it only from that channel: model output, tool results and retrieved documents must never reach this field. Used for one extraction and stored on no learning record; it does pass through the durable work queue like the rest of the episode, so it lives as long as that row does.
+     * @type {any}
+     * @memberof EpisodeModel
+     */
+    principal_utterance?: any;
     /**
      * Optional caller-owned conversation or thread identifier.
      * @type {any}
      * @memberof EpisodeModel
      */
-    threadId?: any;
+    thread_id?: any;
 }
 /**
  * Why evidence instances are or are not present on an audit item.
@@ -2318,6 +2811,25 @@ export interface EvidenceItemModel {
      * @memberof EvidenceItemModel
      */
     sourceRef?: any;
+}
+/**
+ * 
+ * @export
+ * @interface FeatureFlagModel
+ */
+export interface FeatureFlagModel {
+    /**
+     * 
+     * @type {any}
+     * @memberof FeatureFlagModel
+     */
+    enabled: any;
+    /**
+     * 
+     * @type {any}
+     * @memberof FeatureFlagModel
+     */
+    config?: any;
 }
 /**
  * Accepted response for an asynchronously dispatched goal run.
@@ -2398,17 +2910,11 @@ export enum GuardrailAction {
     LogOnly = <any> 'log_only'
 }
 /**
- * Configuration for PII guardrails.  Controls what PII entities are detected and what actions are taken when they are found.
+ * Configuration for PII guardrails.  Controls what PII entities are detected and what actions are taken when they are found. Presence is the switch: leaving ``GuardrailsConfig.pii`` unset is how a deployment runs without it.  Unknown keys are rejected rather than ignored. Pydantic's default is to ignore them, which would turn a caller still passing the removed ``is_enabled=False`` into a silent *enable* of a safety control, arriving with no signal at all. A frozen dataclass raises on a stale keyword; this config must fail as loudly.
  * @export
  * @interface GuardrailConfig
  */
 export interface GuardrailConfig {
-    /**
-     * Master switch for guardrails
-     * @type {any}
-     * @memberof GuardrailConfig
-     */
-    isEnabled?: any;
     /**
      * Entity types to detect (Presidio entity names)
      * @type {any}
@@ -2443,38 +2949,19 @@ export interface GuardrailConfig {
 /**
  * Composite configuration for multiple guardrails.  Each field is optional; only configured guardrails are enabled.
  * @export
- * @interface GuardrailsConfigInput
+ * @interface GuardrailsConfig
  */
-export interface GuardrailsConfigInput {
+export interface GuardrailsConfig {
     /**
      * PII guardrail configuration (Presidio)
      * @type {any}
-     * @memberof GuardrailsConfigInput
+     * @memberof GuardrailsConfig
      */
     pii?: any;
     /**
      * Prompt-injection / jailbreak guardrail configuration
      * @type {any}
-     * @memberof GuardrailsConfigInput
-     */
-    promptInjection?: any;
-}
-/**
- * Composite configuration for multiple guardrails.  Each field is optional; only configured guardrails are enabled.
- * @export
- * @interface GuardrailsConfigOutput
- */
-export interface GuardrailsConfigOutput {
-    /**
-     * PII guardrail configuration (Presidio)
-     * @type {any}
-     * @memberof GuardrailsConfigOutput
-     */
-    pii?: any;
-    /**
-     * Prompt-injection / jailbreak guardrail configuration
-     * @type {any}
-     * @memberof GuardrailsConfigOutput
+     * @memberof GuardrailsConfig
      */
     promptInjection?: any;
 }
@@ -2597,18 +3084,6 @@ export interface HostLoopClosure {
      * @memberof HostLoopClosure
      */
     avgSecondsToClose?: any;
-}
-/**
- * Model providers returned by agent inventory, including external agents.
- * @export
- * @enum {string}
- */
-export enum HostedAgentModelProvider {
-    Ollama = <any> 'ollama',
-    Openai = <any> 'openai',
-    Anthropic = <any> 'anthropic',
-    Groq = <any> 'groq',
-    External = <any> 'external'
 }
 /**
  * 
@@ -2997,6 +3472,176 @@ export interface LearningAuditPartialFailure {
     detail: any;
 }
 /**
+ * A claim linked to a learning via claim_learning_edges, for the curation panel.
+ * @export
+ * @interface LearningClaimListItem
+ */
+export interface LearningClaimListItem {
+    /**
+     * 
+     * @type {any}
+     * @memberof LearningClaimListItem
+     */
+    itemKind?: any;
+    /**
+     * 
+     * @type {any}
+     * @memberof LearningClaimListItem
+     */
+    claimId: any;
+    /**
+     * 
+     * @type {any}
+     * @memberof LearningClaimListItem
+     */
+    agentId: any;
+    /**
+     * 
+     * @type {any}
+     * @memberof LearningClaimListItem
+     */
+    entityId: any;
+    /**
+     * 
+     * @type {any}
+     * @memberof LearningClaimListItem
+     */
+    canonicalName: any;
+    /**
+     * 
+     * @type {any}
+     * @memberof LearningClaimListItem
+     */
+    status: any;
+    /**
+     * 
+     * @type {any}
+     * @memberof LearningClaimListItem
+     */
+    identityTier?: any;
+    /**
+     * 
+     * @type {any}
+     * @memberof LearningClaimListItem
+     */
+    provenanceClass: any;
+    /**
+     * 
+     * @type {any}
+     * @memberof LearningClaimListItem
+     */
+    channelTrust: any;
+    /**
+     * 
+     * @type {any}
+     * @memberof LearningClaimListItem
+     */
+    toolFamily?: any;
+    /**
+     * 
+     * @type {any}
+     * @memberof LearningClaimListItem
+     */
+    isQuarantined: any;
+    /**
+     * 
+     * @type {any}
+     * @memberof LearningClaimListItem
+     */
+    quarantineCause?: any;
+    /**
+     * 
+     * @type {any}
+     * @memberof LearningClaimListItem
+     */
+    isReleaseLapsed?: any;
+    /**
+     * 
+     * @type {any}
+     * @memberof LearningClaimListItem
+     */
+    isBindable: any;
+    /**
+     * 
+     * @type {any}
+     * @memberof LearningClaimListItem
+     */
+    attributeKey?: any;
+    /**
+     * 
+     * @type {any}
+     * @memberof LearningClaimListItem
+     */
+    recordedAt: any;
+    /**
+     * 
+     * @type {any}
+     * @memberof LearningClaimListItem
+     */
+    latestEdgeAt: any;
+    /**
+     * 
+     * @type {any}
+     * @memberof LearningClaimListItem
+     */
+    edgeTypes: any;
+    /**
+     * 
+     * @type {any}
+     * @memberof LearningClaimListItem
+     */
+    edgeCount: any;
+    /**
+     * 
+     * @type {any}
+     * @memberof LearningClaimListItem
+     */
+    hasUnrepairedActivation: any;
+    /**
+     * 
+     * @type {RenderedText}
+     * @memberof LearningClaimListItem
+     */
+    statement: RenderedText;
+}
+/**
+ * 
+ * @export
+ * @interface LearningClaimsListResponse
+ */
+export interface LearningClaimsListResponse {
+    /**
+     * 
+     * @type {any}
+     * @memberof LearningClaimsListResponse
+     */
+    learningId: any;
+    /**
+     * 
+     * @type {any}
+     * @memberof LearningClaimsListResponse
+     */
+    agentId: any;
+    /**
+     * 
+     * @type {any}
+     * @memberof LearningClaimsListResponse
+     */
+    status: any;
+    /**
+     * 
+     * @type {any}
+     * @memberof LearningClaimsListResponse
+     */
+    items: any;
+    /**
+     * 
+     * @type {any}
+     * @memberof LearningClaimsListResponse
+     */
+    nextCursor?: any;
+}
+/**
  * Relationship kinds returned by the learning evidence graph.
  * @export
  * @enum {string}
@@ -3239,6 +3884,73 @@ export interface LearningSearchResponse {
     total: any;
 }
 /**
+ * An open split proposal on an entity touched by a learning's claim edges.
+ * @export
+ * @interface LearningSplitProposalListItem
+ */
+export interface LearningSplitProposalListItem {
+    /**
+     * 
+     * @type {any}
+     * @memberof LearningSplitProposalListItem
+     */
+    itemKind?: any;
+    /**
+     * 
+     * @type {any}
+     * @memberof LearningSplitProposalListItem
+     */
+    proposalId: any;
+    /**
+     * 
+     * @type {any}
+     * @memberof LearningSplitProposalListItem
+     */
+    agentId: any;
+    /**
+     * 
+     * @type {any}
+     * @memberof LearningSplitProposalListItem
+     */
+    entityId: any;
+    /**
+     * 
+     * @type {any}
+     * @memberof LearningSplitProposalListItem
+     */
+    canonicalName: any;
+    /**
+     * 
+     * @type {any}
+     * @memberof LearningSplitProposalListItem
+     */
+    attributeKey: any;
+    /**
+     * 
+     * @type {any}
+     * @memberof LearningSplitProposalListItem
+     */
+    classification: any;
+    /**
+     * 
+     * @type {any}
+     * @memberof LearningSplitProposalListItem
+     */
+    status: any;
+    /**
+     * 
+     * @type {any}
+     * @memberof LearningSplitProposalListItem
+     */
+    proposedQualifier?: any;
+    /**
+     * 
+     * @type {any}
+     * @memberof LearningSplitProposalListItem
+     */
+    createdAt: any;
+}
+/**
  * The two-axis standing of a learning: how useful, and how established.  These are orthogonal. ``utility`` is the value the learning delivered when applied (an application-outcome signal); ``reliability`` is how corroborated it is across independent observations (a Wilson lower bound). A high-utility rule may be barely corroborated (a promising new insight), and a heavily corroborated rule may be low utility (an established platitude), so both are surfaced rather than blended into one number.
  * @export
  * @interface LearningStanding
@@ -3276,16 +3988,6 @@ export enum LearningStateFilter {
     All = <any> 'all'
 }
 /**
- * 
- * @export
- * @enum {string}
- */
-export enum LlmCredentialSource {
-    CustomerAgentOverride = <any> 'customer_agent_override',
-    CustomerTenantDefault = <any> 'customer_tenant_default',
-    PlatformDefault = <any> 'platform_default'
-}
-/**
  * Per-host loop-closure funnel computed from the run table.
  * @export
  * @interface LoopClosureFunnelResponse
@@ -3318,7 +4020,7 @@ export interface MCPAuthConfig {
     authType: any;
 }
 /**
- * Connection resilience settings for an MCP server.  Controls reconnection behaviour, exponential backoff, and task polling timeouts. When not specified on a server config, defaults are used automatically.
+ * Connection resilience settings for an MCP server.  Controls reconnection behaviour and exponential backoff. When not specified on a server config, defaults are used automatically.
  * @export
  * @interface MCPConnectionConfig
  */
@@ -3347,18 +4049,6 @@ export interface MCPConnectionConfig {
      * @memberof MCPConnectionConfig
      */
     reconnectMaxDelayMs?: any;
-    /**
-     * 
-     * @type {any}
-     * @memberof MCPConnectionConfig
-     */
-    pollIntervalSeconds?: any;
-    /**
-     * 
-     * @type {any}
-     * @memberof MCPConnectionConfig
-     */
-    maxPollAttempts?: any;
 }
 /**
  * Configuration for a single MCP server connection.  Exactly one of ``url`` (HTTP/SSE transport) or ``command`` (stdio transport) must be provided.
@@ -3475,6 +4165,12 @@ export interface MeResponse {
      * @memberof MeResponse
      */
     authMethod: any;
+    /**
+     * 
+     * @type {any}
+     * @memberof MeResponse
+     */
+    featureFlags?: any;
 }
 /**
  * 
@@ -3508,19 +4204,54 @@ export interface MembershipModel {
     status: any;
 }
 /**
- * Supported LLM providers.  Shared type used by both factory and config to ensure consistency. When adding a new provider, add it here and update create_model().
+ * 
  * @export
- * @enum {string}
+ * @interface MetricCatalogField
  */
-export enum ModelProvider {
-    Ollama = <any> 'ollama',
-    Openai = <any> 'openai',
-    Anthropic = <any> 'anthropic',
-    Groq = <any> 'groq',
-    Google = <any> 'google',
-    Mistral = <any> 'mistral',
-    Xai = <any> 'xai',
-    Deepinfra = <any> 'deepinfra'
+export interface MetricCatalogField {
+    /**
+     * 
+     * @type {any}
+     * @memberof MetricCatalogField
+     */
+    field: any;
+    /**
+     * 
+     * @type {any}
+     * @memberof MetricCatalogField
+     */
+    kind: any;
+    /**
+     * 
+     * @type {any}
+     * @memberof MetricCatalogField
+     */
+    description: any;
+    /**
+     * 
+     * @type {any}
+     * @memberof MetricCatalogField
+     */
+    derived?: any;
+}
+/**
+ * 
+ * @export
+ * @interface MetricCatalogResponse
+ */
+export interface MetricCatalogResponse {
+    /**
+     * 
+     * @type {any}
+     * @memberof MetricCatalogResponse
+     */
+    fields: any;
+    /**
+     * 
+     * @type {ReportingConstants}
+     * @memberof MetricCatalogResponse
+     */
+    defaultConstants: ReportingConstants;
 }
 /**
  * Cross-agent similar-plan search request.
@@ -3554,23 +4285,67 @@ export interface MultiAgentPlanSearchRequest {
  */
 export interface ObserveRequest {
     /**
-     * Caller-defined string identifying the external agent.
+     * Human-readable agent name, unique within your tenant. This is not the hosted agent UUID used in `/agents/{agent_id}` REST paths. If no agent with this name exists yet, the platform creates one automatically on the first boundary call (a minimal learning agent scoped to your tenant). Reuse the same name on resolve, observe, reinforce, and distill to target the same learning corpus. Clients conventionally namespace an agent-loop `run_id` as `<agent_name>:...`; if yours does, avoid the name `distill`, because `distill:` is reserved for corpus distillation run ids and every agent-loop write would be refused.
      * @type {any}
      * @memberof ObserveRequest
      */
-    agentName: any;
+    agent_name: any;
     /**
      * Optional caller-owned organisation reference.
      * @type {any}
      * @memberof ObserveRequest
      */
-    orgId?: any;
+    org_id?: any;
     /**
      * Caller-supplied completed episode. Direct API clients may construct it without LangGraph.
      * @type {EpisodeModel}
      * @memberof ObserveRequest
      */
     episode: EpisodeModel;
+}
+/**
+ * Lean directory row for invite pickers (no role / space grants).
+ * @export
+ * @interface OrgDirectoryItem
+ */
+export interface OrgDirectoryItem {
+    /**
+     * 
+     * @type {any}
+     * @memberof OrgDirectoryItem
+     */
+    identityUserId: any;
+    /**
+     * 
+     * @type {any}
+     * @memberof OrgDirectoryItem
+     */
+    email: any;
+    /**
+     * 
+     * @type {any}
+     * @memberof OrgDirectoryItem
+     */
+    displayName?: any;
+}
+/**
+ * 
+ * @export
+ * @interface OrgDirectoryListResponse
+ */
+export interface OrgDirectoryListResponse {
+    /**
+     * 
+     * @type {any}
+     * @memberof OrgDirectoryListResponse
+     */
+    items: any;
+    /**
+     * When set, another page exists: pass as `cursor`.
+     * @type {any}
+     * @memberof OrgDirectoryListResponse
+     */
+    nextCursor?: any;
 }
 /**
  * A de-identified, org-promoted learning in the shared library.  Org learnings never carry raw instance evidence (stripped at promotion); their corroboration story is the cross-agent validation count instead.
@@ -3689,6 +4464,149 @@ export interface OrgLearningListResponse {
     retrievedAt: any;
 }
 /**
+ * 
+ * @export
+ * @interface OrgMemberItem
+ */
+export interface OrgMemberItem {
+    /**
+     * 
+     * @type {any}
+     * @memberof OrgMemberItem
+     */
+    identityUserId: any;
+    /**
+     * 
+     * @type {any}
+     * @memberof OrgMemberItem
+     */
+    email: any;
+    /**
+     * 
+     * @type {any}
+     * @memberof OrgMemberItem
+     */
+    displayName?: any;
+    /**
+     * 
+     * @type {any}
+     * @memberof OrgMemberItem
+     */
+    role: any;
+    /**
+     * 
+     * @type {any}
+     * @memberof OrgMemberItem
+     */
+    status: any;
+    /**
+     * 
+     * @type {any}
+     * @memberof OrgMemberItem
+     */
+    spaceMemberships?: any;
+    /**
+     * 
+     * @type {any}
+     * @memberof OrgMemberItem
+     */
+    createdAt: any;
+}
+/**
+ * 
+ * @export
+ * @interface OrgMemberListResponse
+ */
+export interface OrgMemberListResponse {
+    /**
+     * 
+     * @type {any}
+     * @memberof OrgMemberListResponse
+     */
+    items: any;
+    /**
+     * When set, another page exists: pass as `cursor`.
+     * @type {any}
+     * @memberof OrgMemberListResponse
+     */
+    nextCursor?: any;
+}
+/**
+ * 
+ * @export
+ * @interface OrgMemberRoleUpdateRequest
+ */
+export interface OrgMemberRoleUpdateRequest {
+    /**
+     * 
+     * @type {any}
+     * @memberof OrgMemberRoleUpdateRequest
+     */
+    role: any;
+}
+/**
+ * 
+ * @export
+ * @interface OrgMemberRoleUpdateResponse
+ */
+export interface OrgMemberRoleUpdateResponse {
+    /**
+     * 
+     * @type {any}
+     * @memberof OrgMemberRoleUpdateResponse
+     */
+    identityUserId: any;
+    /**
+     * 
+     * @type {any}
+     * @memberof OrgMemberRoleUpdateResponse
+     */
+    role: any;
+    /**
+     * 
+     * @type {any}
+     * @memberof OrgMemberRoleUpdateResponse
+     */
+    status: any;
+    /**
+     * 
+     * @type {any}
+     * @memberof OrgMemberRoleUpdateResponse
+     */
+    updatedAt: any;
+}
+/**
+ * One direct (non-userset) space grant a member holds.
+ * @export
+ * @interface OrgMemberSpaceMembership
+ */
+export interface OrgMemberSpaceMembership {
+    /**
+     * 
+     * @type {any}
+     * @memberof OrgMemberSpaceMembership
+     */
+    spaceId: any;
+    /**
+     * 
+     * @type {any}
+     * @memberof OrgMemberSpaceMembership
+     */
+    spaceName: any;
+    /**
+     * 
+     * @type {SpaceKind}
+     * @memberof OrgMemberSpaceMembership
+     */
+    spaceKind: SpaceKind;
+    /**
+     * 
+     * @type {any}
+     * @memberof OrgMemberSpaceMembership
+     */
+    relation: any;
+}
+/**
  * The run's terminal result.
  * @export
  * @interface OutcomeModel
@@ -3699,25 +4617,25 @@ export interface OutcomeModel {
      * @type {any}
      * @memberof OutcomeModel
      */
-    isSuccess: any;
+    is_success: any;
     /**
      * Total number of attempted steps.
      * @type {any}
      * @memberof OutcomeModel
      */
-    totalSteps?: any;
+    total_steps?: any;
     /**
      * Number of completed steps.
      * @type {any}
      * @memberof OutcomeModel
      */
-    completedSteps?: any;
+    completed_steps?: any;
     /**
      * Number of failed steps.
      * @type {any}
      * @memberof OutcomeModel
      */
-    failedSteps?: any;
+    failed_steps?: any;
 }
 /**
  * Milestone in a hydrated plan.
@@ -3902,17 +4820,11 @@ export interface PromoteClaimRequest {
     reason?: SupersessionReason;
 }
 /**
- * Configuration for prompt-injection / jailbreaking guardrails.  Action is restricted to BLOCK or LOG_ONLY (no ANONYMIZE).
+ * Configuration for prompt-injection / jailbreaking guardrails.  Action is restricted to BLOCK or LOG_ONLY (no ANONYMIZE). Presence is the switch: leaving ``GuardrailsConfig.prompt_injection`` unset is how a deployment runs without it.  Unknown keys are rejected rather than ignored, so a caller still passing the removed ``is_enabled=False`` fails loudly instead of silently having the guardrail switched on. Silently enabling this one does not merely over-enforce: the default action is ``BLOCK``, so it starts refusing traffic that previously passed.
  * @export
  * @interface PromptInjectionGuardrailConfig
  */
 export interface PromptInjectionGuardrailConfig {
-    /**
-     * Master switch for guardrail
-     * @type {any}
-     * @memberof PromptInjectionGuardrailConfig
-     */
-    isEnabled?: any;
     /**
      * Action when prompt injection detected (BLOCK or LOG_ONLY)
      * @type {GuardrailAction}
@@ -3925,187 +4837,6 @@ export interface PromptInjectionGuardrailConfig {
      * @memberof PromptInjectionGuardrailConfig
      */
     scoreThreshold?: any;
-}
-/**
- * 
- * @export
- * @enum {string}
- */
-export enum ProviderCredentialBindingType {
-    TenantDefault = <any> 'tenant_default',
-    AgentOverride = <any> 'agent_override'
-}
-/**
- * 
- * @export
- * @interface ProviderCredentialCreateRequest
- */
-export interface ProviderCredentialCreateRequest {
-    /**
-     * 
-     * @type {ModelProvider}
-     * @memberof ProviderCredentialCreateRequest
-     */
-    provider: ModelProvider;
-    /**
-     * 
-     * @type {any}
-     * @memberof ProviderCredentialCreateRequest
-     */
-    displayName: any;
-    /**
-     * 
-     * @type {ProviderCredentialBindingType}
-     * @memberof ProviderCredentialCreateRequest
-     */
-    bindingType: ProviderCredentialBindingType;
-    /**
-     * 
-     * @type {any}
-     * @memberof ProviderCredentialCreateRequest
-     */
-    agentId?: any;
-    /**
-     * Provider secret. This value is write-only and never returned.
-     * @type {any}
-     * @memberof ProviderCredentialCreateRequest
-     */
-    secret: any;
-    /**
-     * 
-     * @type {any}
-     * @memberof ProviderCredentialCreateRequest
-     */
-    isActive?: any;
-    /**
-     * Optional credential metadata. Use `metadata.base_url` to override the provider endpoint. If omitted, the API stores a sane provider default: Anthropic=`https://api.anthropic.com`, Groq=`https://api.groq.com`, Ollama=`http://localhost:11434/v1`, OpenAI=`https://api.openai.com/v1`. Legacy `metadata.endpoint` is accepted as an alias and normalized to `base_url`.
-     * @type {any}
-     * @memberof ProviderCredentialCreateRequest
-     */
-    metadata?: any;
-}
-/**
- * 
- * @export
- * @interface ProviderCredentialListResponse
- */
-export interface ProviderCredentialListResponse {
-    /**
-     * 
-     * @type {any}
-     * @memberof ProviderCredentialListResponse
-     */
-    items: any;
-}
-/**
- * 
- * @export
- * @interface ProviderCredentialResponse
- */
-export interface ProviderCredentialResponse {
-    /**
-     * 
-     * @type {any}
-     * @memberof ProviderCredentialResponse
-     */
-    id: any;
-    /**
-     * 
-     * @type {any}
-     * @memberof ProviderCredentialResponse
-     */
-    agentId: any;
-    /**
-     * 
-     * @type {ProviderCredentialBindingType}
-     * @memberof ProviderCredentialResponse
-     */
-    bindingType: ProviderCredentialBindingType;
-    /**
-     * 
-     * @type {ModelProvider}
-     * @memberof ProviderCredentialResponse
-     */
-    provider: ModelProvider;
-    /**
-     * 
-     * @type {any}
-     * @memberof ProviderCredentialResponse
-     */
-    credentialKind?: any;
-    /**
-     * 
-     * @type {any}
-     * @memberof ProviderCredentialResponse
-     */
-    displayName: any;
-    /**
-     * 
-     * @type {any}
-     * @memberof ProviderCredentialResponse
-     */
-    isActive: any;
-    /**
-     * 
-     * @type {any}
-     * @memberof ProviderCredentialResponse
-     */
-    secretLast4?: any;
-    /**
-     * Credential metadata. Includes normalized `base_url` when explicitly provided, or when the provider uses a sane default.
-     * @type {any}
-     * @memberof ProviderCredentialResponse
-     */
-    metadata: any;
-    /**
-     * 
-     * @type {any}
-     * @memberof ProviderCredentialResponse
-     */
-    createdAt: any;
-    /**
-     * 
-     * @type {any}
-     * @memberof ProviderCredentialResponse
-     */
-    updatedAt: any;
-}
-/**
- * 
- * @export
- * @interface ProviderCredentialUpdateRequest
- */
-export interface ProviderCredentialUpdateRequest {
-    /**
-     * 
-     * @type {any}
-     * @memberof ProviderCredentialUpdateRequest
-     */
-    provider?: any;
-    /**
-     * 
-     * @type {any}
-     * @memberof ProviderCredentialUpdateRequest
-     */
-    displayName?: any;
-    /**
-     * 
-     * @type {any}
-     * @memberof ProviderCredentialUpdateRequest
-     */
-    secret?: any;
-    /**
-     * 
-     * @type {any}
-     * @memberof ProviderCredentialUpdateRequest
-     */
-    isActive?: any;
-    /**
-     * Optional metadata replacement. Use `metadata.base_url` to override the provider endpoint. If you provide `metadata.endpoint`, it is normalized to `base_url`. If omitted, the existing metadata is preserved unless the provider changes, in which case the endpoint resets to the sane default for Anthropic, Groq, Ollama, or OpenAI.
-     * @type {any}
-     * @memberof ProviderCredentialUpdateRequest
-     */
-    metadata?: any;
 }
 /**
  * A quarantined claim awaiting a release decision, labelled with its owning agent.
@@ -4193,6 +4924,18 @@ export interface QuarantineQueueItem {
  */
 export interface QuarantineQueueResponse {
     /**
+     * True when the caller's readable-space set is restricted and space filtering applied to this page.
+     * @type {any}
+     * @memberof QuarantineQueueResponse
+     */
+    filtered?: any;
+    /**
+     * Best-effort count of rows this page omitted because the caller's space filter excluded them.
+     * @type {any}
+     * @memberof QuarantineQueueResponse
+     */
+    withheldCount?: any;
+    /**
      * 
      * @type {any}
      * @memberof QuarantineQueueResponse
@@ -4204,6 +4947,93 @@ export interface QuarantineQueueResponse {
      * @memberof QuarantineQueueResponse
      */
     nextCursor?: any;
+}
+/**
+ * Mode B chart binding: dimensions / measures / filters / limit.  Date range comes from the request ``window`` (UsageTimeWindow), not from/to.
+ * @export
+ * @interface QueryBinding
+ */
+export interface QueryBinding {
+    /**
+     * 
+     * @type {any}
+     * @memberof QueryBinding
+     */
+    grain?: any;
+    /**
+     * 
+     * @type {any}
+     * @memberof QueryBinding
+     */
+    dimensions?: any;
+    /**
+     * 
+     * @type {any}
+     * @memberof QueryBinding
+     */
+    measures?: any;
+    /**
+     * 
+     * @type {any}
+     * @memberof QueryBinding
+     */
+    filters?: any;
+    /**
+     * 
+     * @type {any}
+     * @memberof QueryBinding
+     */
+    constantsProfileId?: any;
+    /**
+     * 
+     * @type {any}
+     * @memberof QueryBinding
+     */
+    limit?: any;
+}
+/**
+ * 
+ * @export
+ * @interface QueryFilter
+ */
+export interface QueryFilter {
+    /**
+     * 
+     * @type {any}
+     * @memberof QueryFilter
+     */
+    field: any;
+    /**
+     * 
+     * @type {any}
+     * @memberof QueryFilter
+     */
+    op: any;
+    /**
+     * 
+     * @type {any}
+     * @memberof QueryFilter
+     */
+    value: any;
+}
+/**
+ * 
+ * @export
+ * @interface QueryMeasure
+ */
+export interface QueryMeasure {
+    /**
+     * 
+     * @type {any}
+     * @memberof QueryMeasure
+     */
+    field: any;
+    /**
+     * 
+     * @type {any}
+     * @memberof QueryMeasure
+     */
+    agg?: any;
 }
 /**
  * Curated hosted reasoning tiers exposed to customers.
@@ -4272,17 +5102,17 @@ export interface ReinforceLearningResponse {
  */
 export interface ReinforceRequest {
     /**
-     * Caller-defined string identifying the external agent.
+     * Human-readable agent name, unique within your tenant. This is not the hosted agent UUID used in `/agents/{agent_id}` REST paths. If no agent with this name exists yet, the platform creates one automatically on the first boundary call (a minimal learning agent scoped to your tenant). Reuse the same name on resolve, observe, reinforce, and distill to target the same learning corpus. Clients conventionally namespace an agent-loop `run_id` as `<agent_name>:...`; if yours does, avoid the name `distill`, because `distill:` is reserved for corpus distillation run ids and every agent-loop write would be refused.
      * @type {any}
      * @memberof ReinforceRequest
      */
-    agentName: any;
+    agent_name: any;
     /**
      * Optional caller-owned organisation reference.
      * @type {any}
      * @memberof ReinforceRequest
      */
-    orgId?: any;
+    org_id?: any;
     /**
      * Completed episode using the same caller-owned `run_id` supplied to resolve.
      * @type {EpisodeModel}
@@ -4294,7 +5124,7 @@ export interface ReinforceRequest {
      * @type {any}
      * @memberof ReinforceRequest
      */
-    isOrgPromotionAllowed?: any;
+    is_org_promotion_allowed?: any;
 }
 /**
  * Preset reason codes for curator reject (archive).
@@ -4409,29 +5239,244 @@ export interface RenderedText {
     isCollapsedByDefault?: any;
 }
 /**
+ * Space hyperparameters that turn event counts into minutes / dollars.
+ * @export
+ * @interface ReportingConstants
+ */
+export interface ReportingConstants {
+    /**
+     * 
+     * @type {any}
+     * @memberof ReportingConstants
+     */
+    minutesPerRetrieval?: any;
+    /**
+     * 
+     * @type {any}
+     * @memberof ReportingConstants
+     */
+    minutesPerApplication?: any;
+    /**
+     * 
+     * @type {any}
+     * @memberof ReportingConstants
+     */
+    minutesPerLearningSaved?: any;
+    /**
+     * 
+     * @type {any}
+     * @memberof ReportingConstants
+     */
+    minutesCorrectAssist?: any;
+    /**
+     * 
+     * @type {any}
+     * @memberof ReportingConstants
+     */
+    minutesReworkPerMislead?: any;
+    /**
+     * 
+     * @type {any}
+     * @memberof ReportingConstants
+     */
+    minutesPerAssistedRun?: any;
+    /**
+     * 
+     * @type {any}
+     * @memberof ReportingConstants
+     */
+    minutesToRelearn?: any;
+    /**
+     * 
+     * @type {any}
+     * @memberof ReportingConstants
+     */
+    usdPerUtilityWeightedHelp?: any;
+    /**
+     * 
+     * @type {any}
+     * @memberof ReportingConstants
+     */
+    hourlyRateUsd?: any;
+}
+/**
+ * 
+ * @export
+ * @interface ReportingDefaultsPutRequest
+ */
+export interface ReportingDefaultsPutRequest {
+    /**
+     * 
+     * @type {ReportingConstants}
+     * @memberof ReportingDefaultsPutRequest
+     */
+    constants: ReportingConstants;
+    /**
+     * 
+     * @type {any}
+     * @memberof ReportingDefaultsPutRequest
+     */
+    isIllustrative?: any;
+}
+/**
+ * 
+ * @export
+ * @interface ReportingDefaultsResponse
+ */
+export interface ReportingDefaultsResponse {
+    /**
+     * 
+     * @type {any}
+     * @memberof ReportingDefaultsResponse
+     */
+    spaceId: any;
+    /**
+     * 
+     * @type {ReportingConstants}
+     * @memberof ReportingDefaultsResponse
+     */
+    constants: ReportingConstants;
+    /**
+     * 
+     * @type {any}
+     * @memberof ReportingDefaultsResponse
+     */
+    isIllustrative: any;
+    /**
+     * 
+     * @type {any}
+     * @memberof ReportingDefaultsResponse
+     */
+    schemaVersion: any;
+    /**
+     * 
+     * @type {any}
+     * @memberof ReportingDefaultsResponse
+     */
+    updatedAt?: any;
+    /**
+     * 
+     * @type {any}
+     * @memberof ReportingDefaultsResponse
+     */
+    updatedBy?: any;
+}
+/**
+ * 
+ * @export
+ * @interface ReportingQueryRequest
+ */
+export interface ReportingQueryRequest {
+    /**
+     * 
+     * @type {any}
+     * @memberof ReportingQueryRequest
+     */
+    spaceId: any;
+    /**
+     * 
+     * @type {UsageTimeWindow}
+     * @memberof ReportingQueryRequest
+     */
+    window?: UsageTimeWindow;
+    /**
+     * 
+     * @type {QueryBinding}
+     * @memberof ReportingQueryRequest
+     */
+    binding: QueryBinding;
+    /**
+     * 
+     * @type {any}
+     * @memberof ReportingQueryRequest
+     */
+    asOf?: any;
+}
+/**
+ * 
+ * @export
+ * @interface ReportingQueryResponse
+ */
+export interface ReportingQueryResponse {
+    /**
+     * 
+     * @type {any}
+     * @memberof ReportingQueryResponse
+     */
+    rows: any;
+    /**
+     * 
+     * @type {any}
+     * @memberof ReportingQueryResponse
+     */
+    rowCount: any;
+    /**
+     * 
+     * @type {any}
+     * @memberof ReportingQueryResponse
+     */
+    truncated: any;
+    /**
+     * 
+     * @type {QueryBinding}
+     * @memberof ReportingQueryResponse
+     */
+    queryBinding: QueryBinding;
+    /**
+     * 
+     * @type {ReportingConstants}
+     * @memberof ReportingQueryResponse
+     */
+    constants: ReportingConstants;
+    /**
+     * 
+     * @type {any}
+     * @memberof ReportingQueryResponse
+     */
+    isIllustrative: any;
+    /**
+     * 
+     * @type {UsageTimeWindow}
+     * @memberof ReportingQueryResponse
+     */
+    window: UsageTimeWindow;
+    /**
+     * 
+     * @type {any}
+     * @memberof ReportingQueryResponse
+     */
+    periodStart: any;
+    /**
+     * 
+     * @type {any}
+     * @memberof ReportingQueryResponse
+     */
+    periodEndExclusive: any;
+}
+/**
  * Ask for the learnings bound to a goal at run start.
  * @export
  * @interface ResolveRequest
  */
 export interface ResolveRequest {
     /**
-     * Human-readable agent name, unique within your tenant. Not the hosted agent UUID used in `/agents/{agent_id}` REST paths. If no agent with this name exists yet, the platform creates one automatically on the first boundary call. Reuse the same name to target the same learning corpus.
+     * Human-readable agent name, unique within your tenant. This is not the hosted agent UUID used in `/agents/{agent_id}` REST paths. If no agent with this name exists yet, the platform creates one automatically on the first boundary call (a minimal learning agent scoped to your tenant). Reuse the same name on resolve, observe, reinforce, and distill to target the same learning corpus. Clients conventionally namespace an agent-loop `run_id` as `<agent_name>:...`; if yours does, avoid the name `distill`, because `distill:` is reserved for corpus distillation run ids and every agent-loop write would be refused.
      * @type {any}
      * @memberof ResolveRequest
      */
-    agentName: any;
+    agent_name: any;
     /**
      * Optional caller-owned organisation reference.
      * @type {any}
      * @memberof ResolveRequest
      */
-    orgId?: any;
+    org_id?: any;
     /**
-     * Caller-created correlation key. Reuse it with observe and reinforce; it does not reference a hosted `/runs/{run_id}` resource.
+     * Caller-created correlation key. Reuse it with observe and reinforce; it does not reference a hosted `/runs/{run_id}` resource, and must not start with `distill:`, which is reserved for distillation jobs.
      * @type {any}
      * @memberof ResolveRequest
      */
-    runId: any;
+    run_id: any;
     /**
      * Goal about to be attempted by the external agent.
      * @type {any}
@@ -4439,29 +5484,29 @@ export interface ResolveRequest {
      */
     goal: any;
     /**
-     * Producing host/framework (e.g. 'mcp:cursor'), used to attribute the per-host funnel. Optional; backfilled from the episode at write-back.
+     * Producing host/framework (e.g. 'mcp:cursor'), used to attribute the per-host funnel. Optional; backfilled from the episode at write-back. `unknown` is reserved: the loop-closure funnel groups runs with no attribution under that label and excludes them from alerting, so a value equal to it is normalised to unset rather than stored as a host.
      * @type {any}
      * @memberof ResolveRequest
      */
-    sourceFramework?: any;
+    source_framework?: any;
     /**
      * 
      * @type {any}
      * @memberof ResolveRequest
      */
-    availableTools?: any;
+    available_tools?: any;
     /**
      * 
      * @type {any}
      * @memberof ResolveRequest
      */
-    maxLearnings?: any;
+    max_learnings?: any;
     /**
      * 
      * @type {any}
      * @memberof ResolveRequest
      */
-    modelContextWindow?: any;
+    model_context_window?: any;
     /**
      * Retrieval depth. `fast` prioritises response time; `full` may return richer contextual relationships at higher latency.
      * @type {any}
@@ -4473,7 +5518,7 @@ export interface ResolveRequest {
      * @type {any}
      * @memberof ResolveRequest
      */
-    resolveIdempotencyKey?: any;
+    resolve_idempotency_key?: any;
 }
 /**
  * The bound learnings: the rendered block plus the offered IDs.
@@ -4776,6 +5821,12 @@ export interface RunOutputSummary {
      * @memberof RunOutputSummary
      */
     suspension?: any;
+    /**
+     * For a suspension awaiting a multi-approver quorum, the number of distinct approvals recorded so far (out of the suspension's ``required_approvals``). Null when the suspension is not a quorum.
+     * @type {any}
+     * @memberof RunOutputSummary
+     */
+    approvalsRecorded?: any;
 }
 /**
  * Optional example material used to communicate preferred tone or format.
@@ -5199,6 +6250,94 @@ export interface SpaceListResponse {
     nextCursor?: any;
 }
 /**
+ * 
+ * @export
+ * @interface SpaceMemberInviteRequest
+ */
+export interface SpaceMemberInviteRequest {
+    /**
+     * 
+     * @type {any}
+     * @memberof SpaceMemberInviteRequest
+     */
+    identityUserId: any;
+    /**
+     * 
+     * @type {any}
+     * @memberof SpaceMemberInviteRequest
+     */
+    relation?: any;
+}
+/**
+ * One direct space-role grant with the member's identity for display.
+ * @export
+ * @interface SpaceMemberListItem
+ */
+export interface SpaceMemberListItem {
+    /**
+     * 
+     * @type {any}
+     * @memberof SpaceMemberListItem
+     */
+    identityUserId: any;
+    /**
+     * 
+     * @type {any}
+     * @memberof SpaceMemberListItem
+     */
+    email: any;
+    /**
+     * 
+     * @type {any}
+     * @memberof SpaceMemberListItem
+     */
+    displayName?: any;
+    /**
+     * 
+     * @type {any}
+     * @memberof SpaceMemberListItem
+     */
+    relation: any;
+}
+/**
+ * 
+ * @export
+ * @interface SpaceMemberListResponse
+ */
+export interface SpaceMemberListResponse {
+    /**
+     * 
+     * @type {any}
+     * @memberof SpaceMemberListResponse
+     */
+    items: any;
+}
+/**
+ * 
+ * @export
+ * @interface SpaceMemberResponse
+ */
+export interface SpaceMemberResponse {
+    /**
+     * 
+     * @type {any}
+     * @memberof SpaceMemberResponse
+     */
+    spaceId: any;
+    /**
+     * 
+     * @type {any}
+     * @memberof SpaceMemberResponse
+     */
+    identityUserId: any;
+    /**
+     * 
+     * @type {any}
+     * @memberof SpaceMemberResponse
+     */
+    relation: any;
+}
+/**
  * One tenant-visible space plus a convenience count of homed agents.
  * @export
  * @interface SpaceResponse
@@ -5240,6 +6379,12 @@ export interface SpaceResponse {
      * @memberof SpaceResponse
      */
     agentCount: any;
+    /**
+     * True when the authenticated caller may steward this space: a direct steward grant, personal-space owner (creator), or org admin/owner (steward via org admin). Used by the portal for manage-member UX.
+     * @type {any}
+     * @memberof SpaceResponse
+     */
+    callerIsSteward?: any;
     /**
      * 
      * @type {any}
@@ -5315,6 +6460,18 @@ export interface SplitProposalQueueItem {
  */
 export interface SplitProposalQueueResponse {
     /**
+     * True when the caller's readable-space set is restricted and space filtering applied to this page.
+     * @type {any}
+     * @memberof SplitProposalQueueResponse
+     */
+    filtered?: any;
+    /**
+     * Best-effort count of rows this page omitted because the caller's space filter excluded them.
+     * @type {any}
+     * @memberof SplitProposalQueueResponse
+     */
+    withheldCount?: any;
+    /**
      * 
      * @type {any}
      * @memberof SplitProposalQueueResponse
@@ -5384,7 +6541,7 @@ export interface StepModel {
      * @type {any}
      * @memberof StepModel
      */
-    declaredSensitivity?: any;
+    declared_sensitivity?: any;
 }
 /**
  * Accepted response for asynchronous learning storage.
@@ -5461,7 +6618,7 @@ export interface StoreLearningRequest {
     instances?: any;
 }
 /**
- * Why an open version was closed, distinguishing update from revision.  WORLD_CHANGE: the world moved on (Katsuno-Mendelzon update); prior sources were right, no reliability penalty. CORRECTION: a genuine conflict (revision); the prior version's reliability interval widens. RETRACTION: withdrawn with no replacement. REFINEMENT: narrowed to a more qualified claim.
+ * Why an open version was closed, distinguishing update from revision.  WORLD_CHANGE: the world moved on (Katsuno-Mendelzon update); prior sources were right, no reliability penalty. CORRECTION: a genuine conflict (revision); the prior version's reliability interval widens. RETRACTION: withdrawn with no replacement. REFINEMENT: narrowed to a more qualified claim.  The last three are all blameless closures the system performed on its own behalf, kept distinct from WORLD_CHANGE so a synthesised chain is never later read as observed history. ATTRIBUTE_MERGE: an offline merge put two keys in one class and their chains folded together. RETROACTIVE_KEY: the adoption sweep recovered a key and ordered rows that were only ever parallel because the key was missing. RETROACTIVE_CORROBORATION: the same, where the rows agreed and folded into one surviving version rather than a chain.
  * @export
  * @enum {string}
  */
@@ -5469,7 +6626,10 @@ export enum SupersessionReason {
     WorldChange = <any> 'world_change',
     Correction = <any> 'correction',
     Retraction = <any> 'retraction',
-    Refinement = <any> 'refinement'
+    Refinement = <any> 'refinement',
+    AttributeMerge = <any> 'attribute_merge',
+    RetroactiveKey = <any> 'retroactive_key',
+    RetroactiveCorroboration = <any> 'retroactive_corroboration'
 }
 /**
  * 
@@ -5962,17 +7122,16 @@ export const AgentsApiFetchParamCreator = function (configuration?: Configuratio
             };
         },
         /**
-         * Retrieve one hosted agent and its effective configuration. Optional query flags can include usage or non-secret provider-credential metadata.
+         * Retrieve one hosted agent and its effective configuration. An optional query flag can include a per-agent usage summary.
          * @summary Get Agent
          * @param {any} agentId Hosted agent UUID returned by the agent create or list endpoint.
-         * @param {any} [includeLlmCredential] When true (default), resolve effective provider credential metadata for this agent&#x27;s &#x60;model_provider&#x60; without exposing secrets.
          * @param {any} [includeSummary] When true, include a per-agent usage summary.
          * @param {any} [includeAccess] Reserved for future access details. Currently accepted as a no-op for forward compatibility.
          * @param {UsageTimeWindow} [window] Window applied when &#x60;include_summary&#x60; is true.
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        getAgentEndpointAgentsAgentIdGet(agentId: any, includeLlmCredential?: any, includeSummary?: any, includeAccess?: any, window?: UsageTimeWindow, options: any = {}): FetchArgs {
+        getAgentEndpointAgentsAgentIdGet(agentId: any, includeSummary?: any, includeAccess?: any, window?: UsageTimeWindow, options: any = {}): FetchArgs {
             // verify required parameter 'agentId' is not null or undefined
             if (agentId === null || agentId === undefined) {
                 throw new RequiredError('agentId','Required parameter agentId was null or undefined when calling getAgentEndpointAgentsAgentIdGet.');
@@ -5990,10 +7149,6 @@ export const AgentsApiFetchParamCreator = function (configuration?: Configuratio
 					? configuration.apiKey("Authorization")
 					: configuration.apiKey;
                 localVarHeaderParameter["Authorization"] = localVarApiKeyValue;
-            }
-
-            if (includeLlmCredential !== undefined) {
-                localVarQueryParameter['include_llm_credential'] = includeLlmCredential;
             }
 
             if (includeSummary !== undefined) {
@@ -6405,18 +7560,17 @@ export const AgentsApiFp = function(configuration?: Configuration) {
             };
         },
         /**
-         * Retrieve one hosted agent and its effective configuration. Optional query flags can include usage or non-secret provider-credential metadata.
+         * Retrieve one hosted agent and its effective configuration. An optional query flag can include a per-agent usage summary.
          * @summary Get Agent
          * @param {any} agentId Hosted agent UUID returned by the agent create or list endpoint.
-         * @param {any} [includeLlmCredential] When true (default), resolve effective provider credential metadata for this agent&#x27;s &#x60;model_provider&#x60; without exposing secrets.
          * @param {any} [includeSummary] When true, include a per-agent usage summary.
          * @param {any} [includeAccess] Reserved for future access details. Currently accepted as a no-op for forward compatibility.
          * @param {UsageTimeWindow} [window] Window applied when &#x60;include_summary&#x60; is true.
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        getAgentEndpointAgentsAgentIdGet(agentId: any, includeLlmCredential?: any, includeSummary?: any, includeAccess?: any, window?: UsageTimeWindow, options?: any): (fetch?: FetchAPI, basePath?: string) => Promise<AgentDetailResponse> {
-            const localVarFetchArgs = AgentsApiFetchParamCreator(configuration).getAgentEndpointAgentsAgentIdGet(agentId, includeLlmCredential, includeSummary, includeAccess, window, options);
+        getAgentEndpointAgentsAgentIdGet(agentId: any, includeSummary?: any, includeAccess?: any, window?: UsageTimeWindow, options?: any): (fetch?: FetchAPI, basePath?: string) => Promise<AgentDetailResponse> {
+            const localVarFetchArgs = AgentsApiFetchParamCreator(configuration).getAgentEndpointAgentsAgentIdGet(agentId, includeSummary, includeAccess, window, options);
             return (fetch: FetchAPI = isomorphicFetch, basePath: string = BASE_PATH) => {
                 return fetch(basePath + localVarFetchArgs.url, localVarFetchArgs.options).then((response) => {
                     if (response.status >= 200 && response.status < 300) {
@@ -6601,18 +7755,17 @@ export const AgentsApiFactory = function (configuration?: Configuration, fetch?:
             return AgentsApiFp(configuration).dispatchGoalRunEndpointAgentsAgentIdGoalsPost(body, agentId, options)(fetch, basePath);
         },
         /**
-         * Retrieve one hosted agent and its effective configuration. Optional query flags can include usage or non-secret provider-credential metadata.
+         * Retrieve one hosted agent and its effective configuration. An optional query flag can include a per-agent usage summary.
          * @summary Get Agent
          * @param {any} agentId Hosted agent UUID returned by the agent create or list endpoint.
-         * @param {any} [includeLlmCredential] When true (default), resolve effective provider credential metadata for this agent&#x27;s &#x60;model_provider&#x60; without exposing secrets.
          * @param {any} [includeSummary] When true, include a per-agent usage summary.
          * @param {any} [includeAccess] Reserved for future access details. Currently accepted as a no-op for forward compatibility.
          * @param {UsageTimeWindow} [window] Window applied when &#x60;include_summary&#x60; is true.
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        getAgentEndpointAgentsAgentIdGet(agentId: any, includeLlmCredential?: any, includeSummary?: any, includeAccess?: any, window?: UsageTimeWindow, options?: any) {
-            return AgentsApiFp(configuration).getAgentEndpointAgentsAgentIdGet(agentId, includeLlmCredential, includeSummary, includeAccess, window, options)(fetch, basePath);
+        getAgentEndpointAgentsAgentIdGet(agentId: any, includeSummary?: any, includeAccess?: any, window?: UsageTimeWindow, options?: any) {
+            return AgentsApiFp(configuration).getAgentEndpointAgentsAgentIdGet(agentId, includeSummary, includeAccess, window, options)(fetch, basePath);
         },
         /**
          * Return metered usage for one agent over a preset reporting window. Use tenant-level `/usage` endpoints when an all-agent total is required.
@@ -6741,10 +7894,9 @@ export class AgentsApi extends BaseAPI {
     }
 
     /**
-     * Retrieve one hosted agent and its effective configuration. Optional query flags can include usage or non-secret provider-credential metadata.
+     * Retrieve one hosted agent and its effective configuration. An optional query flag can include a per-agent usage summary.
      * @summary Get Agent
      * @param {any} agentId Hosted agent UUID returned by the agent create or list endpoint.
-     * @param {any} [includeLlmCredential] When true (default), resolve effective provider credential metadata for this agent&#x27;s &#x60;model_provider&#x60; without exposing secrets.
      * @param {any} [includeSummary] When true, include a per-agent usage summary.
      * @param {any} [includeAccess] Reserved for future access details. Currently accepted as a no-op for forward compatibility.
      * @param {UsageTimeWindow} [window] Window applied when &#x60;include_summary&#x60; is true.
@@ -6752,8 +7904,8 @@ export class AgentsApi extends BaseAPI {
      * @throws {RequiredError}
      * @memberof AgentsApi
      */
-    public getAgentEndpointAgentsAgentIdGet(agentId: any, includeLlmCredential?: any, includeSummary?: any, includeAccess?: any, window?: UsageTimeWindow, options?: any) {
-        return AgentsApiFp(this.configuration).getAgentEndpointAgentsAgentIdGet(agentId, includeLlmCredential, includeSummary, includeAccess, window, options)(this.fetch, this.basePath);
+    public getAgentEndpointAgentsAgentIdGet(agentId: any, includeSummary?: any, includeAccess?: any, window?: UsageTimeWindow, options?: any) {
+        return AgentsApiFp(this.configuration).getAgentEndpointAgentsAgentIdGet(agentId, includeSummary, includeAccess, window, options)(this.fetch, this.basePath);
     }
 
     /**
@@ -7118,7 +8270,7 @@ export class ApiKeysApi extends BaseAPI {
 export const AuthApiFetchParamCreator = function (configuration?: Configuration) {
     return {
         /**
-         * Return the signed-in portal user's identity, active tenant, memberships, role, and effective scopes. This endpoint requires a portal session; Bearer API keys should call resource endpoints directly.
+         * Return the signed-in portal user's identity, active tenant, memberships, role, effective scopes, and UI-facing tenant feature flags. This endpoint requires a portal session; Bearer API keys should call resource endpoints directly.
          * @summary Get Current Portal Identity
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
@@ -7158,7 +8310,7 @@ export const AuthApiFetchParamCreator = function (configuration?: Configuration)
 export const AuthApiFp = function(configuration?: Configuration) {
     return {
         /**
-         * Return the signed-in portal user's identity, active tenant, memberships, role, and effective scopes. This endpoint requires a portal session; Bearer API keys should call resource endpoints directly.
+         * Return the signed-in portal user's identity, active tenant, memberships, role, effective scopes, and UI-facing tenant feature flags. This endpoint requires a portal session; Bearer API keys should call resource endpoints directly.
          * @summary Get Current Portal Identity
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
@@ -7185,7 +8337,7 @@ export const AuthApiFp = function(configuration?: Configuration) {
 export const AuthApiFactory = function (configuration?: Configuration, fetch?: FetchAPI, basePath?: string) {
     return {
         /**
-         * Return the signed-in portal user's identity, active tenant, memberships, role, and effective scopes. This endpoint requires a portal session; Bearer API keys should call resource endpoints directly.
+         * Return the signed-in portal user's identity, active tenant, memberships, role, effective scopes, and UI-facing tenant feature flags. This endpoint requires a portal session; Bearer API keys should call resource endpoints directly.
          * @summary Get Current Portal Identity
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
@@ -7204,7 +8356,7 @@ export const AuthApiFactory = function (configuration?: Configuration, fetch?: F
  */
 export class AuthApi extends BaseAPI {
     /**
-     * Return the signed-in portal user's identity, active tenant, memberships, role, and effective scopes. This endpoint requires a portal session; Bearer API keys should call resource endpoints directly.
+     * Return the signed-in portal user's identity, active tenant, memberships, role, effective scopes, and UI-facing tenant feature flags. This endpoint requires a portal session; Bearer API keys should call resource endpoints directly.
      * @summary Get Current Portal Identity
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
@@ -7569,6 +8721,49 @@ export const ClaimsApiFetchParamCreator = function (configuration?: Configuratio
             };
         },
         /**
+         * Returns the attribute_key for a registry UUID so a curator can confirm they are adopting an abstained claim under the intended filing slot before the one-shot adopt.
+         * @summary Resolve a claim attribute registry id
+         * @param {any} agentId Hosted agent UUID returned by the agent create or list endpoint.
+         * @param {any} attributeId Claim attribute registry UUID (filing slot for structured facts).
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        getAttributeEndpointAgentsAgentIdClaimsAttributesAttributeIdGet(agentId: any, attributeId: any, options: any = {}): FetchArgs {
+            // verify required parameter 'agentId' is not null or undefined
+            if (agentId === null || agentId === undefined) {
+                throw new RequiredError('agentId','Required parameter agentId was null or undefined when calling getAttributeEndpointAgentsAgentIdClaimsAttributesAttributeIdGet.');
+            }
+            // verify required parameter 'attributeId' is not null or undefined
+            if (attributeId === null || attributeId === undefined) {
+                throw new RequiredError('attributeId','Required parameter attributeId was null or undefined when calling getAttributeEndpointAgentsAgentIdClaimsAttributesAttributeIdGet.');
+            }
+            const localVarPath = `/agents/{agent_id}/claims/attributes/{attribute_id}`
+                .replace(`{${"agent_id"}}`, encodeURIComponent(String(agentId)))
+                .replace(`{${"attribute_id"}}`, encodeURIComponent(String(attributeId)));
+            const localVarUrlObj = url.parse(localVarPath, true);
+            const localVarRequestOptions = Object.assign({ method: 'GET' }, options);
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication BearerApiKey required
+            if (configuration && configuration.apiKey) {
+                const localVarApiKeyValue = typeof configuration.apiKey === 'function'
+					? configuration.apiKey("Authorization")
+					: configuration.apiKey;
+                localVarHeaderParameter["Authorization"] = localVarApiKeyValue;
+            }
+
+            localVarUrlObj.query = Object.assign({}, localVarUrlObj.query, localVarQueryParameter, options.query);
+            // fix override query string Detail: https://stackoverflow.com/a/7517673/1077943
+            localVarUrlObj.search = null;
+            localVarRequestOptions.headers = Object.assign({}, localVarHeaderParameter, options.headers);
+
+            return {
+                url: url.format(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
          * Every version of every claim the agent holds about one entity, including quarantined and disputed versions the agent-facing recall path never surfaces. Answers what the agent knows about this entity, on whose word, and since when.
          * @summary Get an entity's curation dossier
          * @param {any} agentId Hosted agent UUID returned by the agent create or list endpoint.
@@ -7683,6 +8878,86 @@ export const ClaimsApiFetchParamCreator = function (configuration?: Configuratio
 
             if (cursor !== undefined) {
                 localVarQueryParameter['cursor'] = cursor;
+            }
+
+            localVarUrlObj.query = Object.assign({}, localVarUrlObj.query, localVarQueryParameter, options.query);
+            // fix override query string Detail: https://stackoverflow.com/a/7517673/1077943
+            localVarUrlObj.search = null;
+            localVarRequestOptions.headers = Object.assign({}, localVarHeaderParameter, options.headers);
+
+            return {
+                url: url.format(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * Every assertion that two attribute keys name the same property, newest first, active and withdrawn alike. A withdrawn edge is kept rather than deleted, because the supersessions it caused are recorded against it.
+         * @summary List attribute merge edges
+         * @param {any} agentId Hosted agent UUID returned by the agent create or list endpoint.
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        listAttributeMergesEndpointAgentsAgentIdClaimsAttributeMergesGet(agentId: any, options: any = {}): FetchArgs {
+            // verify required parameter 'agentId' is not null or undefined
+            if (agentId === null || agentId === undefined) {
+                throw new RequiredError('agentId','Required parameter agentId was null or undefined when calling listAttributeMergesEndpointAgentsAgentIdClaimsAttributeMergesGet.');
+            }
+            const localVarPath = `/agents/{agent_id}/claims/attribute-merges`
+                .replace(`{${"agent_id"}}`, encodeURIComponent(String(agentId)));
+            const localVarUrlObj = url.parse(localVarPath, true);
+            const localVarRequestOptions = Object.assign({ method: 'GET' }, options);
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication BearerApiKey required
+            if (configuration && configuration.apiKey) {
+                const localVarApiKeyValue = typeof configuration.apiKey === 'function'
+					? configuration.apiKey("Authorization")
+					: configuration.apiKey;
+                localVarHeaderParameter["Authorization"] = localVarApiKeyValue;
+            }
+
+            localVarUrlObj.query = Object.assign({}, localVarUrlObj.query, localVarQueryParameter, options.query);
+            // fix override query string Detail: https://stackoverflow.com/a/7517673/1077943
+            localVarUrlObj.search = null;
+            localVarRequestOptions.headers = Object.assign({}, localVarHeaderParameter, options.headers);
+
+            return {
+                url: url.format(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * Every alias surface form linked to this entity (active and inactive), newest first. Used by the curation console so a reviewer can see which names already fold onto the entity before authoring another.
+         * @summary List aliases for an entity
+         * @param {any} agentId Hosted agent UUID returned by the agent create or list endpoint.
+         * @param {any} entityId Claim entity UUID (the unit of identity and of erasure).
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        listEntityAliasesEndpointAgentsAgentIdClaimsEntitiesEntityIdAliasesGet(agentId: any, entityId: any, options: any = {}): FetchArgs {
+            // verify required parameter 'agentId' is not null or undefined
+            if (agentId === null || agentId === undefined) {
+                throw new RequiredError('agentId','Required parameter agentId was null or undefined when calling listEntityAliasesEndpointAgentsAgentIdClaimsEntitiesEntityIdAliasesGet.');
+            }
+            // verify required parameter 'entityId' is not null or undefined
+            if (entityId === null || entityId === undefined) {
+                throw new RequiredError('entityId','Required parameter entityId was null or undefined when calling listEntityAliasesEndpointAgentsAgentIdClaimsEntitiesEntityIdAliasesGet.');
+            }
+            const localVarPath = `/agents/{agent_id}/claims/entities/{entity_id}/aliases`
+                .replace(`{${"agent_id"}}`, encodeURIComponent(String(agentId)))
+                .replace(`{${"entity_id"}}`, encodeURIComponent(String(entityId)));
+            const localVarUrlObj = url.parse(localVarPath, true);
+            const localVarRequestOptions = Object.assign({ method: 'GET' }, options);
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication BearerApiKey required
+            if (configuration && configuration.apiKey) {
+                const localVarApiKeyValue = typeof configuration.apiKey === 'function'
+					? configuration.apiKey("Authorization")
+					: configuration.apiKey;
+                localVarHeaderParameter["Authorization"] = localVarApiKeyValue;
             }
 
             localVarUrlObj.query = Object.assign({}, localVarUrlObj.query, localVarQueryParameter, options.query);
@@ -7934,6 +9209,49 @@ export const ClaimsApiFetchParamCreator = function (configuration?: Configuratio
                 options: localVarRequestOptions,
             };
         },
+        /**
+         * Withdraw a merge and reopen exactly the versions it closed. The repair path for the one destructive operation in the claim layer: a wrong merge folds two unrelated properties into one history and the earlier one silently stops binding. Repairs beliefs, not actions.
+         * @summary Withdraw an attribute merge
+         * @param {any} agentId Hosted agent UUID returned by the agent create or list endpoint.
+         * @param {any} mergeId Attribute merge edge UUID returned by the merge listing endpoint.
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        reverseAttributeMergeEndpointAgentsAgentIdClaimsAttributeMergesMergeIdReversePost(agentId: any, mergeId: any, options: any = {}): FetchArgs {
+            // verify required parameter 'agentId' is not null or undefined
+            if (agentId === null || agentId === undefined) {
+                throw new RequiredError('agentId','Required parameter agentId was null or undefined when calling reverseAttributeMergeEndpointAgentsAgentIdClaimsAttributeMergesMergeIdReversePost.');
+            }
+            // verify required parameter 'mergeId' is not null or undefined
+            if (mergeId === null || mergeId === undefined) {
+                throw new RequiredError('mergeId','Required parameter mergeId was null or undefined when calling reverseAttributeMergeEndpointAgentsAgentIdClaimsAttributeMergesMergeIdReversePost.');
+            }
+            const localVarPath = `/agents/{agent_id}/claims/attribute-merges/{merge_id}/reverse`
+                .replace(`{${"agent_id"}}`, encodeURIComponent(String(agentId)))
+                .replace(`{${"merge_id"}}`, encodeURIComponent(String(mergeId)));
+            const localVarUrlObj = url.parse(localVarPath, true);
+            const localVarRequestOptions = Object.assign({ method: 'POST' }, options);
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication BearerApiKey required
+            if (configuration && configuration.apiKey) {
+                const localVarApiKeyValue = typeof configuration.apiKey === 'function'
+					? configuration.apiKey("Authorization")
+					: configuration.apiKey;
+                localVarHeaderParameter["Authorization"] = localVarApiKeyValue;
+            }
+
+            localVarUrlObj.query = Object.assign({}, localVarUrlObj.query, localVarQueryParameter, options.query);
+            // fix override query string Detail: https://stackoverflow.com/a/7517673/1077943
+            localVarUrlObj.search = null;
+            localVarRequestOptions.headers = Object.assign({}, localVarHeaderParameter, options.headers);
+
+            return {
+                url: url.format(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
     }
 };
 
@@ -8048,6 +9366,26 @@ export const ClaimsApiFp = function(configuration?: Configuration) {
             };
         },
         /**
+         * Returns the attribute_key for a registry UUID so a curator can confirm they are adopting an abstained claim under the intended filing slot before the one-shot adopt.
+         * @summary Resolve a claim attribute registry id
+         * @param {any} agentId Hosted agent UUID returned by the agent create or list endpoint.
+         * @param {any} attributeId Claim attribute registry UUID (filing slot for structured facts).
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        getAttributeEndpointAgentsAgentIdClaimsAttributesAttributeIdGet(agentId: any, attributeId: any, options?: any): (fetch?: FetchAPI, basePath?: string) => Promise<AttributeRef> {
+            const localVarFetchArgs = ClaimsApiFetchParamCreator(configuration).getAttributeEndpointAgentsAgentIdClaimsAttributesAttributeIdGet(agentId, attributeId, options);
+            return (fetch: FetchAPI = isomorphicFetch, basePath: string = BASE_PATH) => {
+                return fetch(basePath + localVarFetchArgs.url, localVarFetchArgs.options).then((response) => {
+                    if (response.status >= 200 && response.status < 300) {
+                        return response.json();
+                    } else {
+                        throw response;
+                    }
+                });
+            };
+        },
+        /**
          * Every version of every claim the agent holds about one entity, including quarantined and disputed versions the agent-facing recall path never surfaces. Answers what the agent knows about this entity, on whose word, and since when.
          * @summary Get an entity's curation dossier
          * @param {any} agentId Hosted agent UUID returned by the agent create or list endpoint.
@@ -8097,6 +9435,45 @@ export const ClaimsApiFp = function(configuration?: Configuration) {
          */
         listAbstainedQueueEndpointOrgClaimsAbstainedGet(limit?: any, cursor?: any, options?: any): (fetch?: FetchAPI, basePath?: string) => Promise<AbstainedQueueResponse> {
             const localVarFetchArgs = ClaimsApiFetchParamCreator(configuration).listAbstainedQueueEndpointOrgClaimsAbstainedGet(limit, cursor, options);
+            return (fetch: FetchAPI = isomorphicFetch, basePath: string = BASE_PATH) => {
+                return fetch(basePath + localVarFetchArgs.url, localVarFetchArgs.options).then((response) => {
+                    if (response.status >= 200 && response.status < 300) {
+                        return response.json();
+                    } else {
+                        throw response;
+                    }
+                });
+            };
+        },
+        /**
+         * Every assertion that two attribute keys name the same property, newest first, active and withdrawn alike. A withdrawn edge is kept rather than deleted, because the supersessions it caused are recorded against it.
+         * @summary List attribute merge edges
+         * @param {any} agentId Hosted agent UUID returned by the agent create or list endpoint.
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        listAttributeMergesEndpointAgentsAgentIdClaimsAttributeMergesGet(agentId: any, options?: any): (fetch?: FetchAPI, basePath?: string) => Promise<AttributeMergesResponse> {
+            const localVarFetchArgs = ClaimsApiFetchParamCreator(configuration).listAttributeMergesEndpointAgentsAgentIdClaimsAttributeMergesGet(agentId, options);
+            return (fetch: FetchAPI = isomorphicFetch, basePath: string = BASE_PATH) => {
+                return fetch(basePath + localVarFetchArgs.url, localVarFetchArgs.options).then((response) => {
+                    if (response.status >= 200 && response.status < 300) {
+                        return response.json();
+                    } else {
+                        throw response;
+                    }
+                });
+            };
+        },
+        /**
+         * Every alias surface form linked to this entity (active and inactive), newest first. Used by the curation console so a reviewer can see which names already fold onto the entity before authoring another.
+         * @summary List aliases for an entity
+         * @param {any} agentId Hosted agent UUID returned by the agent create or list endpoint.
+         * @param {any} entityId Claim entity UUID (the unit of identity and of erasure).
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        listEntityAliasesEndpointAgentsAgentIdClaimsEntitiesEntityIdAliasesGet(agentId: any, entityId: any, options?: any): (fetch?: FetchAPI, basePath?: string) => Promise<EntityAliasesResponse> {
+            const localVarFetchArgs = ClaimsApiFetchParamCreator(configuration).listEntityAliasesEndpointAgentsAgentIdClaimsEntitiesEntityIdAliasesGet(agentId, entityId, options);
             return (fetch: FetchAPI = isomorphicFetch, basePath: string = BASE_PATH) => {
                 return fetch(basePath + localVarFetchArgs.url, localVarFetchArgs.options).then((response) => {
                     if (response.status >= 200 && response.status < 300) {
@@ -8211,6 +9588,26 @@ export const ClaimsApiFp = function(configuration?: Configuration) {
                 });
             };
         },
+        /**
+         * Withdraw a merge and reopen exactly the versions it closed. The repair path for the one destructive operation in the claim layer: a wrong merge folds two unrelated properties into one history and the earlier one silently stops binding. Repairs beliefs, not actions.
+         * @summary Withdraw an attribute merge
+         * @param {any} agentId Hosted agent UUID returned by the agent create or list endpoint.
+         * @param {any} mergeId Attribute merge edge UUID returned by the merge listing endpoint.
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        reverseAttributeMergeEndpointAgentsAgentIdClaimsAttributeMergesMergeIdReversePost(agentId: any, mergeId: any, options?: any): (fetch?: FetchAPI, basePath?: string) => Promise<AttributeMergeReversalResponse> {
+            const localVarFetchArgs = ClaimsApiFetchParamCreator(configuration).reverseAttributeMergeEndpointAgentsAgentIdClaimsAttributeMergesMergeIdReversePost(agentId, mergeId, options);
+            return (fetch: FetchAPI = isomorphicFetch, basePath: string = BASE_PATH) => {
+                return fetch(basePath + localVarFetchArgs.url, localVarFetchArgs.options).then((response) => {
+                    if (response.status >= 200 && response.status < 300) {
+                        return response.json();
+                    } else {
+                        throw response;
+                    }
+                });
+            };
+        },
     }
 };
 
@@ -8280,6 +9677,17 @@ export const ClaimsApiFactory = function (configuration?: Configuration, fetch?:
             return ClaimsApiFp(configuration).eraseEntityEndpointAgentsAgentIdClaimsEntitiesEntityIdErasurePost(agentId, entityId, options)(fetch, basePath);
         },
         /**
+         * Returns the attribute_key for a registry UUID so a curator can confirm they are adopting an abstained claim under the intended filing slot before the one-shot adopt.
+         * @summary Resolve a claim attribute registry id
+         * @param {any} agentId Hosted agent UUID returned by the agent create or list endpoint.
+         * @param {any} attributeId Claim attribute registry UUID (filing slot for structured facts).
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        getAttributeEndpointAgentsAgentIdClaimsAttributesAttributeIdGet(agentId: any, attributeId: any, options?: any) {
+            return ClaimsApiFp(configuration).getAttributeEndpointAgentsAgentIdClaimsAttributesAttributeIdGet(agentId, attributeId, options)(fetch, basePath);
+        },
+        /**
          * Every version of every claim the agent holds about one entity, including quarantined and disputed versions the agent-facing recall path never surfaces. Answers what the agent knows about this entity, on whose word, and since when.
          * @summary Get an entity's curation dossier
          * @param {any} agentId Hosted agent UUID returned by the agent create or list endpoint.
@@ -8311,6 +9719,27 @@ export const ClaimsApiFactory = function (configuration?: Configuration, fetch?:
          */
         listAbstainedQueueEndpointOrgClaimsAbstainedGet(limit?: any, cursor?: any, options?: any) {
             return ClaimsApiFp(configuration).listAbstainedQueueEndpointOrgClaimsAbstainedGet(limit, cursor, options)(fetch, basePath);
+        },
+        /**
+         * Every assertion that two attribute keys name the same property, newest first, active and withdrawn alike. A withdrawn edge is kept rather than deleted, because the supersessions it caused are recorded against it.
+         * @summary List attribute merge edges
+         * @param {any} agentId Hosted agent UUID returned by the agent create or list endpoint.
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        listAttributeMergesEndpointAgentsAgentIdClaimsAttributeMergesGet(agentId: any, options?: any) {
+            return ClaimsApiFp(configuration).listAttributeMergesEndpointAgentsAgentIdClaimsAttributeMergesGet(agentId, options)(fetch, basePath);
+        },
+        /**
+         * Every alias surface form linked to this entity (active and inactive), newest first. Used by the curation console so a reviewer can see which names already fold onto the entity before authoring another.
+         * @summary List aliases for an entity
+         * @param {any} agentId Hosted agent UUID returned by the agent create or list endpoint.
+         * @param {any} entityId Claim entity UUID (the unit of identity and of erasure).
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        listEntityAliasesEndpointAgentsAgentIdClaimsEntitiesEntityIdAliasesGet(agentId: any, entityId: any, options?: any) {
+            return ClaimsApiFp(configuration).listEntityAliasesEndpointAgentsAgentIdClaimsEntitiesEntityIdAliasesGet(agentId, entityId, options)(fetch, basePath);
         },
         /**
          * The tenant's quarantined claims, fanned across its agents and each labelled with its owning agent. A quarantined claim is a possible injection or a high-stakes supersession that a human must judge before it can bind. recorded_at keyset pagination.
@@ -8370,6 +9799,17 @@ export const ClaimsApiFactory = function (configuration?: Configuration, fetch?:
          */
         resolveSplitProposalEndpointAgentsAgentIdClaimsSplitProposalsProposalIdResolvePost(body: ResolveSplitRequest, agentId: any, proposalId: any, options?: any) {
             return ClaimsApiFp(configuration).resolveSplitProposalEndpointAgentsAgentIdClaimsSplitProposalsProposalIdResolvePost(body, agentId, proposalId, options)(fetch, basePath);
+        },
+        /**
+         * Withdraw a merge and reopen exactly the versions it closed. The repair path for the one destructive operation in the claim layer: a wrong merge folds two unrelated properties into one history and the earlier one silently stops binding. Repairs beliefs, not actions.
+         * @summary Withdraw an attribute merge
+         * @param {any} agentId Hosted agent UUID returned by the agent create or list endpoint.
+         * @param {any} mergeId Attribute merge edge UUID returned by the merge listing endpoint.
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        reverseAttributeMergeEndpointAgentsAgentIdClaimsAttributeMergesMergeIdReversePost(agentId: any, mergeId: any, options?: any) {
+            return ClaimsApiFp(configuration).reverseAttributeMergeEndpointAgentsAgentIdClaimsAttributeMergesMergeIdReversePost(agentId, mergeId, options)(fetch, basePath);
         },
     };
 };
@@ -8451,6 +9891,19 @@ export class ClaimsApi extends BaseAPI {
     }
 
     /**
+     * Returns the attribute_key for a registry UUID so a curator can confirm they are adopting an abstained claim under the intended filing slot before the one-shot adopt.
+     * @summary Resolve a claim attribute registry id
+     * @param {any} agentId Hosted agent UUID returned by the agent create or list endpoint.
+     * @param {any} attributeId Claim attribute registry UUID (filing slot for structured facts).
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof ClaimsApi
+     */
+    public getAttributeEndpointAgentsAgentIdClaimsAttributesAttributeIdGet(agentId: any, attributeId: any, options?: any) {
+        return ClaimsApiFp(this.configuration).getAttributeEndpointAgentsAgentIdClaimsAttributesAttributeIdGet(agentId, attributeId, options)(this.fetch, this.basePath);
+    }
+
+    /**
      * Every version of every claim the agent holds about one entity, including quarantined and disputed versions the agent-facing recall path never surfaces. Answers what the agent knows about this entity, on whose word, and since when.
      * @summary Get an entity's curation dossier
      * @param {any} agentId Hosted agent UUID returned by the agent create or list endpoint.
@@ -8487,6 +9940,31 @@ export class ClaimsApi extends BaseAPI {
      */
     public listAbstainedQueueEndpointOrgClaimsAbstainedGet(limit?: any, cursor?: any, options?: any) {
         return ClaimsApiFp(this.configuration).listAbstainedQueueEndpointOrgClaimsAbstainedGet(limit, cursor, options)(this.fetch, this.basePath);
+    }
+
+    /**
+     * Every assertion that two attribute keys name the same property, newest first, active and withdrawn alike. A withdrawn edge is kept rather than deleted, because the supersessions it caused are recorded against it.
+     * @summary List attribute merge edges
+     * @param {any} agentId Hosted agent UUID returned by the agent create or list endpoint.
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof ClaimsApi
+     */
+    public listAttributeMergesEndpointAgentsAgentIdClaimsAttributeMergesGet(agentId: any, options?: any) {
+        return ClaimsApiFp(this.configuration).listAttributeMergesEndpointAgentsAgentIdClaimsAttributeMergesGet(agentId, options)(this.fetch, this.basePath);
+    }
+
+    /**
+     * Every alias surface form linked to this entity (active and inactive), newest first. Used by the curation console so a reviewer can see which names already fold onto the entity before authoring another.
+     * @summary List aliases for an entity
+     * @param {any} agentId Hosted agent UUID returned by the agent create or list endpoint.
+     * @param {any} entityId Claim entity UUID (the unit of identity and of erasure).
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof ClaimsApi
+     */
+    public listEntityAliasesEndpointAgentsAgentIdClaimsEntitiesEntityIdAliasesGet(agentId: any, entityId: any, options?: any) {
+        return ClaimsApiFp(this.configuration).listEntityAliasesEndpointAgentsAgentIdClaimsEntitiesEntityIdAliasesGet(agentId, entityId, options)(this.fetch, this.basePath);
     }
 
     /**
@@ -8556,6 +10034,19 @@ export class ClaimsApi extends BaseAPI {
      */
     public resolveSplitProposalEndpointAgentsAgentIdClaimsSplitProposalsProposalIdResolvePost(body: ResolveSplitRequest, agentId: any, proposalId: any, options?: any) {
         return ClaimsApiFp(this.configuration).resolveSplitProposalEndpointAgentsAgentIdClaimsSplitProposalsProposalIdResolvePost(body, agentId, proposalId, options)(this.fetch, this.basePath);
+    }
+
+    /**
+     * Withdraw a merge and reopen exactly the versions it closed. The repair path for the one destructive operation in the claim layer: a wrong merge folds two unrelated properties into one history and the earlier one silently stops binding. Repairs beliefs, not actions.
+     * @summary Withdraw an attribute merge
+     * @param {any} agentId Hosted agent UUID returned by the agent create or list endpoint.
+     * @param {any} mergeId Attribute merge edge UUID returned by the merge listing endpoint.
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof ClaimsApi
+     */
+    public reverseAttributeMergeEndpointAgentsAgentIdClaimsAttributeMergesMergeIdReversePost(agentId: any, mergeId: any, options?: any) {
+        return ClaimsApiFp(this.configuration).reverseAttributeMergeEndpointAgentsAgentIdClaimsAttributeMergesMergeIdReversePost(agentId, mergeId, options)(this.fetch, this.basePath);
     }
 
 }
@@ -8667,104 +10158,50 @@ export class EntitlementsApi extends BaseAPI {
  * LearningBoundaryApi - fetch parameter creator
  * @export
  */
-const boundaryDefined = (value: any): boolean => value !== undefined;
-
-const boundaryValue = (body: any, camelKey: string, snakeKey: string): any => {
-    const camelValue = body[camelKey];
-    if (boundaryDefined(camelValue)) {
-        return camelValue;
-    }
-    return body[snakeKey];
-};
-
-const boundaryCompact = (body: any): any => {
-    const compacted = {} as any;
-    for (const key of Object.keys(body)) {
-        const value = body[key];
-        if (boundaryDefined(value)) {
-            compacted[key] = value;
-        }
-    }
-    return compacted;
-};
-
-const boundaryEpisode = (episode: any): any => {
-    if (!episode || typeof episode !== "object") {
-        return episode;
-    }
-    return boundaryCompact({
-        run_id: boundaryValue(episode, "runId", "run_id"),
-        goal: episode.goal,
-        steps: Array.isArray(episode.steps)
-            ? episode.steps.map((step: any) => boundaryCompact({
-                id: step.id,
-                name: step.name,
-                args: step.args,
-                status: step.status,
-                result: step.result,
-                error: step.error,
-                declared_sensitivity: boundaryValue(step, "declaredSensitivity", "declared_sensitivity"),
-            }))
-            : episode.steps,
-        outcome: episode.outcome ? boundaryCompact({
-            is_success: boundaryValue(episode.outcome, "isSuccess", "is_success"),
-            total_steps: boundaryValue(episode.outcome, "totalSteps", "total_steps"),
-            completed_steps: boundaryValue(episode.outcome, "completedSteps", "completed_steps"),
-            failed_steps: boundaryValue(episode.outcome, "failedSteps", "failed_steps"),
-        }) : episode.outcome,
-        source_framework: boundaryValue(episode, "sourceFramework", "source_framework"),
-        thread_id: boundaryValue(episode, "threadId", "thread_id"),
-    });
-};
-
-const boundaryDistillOutcome = (outcome: any): any => {
-    if (!outcome || typeof outcome !== "object") {
-        return outcome;
-    }
-    return boundaryCompact({
-        is_success: boundaryValue(outcome, "isSuccess", "is_success"),
-        summary: outcome.summary,
-    });
-};
-
-const boundaryEvidence = (evidence: any): any => {
-    if (!Array.isArray(evidence)) {
-        return evidence;
-    }
-    return evidence.map((item: any) => boundaryCompact({
-        id: item.id,
-        content: item.content,
-        label: item.label,
-        role: item.role,
-        status: item.status,
-        source_ref: boundaryValue(item, "sourceRef", "source_ref"),
-    }));
-};
-
-const serializeLearningBoundaryRequest = (body: any): any => boundaryCompact({
-    agent_name: boundaryValue(body, "agentName", "agent_name"),
-    org_id: boundaryValue(body, "orgId", "org_id"),
-    run_id: boundaryValue(body, "runId", "run_id"),
-    goal: body.goal,
-    source_framework: boundaryValue(body, "sourceFramework", "source_framework"),
-    available_tools: boundaryValue(body, "availableTools", "available_tools"),
-    max_learnings: boundaryValue(body, "maxLearnings", "max_learnings"),
-    model_context_window: boundaryValue(body, "modelContextWindow", "model_context_window"),
-    retrieval: body.retrieval,
-    resolve_idempotency_key: boundaryValue(body, "resolveIdempotencyKey", "resolve_idempotency_key"),
-    episode: boundaryEpisode(body.episode),
-    is_org_promotion_allowed: boundaryValue(body, "isOrgPromotionAllowed", "is_org_promotion_allowed"),
-    evidence: boundaryEvidence(body.evidence),
-    outcome: boundaryDistillOutcome(body.outcome),
-    evaluation: body.evaluation,
-    synthesis_notes: boundaryValue(body, "synthesisNotes", "synthesis_notes"),
-    occurred_at: boundaryValue(body, "occurredAt", "occurred_at"),
-});
-
 export const LearningBoundaryApiFetchParamCreator = function (configuration?: Configuration) {
     return {
         /**
-         * Distill durable learnings from post-mortems, documents, diffs, or analysis without inventing tool steps. Submit at least two evidence items and a contrast signal. `run_id` is a caller-created idempotency and tracing value, must begin with `distill:`, and does not reference `GET /runs/{run_id}`. A valid request may yield no learning. Pre-redact secrets from evidence.
+         * Close a run the caller resolved but will not write back for, because the turn ended with nothing worth learning from. Supply ``agent_name`` (your agent's human-readable name, not the hosted UUID from `/agents/{agent_id}`). If no agent with that name exists yet, one is created automatically on first use within your tenant. Use this instead of going silent: an unclosed run is indistinguishable from a host that stopped writing back, and only the caller knows which it is. Nothing is added to the corpus. Set `is_delivered` when the recall reached the model this turn, so the resolve is billed for what was received and released otherwise. A `run_id` this agent never resolved is accepted and ignored.
+         * @summary Close a run whose turn had nothing worth learning
+         * @param {DeclineRequest} body 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        declineEndpointDeclinePost(body: DeclineRequest, options: any = {}): FetchArgs {
+            // verify required parameter 'body' is not null or undefined
+            if (body === null || body === undefined) {
+                throw new RequiredError('body','Required parameter body was null or undefined when calling declineEndpointDeclinePost.');
+            }
+            const localVarPath = `/decline`;
+            const localVarUrlObj = url.parse(localVarPath, true);
+            const localVarRequestOptions = Object.assign({ method: 'POST' }, options);
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication BearerApiKey required
+            if (configuration && configuration.apiKey) {
+                const localVarApiKeyValue = typeof configuration.apiKey === 'function'
+					? configuration.apiKey("Authorization")
+					: configuration.apiKey;
+                localVarHeaderParameter["Authorization"] = localVarApiKeyValue;
+            }
+
+            localVarHeaderParameter['Content-Type'] = 'application/json';
+
+            localVarUrlObj.query = Object.assign({}, localVarUrlObj.query, localVarQueryParameter, options.query);
+            // fix override query string Detail: https://stackoverflow.com/a/7517673/1077943
+            localVarUrlObj.search = null;
+            localVarRequestOptions.headers = Object.assign({}, localVarHeaderParameter, options.headers);
+            const needsSerialization = (<any>"DeclineRequest" !== "string") || localVarRequestOptions.headers['Content-Type'] === 'application/json';
+            localVarRequestOptions.body =  needsSerialization ? JSON.stringify(body || {}) : (body || "");
+
+            return {
+                url: url.format(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * Distill durable learnings from post-mortems, documents, diffs, or analysis without inventing tool steps. Supply ``agent_name`` (your agent's human-readable name, not the hosted UUID from `/agents/{agent_id}`). If no agent with that name exists yet, one is created automatically on first use within your tenant. Submit at least two evidence items and a contrast signal. `run_id` is a caller-created idempotency and tracing value, must begin with `distill:`, and does not reference `GET /runs/{run_id}`. A valid request may yield no learning. Pre-redact secrets from evidence.
          * @summary Distill learnings from a corpus of evidence
          * @param {DistillRequest} body 
          * @param {*} [options] Override http request option.
@@ -8796,7 +10233,7 @@ export const LearningBoundaryApiFetchParamCreator = function (configuration?: Co
             localVarUrlObj.search = null;
             localVarRequestOptions.headers = Object.assign({}, localVarHeaderParameter, options.headers);
             const needsSerialization = (<any>"DistillRequest" !== "string") || localVarRequestOptions.headers['Content-Type'] === 'application/json';
-            localVarRequestOptions.body =  needsSerialization ? JSON.stringify(serializeLearningBoundaryRequest(body || {})) : (body || "");
+            localVarRequestOptions.body =  needsSerialization ? JSON.stringify(body || {}) : (body || "");
 
             return {
                 url: url.format(localVarUrlObj),
@@ -8845,7 +10282,7 @@ export const LearningBoundaryApiFetchParamCreator = function (configuration?: Co
             };
         },
         /**
-         * Submit a completed episode for asynchronous learning extraction. Direct API callers may construct the episode themselves; LangGraph is not required. Use a meaningful execution trace rather than documents or invented tool steps—use `/distill` for corpus evidence. The caller-owned episode `run_id` is an idempotency and correlation key, not a hosted run UUID.
+         * Submit a completed episode for asynchronous learning extraction. Supply ``agent_name`` (your agent's human-readable name, not the hosted UUID from `/agents/{agent_id}`). If no agent with that name exists yet, one is created automatically on first use within your tenant. Direct API callers may construct the episode themselves; LangGraph is not required. Use a meaningful execution trace rather than documents or invented tool steps—use `/distill` for corpus evidence. The caller-owned episode `run_id` is an idempotency and correlation key, not a hosted run UUID.
          * @summary Observe a finished episode
          * @param {ObserveRequest} body 
          * @param {*} [options] Override http request option.
@@ -8877,7 +10314,7 @@ export const LearningBoundaryApiFetchParamCreator = function (configuration?: Co
             localVarUrlObj.search = null;
             localVarRequestOptions.headers = Object.assign({}, localVarHeaderParameter, options.headers);
             const needsSerialization = (<any>"ObserveRequest" !== "string") || localVarRequestOptions.headers['Content-Type'] === 'application/json';
-            localVarRequestOptions.body =  needsSerialization ? JSON.stringify(serializeLearningBoundaryRequest(body || {})) : (body || "");
+            localVarRequestOptions.body =  needsSerialization ? JSON.stringify(body || {}) : (body || "");
 
             return {
                 url: url.format(localVarUrlObj),
@@ -8885,7 +10322,7 @@ export const LearningBoundaryApiFetchParamCreator = function (configuration?: Co
             };
         },
         /**
-         * Submit the completed outcome used to credit or correct learnings previously offered by resolve. Reuse the same caller-owned `run_id`; it is an idempotency and attribution key, not a hosted run UUID. Processing is asynchronous and the endpoint returns 202 when accepted.
+         * Submit the completed outcome used to credit or correct learnings previously offered by resolve. Supply ``agent_name`` (your agent's human-readable name, not the hosted UUID from `/agents/{agent_id}`). If no agent with that name exists yet, one is created automatically on first use within your tenant. Reuse the same caller-owned `run_id`; it is an idempotency and attribution key, not a hosted run UUID. Processing is asynchronous and the endpoint returns 202 when accepted.
          * @summary Reinforce the learnings a run used
          * @param {ReinforceRequest} body 
          * @param {*} [options] Override http request option.
@@ -8917,7 +10354,7 @@ export const LearningBoundaryApiFetchParamCreator = function (configuration?: Co
             localVarUrlObj.search = null;
             localVarRequestOptions.headers = Object.assign({}, localVarHeaderParameter, options.headers);
             const needsSerialization = (<any>"ReinforceRequest" !== "string") || localVarRequestOptions.headers['Content-Type'] === 'application/json';
-            localVarRequestOptions.body =  needsSerialization ? JSON.stringify(serializeLearningBoundaryRequest(body || {})) : (body || "");
+            localVarRequestOptions.body =  needsSerialization ? JSON.stringify(body || {}) : (body || "");
 
             return {
                 url: url.format(localVarUrlObj),
@@ -8925,7 +10362,7 @@ export const LearningBoundaryApiFetchParamCreator = function (configuration?: Co
             };
         },
         /**
-         * Retrieve relevant learnings before external work begins. `run_id` is a caller-created correlation identifier, not a hosted run UUID. Reuse the same value with observe and reinforce so feedback can be attributed to the learnings offered here.
+         * Retrieve relevant learnings before external work begins. Supply ``agent_name`` (your agent's human-readable name, not the hosted UUID from `/agents/{agent_id}`). If no agent with that name exists yet, one is created automatically on first use within your tenant. `run_id` is a caller-created correlation identifier, not a hosted run UUID. Reuse the same value with observe and reinforce so feedback can be attributed to the learnings offered here.
          * @summary Resolve the learnings bound to a goal
          * @param {ResolveRequest} body 
          * @param {*} [options] Override http request option.
@@ -8957,7 +10394,7 @@ export const LearningBoundaryApiFetchParamCreator = function (configuration?: Co
             localVarUrlObj.search = null;
             localVarRequestOptions.headers = Object.assign({}, localVarHeaderParameter, options.headers);
             const needsSerialization = (<any>"ResolveRequest" !== "string") || localVarRequestOptions.headers['Content-Type'] === 'application/json';
-            localVarRequestOptions.body =  needsSerialization ? JSON.stringify(serializeLearningBoundaryRequest(body || {})) : (body || "");
+            localVarRequestOptions.body =  needsSerialization ? JSON.stringify(body || {}) : (body || "");
 
             return {
                 url: url.format(localVarUrlObj),
@@ -8974,7 +10411,26 @@ export const LearningBoundaryApiFetchParamCreator = function (configuration?: Co
 export const LearningBoundaryApiFp = function(configuration?: Configuration) {
     return {
         /**
-         * Distill durable learnings from post-mortems, documents, diffs, or analysis without inventing tool steps. Submit at least two evidence items and a contrast signal. `run_id` is a caller-created idempotency and tracing value, must begin with `distill:`, and does not reference `GET /runs/{run_id}`. A valid request may yield no learning. Pre-redact secrets from evidence.
+         * Close a run the caller resolved but will not write back for, because the turn ended with nothing worth learning from. Supply ``agent_name`` (your agent's human-readable name, not the hosted UUID from `/agents/{agent_id}`). If no agent with that name exists yet, one is created automatically on first use within your tenant. Use this instead of going silent: an unclosed run is indistinguishable from a host that stopped writing back, and only the caller knows which it is. Nothing is added to the corpus. Set `is_delivered` when the recall reached the model this turn, so the resolve is billed for what was received and released otherwise. A `run_id` this agent never resolved is accepted and ignored.
+         * @summary Close a run whose turn had nothing worth learning
+         * @param {DeclineRequest} body 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        declineEndpointDeclinePost(body: DeclineRequest, options?: any): (fetch?: FetchAPI, basePath?: string) => Promise<BoundaryAcceptedResponse> {
+            const localVarFetchArgs = LearningBoundaryApiFetchParamCreator(configuration).declineEndpointDeclinePost(body, options);
+            return (fetch: FetchAPI = isomorphicFetch, basePath: string = BASE_PATH) => {
+                return fetch(basePath + localVarFetchArgs.url, localVarFetchArgs.options).then((response) => {
+                    if (response.status >= 200 && response.status < 300) {
+                        return response.json();
+                    } else {
+                        throw response;
+                    }
+                });
+            };
+        },
+        /**
+         * Distill durable learnings from post-mortems, documents, diffs, or analysis without inventing tool steps. Supply ``agent_name`` (your agent's human-readable name, not the hosted UUID from `/agents/{agent_id}`). If no agent with that name exists yet, one is created automatically on first use within your tenant. Submit at least two evidence items and a contrast signal. `run_id` is a caller-created idempotency and tracing value, must begin with `distill:`, and does not reference `GET /runs/{run_id}`. A valid request may yield no learning. Pre-redact secrets from evidence.
          * @summary Distill learnings from a corpus of evidence
          * @param {DistillRequest} body 
          * @param {*} [options] Override http request option.
@@ -9013,7 +10469,7 @@ export const LearningBoundaryApiFp = function(configuration?: Configuration) {
             };
         },
         /**
-         * Submit a completed episode for asynchronous learning extraction. Direct API callers may construct the episode themselves; LangGraph is not required. Use a meaningful execution trace rather than documents or invented tool steps—use `/distill` for corpus evidence. The caller-owned episode `run_id` is an idempotency and correlation key, not a hosted run UUID.
+         * Submit a completed episode for asynchronous learning extraction. Supply ``agent_name`` (your agent's human-readable name, not the hosted UUID from `/agents/{agent_id}`). If no agent with that name exists yet, one is created automatically on first use within your tenant. Direct API callers may construct the episode themselves; LangGraph is not required. Use a meaningful execution trace rather than documents or invented tool steps—use `/distill` for corpus evidence. The caller-owned episode `run_id` is an idempotency and correlation key, not a hosted run UUID.
          * @summary Observe a finished episode
          * @param {ObserveRequest} body 
          * @param {*} [options] Override http request option.
@@ -9032,7 +10488,7 @@ export const LearningBoundaryApiFp = function(configuration?: Configuration) {
             };
         },
         /**
-         * Submit the completed outcome used to credit or correct learnings previously offered by resolve. Reuse the same caller-owned `run_id`; it is an idempotency and attribution key, not a hosted run UUID. Processing is asynchronous and the endpoint returns 202 when accepted.
+         * Submit the completed outcome used to credit or correct learnings previously offered by resolve. Supply ``agent_name`` (your agent's human-readable name, not the hosted UUID from `/agents/{agent_id}`). If no agent with that name exists yet, one is created automatically on first use within your tenant. Reuse the same caller-owned `run_id`; it is an idempotency and attribution key, not a hosted run UUID. Processing is asynchronous and the endpoint returns 202 when accepted.
          * @summary Reinforce the learnings a run used
          * @param {ReinforceRequest} body 
          * @param {*} [options] Override http request option.
@@ -9051,7 +10507,7 @@ export const LearningBoundaryApiFp = function(configuration?: Configuration) {
             };
         },
         /**
-         * Retrieve relevant learnings before external work begins. `run_id` is a caller-created correlation identifier, not a hosted run UUID. Reuse the same value with observe and reinforce so feedback can be attributed to the learnings offered here.
+         * Retrieve relevant learnings before external work begins. Supply ``agent_name`` (your agent's human-readable name, not the hosted UUID from `/agents/{agent_id}`). If no agent with that name exists yet, one is created automatically on first use within your tenant. `run_id` is a caller-created correlation identifier, not a hosted run UUID. Reuse the same value with observe and reinforce so feedback can be attributed to the learnings offered here.
          * @summary Resolve the learnings bound to a goal
          * @param {ResolveRequest} body 
          * @param {*} [options] Override http request option.
@@ -9079,7 +10535,17 @@ export const LearningBoundaryApiFp = function(configuration?: Configuration) {
 export const LearningBoundaryApiFactory = function (configuration?: Configuration, fetch?: FetchAPI, basePath?: string) {
     return {
         /**
-         * Distill durable learnings from post-mortems, documents, diffs, or analysis without inventing tool steps. Submit at least two evidence items and a contrast signal. `run_id` is a caller-created idempotency and tracing value, must begin with `distill:`, and does not reference `GET /runs/{run_id}`. A valid request may yield no learning. Pre-redact secrets from evidence.
+         * Close a run the caller resolved but will not write back for, because the turn ended with nothing worth learning from. Supply ``agent_name`` (your agent's human-readable name, not the hosted UUID from `/agents/{agent_id}`). If no agent with that name exists yet, one is created automatically on first use within your tenant. Use this instead of going silent: an unclosed run is indistinguishable from a host that stopped writing back, and only the caller knows which it is. Nothing is added to the corpus. Set `is_delivered` when the recall reached the model this turn, so the resolve is billed for what was received and released otherwise. A `run_id` this agent never resolved is accepted and ignored.
+         * @summary Close a run whose turn had nothing worth learning
+         * @param {DeclineRequest} body 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        declineEndpointDeclinePost(body: DeclineRequest, options?: any) {
+            return LearningBoundaryApiFp(configuration).declineEndpointDeclinePost(body, options)(fetch, basePath);
+        },
+        /**
+         * Distill durable learnings from post-mortems, documents, diffs, or analysis without inventing tool steps. Supply ``agent_name`` (your agent's human-readable name, not the hosted UUID from `/agents/{agent_id}`). If no agent with that name exists yet, one is created automatically on first use within your tenant. Submit at least two evidence items and a contrast signal. `run_id` is a caller-created idempotency and tracing value, must begin with `distill:`, and does not reference `GET /runs/{run_id}`. A valid request may yield no learning. Pre-redact secrets from evidence.
          * @summary Distill learnings from a corpus of evidence
          * @param {DistillRequest} body 
          * @param {*} [options] Override http request option.
@@ -9100,7 +10566,7 @@ export const LearningBoundaryApiFactory = function (configuration?: Configuratio
             return LearningBoundaryApiFp(configuration).funnelEndpointFunnelGet(windowHours, graceMinutes, options)(fetch, basePath);
         },
         /**
-         * Submit a completed episode for asynchronous learning extraction. Direct API callers may construct the episode themselves; LangGraph is not required. Use a meaningful execution trace rather than documents or invented tool steps—use `/distill` for corpus evidence. The caller-owned episode `run_id` is an idempotency and correlation key, not a hosted run UUID.
+         * Submit a completed episode for asynchronous learning extraction. Supply ``agent_name`` (your agent's human-readable name, not the hosted UUID from `/agents/{agent_id}`). If no agent with that name exists yet, one is created automatically on first use within your tenant. Direct API callers may construct the episode themselves; LangGraph is not required. Use a meaningful execution trace rather than documents or invented tool steps—use `/distill` for corpus evidence. The caller-owned episode `run_id` is an idempotency and correlation key, not a hosted run UUID.
          * @summary Observe a finished episode
          * @param {ObserveRequest} body 
          * @param {*} [options] Override http request option.
@@ -9110,7 +10576,7 @@ export const LearningBoundaryApiFactory = function (configuration?: Configuratio
             return LearningBoundaryApiFp(configuration).observeEndpointObservePost(body, options)(fetch, basePath);
         },
         /**
-         * Submit the completed outcome used to credit or correct learnings previously offered by resolve. Reuse the same caller-owned `run_id`; it is an idempotency and attribution key, not a hosted run UUID. Processing is asynchronous and the endpoint returns 202 when accepted.
+         * Submit the completed outcome used to credit or correct learnings previously offered by resolve. Supply ``agent_name`` (your agent's human-readable name, not the hosted UUID from `/agents/{agent_id}`). If no agent with that name exists yet, one is created automatically on first use within your tenant. Reuse the same caller-owned `run_id`; it is an idempotency and attribution key, not a hosted run UUID. Processing is asynchronous and the endpoint returns 202 when accepted.
          * @summary Reinforce the learnings a run used
          * @param {ReinforceRequest} body 
          * @param {*} [options] Override http request option.
@@ -9120,7 +10586,7 @@ export const LearningBoundaryApiFactory = function (configuration?: Configuratio
             return LearningBoundaryApiFp(configuration).reinforceEndpointReinforcePost(body, options)(fetch, basePath);
         },
         /**
-         * Retrieve relevant learnings before external work begins. `run_id` is a caller-created correlation identifier, not a hosted run UUID. Reuse the same value with observe and reinforce so feedback can be attributed to the learnings offered here.
+         * Retrieve relevant learnings before external work begins. Supply ``agent_name`` (your agent's human-readable name, not the hosted UUID from `/agents/{agent_id}`). If no agent with that name exists yet, one is created automatically on first use within your tenant. `run_id` is a caller-created correlation identifier, not a hosted run UUID. Reuse the same value with observe and reinforce so feedback can be attributed to the learnings offered here.
          * @summary Resolve the learnings bound to a goal
          * @param {ResolveRequest} body 
          * @param {*} [options] Override http request option.
@@ -9140,7 +10606,19 @@ export const LearningBoundaryApiFactory = function (configuration?: Configuratio
  */
 export class LearningBoundaryApi extends BaseAPI {
     /**
-     * Distill durable learnings from post-mortems, documents, diffs, or analysis without inventing tool steps. Submit at least two evidence items and a contrast signal. `run_id` is a caller-created idempotency and tracing value, must begin with `distill:`, and does not reference `GET /runs/{run_id}`. A valid request may yield no learning. Pre-redact secrets from evidence.
+     * Close a run the caller resolved but will not write back for, because the turn ended with nothing worth learning from. Supply ``agent_name`` (your agent's human-readable name, not the hosted UUID from `/agents/{agent_id}`). If no agent with that name exists yet, one is created automatically on first use within your tenant. Use this instead of going silent: an unclosed run is indistinguishable from a host that stopped writing back, and only the caller knows which it is. Nothing is added to the corpus. Set `is_delivered` when the recall reached the model this turn, so the resolve is billed for what was received and released otherwise. A `run_id` this agent never resolved is accepted and ignored.
+     * @summary Close a run whose turn had nothing worth learning
+     * @param {DeclineRequest} body 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof LearningBoundaryApi
+     */
+    public declineEndpointDeclinePost(body: DeclineRequest, options?: any) {
+        return LearningBoundaryApiFp(this.configuration).declineEndpointDeclinePost(body, options)(this.fetch, this.basePath);
+    }
+
+    /**
+     * Distill durable learnings from post-mortems, documents, diffs, or analysis without inventing tool steps. Supply ``agent_name`` (your agent's human-readable name, not the hosted UUID from `/agents/{agent_id}`). If no agent with that name exists yet, one is created automatically on first use within your tenant. Submit at least two evidence items and a contrast signal. `run_id` is a caller-created idempotency and tracing value, must begin with `distill:`, and does not reference `GET /runs/{run_id}`. A valid request may yield no learning. Pre-redact secrets from evidence.
      * @summary Distill learnings from a corpus of evidence
      * @param {DistillRequest} body 
      * @param {*} [options] Override http request option.
@@ -9165,7 +10643,7 @@ export class LearningBoundaryApi extends BaseAPI {
     }
 
     /**
-     * Submit a completed episode for asynchronous learning extraction. Direct API callers may construct the episode themselves; LangGraph is not required. Use a meaningful execution trace rather than documents or invented tool steps—use `/distill` for corpus evidence. The caller-owned episode `run_id` is an idempotency and correlation key, not a hosted run UUID.
+     * Submit a completed episode for asynchronous learning extraction. Supply ``agent_name`` (your agent's human-readable name, not the hosted UUID from `/agents/{agent_id}`). If no agent with that name exists yet, one is created automatically on first use within your tenant. Direct API callers may construct the episode themselves; LangGraph is not required. Use a meaningful execution trace rather than documents or invented tool steps—use `/distill` for corpus evidence. The caller-owned episode `run_id` is an idempotency and correlation key, not a hosted run UUID.
      * @summary Observe a finished episode
      * @param {ObserveRequest} body 
      * @param {*} [options] Override http request option.
@@ -9177,7 +10655,7 @@ export class LearningBoundaryApi extends BaseAPI {
     }
 
     /**
-     * Submit the completed outcome used to credit or correct learnings previously offered by resolve. Reuse the same caller-owned `run_id`; it is an idempotency and attribution key, not a hosted run UUID. Processing is asynchronous and the endpoint returns 202 when accepted.
+     * Submit the completed outcome used to credit or correct learnings previously offered by resolve. Supply ``agent_name`` (your agent's human-readable name, not the hosted UUID from `/agents/{agent_id}`). If no agent with that name exists yet, one is created automatically on first use within your tenant. Reuse the same caller-owned `run_id`; it is an idempotency and attribution key, not a hosted run UUID. Processing is asynchronous and the endpoint returns 202 when accepted.
      * @summary Reinforce the learnings a run used
      * @param {ReinforceRequest} body 
      * @param {*} [options] Override http request option.
@@ -9189,7 +10667,7 @@ export class LearningBoundaryApi extends BaseAPI {
     }
 
     /**
-     * Retrieve relevant learnings before external work begins. `run_id` is a caller-created correlation identifier, not a hosted run UUID. Reuse the same value with observe and reinforce so feedback can be attributed to the learnings offered here.
+     * Retrieve relevant learnings before external work begins. Supply ``agent_name`` (your agent's human-readable name, not the hosted UUID from `/agents/{agent_id}`). If no agent with that name exists yet, one is created automatically on first use within your tenant. `run_id` is a caller-created correlation identifier, not a hosted run UUID. Reuse the same value with observe and reinforce so feedback can be attributed to the learnings offered here.
      * @summary Resolve the learnings bound to a goal
      * @param {ResolveRequest} body 
      * @param {*} [options] Override http request option.
@@ -9339,17 +10817,18 @@ export const LearningsApiFetchParamCreator = function (configuration?: Configura
             };
         },
         /**
-         * Paginated, filterable inventory of an agent's learnings for the curation workbench. Non-semantic (unlike /search). Defaults to the active bucket (excludes archived/superseded); use `state` for other buckets. Pagination is created_at keyset via the opaque cursor.
+         * Paginated, filterable inventory of an agent's learnings for the curation workbench. Non-semantic (unlike /search). Defaults to the active bucket (excludes archived/superseded); use `state` for other buckets. Optional `q` ANDs free-text / learning-id match with the selected facet (requires a full-text index on learning content). Pagination is created_at keyset via the opaque cursor.
          * @summary List agent learnings (audit inventory)
          * @param {any} agentId Hosted agent UUID returned by the agent create or list endpoint.
          * @param {any} [includeInstances] Include evidence instances on each item.
          * @param {any} [limit] Maximum number of items to return on this page.
          * @param {any} [cursor] Opaque pagination token from the previous response&#x27;s &#x60;next_cursor&#x60;. Pass it back unchanged; omit it to start again from the first page.
          * @param {LearningStateFilter} [state] Review bucket: active (default), needs_review, archived, superseded, or all.
+         * @param {any} [q] Optional inventory text filter (content MatchText or exact learning id). ANDed with &#x60;state&#x60;. Omit or blank to disable.
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        listAgentLearningsEndpointAgentsAgentIdLearningsGet(agentId: any, includeInstances?: any, limit?: any, cursor?: any, state?: LearningStateFilter, options: any = {}): FetchArgs {
+        listAgentLearningsEndpointAgentsAgentIdLearningsGet(agentId: any, includeInstances?: any, limit?: any, cursor?: any, state?: LearningStateFilter, q?: any, options: any = {}): FetchArgs {
             // verify required parameter 'agentId' is not null or undefined
             if (agentId === null || agentId === undefined) {
                 throw new RequiredError('agentId','Required parameter agentId was null or undefined when calling listAgentLearningsEndpointAgentsAgentIdLearningsGet.');
@@ -9383,6 +10862,68 @@ export const LearningsApiFetchParamCreator = function (configuration?: Configura
 
             if (state !== undefined) {
                 localVarQueryParameter['state'] = state;
+            }
+
+            if (q !== undefined) {
+                localVarQueryParameter['q'] = q;
+            }
+
+            localVarUrlObj.query = Object.assign({}, localVarUrlObj.query, localVarQueryParameter, options.query);
+            // fix override query string Detail: https://stackoverflow.com/a/7517673/1077943
+            localVarUrlObj.search = null;
+            localVarRequestOptions.headers = Object.assign({}, localVarHeaderParameter, options.headers);
+
+            return {
+                url: url.format(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * Claims connected to this learning via composition provenance edges, for the claim curation panel. Filter by review status (or list open split proposals on entities the learning touched). latest_edge_at keyset pagination; an empty edge set is a 200 with no items, not a 404.
+         * @summary List claims linked to a learning
+         * @param {any} agentId Hosted agent UUID returned by the agent create or list endpoint.
+         * @param {any} learningId Learning identifier returned by a learning list or search endpoint.
+         * @param {any} [status] Review status filter. &#x60;all&#x60; is everything: every claim status plus open split proposals on entities this learning touched. &#x60;split_proposed&#x60; is open splits only; other values filter claims only.
+         * @param {any} [limit] Maximum number of items to return on this page.
+         * @param {any} [cursor] Opaque pagination token from the previous response&#x27;s &#x60;next_cursor&#x60;. Pass it back unchanged; omit it to start again from the first page.
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        listLearningClaimsEndpointAgentsAgentIdLearningsLearningIdClaimsGet(agentId: any, learningId: any, status?: any, limit?: any, cursor?: any, options: any = {}): FetchArgs {
+            // verify required parameter 'agentId' is not null or undefined
+            if (agentId === null || agentId === undefined) {
+                throw new RequiredError('agentId','Required parameter agentId was null or undefined when calling listLearningClaimsEndpointAgentsAgentIdLearningsLearningIdClaimsGet.');
+            }
+            // verify required parameter 'learningId' is not null or undefined
+            if (learningId === null || learningId === undefined) {
+                throw new RequiredError('learningId','Required parameter learningId was null or undefined when calling listLearningClaimsEndpointAgentsAgentIdLearningsLearningIdClaimsGet.');
+            }
+            const localVarPath = `/agents/{agent_id}/learnings/{learning_id}/claims`
+                .replace(`{${"agent_id"}}`, encodeURIComponent(String(agentId)))
+                .replace(`{${"learning_id"}}`, encodeURIComponent(String(learningId)));
+            const localVarUrlObj = url.parse(localVarPath, true);
+            const localVarRequestOptions = Object.assign({ method: 'GET' }, options);
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication BearerApiKey required
+            if (configuration && configuration.apiKey) {
+                const localVarApiKeyValue = typeof configuration.apiKey === 'function'
+					? configuration.apiKey("Authorization")
+					: configuration.apiKey;
+                localVarHeaderParameter["Authorization"] = localVarApiKeyValue;
+            }
+
+            if (status !== undefined) {
+                localVarQueryParameter['status'] = status;
+            }
+
+            if (limit !== undefined) {
+                localVarQueryParameter['limit'] = limit;
+            }
+
+            if (cursor !== undefined) {
+                localVarQueryParameter['cursor'] = cursor;
             }
 
             localVarUrlObj.query = Object.assign({}, localVarUrlObj.query, localVarQueryParameter, options.query);
@@ -9676,18 +11217,42 @@ export const LearningsApiFp = function(configuration?: Configuration) {
             };
         },
         /**
-         * Paginated, filterable inventory of an agent's learnings for the curation workbench. Non-semantic (unlike /search). Defaults to the active bucket (excludes archived/superseded); use `state` for other buckets. Pagination is created_at keyset via the opaque cursor.
+         * Paginated, filterable inventory of an agent's learnings for the curation workbench. Non-semantic (unlike /search). Defaults to the active bucket (excludes archived/superseded); use `state` for other buckets. Optional `q` ANDs free-text / learning-id match with the selected facet (requires a full-text index on learning content). Pagination is created_at keyset via the opaque cursor.
          * @summary List agent learnings (audit inventory)
          * @param {any} agentId Hosted agent UUID returned by the agent create or list endpoint.
          * @param {any} [includeInstances] Include evidence instances on each item.
          * @param {any} [limit] Maximum number of items to return on this page.
          * @param {any} [cursor] Opaque pagination token from the previous response&#x27;s &#x60;next_cursor&#x60;. Pass it back unchanged; omit it to start again from the first page.
          * @param {LearningStateFilter} [state] Review bucket: active (default), needs_review, archived, superseded, or all.
+         * @param {any} [q] Optional inventory text filter (content MatchText or exact learning id). ANDed with &#x60;state&#x60;. Omit or blank to disable.
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        listAgentLearningsEndpointAgentsAgentIdLearningsGet(agentId: any, includeInstances?: any, limit?: any, cursor?: any, state?: LearningStateFilter, options?: any): (fetch?: FetchAPI, basePath?: string) => Promise<LearningAuditListResponse> {
-            const localVarFetchArgs = LearningsApiFetchParamCreator(configuration).listAgentLearningsEndpointAgentsAgentIdLearningsGet(agentId, includeInstances, limit, cursor, state, options);
+        listAgentLearningsEndpointAgentsAgentIdLearningsGet(agentId: any, includeInstances?: any, limit?: any, cursor?: any, state?: LearningStateFilter, q?: any, options?: any): (fetch?: FetchAPI, basePath?: string) => Promise<LearningAuditListResponse> {
+            const localVarFetchArgs = LearningsApiFetchParamCreator(configuration).listAgentLearningsEndpointAgentsAgentIdLearningsGet(agentId, includeInstances, limit, cursor, state, q, options);
+            return (fetch: FetchAPI = isomorphicFetch, basePath: string = BASE_PATH) => {
+                return fetch(basePath + localVarFetchArgs.url, localVarFetchArgs.options).then((response) => {
+                    if (response.status >= 200 && response.status < 300) {
+                        return response.json();
+                    } else {
+                        throw response;
+                    }
+                });
+            };
+        },
+        /**
+         * Claims connected to this learning via composition provenance edges, for the claim curation panel. Filter by review status (or list open split proposals on entities the learning touched). latest_edge_at keyset pagination; an empty edge set is a 200 with no items, not a 404.
+         * @summary List claims linked to a learning
+         * @param {any} agentId Hosted agent UUID returned by the agent create or list endpoint.
+         * @param {any} learningId Learning identifier returned by a learning list or search endpoint.
+         * @param {any} [status] Review status filter. &#x60;all&#x60; is everything: every claim status plus open split proposals on entities this learning touched. &#x60;split_proposed&#x60; is open splits only; other values filter claims only.
+         * @param {any} [limit] Maximum number of items to return on this page.
+         * @param {any} [cursor] Opaque pagination token from the previous response&#x27;s &#x60;next_cursor&#x60;. Pass it back unchanged; omit it to start again from the first page.
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        listLearningClaimsEndpointAgentsAgentIdLearningsLearningIdClaimsGet(agentId: any, learningId: any, status?: any, limit?: any, cursor?: any, options?: any): (fetch?: FetchAPI, basePath?: string) => Promise<LearningClaimsListResponse> {
+            const localVarFetchArgs = LearningsApiFetchParamCreator(configuration).listLearningClaimsEndpointAgentsAgentIdLearningsLearningIdClaimsGet(agentId, learningId, status, limit, cursor, options);
             return (fetch: FetchAPI = isomorphicFetch, basePath: string = BASE_PATH) => {
                 return fetch(basePath + localVarFetchArgs.url, localVarFetchArgs.options).then((response) => {
                     if (response.status >= 200 && response.status < 300) {
@@ -9826,18 +11391,33 @@ export const LearningsApiFactory = function (configuration?: Configuration, fetc
             return LearningsApiFp(configuration).getLearningEndpointAgentsAgentIdLearningsLearningIdGet(agentId, learningId, options)(fetch, basePath);
         },
         /**
-         * Paginated, filterable inventory of an agent's learnings for the curation workbench. Non-semantic (unlike /search). Defaults to the active bucket (excludes archived/superseded); use `state` for other buckets. Pagination is created_at keyset via the opaque cursor.
+         * Paginated, filterable inventory of an agent's learnings for the curation workbench. Non-semantic (unlike /search). Defaults to the active bucket (excludes archived/superseded); use `state` for other buckets. Optional `q` ANDs free-text / learning-id match with the selected facet (requires a full-text index on learning content). Pagination is created_at keyset via the opaque cursor.
          * @summary List agent learnings (audit inventory)
          * @param {any} agentId Hosted agent UUID returned by the agent create or list endpoint.
          * @param {any} [includeInstances] Include evidence instances on each item.
          * @param {any} [limit] Maximum number of items to return on this page.
          * @param {any} [cursor] Opaque pagination token from the previous response&#x27;s &#x60;next_cursor&#x60;. Pass it back unchanged; omit it to start again from the first page.
          * @param {LearningStateFilter} [state] Review bucket: active (default), needs_review, archived, superseded, or all.
+         * @param {any} [q] Optional inventory text filter (content MatchText or exact learning id). ANDed with &#x60;state&#x60;. Omit or blank to disable.
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        listAgentLearningsEndpointAgentsAgentIdLearningsGet(agentId: any, includeInstances?: any, limit?: any, cursor?: any, state?: LearningStateFilter, options?: any) {
-            return LearningsApiFp(configuration).listAgentLearningsEndpointAgentsAgentIdLearningsGet(agentId, includeInstances, limit, cursor, state, options)(fetch, basePath);
+        listAgentLearningsEndpointAgentsAgentIdLearningsGet(agentId: any, includeInstances?: any, limit?: any, cursor?: any, state?: LearningStateFilter, q?: any, options?: any) {
+            return LearningsApiFp(configuration).listAgentLearningsEndpointAgentsAgentIdLearningsGet(agentId, includeInstances, limit, cursor, state, q, options)(fetch, basePath);
+        },
+        /**
+         * Claims connected to this learning via composition provenance edges, for the claim curation panel. Filter by review status (or list open split proposals on entities the learning touched). latest_edge_at keyset pagination; an empty edge set is a 200 with no items, not a 404.
+         * @summary List claims linked to a learning
+         * @param {any} agentId Hosted agent UUID returned by the agent create or list endpoint.
+         * @param {any} learningId Learning identifier returned by a learning list or search endpoint.
+         * @param {any} [status] Review status filter. &#x60;all&#x60; is everything: every claim status plus open split proposals on entities this learning touched. &#x60;split_proposed&#x60; is open splits only; other values filter claims only.
+         * @param {any} [limit] Maximum number of items to return on this page.
+         * @param {any} [cursor] Opaque pagination token from the previous response&#x27;s &#x60;next_cursor&#x60;. Pass it back unchanged; omit it to start again from the first page.
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        listLearningClaimsEndpointAgentsAgentIdLearningsLearningIdClaimsGet(agentId: any, learningId: any, status?: any, limit?: any, cursor?: any, options?: any) {
+            return LearningsApiFp(configuration).listLearningClaimsEndpointAgentsAgentIdLearningsLearningIdClaimsGet(agentId, learningId, status, limit, cursor, options)(fetch, basePath);
         },
         /**
          * Provide feedback on whether a learning was helpful. Updates the learning's standing (utility and reliability) and trust level based on the feedback signal.
@@ -9938,19 +11518,36 @@ export class LearningsApi extends BaseAPI {
     }
 
     /**
-     * Paginated, filterable inventory of an agent's learnings for the curation workbench. Non-semantic (unlike /search). Defaults to the active bucket (excludes archived/superseded); use `state` for other buckets. Pagination is created_at keyset via the opaque cursor.
+     * Paginated, filterable inventory of an agent's learnings for the curation workbench. Non-semantic (unlike /search). Defaults to the active bucket (excludes archived/superseded); use `state` for other buckets. Optional `q` ANDs free-text / learning-id match with the selected facet (requires a full-text index on learning content). Pagination is created_at keyset via the opaque cursor.
      * @summary List agent learnings (audit inventory)
      * @param {any} agentId Hosted agent UUID returned by the agent create or list endpoint.
      * @param {any} [includeInstances] Include evidence instances on each item.
      * @param {any} [limit] Maximum number of items to return on this page.
      * @param {any} [cursor] Opaque pagination token from the previous response&#x27;s &#x60;next_cursor&#x60;. Pass it back unchanged; omit it to start again from the first page.
      * @param {LearningStateFilter} [state] Review bucket: active (default), needs_review, archived, superseded, or all.
+     * @param {any} [q] Optional inventory text filter (content MatchText or exact learning id). ANDed with &#x60;state&#x60;. Omit or blank to disable.
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      * @memberof LearningsApi
      */
-    public listAgentLearningsEndpointAgentsAgentIdLearningsGet(agentId: any, includeInstances?: any, limit?: any, cursor?: any, state?: LearningStateFilter, options?: any) {
-        return LearningsApiFp(this.configuration).listAgentLearningsEndpointAgentsAgentIdLearningsGet(agentId, includeInstances, limit, cursor, state, options)(this.fetch, this.basePath);
+    public listAgentLearningsEndpointAgentsAgentIdLearningsGet(agentId: any, includeInstances?: any, limit?: any, cursor?: any, state?: LearningStateFilter, q?: any, options?: any) {
+        return LearningsApiFp(this.configuration).listAgentLearningsEndpointAgentsAgentIdLearningsGet(agentId, includeInstances, limit, cursor, state, q, options)(this.fetch, this.basePath);
+    }
+
+    /**
+     * Claims connected to this learning via composition provenance edges, for the claim curation panel. Filter by review status (or list open split proposals on entities the learning touched). latest_edge_at keyset pagination; an empty edge set is a 200 with no items, not a 404.
+     * @summary List claims linked to a learning
+     * @param {any} agentId Hosted agent UUID returned by the agent create or list endpoint.
+     * @param {any} learningId Learning identifier returned by a learning list or search endpoint.
+     * @param {any} [status] Review status filter. &#x60;all&#x60; is everything: every claim status plus open split proposals on entities this learning touched. &#x60;split_proposed&#x60; is open splits only; other values filter claims only.
+     * @param {any} [limit] Maximum number of items to return on this page.
+     * @param {any} [cursor] Opaque pagination token from the previous response&#x27;s &#x60;next_cursor&#x60;. Pass it back unchanged; omit it to start again from the first page.
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof LearningsApi
+     */
+    public listLearningClaimsEndpointAgentsAgentIdLearningsLearningIdClaimsGet(agentId: any, learningId: any, status?: any, limit?: any, cursor?: any, options?: any) {
+        return LearningsApiFp(this.configuration).listLearningClaimsEndpointAgentsAgentIdLearningsLearningIdClaimsGet(agentId, learningId, status, limit, cursor, options)(this.fetch, this.basePath);
     }
 
     /**
@@ -10008,6 +11605,135 @@ export class LearningsApi extends BaseAPI {
      */
     public storeLearningEndpointAgentsAgentIdLearningsPost(body: StoreLearningRequest, agentId: any, options?: any) {
         return LearningsApiFp(this.configuration).storeLearningEndpointAgentsAgentIdLearningsPost(body, agentId, options)(this.fetch, this.basePath);
+    }
+
+}
+/**
+ * OrgDirectoryApi - fetch parameter creator
+ * @export
+ */
+export const OrgDirectoryApiFetchParamCreator = function (configuration?: Configuration) {
+    return {
+        /**
+         * List active organization members for invite pickers: identity_user_id, email, and display_name only. Available to any org member (not just admins). Cursor-paginated on membership created_at.
+         * @summary List Org Directory
+         * @param {any} orgId Organization UUID (same as the caller&#x27;s active tenant id). A foreign org id returns 404.
+         * @param {any} [limit] Maximum number of items to return on this page.
+         * @param {any} [cursor] Opaque pagination token from the previous response&#x27;s &#x60;next_cursor&#x60;. Pass it back unchanged; omit it to start again from the first page.
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        listOrgDirectoryEndpointOrgOrgIdDirectoryGet(orgId: any, limit?: any, cursor?: any, options: any = {}): FetchArgs {
+            // verify required parameter 'orgId' is not null or undefined
+            if (orgId === null || orgId === undefined) {
+                throw new RequiredError('orgId','Required parameter orgId was null or undefined when calling listOrgDirectoryEndpointOrgOrgIdDirectoryGet.');
+            }
+            const localVarPath = `/org/{org_id}/directory`
+                .replace(`{${"org_id"}}`, encodeURIComponent(String(orgId)));
+            const localVarUrlObj = url.parse(localVarPath, true);
+            const localVarRequestOptions = Object.assign({ method: 'GET' }, options);
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication PortalSessionCookie required
+            if (configuration && configuration.apiKey) {
+                const localVarApiKeyValue = typeof configuration.apiKey === 'function'
+					? configuration.apiKey("Cookie")
+					: configuration.apiKey;
+                localVarHeaderParameter["Cookie"] = localVarApiKeyValue;
+            }
+
+            if (limit !== undefined) {
+                localVarQueryParameter['limit'] = limit;
+            }
+
+            if (cursor !== undefined) {
+                localVarQueryParameter['cursor'] = cursor;
+            }
+
+            localVarUrlObj.query = Object.assign({}, localVarUrlObj.query, localVarQueryParameter, options.query);
+            // fix override query string Detail: https://stackoverflow.com/a/7517673/1077943
+            localVarUrlObj.search = null;
+            localVarRequestOptions.headers = Object.assign({}, localVarHeaderParameter, options.headers);
+
+            return {
+                url: url.format(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+    }
+};
+
+/**
+ * OrgDirectoryApi - functional programming interface
+ * @export
+ */
+export const OrgDirectoryApiFp = function(configuration?: Configuration) {
+    return {
+        /**
+         * List active organization members for invite pickers: identity_user_id, email, and display_name only. Available to any org member (not just admins). Cursor-paginated on membership created_at.
+         * @summary List Org Directory
+         * @param {any} orgId Organization UUID (same as the caller&#x27;s active tenant id). A foreign org id returns 404.
+         * @param {any} [limit] Maximum number of items to return on this page.
+         * @param {any} [cursor] Opaque pagination token from the previous response&#x27;s &#x60;next_cursor&#x60;. Pass it back unchanged; omit it to start again from the first page.
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        listOrgDirectoryEndpointOrgOrgIdDirectoryGet(orgId: any, limit?: any, cursor?: any, options?: any): (fetch?: FetchAPI, basePath?: string) => Promise<OrgDirectoryListResponse> {
+            const localVarFetchArgs = OrgDirectoryApiFetchParamCreator(configuration).listOrgDirectoryEndpointOrgOrgIdDirectoryGet(orgId, limit, cursor, options);
+            return (fetch: FetchAPI = isomorphicFetch, basePath: string = BASE_PATH) => {
+                return fetch(basePath + localVarFetchArgs.url, localVarFetchArgs.options).then((response) => {
+                    if (response.status >= 200 && response.status < 300) {
+                        return response.json();
+                    } else {
+                        throw response;
+                    }
+                });
+            };
+        },
+    }
+};
+
+/**
+ * OrgDirectoryApi - factory interface
+ * @export
+ */
+export const OrgDirectoryApiFactory = function (configuration?: Configuration, fetch?: FetchAPI, basePath?: string) {
+    return {
+        /**
+         * List active organization members for invite pickers: identity_user_id, email, and display_name only. Available to any org member (not just admins). Cursor-paginated on membership created_at.
+         * @summary List Org Directory
+         * @param {any} orgId Organization UUID (same as the caller&#x27;s active tenant id). A foreign org id returns 404.
+         * @param {any} [limit] Maximum number of items to return on this page.
+         * @param {any} [cursor] Opaque pagination token from the previous response&#x27;s &#x60;next_cursor&#x60;. Pass it back unchanged; omit it to start again from the first page.
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        listOrgDirectoryEndpointOrgOrgIdDirectoryGet(orgId: any, limit?: any, cursor?: any, options?: any) {
+            return OrgDirectoryApiFp(configuration).listOrgDirectoryEndpointOrgOrgIdDirectoryGet(orgId, limit, cursor, options)(fetch, basePath);
+        },
+    };
+};
+
+/**
+ * OrgDirectoryApi - object-oriented interface
+ * @export
+ * @class OrgDirectoryApi
+ * @extends {BaseAPI}
+ */
+export class OrgDirectoryApi extends BaseAPI {
+    /**
+     * List active organization members for invite pickers: identity_user_id, email, and display_name only. Available to any org member (not just admins). Cursor-paginated on membership created_at.
+     * @summary List Org Directory
+     * @param {any} orgId Organization UUID (same as the caller&#x27;s active tenant id). A foreign org id returns 404.
+     * @param {any} [limit] Maximum number of items to return on this page.
+     * @param {any} [cursor] Opaque pagination token from the previous response&#x27;s &#x60;next_cursor&#x60;. Pass it back unchanged; omit it to start again from the first page.
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof OrgDirectoryApi
+     */
+    public listOrgDirectoryEndpointOrgOrgIdDirectoryGet(orgId: any, limit?: any, cursor?: any, options?: any) {
+        return OrgDirectoryApiFp(this.configuration).listOrgDirectoryEndpointOrgOrgIdDirectoryGet(orgId, limit, cursor, options)(this.fetch, this.basePath);
     }
 
 }
@@ -10128,6 +11854,728 @@ export class OrgLearningsApi extends BaseAPI {
      */
     public listOrgLearningsEndpointOrgLearningsGet(limit?: any, cursor?: any, options?: any) {
         return OrgLearningsApiFp(this.configuration).listOrgLearningsEndpointOrgLearningsGet(limit, cursor, options)(this.fetch, this.basePath);
+    }
+
+}
+/**
+ * OrgMembersApi - fetch parameter creator
+ * @export
+ */
+export const OrgMembersApiFetchParamCreator = function (configuration?: Configuration) {
+    return {
+        /**
+         * List the organization's members (admin/owner only), excluding disabled accounts. `space_memberships` reports each member's direct/explicit space grants only (never implied commons/org-admin access). Cursor-paginated on `created_at`.
+         * @summary List Org Members
+         * @param {any} orgId Organization UUID (same as the caller&#x27;s active tenant id). A foreign org id returns 404.
+         * @param {any} [limit] Maximum number of items to return on this page.
+         * @param {any} [cursor] Opaque pagination token from the previous response&#x27;s &#x60;next_cursor&#x60;. Pass it back unchanged; omit it to start again from the first page.
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        listOrgMembersEndpointOrgOrgIdMembersGet(orgId: any, limit?: any, cursor?: any, options: any = {}): FetchArgs {
+            // verify required parameter 'orgId' is not null or undefined
+            if (orgId === null || orgId === undefined) {
+                throw new RequiredError('orgId','Required parameter orgId was null or undefined when calling listOrgMembersEndpointOrgOrgIdMembersGet.');
+            }
+            const localVarPath = `/org/{org_id}/members`
+                .replace(`{${"org_id"}}`, encodeURIComponent(String(orgId)));
+            const localVarUrlObj = url.parse(localVarPath, true);
+            const localVarRequestOptions = Object.assign({ method: 'GET' }, options);
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication PortalSessionCookie required
+            if (configuration && configuration.apiKey) {
+                const localVarApiKeyValue = typeof configuration.apiKey === 'function'
+					? configuration.apiKey("Cookie")
+					: configuration.apiKey;
+                localVarHeaderParameter["Cookie"] = localVarApiKeyValue;
+            }
+
+            if (limit !== undefined) {
+                localVarQueryParameter['limit'] = limit;
+            }
+
+            if (cursor !== undefined) {
+                localVarQueryParameter['cursor'] = cursor;
+            }
+
+            localVarUrlObj.query = Object.assign({}, localVarUrlObj.query, localVarQueryParameter, options.query);
+            // fix override query string Detail: https://stackoverflow.com/a/7517673/1077943
+            localVarUrlObj.search = null;
+            localVarRequestOptions.headers = Object.assign({}, localVarHeaderParameter, options.headers);
+
+            return {
+                url: url.format(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * Change a member's role (admin/owner only). Role safety rules: a caller cannot change their own role, only an owner may assign the owner role, an admin may not modify another owner's role, and the last active owner cannot be demoted.
+         * @summary Change Org Member Role
+         * @param {OrgMemberRoleUpdateRequest} body 
+         * @param {any} orgId Organization UUID (same as the caller&#x27;s active tenant id). A foreign org id returns 404.
+         * @param {any} identityUserId Identity user UUID for an organization member.
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        updateOrgMemberRoleEndpointOrgOrgIdMembersIdentityUserIdPatch(body: OrgMemberRoleUpdateRequest, orgId: any, identityUserId: any, options: any = {}): FetchArgs {
+            // verify required parameter 'body' is not null or undefined
+            if (body === null || body === undefined) {
+                throw new RequiredError('body','Required parameter body was null or undefined when calling updateOrgMemberRoleEndpointOrgOrgIdMembersIdentityUserIdPatch.');
+            }
+            // verify required parameter 'orgId' is not null or undefined
+            if (orgId === null || orgId === undefined) {
+                throw new RequiredError('orgId','Required parameter orgId was null or undefined when calling updateOrgMemberRoleEndpointOrgOrgIdMembersIdentityUserIdPatch.');
+            }
+            // verify required parameter 'identityUserId' is not null or undefined
+            if (identityUserId === null || identityUserId === undefined) {
+                throw new RequiredError('identityUserId','Required parameter identityUserId was null or undefined when calling updateOrgMemberRoleEndpointOrgOrgIdMembersIdentityUserIdPatch.');
+            }
+            const localVarPath = `/org/{org_id}/members/{identity_user_id}`
+                .replace(`{${"org_id"}}`, encodeURIComponent(String(orgId)))
+                .replace(`{${"identity_user_id"}}`, encodeURIComponent(String(identityUserId)));
+            const localVarUrlObj = url.parse(localVarPath, true);
+            const localVarRequestOptions = Object.assign({ method: 'PATCH' }, options);
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication PortalSessionCookie required
+            if (configuration && configuration.apiKey) {
+                const localVarApiKeyValue = typeof configuration.apiKey === 'function'
+					? configuration.apiKey("Cookie")
+					: configuration.apiKey;
+                localVarHeaderParameter["Cookie"] = localVarApiKeyValue;
+            }
+
+            localVarHeaderParameter['Content-Type'] = 'application/json';
+
+            localVarUrlObj.query = Object.assign({}, localVarUrlObj.query, localVarQueryParameter, options.query);
+            // fix override query string Detail: https://stackoverflow.com/a/7517673/1077943
+            localVarUrlObj.search = null;
+            localVarRequestOptions.headers = Object.assign({}, localVarHeaderParameter, options.headers);
+            const needsSerialization = (<any>"OrgMemberRoleUpdateRequest" !== "string") || localVarRequestOptions.headers['Content-Type'] === 'application/json';
+            localVarRequestOptions.body =  needsSerialization ? JSON.stringify(body || {}) : (body || "");
+
+            return {
+                url: url.format(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+    }
+};
+
+/**
+ * OrgMembersApi - functional programming interface
+ * @export
+ */
+export const OrgMembersApiFp = function(configuration?: Configuration) {
+    return {
+        /**
+         * List the organization's members (admin/owner only), excluding disabled accounts. `space_memberships` reports each member's direct/explicit space grants only (never implied commons/org-admin access). Cursor-paginated on `created_at`.
+         * @summary List Org Members
+         * @param {any} orgId Organization UUID (same as the caller&#x27;s active tenant id). A foreign org id returns 404.
+         * @param {any} [limit] Maximum number of items to return on this page.
+         * @param {any} [cursor] Opaque pagination token from the previous response&#x27;s &#x60;next_cursor&#x60;. Pass it back unchanged; omit it to start again from the first page.
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        listOrgMembersEndpointOrgOrgIdMembersGet(orgId: any, limit?: any, cursor?: any, options?: any): (fetch?: FetchAPI, basePath?: string) => Promise<OrgMemberListResponse> {
+            const localVarFetchArgs = OrgMembersApiFetchParamCreator(configuration).listOrgMembersEndpointOrgOrgIdMembersGet(orgId, limit, cursor, options);
+            return (fetch: FetchAPI = isomorphicFetch, basePath: string = BASE_PATH) => {
+                return fetch(basePath + localVarFetchArgs.url, localVarFetchArgs.options).then((response) => {
+                    if (response.status >= 200 && response.status < 300) {
+                        return response.json();
+                    } else {
+                        throw response;
+                    }
+                });
+            };
+        },
+        /**
+         * Change a member's role (admin/owner only). Role safety rules: a caller cannot change their own role, only an owner may assign the owner role, an admin may not modify another owner's role, and the last active owner cannot be demoted.
+         * @summary Change Org Member Role
+         * @param {OrgMemberRoleUpdateRequest} body 
+         * @param {any} orgId Organization UUID (same as the caller&#x27;s active tenant id). A foreign org id returns 404.
+         * @param {any} identityUserId Identity user UUID for an organization member.
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        updateOrgMemberRoleEndpointOrgOrgIdMembersIdentityUserIdPatch(body: OrgMemberRoleUpdateRequest, orgId: any, identityUserId: any, options?: any): (fetch?: FetchAPI, basePath?: string) => Promise<OrgMemberRoleUpdateResponse> {
+            const localVarFetchArgs = OrgMembersApiFetchParamCreator(configuration).updateOrgMemberRoleEndpointOrgOrgIdMembersIdentityUserIdPatch(body, orgId, identityUserId, options);
+            return (fetch: FetchAPI = isomorphicFetch, basePath: string = BASE_PATH) => {
+                return fetch(basePath + localVarFetchArgs.url, localVarFetchArgs.options).then((response) => {
+                    if (response.status >= 200 && response.status < 300) {
+                        return response.json();
+                    } else {
+                        throw response;
+                    }
+                });
+            };
+        },
+    }
+};
+
+/**
+ * OrgMembersApi - factory interface
+ * @export
+ */
+export const OrgMembersApiFactory = function (configuration?: Configuration, fetch?: FetchAPI, basePath?: string) {
+    return {
+        /**
+         * List the organization's members (admin/owner only), excluding disabled accounts. `space_memberships` reports each member's direct/explicit space grants only (never implied commons/org-admin access). Cursor-paginated on `created_at`.
+         * @summary List Org Members
+         * @param {any} orgId Organization UUID (same as the caller&#x27;s active tenant id). A foreign org id returns 404.
+         * @param {any} [limit] Maximum number of items to return on this page.
+         * @param {any} [cursor] Opaque pagination token from the previous response&#x27;s &#x60;next_cursor&#x60;. Pass it back unchanged; omit it to start again from the first page.
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        listOrgMembersEndpointOrgOrgIdMembersGet(orgId: any, limit?: any, cursor?: any, options?: any) {
+            return OrgMembersApiFp(configuration).listOrgMembersEndpointOrgOrgIdMembersGet(orgId, limit, cursor, options)(fetch, basePath);
+        },
+        /**
+         * Change a member's role (admin/owner only). Role safety rules: a caller cannot change their own role, only an owner may assign the owner role, an admin may not modify another owner's role, and the last active owner cannot be demoted.
+         * @summary Change Org Member Role
+         * @param {OrgMemberRoleUpdateRequest} body 
+         * @param {any} orgId Organization UUID (same as the caller&#x27;s active tenant id). A foreign org id returns 404.
+         * @param {any} identityUserId Identity user UUID for an organization member.
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        updateOrgMemberRoleEndpointOrgOrgIdMembersIdentityUserIdPatch(body: OrgMemberRoleUpdateRequest, orgId: any, identityUserId: any, options?: any) {
+            return OrgMembersApiFp(configuration).updateOrgMemberRoleEndpointOrgOrgIdMembersIdentityUserIdPatch(body, orgId, identityUserId, options)(fetch, basePath);
+        },
+    };
+};
+
+/**
+ * OrgMembersApi - object-oriented interface
+ * @export
+ * @class OrgMembersApi
+ * @extends {BaseAPI}
+ */
+export class OrgMembersApi extends BaseAPI {
+    /**
+     * List the organization's members (admin/owner only), excluding disabled accounts. `space_memberships` reports each member's direct/explicit space grants only (never implied commons/org-admin access). Cursor-paginated on `created_at`.
+     * @summary List Org Members
+     * @param {any} orgId Organization UUID (same as the caller&#x27;s active tenant id). A foreign org id returns 404.
+     * @param {any} [limit] Maximum number of items to return on this page.
+     * @param {any} [cursor] Opaque pagination token from the previous response&#x27;s &#x60;next_cursor&#x60;. Pass it back unchanged; omit it to start again from the first page.
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof OrgMembersApi
+     */
+    public listOrgMembersEndpointOrgOrgIdMembersGet(orgId: any, limit?: any, cursor?: any, options?: any) {
+        return OrgMembersApiFp(this.configuration).listOrgMembersEndpointOrgOrgIdMembersGet(orgId, limit, cursor, options)(this.fetch, this.basePath);
+    }
+
+    /**
+     * Change a member's role (admin/owner only). Role safety rules: a caller cannot change their own role, only an owner may assign the owner role, an admin may not modify another owner's role, and the last active owner cannot be demoted.
+     * @summary Change Org Member Role
+     * @param {OrgMemberRoleUpdateRequest} body 
+     * @param {any} orgId Organization UUID (same as the caller&#x27;s active tenant id). A foreign org id returns 404.
+     * @param {any} identityUserId Identity user UUID for an organization member.
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof OrgMembersApi
+     */
+    public updateOrgMemberRoleEndpointOrgOrgIdMembersIdentityUserIdPatch(body: OrgMemberRoleUpdateRequest, orgId: any, identityUserId: any, options?: any) {
+        return OrgMembersApiFp(this.configuration).updateOrgMemberRoleEndpointOrgOrgIdMembersIdentityUserIdPatch(body, orgId, identityUserId, options)(this.fetch, this.basePath);
+    }
+
+}
+/**
+ * OrgSpacesApi - fetch parameter creator
+ * @export
+ */
+export const OrgSpacesApiFetchParamCreator = function (configuration?: Configuration) {
+    return {
+        /**
+         * Create a domain space in the organization, with the caller seeded as steward. Requires developer role or higher.
+         * @summary Create Org Space
+         * @param {CreateSpaceRequest} body 
+         * @param {any} orgId Organization UUID (same as the caller&#x27;s active tenant id). A foreign org id returns 404.
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        createOrgSpaceEndpointOrgOrgIdSpacesPost(body: CreateSpaceRequest, orgId: any, options: any = {}): FetchArgs {
+            // verify required parameter 'body' is not null or undefined
+            if (body === null || body === undefined) {
+                throw new RequiredError('body','Required parameter body was null or undefined when calling createOrgSpaceEndpointOrgOrgIdSpacesPost.');
+            }
+            // verify required parameter 'orgId' is not null or undefined
+            if (orgId === null || orgId === undefined) {
+                throw new RequiredError('orgId','Required parameter orgId was null or undefined when calling createOrgSpaceEndpointOrgOrgIdSpacesPost.');
+            }
+            const localVarPath = `/org/{org_id}/spaces`
+                .replace(`{${"org_id"}}`, encodeURIComponent(String(orgId)));
+            const localVarUrlObj = url.parse(localVarPath, true);
+            const localVarRequestOptions = Object.assign({ method: 'POST' }, options);
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication PortalSessionCookie required
+            if (configuration && configuration.apiKey) {
+                const localVarApiKeyValue = typeof configuration.apiKey === 'function'
+					? configuration.apiKey("Cookie")
+					: configuration.apiKey;
+                localVarHeaderParameter["Cookie"] = localVarApiKeyValue;
+            }
+
+            localVarHeaderParameter['Content-Type'] = 'application/json';
+
+            localVarUrlObj.query = Object.assign({}, localVarUrlObj.query, localVarQueryParameter, options.query);
+            // fix override query string Detail: https://stackoverflow.com/a/7517673/1077943
+            localVarUrlObj.search = null;
+            localVarRequestOptions.headers = Object.assign({}, localVarHeaderParameter, options.headers);
+            const needsSerialization = (<any>"CreateSpaceRequest" !== "string") || localVarRequestOptions.headers['Content-Type'] === 'application/json';
+            localVarRequestOptions.body =  needsSerialization ? JSON.stringify(body || {}) : (body || "");
+
+            return {
+                url: url.format(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * Permanently delete a domain space. Requires space steward (org admins qualify). Rejected with 409 while the space still homes agents; only kind='domain' spaces are deletable.
+         * @summary Delete Org Space
+         * @param {any} orgId Organization UUID (same as the caller&#x27;s active tenant id). A foreign org id returns 404.
+         * @param {any} spaceId Space UUID returned by the spaces list or create endpoint.
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        deleteOrgSpaceEndpointOrgOrgIdSpacesSpaceIdDelete(orgId: any, spaceId: any, options: any = {}): FetchArgs {
+            // verify required parameter 'orgId' is not null or undefined
+            if (orgId === null || orgId === undefined) {
+                throw new RequiredError('orgId','Required parameter orgId was null or undefined when calling deleteOrgSpaceEndpointOrgOrgIdSpacesSpaceIdDelete.');
+            }
+            // verify required parameter 'spaceId' is not null or undefined
+            if (spaceId === null || spaceId === undefined) {
+                throw new RequiredError('spaceId','Required parameter spaceId was null or undefined when calling deleteOrgSpaceEndpointOrgOrgIdSpacesSpaceIdDelete.');
+            }
+            const localVarPath = `/org/{org_id}/spaces/{space_id}`
+                .replace(`{${"org_id"}}`, encodeURIComponent(String(orgId)))
+                .replace(`{${"space_id"}}`, encodeURIComponent(String(spaceId)));
+            const localVarUrlObj = url.parse(localVarPath, true);
+            const localVarRequestOptions = Object.assign({ method: 'DELETE' }, options);
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication PortalSessionCookie required
+            if (configuration && configuration.apiKey) {
+                const localVarApiKeyValue = typeof configuration.apiKey === 'function'
+					? configuration.apiKey("Cookie")
+					: configuration.apiKey;
+                localVarHeaderParameter["Cookie"] = localVarApiKeyValue;
+            }
+
+            localVarUrlObj.query = Object.assign({}, localVarUrlObj.query, localVarQueryParameter, options.query);
+            // fix override query string Detail: https://stackoverflow.com/a/7517673/1077943
+            localVarUrlObj.search = null;
+            localVarRequestOptions.headers = Object.assign({}, localVarHeaderParameter, options.headers);
+
+            return {
+                url: url.format(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * Grant an org member a direct role on this space (default 'contributor'). Requires space steward. Domain spaces: any steward. Non-domain spaces: org admin/owner only (intentional override for personal/commons/department). The invitee must already hold an active membership in this organization.
+         * @summary Invite Space Member
+         * @param {SpaceMemberInviteRequest} body 
+         * @param {any} orgId Organization UUID (same as the caller&#x27;s active tenant id). A foreign org id returns 404.
+         * @param {any} spaceId Space UUID returned by the spaces list or create endpoint.
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        inviteSpaceMemberEndpointOrgOrgIdSpacesSpaceIdMembersPost(body: SpaceMemberInviteRequest, orgId: any, spaceId: any, options: any = {}): FetchArgs {
+            // verify required parameter 'body' is not null or undefined
+            if (body === null || body === undefined) {
+                throw new RequiredError('body','Required parameter body was null or undefined when calling inviteSpaceMemberEndpointOrgOrgIdSpacesSpaceIdMembersPost.');
+            }
+            // verify required parameter 'orgId' is not null or undefined
+            if (orgId === null || orgId === undefined) {
+                throw new RequiredError('orgId','Required parameter orgId was null or undefined when calling inviteSpaceMemberEndpointOrgOrgIdSpacesSpaceIdMembersPost.');
+            }
+            // verify required parameter 'spaceId' is not null or undefined
+            if (spaceId === null || spaceId === undefined) {
+                throw new RequiredError('spaceId','Required parameter spaceId was null or undefined when calling inviteSpaceMemberEndpointOrgOrgIdSpacesSpaceIdMembersPost.');
+            }
+            const localVarPath = `/org/{org_id}/spaces/{space_id}/members`
+                .replace(`{${"org_id"}}`, encodeURIComponent(String(orgId)))
+                .replace(`{${"space_id"}}`, encodeURIComponent(String(spaceId)));
+            const localVarUrlObj = url.parse(localVarPath, true);
+            const localVarRequestOptions = Object.assign({ method: 'POST' }, options);
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication PortalSessionCookie required
+            if (configuration && configuration.apiKey) {
+                const localVarApiKeyValue = typeof configuration.apiKey === 'function'
+					? configuration.apiKey("Cookie")
+					: configuration.apiKey;
+                localVarHeaderParameter["Cookie"] = localVarApiKeyValue;
+            }
+
+            localVarHeaderParameter['Content-Type'] = 'application/json';
+
+            localVarUrlObj.query = Object.assign({}, localVarUrlObj.query, localVarQueryParameter, options.query);
+            // fix override query string Detail: https://stackoverflow.com/a/7517673/1077943
+            localVarUrlObj.search = null;
+            localVarRequestOptions.headers = Object.assign({}, localVarHeaderParameter, options.headers);
+            const needsSerialization = (<any>"SpaceMemberInviteRequest" !== "string") || localVarRequestOptions.headers['Content-Type'] === 'application/json';
+            localVarRequestOptions.body =  needsSerialization ? JSON.stringify(body || {}) : (body || "");
+
+            return {
+                url: url.format(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * List direct per-user role grants on this space (steward-readable). Userset grants (e.g. commons organization#member) are omitted.
+         * @summary List Space Members
+         * @param {any} orgId Organization UUID (same as the caller&#x27;s active tenant id). A foreign org id returns 404.
+         * @param {any} spaceId Space UUID returned by the spaces list or create endpoint.
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        listSpaceMembersEndpointOrgOrgIdSpacesSpaceIdMembersGet(orgId: any, spaceId: any, options: any = {}): FetchArgs {
+            // verify required parameter 'orgId' is not null or undefined
+            if (orgId === null || orgId === undefined) {
+                throw new RequiredError('orgId','Required parameter orgId was null or undefined when calling listSpaceMembersEndpointOrgOrgIdSpacesSpaceIdMembersGet.');
+            }
+            // verify required parameter 'spaceId' is not null or undefined
+            if (spaceId === null || spaceId === undefined) {
+                throw new RequiredError('spaceId','Required parameter spaceId was null or undefined when calling listSpaceMembersEndpointOrgOrgIdSpacesSpaceIdMembersGet.');
+            }
+            const localVarPath = `/org/{org_id}/spaces/{space_id}/members`
+                .replace(`{${"org_id"}}`, encodeURIComponent(String(orgId)))
+                .replace(`{${"space_id"}}`, encodeURIComponent(String(spaceId)));
+            const localVarUrlObj = url.parse(localVarPath, true);
+            const localVarRequestOptions = Object.assign({ method: 'GET' }, options);
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication PortalSessionCookie required
+            if (configuration && configuration.apiKey) {
+                const localVarApiKeyValue = typeof configuration.apiKey === 'function'
+					? configuration.apiKey("Cookie")
+					: configuration.apiKey;
+                localVarHeaderParameter["Cookie"] = localVarApiKeyValue;
+            }
+
+            localVarUrlObj.query = Object.assign({}, localVarUrlObj.query, localVarQueryParameter, options.query);
+            // fix override query string Detail: https://stackoverflow.com/a/7517673/1077943
+            localVarUrlObj.search = null;
+            localVarRequestOptions.headers = Object.assign({}, localVarHeaderParameter, options.headers);
+
+            return {
+                url: url.format(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * Remove every direct role a member holds on this space. Requires space steward.
+         * @summary Revoke Space Member
+         * @param {any} orgId Organization UUID (same as the caller&#x27;s active tenant id). A foreign org id returns 404.
+         * @param {any} spaceId Space UUID returned by the spaces list or create endpoint.
+         * @param {any} identityUserId Identity user UUID for an organization member.
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        revokeSpaceMemberEndpointOrgOrgIdSpacesSpaceIdMembersIdentityUserIdDelete(orgId: any, spaceId: any, identityUserId: any, options: any = {}): FetchArgs {
+            // verify required parameter 'orgId' is not null or undefined
+            if (orgId === null || orgId === undefined) {
+                throw new RequiredError('orgId','Required parameter orgId was null or undefined when calling revokeSpaceMemberEndpointOrgOrgIdSpacesSpaceIdMembersIdentityUserIdDelete.');
+            }
+            // verify required parameter 'spaceId' is not null or undefined
+            if (spaceId === null || spaceId === undefined) {
+                throw new RequiredError('spaceId','Required parameter spaceId was null or undefined when calling revokeSpaceMemberEndpointOrgOrgIdSpacesSpaceIdMembersIdentityUserIdDelete.');
+            }
+            // verify required parameter 'identityUserId' is not null or undefined
+            if (identityUserId === null || identityUserId === undefined) {
+                throw new RequiredError('identityUserId','Required parameter identityUserId was null or undefined when calling revokeSpaceMemberEndpointOrgOrgIdSpacesSpaceIdMembersIdentityUserIdDelete.');
+            }
+            const localVarPath = `/org/{org_id}/spaces/{space_id}/members/{identity_user_id}`
+                .replace(`{${"org_id"}}`, encodeURIComponent(String(orgId)))
+                .replace(`{${"space_id"}}`, encodeURIComponent(String(spaceId)))
+                .replace(`{${"identity_user_id"}}`, encodeURIComponent(String(identityUserId)));
+            const localVarUrlObj = url.parse(localVarPath, true);
+            const localVarRequestOptions = Object.assign({ method: 'DELETE' }, options);
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication PortalSessionCookie required
+            if (configuration && configuration.apiKey) {
+                const localVarApiKeyValue = typeof configuration.apiKey === 'function'
+					? configuration.apiKey("Cookie")
+					: configuration.apiKey;
+                localVarHeaderParameter["Cookie"] = localVarApiKeyValue;
+            }
+
+            localVarUrlObj.query = Object.assign({}, localVarUrlObj.query, localVarQueryParameter, options.query);
+            // fix override query string Detail: https://stackoverflow.com/a/7517673/1077943
+            localVarUrlObj.search = null;
+            localVarRequestOptions.headers = Object.assign({}, localVarHeaderParameter, options.headers);
+
+            return {
+                url: url.format(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+    }
+};
+
+/**
+ * OrgSpacesApi - functional programming interface
+ * @export
+ */
+export const OrgSpacesApiFp = function(configuration?: Configuration) {
+    return {
+        /**
+         * Create a domain space in the organization, with the caller seeded as steward. Requires developer role or higher.
+         * @summary Create Org Space
+         * @param {CreateSpaceRequest} body 
+         * @param {any} orgId Organization UUID (same as the caller&#x27;s active tenant id). A foreign org id returns 404.
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        createOrgSpaceEndpointOrgOrgIdSpacesPost(body: CreateSpaceRequest, orgId: any, options?: any): (fetch?: FetchAPI, basePath?: string) => Promise<SpaceResponse> {
+            const localVarFetchArgs = OrgSpacesApiFetchParamCreator(configuration).createOrgSpaceEndpointOrgOrgIdSpacesPost(body, orgId, options);
+            return (fetch: FetchAPI = isomorphicFetch, basePath: string = BASE_PATH) => {
+                return fetch(basePath + localVarFetchArgs.url, localVarFetchArgs.options).then((response) => {
+                    if (response.status >= 200 && response.status < 300) {
+                        return response.json();
+                    } else {
+                        throw response;
+                    }
+                });
+            };
+        },
+        /**
+         * Permanently delete a domain space. Requires space steward (org admins qualify). Rejected with 409 while the space still homes agents; only kind='domain' spaces are deletable.
+         * @summary Delete Org Space
+         * @param {any} orgId Organization UUID (same as the caller&#x27;s active tenant id). A foreign org id returns 404.
+         * @param {any} spaceId Space UUID returned by the spaces list or create endpoint.
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        deleteOrgSpaceEndpointOrgOrgIdSpacesSpaceIdDelete(orgId: any, spaceId: any, options?: any): (fetch?: FetchAPI, basePath?: string) => Promise<Response> {
+            const localVarFetchArgs = OrgSpacesApiFetchParamCreator(configuration).deleteOrgSpaceEndpointOrgOrgIdSpacesSpaceIdDelete(orgId, spaceId, options);
+            return (fetch: FetchAPI = isomorphicFetch, basePath: string = BASE_PATH) => {
+                return fetch(basePath + localVarFetchArgs.url, localVarFetchArgs.options).then((response) => {
+                    if (response.status >= 200 && response.status < 300) {
+                        return response;
+                    } else {
+                        throw response;
+                    }
+                });
+            };
+        },
+        /**
+         * Grant an org member a direct role on this space (default 'contributor'). Requires space steward. Domain spaces: any steward. Non-domain spaces: org admin/owner only (intentional override for personal/commons/department). The invitee must already hold an active membership in this organization.
+         * @summary Invite Space Member
+         * @param {SpaceMemberInviteRequest} body 
+         * @param {any} orgId Organization UUID (same as the caller&#x27;s active tenant id). A foreign org id returns 404.
+         * @param {any} spaceId Space UUID returned by the spaces list or create endpoint.
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        inviteSpaceMemberEndpointOrgOrgIdSpacesSpaceIdMembersPost(body: SpaceMemberInviteRequest, orgId: any, spaceId: any, options?: any): (fetch?: FetchAPI, basePath?: string) => Promise<SpaceMemberResponse> {
+            const localVarFetchArgs = OrgSpacesApiFetchParamCreator(configuration).inviteSpaceMemberEndpointOrgOrgIdSpacesSpaceIdMembersPost(body, orgId, spaceId, options);
+            return (fetch: FetchAPI = isomorphicFetch, basePath: string = BASE_PATH) => {
+                return fetch(basePath + localVarFetchArgs.url, localVarFetchArgs.options).then((response) => {
+                    if (response.status >= 200 && response.status < 300) {
+                        return response.json();
+                    } else {
+                        throw response;
+                    }
+                });
+            };
+        },
+        /**
+         * List direct per-user role grants on this space (steward-readable). Userset grants (e.g. commons organization#member) are omitted.
+         * @summary List Space Members
+         * @param {any} orgId Organization UUID (same as the caller&#x27;s active tenant id). A foreign org id returns 404.
+         * @param {any} spaceId Space UUID returned by the spaces list or create endpoint.
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        listSpaceMembersEndpointOrgOrgIdSpacesSpaceIdMembersGet(orgId: any, spaceId: any, options?: any): (fetch?: FetchAPI, basePath?: string) => Promise<SpaceMemberListResponse> {
+            const localVarFetchArgs = OrgSpacesApiFetchParamCreator(configuration).listSpaceMembersEndpointOrgOrgIdSpacesSpaceIdMembersGet(orgId, spaceId, options);
+            return (fetch: FetchAPI = isomorphicFetch, basePath: string = BASE_PATH) => {
+                return fetch(basePath + localVarFetchArgs.url, localVarFetchArgs.options).then((response) => {
+                    if (response.status >= 200 && response.status < 300) {
+                        return response.json();
+                    } else {
+                        throw response;
+                    }
+                });
+            };
+        },
+        /**
+         * Remove every direct role a member holds on this space. Requires space steward.
+         * @summary Revoke Space Member
+         * @param {any} orgId Organization UUID (same as the caller&#x27;s active tenant id). A foreign org id returns 404.
+         * @param {any} spaceId Space UUID returned by the spaces list or create endpoint.
+         * @param {any} identityUserId Identity user UUID for an organization member.
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        revokeSpaceMemberEndpointOrgOrgIdSpacesSpaceIdMembersIdentityUserIdDelete(orgId: any, spaceId: any, identityUserId: any, options?: any): (fetch?: FetchAPI, basePath?: string) => Promise<Response> {
+            const localVarFetchArgs = OrgSpacesApiFetchParamCreator(configuration).revokeSpaceMemberEndpointOrgOrgIdSpacesSpaceIdMembersIdentityUserIdDelete(orgId, spaceId, identityUserId, options);
+            return (fetch: FetchAPI = isomorphicFetch, basePath: string = BASE_PATH) => {
+                return fetch(basePath + localVarFetchArgs.url, localVarFetchArgs.options).then((response) => {
+                    if (response.status >= 200 && response.status < 300) {
+                        return response;
+                    } else {
+                        throw response;
+                    }
+                });
+            };
+        },
+    }
+};
+
+/**
+ * OrgSpacesApi - factory interface
+ * @export
+ */
+export const OrgSpacesApiFactory = function (configuration?: Configuration, fetch?: FetchAPI, basePath?: string) {
+    return {
+        /**
+         * Create a domain space in the organization, with the caller seeded as steward. Requires developer role or higher.
+         * @summary Create Org Space
+         * @param {CreateSpaceRequest} body 
+         * @param {any} orgId Organization UUID (same as the caller&#x27;s active tenant id). A foreign org id returns 404.
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        createOrgSpaceEndpointOrgOrgIdSpacesPost(body: CreateSpaceRequest, orgId: any, options?: any) {
+            return OrgSpacesApiFp(configuration).createOrgSpaceEndpointOrgOrgIdSpacesPost(body, orgId, options)(fetch, basePath);
+        },
+        /**
+         * Permanently delete a domain space. Requires space steward (org admins qualify). Rejected with 409 while the space still homes agents; only kind='domain' spaces are deletable.
+         * @summary Delete Org Space
+         * @param {any} orgId Organization UUID (same as the caller&#x27;s active tenant id). A foreign org id returns 404.
+         * @param {any} spaceId Space UUID returned by the spaces list or create endpoint.
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        deleteOrgSpaceEndpointOrgOrgIdSpacesSpaceIdDelete(orgId: any, spaceId: any, options?: any) {
+            return OrgSpacesApiFp(configuration).deleteOrgSpaceEndpointOrgOrgIdSpacesSpaceIdDelete(orgId, spaceId, options)(fetch, basePath);
+        },
+        /**
+         * Grant an org member a direct role on this space (default 'contributor'). Requires space steward. Domain spaces: any steward. Non-domain spaces: org admin/owner only (intentional override for personal/commons/department). The invitee must already hold an active membership in this organization.
+         * @summary Invite Space Member
+         * @param {SpaceMemberInviteRequest} body 
+         * @param {any} orgId Organization UUID (same as the caller&#x27;s active tenant id). A foreign org id returns 404.
+         * @param {any} spaceId Space UUID returned by the spaces list or create endpoint.
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        inviteSpaceMemberEndpointOrgOrgIdSpacesSpaceIdMembersPost(body: SpaceMemberInviteRequest, orgId: any, spaceId: any, options?: any) {
+            return OrgSpacesApiFp(configuration).inviteSpaceMemberEndpointOrgOrgIdSpacesSpaceIdMembersPost(body, orgId, spaceId, options)(fetch, basePath);
+        },
+        /**
+         * List direct per-user role grants on this space (steward-readable). Userset grants (e.g. commons organization#member) are omitted.
+         * @summary List Space Members
+         * @param {any} orgId Organization UUID (same as the caller&#x27;s active tenant id). A foreign org id returns 404.
+         * @param {any} spaceId Space UUID returned by the spaces list or create endpoint.
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        listSpaceMembersEndpointOrgOrgIdSpacesSpaceIdMembersGet(orgId: any, spaceId: any, options?: any) {
+            return OrgSpacesApiFp(configuration).listSpaceMembersEndpointOrgOrgIdSpacesSpaceIdMembersGet(orgId, spaceId, options)(fetch, basePath);
+        },
+        /**
+         * Remove every direct role a member holds on this space. Requires space steward.
+         * @summary Revoke Space Member
+         * @param {any} orgId Organization UUID (same as the caller&#x27;s active tenant id). A foreign org id returns 404.
+         * @param {any} spaceId Space UUID returned by the spaces list or create endpoint.
+         * @param {any} identityUserId Identity user UUID for an organization member.
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        revokeSpaceMemberEndpointOrgOrgIdSpacesSpaceIdMembersIdentityUserIdDelete(orgId: any, spaceId: any, identityUserId: any, options?: any) {
+            return OrgSpacesApiFp(configuration).revokeSpaceMemberEndpointOrgOrgIdSpacesSpaceIdMembersIdentityUserIdDelete(orgId, spaceId, identityUserId, options)(fetch, basePath);
+        },
+    };
+};
+
+/**
+ * OrgSpacesApi - object-oriented interface
+ * @export
+ * @class OrgSpacesApi
+ * @extends {BaseAPI}
+ */
+export class OrgSpacesApi extends BaseAPI {
+    /**
+     * Create a domain space in the organization, with the caller seeded as steward. Requires developer role or higher.
+     * @summary Create Org Space
+     * @param {CreateSpaceRequest} body 
+     * @param {any} orgId Organization UUID (same as the caller&#x27;s active tenant id). A foreign org id returns 404.
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof OrgSpacesApi
+     */
+    public createOrgSpaceEndpointOrgOrgIdSpacesPost(body: CreateSpaceRequest, orgId: any, options?: any) {
+        return OrgSpacesApiFp(this.configuration).createOrgSpaceEndpointOrgOrgIdSpacesPost(body, orgId, options)(this.fetch, this.basePath);
+    }
+
+    /**
+     * Permanently delete a domain space. Requires space steward (org admins qualify). Rejected with 409 while the space still homes agents; only kind='domain' spaces are deletable.
+     * @summary Delete Org Space
+     * @param {any} orgId Organization UUID (same as the caller&#x27;s active tenant id). A foreign org id returns 404.
+     * @param {any} spaceId Space UUID returned by the spaces list or create endpoint.
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof OrgSpacesApi
+     */
+    public deleteOrgSpaceEndpointOrgOrgIdSpacesSpaceIdDelete(orgId: any, spaceId: any, options?: any) {
+        return OrgSpacesApiFp(this.configuration).deleteOrgSpaceEndpointOrgOrgIdSpacesSpaceIdDelete(orgId, spaceId, options)(this.fetch, this.basePath);
+    }
+
+    /**
+     * Grant an org member a direct role on this space (default 'contributor'). Requires space steward. Domain spaces: any steward. Non-domain spaces: org admin/owner only (intentional override for personal/commons/department). The invitee must already hold an active membership in this organization.
+     * @summary Invite Space Member
+     * @param {SpaceMemberInviteRequest} body 
+     * @param {any} orgId Organization UUID (same as the caller&#x27;s active tenant id). A foreign org id returns 404.
+     * @param {any} spaceId Space UUID returned by the spaces list or create endpoint.
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof OrgSpacesApi
+     */
+    public inviteSpaceMemberEndpointOrgOrgIdSpacesSpaceIdMembersPost(body: SpaceMemberInviteRequest, orgId: any, spaceId: any, options?: any) {
+        return OrgSpacesApiFp(this.configuration).inviteSpaceMemberEndpointOrgOrgIdSpacesSpaceIdMembersPost(body, orgId, spaceId, options)(this.fetch, this.basePath);
+    }
+
+    /**
+     * List direct per-user role grants on this space (steward-readable). Userset grants (e.g. commons organization#member) are omitted.
+     * @summary List Space Members
+     * @param {any} orgId Organization UUID (same as the caller&#x27;s active tenant id). A foreign org id returns 404.
+     * @param {any} spaceId Space UUID returned by the spaces list or create endpoint.
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof OrgSpacesApi
+     */
+    public listSpaceMembersEndpointOrgOrgIdSpacesSpaceIdMembersGet(orgId: any, spaceId: any, options?: any) {
+        return OrgSpacesApiFp(this.configuration).listSpaceMembersEndpointOrgOrgIdSpacesSpaceIdMembersGet(orgId, spaceId, options)(this.fetch, this.basePath);
+    }
+
+    /**
+     * Remove every direct role a member holds on this space. Requires space steward.
+     * @summary Revoke Space Member
+     * @param {any} orgId Organization UUID (same as the caller&#x27;s active tenant id). A foreign org id returns 404.
+     * @param {any} spaceId Space UUID returned by the spaces list or create endpoint.
+     * @param {any} identityUserId Identity user UUID for an organization member.
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof OrgSpacesApi
+     */
+    public revokeSpaceMemberEndpointOrgOrgIdSpacesSpaceIdMembersIdentityUserIdDelete(orgId: any, spaceId: any, identityUserId: any, options?: any) {
+        return OrgSpacesApiFp(this.configuration).revokeSpaceMemberEndpointOrgOrgIdSpacesSpaceIdMembersIdentityUserIdDelete(orgId, spaceId, identityUserId, options)(this.fetch, this.basePath);
     }
 
 }
@@ -10346,24 +12794,26 @@ export class PlansApi extends BaseAPI {
 
 }
 /**
- * ProviderCredentialsApi - fetch parameter creator
+ * ReportingApi - fetch parameter creator
  * @export
  */
-export const ProviderCredentialsApiFetchParamCreator = function (configuration?: Configuration) {
+export const ReportingApiFetchParamCreator = function (configuration?: Configuration) {
     return {
         /**
-         * Store a provider credential for tenant-wide or agent-specific use. The secret is write-only and is not returned. Use `metadata.base_url` only when the provider should use a non-default compatible endpoint.
-         * @summary Create Provider Credential
-         * @param {ProviderCredentialCreateRequest} body 
+         * Run the stored query_binding for a visible chart (Mode B).
+         * @summary Run Chart Data
+         * @param {any} chartId Reporting chart UUID returned by the chart create or list endpoint.
+         * @param {any} [body] 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        createCredentialCredentialsProvidersPost(body: ProviderCredentialCreateRequest, options: any = {}): FetchArgs {
-            // verify required parameter 'body' is not null or undefined
-            if (body === null || body === undefined) {
-                throw new RequiredError('body','Required parameter body was null or undefined when calling createCredentialCredentialsProvidersPost.');
+        chartDataEndpointReportingChartsChartIdDataPost(chartId: any, body?: any, options: any = {}): FetchArgs {
+            // verify required parameter 'chartId' is not null or undefined
+            if (chartId === null || chartId === undefined) {
+                throw new RequiredError('chartId','Required parameter chartId was null or undefined when calling chartDataEndpointReportingChartsChartIdDataPost.');
             }
-            const localVarPath = `/credentials/providers`;
+            const localVarPath = `/reporting/charts/{chart_id}/data`
+                .replace(`{${"chart_id"}}`, encodeURIComponent(String(chartId)));
             const localVarUrlObj = url.parse(localVarPath, true);
             const localVarRequestOptions = Object.assign({ method: 'POST' }, options);
             const localVarHeaderParameter = {} as any;
@@ -10383,7 +12833,7 @@ export const ProviderCredentialsApiFetchParamCreator = function (configuration?:
             // fix override query string Detail: https://stackoverflow.com/a/7517673/1077943
             localVarUrlObj.search = null;
             localVarRequestOptions.headers = Object.assign({}, localVarHeaderParameter, options.headers);
-            const needsSerialization = (<any>"ProviderCredentialCreateRequest" !== "string") || localVarRequestOptions.headers['Content-Type'] === 'application/json';
+            const needsSerialization = (<any>"any" !== "string") || localVarRequestOptions.headers['Content-Type'] === 'application/json';
             localVarRequestOptions.body =  needsSerialization ? JSON.stringify(body || {}) : (body || "");
 
             return {
@@ -10392,19 +12842,99 @@ export const ProviderCredentialsApiFetchParamCreator = function (configuration?:
             };
         },
         /**
-         * Permanently remove a provider credential. Confirm dependent agents have another usable credential before deleting it.
-         * @summary Delete Provider Credential
-         * @param {any} credentialId Provider credential UUID returned by the create or list endpoint.
+         * Create a chart in a space (portal: private to the user until published; API key: null-owner draft shared among keys in the tenant). Requires can_publish on the space.
+         * @summary Create Chart
+         * @param {ChartCreateRequest} body 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        deleteCredentialCredentialsProvidersCredentialIdDelete(credentialId: any, options: any = {}): FetchArgs {
-            // verify required parameter 'credentialId' is not null or undefined
-            if (credentialId === null || credentialId === undefined) {
-                throw new RequiredError('credentialId','Required parameter credentialId was null or undefined when calling deleteCredentialCredentialsProvidersCredentialIdDelete.');
+        createChartEndpointReportingChartsPost(body: ChartCreateRequest, options: any = {}): FetchArgs {
+            // verify required parameter 'body' is not null or undefined
+            if (body === null || body === undefined) {
+                throw new RequiredError('body','Required parameter body was null or undefined when calling createChartEndpointReportingChartsPost.');
             }
-            const localVarPath = `/credentials/providers/{credential_id}`
-                .replace(`{${"credential_id"}}`, encodeURIComponent(String(credentialId)));
+            const localVarPath = `/reporting/charts`;
+            const localVarUrlObj = url.parse(localVarPath, true);
+            const localVarRequestOptions = Object.assign({ method: 'POST' }, options);
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication BearerApiKey required
+            if (configuration && configuration.apiKey) {
+                const localVarApiKeyValue = typeof configuration.apiKey === 'function'
+					? configuration.apiKey("Authorization")
+					: configuration.apiKey;
+                localVarHeaderParameter["Authorization"] = localVarApiKeyValue;
+            }
+
+            localVarHeaderParameter['Content-Type'] = 'application/json';
+
+            localVarUrlObj.query = Object.assign({}, localVarUrlObj.query, localVarQueryParameter, options.query);
+            // fix override query string Detail: https://stackoverflow.com/a/7517673/1077943
+            localVarUrlObj.search = null;
+            localVarRequestOptions.headers = Object.assign({}, localVarHeaderParameter, options.headers);
+            const needsSerialization = (<any>"ChartCreateRequest" !== "string") || localVarRequestOptions.headers['Content-Type'] === 'application/json';
+            localVarRequestOptions.body =  needsSerialization ? JSON.stringify(body || {}) : (body || "");
+
+            return {
+                url: url.format(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * Create an empty multi-chart dashboard in a space. Requires can_publish on the space.
+         * @summary Create Dashboard
+         * @param {DashboardCreateRequest} body 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        createDashboardEndpointReportingDashboardsPost(body: DashboardCreateRequest, options: any = {}): FetchArgs {
+            // verify required parameter 'body' is not null or undefined
+            if (body === null || body === undefined) {
+                throw new RequiredError('body','Required parameter body was null or undefined when calling createDashboardEndpointReportingDashboardsPost.');
+            }
+            const localVarPath = `/reporting/dashboards`;
+            const localVarUrlObj = url.parse(localVarPath, true);
+            const localVarRequestOptions = Object.assign({ method: 'POST' }, options);
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication BearerApiKey required
+            if (configuration && configuration.apiKey) {
+                const localVarApiKeyValue = typeof configuration.apiKey === 'function'
+					? configuration.apiKey("Authorization")
+					: configuration.apiKey;
+                localVarHeaderParameter["Authorization"] = localVarApiKeyValue;
+            }
+
+            localVarHeaderParameter['Content-Type'] = 'application/json';
+
+            localVarUrlObj.query = Object.assign({}, localVarUrlObj.query, localVarQueryParameter, options.query);
+            // fix override query string Detail: https://stackoverflow.com/a/7517673/1077943
+            localVarUrlObj.search = null;
+            localVarRequestOptions.headers = Object.assign({}, localVarHeaderParameter, options.headers);
+            const needsSerialization = (<any>"DashboardCreateRequest" !== "string") || localVarRequestOptions.headers['Content-Type'] === 'application/json';
+            localVarRequestOptions.body =  needsSerialization ? JSON.stringify(body || {}) : (body || "");
+
+            return {
+                url: url.format(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * Delete a visible chart. Charts linked on dashboards are removed from those canvases via cascade. Requires can_publish on the chart's space.
+         * @summary Delete Chart
+         * @param {any} chartId Reporting chart UUID returned by the chart create or list endpoint.
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        deleteChartEndpointReportingChartsChartIdDelete(chartId: any, options: any = {}): FetchArgs {
+            // verify required parameter 'chartId' is not null or undefined
+            if (chartId === null || chartId === undefined) {
+                throw new RequiredError('chartId','Required parameter chartId was null or undefined when calling deleteChartEndpointReportingChartsChartIdDelete.');
+            }
+            const localVarPath = `/reporting/charts/{chart_id}`
+                .replace(`{${"chart_id"}}`, encodeURIComponent(String(chartId)));
             const localVarUrlObj = url.parse(localVarPath, true);
             const localVarRequestOptions = Object.assign({ method: 'DELETE' }, options);
             const localVarHeaderParameter = {} as any;
@@ -10429,19 +12959,56 @@ export const ProviderCredentialsApiFetchParamCreator = function (configuration?:
             };
         },
         /**
-         * Retrieve one provider credential's provider, binding, metadata, and active state. Secret material is never included.
-         * @summary Get Provider Credential
-         * @param {any} credentialId Provider credential UUID returned by the create or list endpoint.
+         * Delete a dashboard and its placements. Charts themselves are kept. Requires can_publish on the dashboard's space.
+         * @summary Delete Dashboard
+         * @param {any} dashboardId Reporting dashboard UUID returned by the dashboard create or list endpoint.
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        getCredentialCredentialsProvidersCredentialIdGet(credentialId: any, options: any = {}): FetchArgs {
-            // verify required parameter 'credentialId' is not null or undefined
-            if (credentialId === null || credentialId === undefined) {
-                throw new RequiredError('credentialId','Required parameter credentialId was null or undefined when calling getCredentialCredentialsProvidersCredentialIdGet.');
+        deleteDashboardEndpointReportingDashboardsDashboardIdDelete(dashboardId: any, options: any = {}): FetchArgs {
+            // verify required parameter 'dashboardId' is not null or undefined
+            if (dashboardId === null || dashboardId === undefined) {
+                throw new RequiredError('dashboardId','Required parameter dashboardId was null or undefined when calling deleteDashboardEndpointReportingDashboardsDashboardIdDelete.');
             }
-            const localVarPath = `/credentials/providers/{credential_id}`
-                .replace(`{${"credential_id"}}`, encodeURIComponent(String(credentialId)));
+            const localVarPath = `/reporting/dashboards/{dashboard_id}`
+                .replace(`{${"dashboard_id"}}`, encodeURIComponent(String(dashboardId)));
+            const localVarUrlObj = url.parse(localVarPath, true);
+            const localVarRequestOptions = Object.assign({ method: 'DELETE' }, options);
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication BearerApiKey required
+            if (configuration && configuration.apiKey) {
+                const localVarApiKeyValue = typeof configuration.apiKey === 'function'
+					? configuration.apiKey("Authorization")
+					: configuration.apiKey;
+                localVarHeaderParameter["Authorization"] = localVarApiKeyValue;
+            }
+
+            localVarUrlObj.query = Object.assign({}, localVarUrlObj.query, localVarQueryParameter, options.query);
+            // fix override query string Detail: https://stackoverflow.com/a/7517673/1077943
+            localVarUrlObj.search = null;
+            localVarRequestOptions.headers = Object.assign({}, localVarHeaderParameter, options.headers);
+
+            return {
+                url: url.format(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * Return a chart the caller can see: their own draft, a tenant-shared API-key draft, or a chart linked on a readable dashboard.
+         * @summary Get Chart
+         * @param {any} chartId Reporting chart UUID returned by the chart create or list endpoint.
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        getChartEndpointReportingChartsChartIdGet(chartId: any, options: any = {}): FetchArgs {
+            // verify required parameter 'chartId' is not null or undefined
+            if (chartId === null || chartId === undefined) {
+                throw new RequiredError('chartId','Required parameter chartId was null or undefined when calling getChartEndpointReportingChartsChartIdGet.');
+            }
+            const localVarPath = `/reporting/charts/{chart_id}`
+                .replace(`{${"chart_id"}}`, encodeURIComponent(String(chartId)));
             const localVarUrlObj = url.parse(localVarPath, true);
             const localVarRequestOptions = Object.assign({ method: 'GET' }, options);
             const localVarHeaderParameter = {} as any;
@@ -10466,17 +13033,19 @@ export const ProviderCredentialsApiFetchParamCreator = function (configuration?:
             };
         },
         /**
-         * List configured model-provider credentials without secret values. Filter by provider, binding type, agent, or active state when selecting a credential for an agent.
-         * @summary List Provider Credentials
-         * @param {any} [provider] 
-         * @param {any} [bindingType] 
-         * @param {any} [agentId] 
-         * @param {any} [includeInactive] 
+         * Return a dashboard and its chart placements when the caller can read the dashboard's space.
+         * @summary Get Dashboard
+         * @param {any} dashboardId Reporting dashboard UUID returned by the dashboard create or list endpoint.
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        listCredentialsCredentialsProvidersGet(provider?: any, bindingType?: any, agentId?: any, includeInactive?: any, options: any = {}): FetchArgs {
-            const localVarPath = `/credentials/providers`;
+        getDashboardEndpointReportingDashboardsDashboardIdGet(dashboardId: any, options: any = {}): FetchArgs {
+            // verify required parameter 'dashboardId' is not null or undefined
+            if (dashboardId === null || dashboardId === undefined) {
+                throw new RequiredError('dashboardId','Required parameter dashboardId was null or undefined when calling getDashboardEndpointReportingDashboardsDashboardIdGet.');
+            }
+            const localVarPath = `/reporting/dashboards/{dashboard_id}`
+                .replace(`{${"dashboard_id"}}`, encodeURIComponent(String(dashboardId)));
             const localVarUrlObj = url.parse(localVarPath, true);
             const localVarRequestOptions = Object.assign({ method: 'GET' }, options);
             const localVarHeaderParameter = {} as any;
@@ -10490,20 +13059,41 @@ export const ProviderCredentialsApiFetchParamCreator = function (configuration?:
                 localVarHeaderParameter["Authorization"] = localVarApiKeyValue;
             }
 
-            if (provider !== undefined) {
-                localVarQueryParameter['provider'] = provider;
-            }
+            localVarUrlObj.query = Object.assign({}, localVarUrlObj.query, localVarQueryParameter, options.query);
+            // fix override query string Detail: https://stackoverflow.com/a/7517673/1077943
+            localVarUrlObj.search = null;
+            localVarRequestOptions.headers = Object.assign({}, localVarHeaderParameter, options.headers);
 
-            if (bindingType !== undefined) {
-                localVarQueryParameter['binding_type'] = bindingType;
+            return {
+                url: url.format(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * Return space hyperparameters used to derive dollar measures. Missing rows fall back to product defaults. Requires space viewer.
+         * @summary Get Reporting Defaults
+         * @param {any} spaceId Space UUID returned by the spaces list or create endpoint.
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        getDefaultsEndpointReportingDefaultsSpaceIdGet(spaceId: any, options: any = {}): FetchArgs {
+            // verify required parameter 'spaceId' is not null or undefined
+            if (spaceId === null || spaceId === undefined) {
+                throw new RequiredError('spaceId','Required parameter spaceId was null or undefined when calling getDefaultsEndpointReportingDefaultsSpaceIdGet.');
             }
+            const localVarPath = `/reporting/defaults/{space_id}`
+                .replace(`{${"space_id"}}`, encodeURIComponent(String(spaceId)));
+            const localVarUrlObj = url.parse(localVarPath, true);
+            const localVarRequestOptions = Object.assign({ method: 'GET' }, options);
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
 
-            if (agentId !== undefined) {
-                localVarQueryParameter['agent_id'] = agentId;
-            }
-
-            if (includeInactive !== undefined) {
-                localVarQueryParameter['include_inactive'] = includeInactive;
+            // authentication BearerApiKey required
+            if (configuration && configuration.apiKey) {
+                const localVarApiKeyValue = typeof configuration.apiKey === 'function'
+					? configuration.apiKey("Authorization")
+					: configuration.apiKey;
+                localVarHeaderParameter["Authorization"] = localVarApiKeyValue;
             }
 
             localVarUrlObj.query = Object.assign({}, localVarUrlObj.query, localVarQueryParameter, options.query);
@@ -10517,24 +13107,259 @@ export const ProviderCredentialsApiFetchParamCreator = function (configuration?:
             };
         },
         /**
-         * Update selected fields on a provider credential. Omit the secret to keep the current value. Omitted metadata is preserved; provider changes use that provider's default endpoint unless a base URL is supplied.
-         * @summary Update Provider Credential
-         * @param {ProviderCredentialUpdateRequest} body 
-         * @param {any} credentialId Provider credential UUID returned by the create or list endpoint.
+         * Starter dimensions and measures for Graphic Walker field pickers.
+         * @summary Get Metric Catalog
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        updateCredentialCredentialsProvidersCredentialIdPatch(body: ProviderCredentialUpdateRequest, credentialId: any, options: any = {}): FetchArgs {
+        getMetricCatalogEndpointReportingMetricCatalogGet(options: any = {}): FetchArgs {
+            const localVarPath = `/reporting/metric-catalog`;
+            const localVarUrlObj = url.parse(localVarPath, true);
+            const localVarRequestOptions = Object.assign({ method: 'GET' }, options);
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication BearerApiKey required
+            if (configuration && configuration.apiKey) {
+                const localVarApiKeyValue = typeof configuration.apiKey === 'function'
+					? configuration.apiKey("Authorization")
+					: configuration.apiKey;
+                localVarHeaderParameter["Authorization"] = localVarApiKeyValue;
+            }
+
+            localVarUrlObj.query = Object.assign({}, localVarUrlObj.query, localVarQueryParameter, options.query);
+            // fix override query string Detail: https://stackoverflow.com/a/7517673/1077943
+            localVarUrlObj.search = null;
+            localVarRequestOptions.headers = Object.assign({}, localVarHeaderParameter, options.headers);
+
+            return {
+                url: url.format(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * List charts visible to the caller: portal users see their own drafts plus charts linked on a dashboard in a readable space; API keys see tenant-shared null-owner drafts plus those published charts.
+         * @summary List Charts
+         * @param {any} [spaceId] 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        listChartsEndpointReportingChartsGet(spaceId?: any, options: any = {}): FetchArgs {
+            const localVarPath = `/reporting/charts`;
+            const localVarUrlObj = url.parse(localVarPath, true);
+            const localVarRequestOptions = Object.assign({ method: 'GET' }, options);
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication BearerApiKey required
+            if (configuration && configuration.apiKey) {
+                const localVarApiKeyValue = typeof configuration.apiKey === 'function'
+					? configuration.apiKey("Authorization")
+					: configuration.apiKey;
+                localVarHeaderParameter["Authorization"] = localVarApiKeyValue;
+            }
+
+            if (spaceId !== undefined) {
+                localVarQueryParameter['space_id'] = spaceId;
+            }
+
+            localVarUrlObj.query = Object.assign({}, localVarUrlObj.query, localVarQueryParameter, options.query);
+            // fix override query string Detail: https://stackoverflow.com/a/7517673/1077943
+            localVarUrlObj.search = null;
+            localVarRequestOptions.headers = Object.assign({}, localVarHeaderParameter, options.headers);
+
+            return {
+                url: url.format(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * List multi-chart dashboards in spaces the caller can read. Optionally filter with `space_id`.
+         * @summary List Dashboards
+         * @param {any} [spaceId] 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        listDashboardsEndpointReportingDashboardsGet(spaceId?: any, options: any = {}): FetchArgs {
+            const localVarPath = `/reporting/dashboards`;
+            const localVarUrlObj = url.parse(localVarPath, true);
+            const localVarRequestOptions = Object.assign({ method: 'GET' }, options);
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication BearerApiKey required
+            if (configuration && configuration.apiKey) {
+                const localVarApiKeyValue = typeof configuration.apiKey === 'function'
+					? configuration.apiKey("Authorization")
+					: configuration.apiKey;
+                localVarHeaderParameter["Authorization"] = localVarApiKeyValue;
+            }
+
+            if (spaceId !== undefined) {
+                localVarQueryParameter['space_id'] = spaceId;
+            }
+
+            localVarUrlObj.query = Object.assign({}, localVarUrlObj.query, localVarQueryParameter, options.query);
+            // fix override query string Detail: https://stackoverflow.com/a/7517673/1077943
+            localVarUrlObj.search = null;
+            localVarRequestOptions.headers = Object.assign({}, localVarHeaderParameter, options.headers);
+
+            return {
+                url: url.format(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * Replace all chart placements on a dashboard. Linking a chart publishes it to space viewers. Validates col_index + col_span <= columns.
+         * @summary Replace Dashboard Items
+         * @param {DashboardItemsPutRequest} body 
+         * @param {any} dashboardId Reporting dashboard UUID returned by the dashboard create or list endpoint.
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        putDashboardItemsEndpointReportingDashboardsDashboardIdItemsPut(body: DashboardItemsPutRequest, dashboardId: any, options: any = {}): FetchArgs {
             // verify required parameter 'body' is not null or undefined
             if (body === null || body === undefined) {
-                throw new RequiredError('body','Required parameter body was null or undefined when calling updateCredentialCredentialsProvidersCredentialIdPatch.');
+                throw new RequiredError('body','Required parameter body was null or undefined when calling putDashboardItemsEndpointReportingDashboardsDashboardIdItemsPut.');
             }
-            // verify required parameter 'credentialId' is not null or undefined
-            if (credentialId === null || credentialId === undefined) {
-                throw new RequiredError('credentialId','Required parameter credentialId was null or undefined when calling updateCredentialCredentialsProvidersCredentialIdPatch.');
+            // verify required parameter 'dashboardId' is not null or undefined
+            if (dashboardId === null || dashboardId === undefined) {
+                throw new RequiredError('dashboardId','Required parameter dashboardId was null or undefined when calling putDashboardItemsEndpointReportingDashboardsDashboardIdItemsPut.');
             }
-            const localVarPath = `/credentials/providers/{credential_id}`
-                .replace(`{${"credential_id"}}`, encodeURIComponent(String(credentialId)));
+            const localVarPath = `/reporting/dashboards/{dashboard_id}/items`
+                .replace(`{${"dashboard_id"}}`, encodeURIComponent(String(dashboardId)));
+            const localVarUrlObj = url.parse(localVarPath, true);
+            const localVarRequestOptions = Object.assign({ method: 'PUT' }, options);
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication BearerApiKey required
+            if (configuration && configuration.apiKey) {
+                const localVarApiKeyValue = typeof configuration.apiKey === 'function'
+					? configuration.apiKey("Authorization")
+					: configuration.apiKey;
+                localVarHeaderParameter["Authorization"] = localVarApiKeyValue;
+            }
+
+            localVarHeaderParameter['Content-Type'] = 'application/json';
+
+            localVarUrlObj.query = Object.assign({}, localVarUrlObj.query, localVarQueryParameter, options.query);
+            // fix override query string Detail: https://stackoverflow.com/a/7517673/1077943
+            localVarUrlObj.search = null;
+            localVarRequestOptions.headers = Object.assign({}, localVarHeaderParameter, options.headers);
+            const needsSerialization = (<any>"DashboardItemsPutRequest" !== "string") || localVarRequestOptions.headers['Content-Type'] === 'application/json';
+            localVarRequestOptions.body =  needsSerialization ? JSON.stringify(body || {}) : (body || "");
+
+            return {
+                url: url.format(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * Replace space hyperparameters. Requires space steward (organization admins also qualify as stewards).
+         * @summary Put Reporting Defaults
+         * @param {ReportingDefaultsPutRequest} body 
+         * @param {any} spaceId Space UUID returned by the spaces list or create endpoint.
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        putDefaultsEndpointReportingDefaultsSpaceIdPut(body: ReportingDefaultsPutRequest, spaceId: any, options: any = {}): FetchArgs {
+            // verify required parameter 'body' is not null or undefined
+            if (body === null || body === undefined) {
+                throw new RequiredError('body','Required parameter body was null or undefined when calling putDefaultsEndpointReportingDefaultsSpaceIdPut.');
+            }
+            // verify required parameter 'spaceId' is not null or undefined
+            if (spaceId === null || spaceId === undefined) {
+                throw new RequiredError('spaceId','Required parameter spaceId was null or undefined when calling putDefaultsEndpointReportingDefaultsSpaceIdPut.');
+            }
+            const localVarPath = `/reporting/defaults/{space_id}`
+                .replace(`{${"space_id"}}`, encodeURIComponent(String(spaceId)));
+            const localVarUrlObj = url.parse(localVarPath, true);
+            const localVarRequestOptions = Object.assign({ method: 'PUT' }, options);
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication BearerApiKey required
+            if (configuration && configuration.apiKey) {
+                const localVarApiKeyValue = typeof configuration.apiKey === 'function'
+					? configuration.apiKey("Authorization")
+					: configuration.apiKey;
+                localVarHeaderParameter["Authorization"] = localVarApiKeyValue;
+            }
+
+            localVarHeaderParameter['Content-Type'] = 'application/json';
+
+            localVarUrlObj.query = Object.assign({}, localVarUrlObj.query, localVarQueryParameter, options.query);
+            // fix override query string Detail: https://stackoverflow.com/a/7517673/1077943
+            localVarUrlObj.search = null;
+            localVarRequestOptions.headers = Object.assign({}, localVarHeaderParameter, options.headers);
+            const needsSerialization = (<any>"ReportingDefaultsPutRequest" !== "string") || localVarRequestOptions.headers['Content-Type'] === 'application/json';
+            localVarRequestOptions.body =  needsSerialization ? JSON.stringify(body || {}) : (body || "");
+
+            return {
+                url: url.format(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * Mode B: server-side aggregate of daily reporting facts for a query binding. Dollar measures are derived at read time from space defaults.
+         * @summary Run Reporting Query
+         * @param {ReportingQueryRequest} body 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        reportingQueryEndpointReportingQueryPost(body: ReportingQueryRequest, options: any = {}): FetchArgs {
+            // verify required parameter 'body' is not null or undefined
+            if (body === null || body === undefined) {
+                throw new RequiredError('body','Required parameter body was null or undefined when calling reportingQueryEndpointReportingQueryPost.');
+            }
+            const localVarPath = `/reporting/query`;
+            const localVarUrlObj = url.parse(localVarPath, true);
+            const localVarRequestOptions = Object.assign({ method: 'POST' }, options);
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication BearerApiKey required
+            if (configuration && configuration.apiKey) {
+                const localVarApiKeyValue = typeof configuration.apiKey === 'function'
+					? configuration.apiKey("Authorization")
+					: configuration.apiKey;
+                localVarHeaderParameter["Authorization"] = localVarApiKeyValue;
+            }
+
+            localVarHeaderParameter['Content-Type'] = 'application/json';
+
+            localVarUrlObj.query = Object.assign({}, localVarUrlObj.query, localVarQueryParameter, options.query);
+            // fix override query string Detail: https://stackoverflow.com/a/7517673/1077943
+            localVarUrlObj.search = null;
+            localVarRequestOptions.headers = Object.assign({}, localVarHeaderParameter, options.headers);
+            const needsSerialization = (<any>"ReportingQueryRequest" !== "string") || localVarRequestOptions.headers['Content-Type'] === 'application/json';
+            localVarRequestOptions.body =  needsSerialization ? JSON.stringify(body || {}) : (body || "");
+
+            return {
+                url: url.format(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * Update title, description, viz spec, or query binding for a visible chart. Requires can_publish on the chart's space.
+         * @summary Update Chart
+         * @param {ChartUpdateRequest} body 
+         * @param {any} chartId Reporting chart UUID returned by the chart create or list endpoint.
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        updateChartEndpointReportingChartsChartIdPatch(body: ChartUpdateRequest, chartId: any, options: any = {}): FetchArgs {
+            // verify required parameter 'body' is not null or undefined
+            if (body === null || body === undefined) {
+                throw new RequiredError('body','Required parameter body was null or undefined when calling updateChartEndpointReportingChartsChartIdPatch.');
+            }
+            // verify required parameter 'chartId' is not null or undefined
+            if (chartId === null || chartId === undefined) {
+                throw new RequiredError('chartId','Required parameter chartId was null or undefined when calling updateChartEndpointReportingChartsChartIdPatch.');
+            }
+            const localVarPath = `/reporting/charts/{chart_id}`
+                .replace(`{${"chart_id"}}`, encodeURIComponent(String(chartId)));
             const localVarUrlObj = url.parse(localVarPath, true);
             const localVarRequestOptions = Object.assign({ method: 'PATCH' }, options);
             const localVarHeaderParameter = {} as any;
@@ -10554,7 +13379,53 @@ export const ProviderCredentialsApiFetchParamCreator = function (configuration?:
             // fix override query string Detail: https://stackoverflow.com/a/7517673/1077943
             localVarUrlObj.search = null;
             localVarRequestOptions.headers = Object.assign({}, localVarHeaderParameter, options.headers);
-            const needsSerialization = (<any>"ProviderCredentialUpdateRequest" !== "string") || localVarRequestOptions.headers['Content-Type'] === 'application/json';
+            const needsSerialization = (<any>"ChartUpdateRequest" !== "string") || localVarRequestOptions.headers['Content-Type'] === 'application/json';
+            localVarRequestOptions.body =  needsSerialization ? JSON.stringify(body || {}) : (body || "");
+
+            return {
+                url: url.format(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * Update dashboard metadata such as title, description, columns, or window preset. Requires can_publish on the dashboard's space.
+         * @summary Update Dashboard
+         * @param {DashboardUpdateRequest} body 
+         * @param {any} dashboardId Reporting dashboard UUID returned by the dashboard create or list endpoint.
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        updateDashboardEndpointReportingDashboardsDashboardIdPatch(body: DashboardUpdateRequest, dashboardId: any, options: any = {}): FetchArgs {
+            // verify required parameter 'body' is not null or undefined
+            if (body === null || body === undefined) {
+                throw new RequiredError('body','Required parameter body was null or undefined when calling updateDashboardEndpointReportingDashboardsDashboardIdPatch.');
+            }
+            // verify required parameter 'dashboardId' is not null or undefined
+            if (dashboardId === null || dashboardId === undefined) {
+                throw new RequiredError('dashboardId','Required parameter dashboardId was null or undefined when calling updateDashboardEndpointReportingDashboardsDashboardIdPatch.');
+            }
+            const localVarPath = `/reporting/dashboards/{dashboard_id}`
+                .replace(`{${"dashboard_id"}}`, encodeURIComponent(String(dashboardId)));
+            const localVarUrlObj = url.parse(localVarPath, true);
+            const localVarRequestOptions = Object.assign({ method: 'PATCH' }, options);
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication BearerApiKey required
+            if (configuration && configuration.apiKey) {
+                const localVarApiKeyValue = typeof configuration.apiKey === 'function'
+					? configuration.apiKey("Authorization")
+					: configuration.apiKey;
+                localVarHeaderParameter["Authorization"] = localVarApiKeyValue;
+            }
+
+            localVarHeaderParameter['Content-Type'] = 'application/json';
+
+            localVarUrlObj.query = Object.assign({}, localVarUrlObj.query, localVarQueryParameter, options.query);
+            // fix override query string Detail: https://stackoverflow.com/a/7517673/1077943
+            localVarUrlObj.search = null;
+            localVarRequestOptions.headers = Object.assign({}, localVarHeaderParameter, options.headers);
+            const needsSerialization = (<any>"DashboardUpdateRequest" !== "string") || localVarRequestOptions.headers['Content-Type'] === 'application/json';
             localVarRequestOptions.body =  needsSerialization ? JSON.stringify(body || {}) : (body || "");
 
             return {
@@ -10566,20 +13437,21 @@ export const ProviderCredentialsApiFetchParamCreator = function (configuration?:
 };
 
 /**
- * ProviderCredentialsApi - functional programming interface
+ * ReportingApi - functional programming interface
  * @export
  */
-export const ProviderCredentialsApiFp = function(configuration?: Configuration) {
+export const ReportingApiFp = function(configuration?: Configuration) {
     return {
         /**
-         * Store a provider credential for tenant-wide or agent-specific use. The secret is write-only and is not returned. Use `metadata.base_url` only when the provider should use a non-default compatible endpoint.
-         * @summary Create Provider Credential
-         * @param {ProviderCredentialCreateRequest} body 
+         * Run the stored query_binding for a visible chart (Mode B).
+         * @summary Run Chart Data
+         * @param {any} chartId Reporting chart UUID returned by the chart create or list endpoint.
+         * @param {any} [body] 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        createCredentialCredentialsProvidersPost(body: ProviderCredentialCreateRequest, options?: any): (fetch?: FetchAPI, basePath?: string) => Promise<ProviderCredentialResponse> {
-            const localVarFetchArgs = ProviderCredentialsApiFetchParamCreator(configuration).createCredentialCredentialsProvidersPost(body, options);
+        chartDataEndpointReportingChartsChartIdDataPost(chartId: any, body?: any, options?: any): (fetch?: FetchAPI, basePath?: string) => Promise<ReportingQueryResponse> {
+            const localVarFetchArgs = ReportingApiFetchParamCreator(configuration).chartDataEndpointReportingChartsChartIdDataPost(chartId, body, options);
             return (fetch: FetchAPI = isomorphicFetch, basePath: string = BASE_PATH) => {
                 return fetch(basePath + localVarFetchArgs.url, localVarFetchArgs.options).then((response) => {
                     if (response.status >= 200 && response.status < 300) {
@@ -10591,14 +13463,52 @@ export const ProviderCredentialsApiFp = function(configuration?: Configuration) 
             };
         },
         /**
-         * Permanently remove a provider credential. Confirm dependent agents have another usable credential before deleting it.
-         * @summary Delete Provider Credential
-         * @param {any} credentialId Provider credential UUID returned by the create or list endpoint.
+         * Create a chart in a space (portal: private to the user until published; API key: null-owner draft shared among keys in the tenant). Requires can_publish on the space.
+         * @summary Create Chart
+         * @param {ChartCreateRequest} body 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        deleteCredentialCredentialsProvidersCredentialIdDelete(credentialId: any, options?: any): (fetch?: FetchAPI, basePath?: string) => Promise<Response> {
-            const localVarFetchArgs = ProviderCredentialsApiFetchParamCreator(configuration).deleteCredentialCredentialsProvidersCredentialIdDelete(credentialId, options);
+        createChartEndpointReportingChartsPost(body: ChartCreateRequest, options?: any): (fetch?: FetchAPI, basePath?: string) => Promise<ChartResponse> {
+            const localVarFetchArgs = ReportingApiFetchParamCreator(configuration).createChartEndpointReportingChartsPost(body, options);
+            return (fetch: FetchAPI = isomorphicFetch, basePath: string = BASE_PATH) => {
+                return fetch(basePath + localVarFetchArgs.url, localVarFetchArgs.options).then((response) => {
+                    if (response.status >= 200 && response.status < 300) {
+                        return response.json();
+                    } else {
+                        throw response;
+                    }
+                });
+            };
+        },
+        /**
+         * Create an empty multi-chart dashboard in a space. Requires can_publish on the space.
+         * @summary Create Dashboard
+         * @param {DashboardCreateRequest} body 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        createDashboardEndpointReportingDashboardsPost(body: DashboardCreateRequest, options?: any): (fetch?: FetchAPI, basePath?: string) => Promise<DashboardResponse> {
+            const localVarFetchArgs = ReportingApiFetchParamCreator(configuration).createDashboardEndpointReportingDashboardsPost(body, options);
+            return (fetch: FetchAPI = isomorphicFetch, basePath: string = BASE_PATH) => {
+                return fetch(basePath + localVarFetchArgs.url, localVarFetchArgs.options).then((response) => {
+                    if (response.status >= 200 && response.status < 300) {
+                        return response.json();
+                    } else {
+                        throw response;
+                    }
+                });
+            };
+        },
+        /**
+         * Delete a visible chart. Charts linked on dashboards are removed from those canvases via cascade. Requires can_publish on the chart's space.
+         * @summary Delete Chart
+         * @param {any} chartId Reporting chart UUID returned by the chart create or list endpoint.
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        deleteChartEndpointReportingChartsChartIdDelete(chartId: any, options?: any): (fetch?: FetchAPI, basePath?: string) => Promise<Response> {
+            const localVarFetchArgs = ReportingApiFetchParamCreator(configuration).deleteChartEndpointReportingChartsChartIdDelete(chartId, options);
             return (fetch: FetchAPI = isomorphicFetch, basePath: string = BASE_PATH) => {
                 return fetch(basePath + localVarFetchArgs.url, localVarFetchArgs.options).then((response) => {
                     if (response.status >= 200 && response.status < 300) {
@@ -10610,14 +13520,33 @@ export const ProviderCredentialsApiFp = function(configuration?: Configuration) 
             };
         },
         /**
-         * Retrieve one provider credential's provider, binding, metadata, and active state. Secret material is never included.
-         * @summary Get Provider Credential
-         * @param {any} credentialId Provider credential UUID returned by the create or list endpoint.
+         * Delete a dashboard and its placements. Charts themselves are kept. Requires can_publish on the dashboard's space.
+         * @summary Delete Dashboard
+         * @param {any} dashboardId Reporting dashboard UUID returned by the dashboard create or list endpoint.
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        getCredentialCredentialsProvidersCredentialIdGet(credentialId: any, options?: any): (fetch?: FetchAPI, basePath?: string) => Promise<ProviderCredentialResponse> {
-            const localVarFetchArgs = ProviderCredentialsApiFetchParamCreator(configuration).getCredentialCredentialsProvidersCredentialIdGet(credentialId, options);
+        deleteDashboardEndpointReportingDashboardsDashboardIdDelete(dashboardId: any, options?: any): (fetch?: FetchAPI, basePath?: string) => Promise<Response> {
+            const localVarFetchArgs = ReportingApiFetchParamCreator(configuration).deleteDashboardEndpointReportingDashboardsDashboardIdDelete(dashboardId, options);
+            return (fetch: FetchAPI = isomorphicFetch, basePath: string = BASE_PATH) => {
+                return fetch(basePath + localVarFetchArgs.url, localVarFetchArgs.options).then((response) => {
+                    if (response.status >= 200 && response.status < 300) {
+                        return response;
+                    } else {
+                        throw response;
+                    }
+                });
+            };
+        },
+        /**
+         * Return a chart the caller can see: their own draft, a tenant-shared API-key draft, or a chart linked on a readable dashboard.
+         * @summary Get Chart
+         * @param {any} chartId Reporting chart UUID returned by the chart create or list endpoint.
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        getChartEndpointReportingChartsChartIdGet(chartId: any, options?: any): (fetch?: FetchAPI, basePath?: string) => Promise<ChartResponse> {
+            const localVarFetchArgs = ReportingApiFetchParamCreator(configuration).getChartEndpointReportingChartsChartIdGet(chartId, options);
             return (fetch: FetchAPI = isomorphicFetch, basePath: string = BASE_PATH) => {
                 return fetch(basePath + localVarFetchArgs.url, localVarFetchArgs.options).then((response) => {
                     if (response.status >= 200 && response.status < 300) {
@@ -10629,17 +13558,14 @@ export const ProviderCredentialsApiFp = function(configuration?: Configuration) 
             };
         },
         /**
-         * List configured model-provider credentials without secret values. Filter by provider, binding type, agent, or active state when selecting a credential for an agent.
-         * @summary List Provider Credentials
-         * @param {any} [provider] 
-         * @param {any} [bindingType] 
-         * @param {any} [agentId] 
-         * @param {any} [includeInactive] 
+         * Return a dashboard and its chart placements when the caller can read the dashboard's space.
+         * @summary Get Dashboard
+         * @param {any} dashboardId Reporting dashboard UUID returned by the dashboard create or list endpoint.
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        listCredentialsCredentialsProvidersGet(provider?: any, bindingType?: any, agentId?: any, includeInactive?: any, options?: any): (fetch?: FetchAPI, basePath?: string) => Promise<ProviderCredentialListResponse> {
-            const localVarFetchArgs = ProviderCredentialsApiFetchParamCreator(configuration).listCredentialsCredentialsProvidersGet(provider, bindingType, agentId, includeInactive, options);
+        getDashboardEndpointReportingDashboardsDashboardIdGet(dashboardId: any, options?: any): (fetch?: FetchAPI, basePath?: string) => Promise<DashboardResponse> {
+            const localVarFetchArgs = ReportingApiFetchParamCreator(configuration).getDashboardEndpointReportingDashboardsDashboardIdGet(dashboardId, options);
             return (fetch: FetchAPI = isomorphicFetch, basePath: string = BASE_PATH) => {
                 return fetch(basePath + localVarFetchArgs.url, localVarFetchArgs.options).then((response) => {
                     if (response.status >= 200 && response.status < 300) {
@@ -10651,15 +13577,169 @@ export const ProviderCredentialsApiFp = function(configuration?: Configuration) 
             };
         },
         /**
-         * Update selected fields on a provider credential. Omit the secret to keep the current value. Omitted metadata is preserved; provider changes use that provider's default endpoint unless a base URL is supplied.
-         * @summary Update Provider Credential
-         * @param {ProviderCredentialUpdateRequest} body 
-         * @param {any} credentialId Provider credential UUID returned by the create or list endpoint.
+         * Return space hyperparameters used to derive dollar measures. Missing rows fall back to product defaults. Requires space viewer.
+         * @summary Get Reporting Defaults
+         * @param {any} spaceId Space UUID returned by the spaces list or create endpoint.
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        updateCredentialCredentialsProvidersCredentialIdPatch(body: ProviderCredentialUpdateRequest, credentialId: any, options?: any): (fetch?: FetchAPI, basePath?: string) => Promise<ProviderCredentialResponse> {
-            const localVarFetchArgs = ProviderCredentialsApiFetchParamCreator(configuration).updateCredentialCredentialsProvidersCredentialIdPatch(body, credentialId, options);
+        getDefaultsEndpointReportingDefaultsSpaceIdGet(spaceId: any, options?: any): (fetch?: FetchAPI, basePath?: string) => Promise<ReportingDefaultsResponse> {
+            const localVarFetchArgs = ReportingApiFetchParamCreator(configuration).getDefaultsEndpointReportingDefaultsSpaceIdGet(spaceId, options);
+            return (fetch: FetchAPI = isomorphicFetch, basePath: string = BASE_PATH) => {
+                return fetch(basePath + localVarFetchArgs.url, localVarFetchArgs.options).then((response) => {
+                    if (response.status >= 200 && response.status < 300) {
+                        return response.json();
+                    } else {
+                        throw response;
+                    }
+                });
+            };
+        },
+        /**
+         * Starter dimensions and measures for Graphic Walker field pickers.
+         * @summary Get Metric Catalog
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        getMetricCatalogEndpointReportingMetricCatalogGet(options?: any): (fetch?: FetchAPI, basePath?: string) => Promise<MetricCatalogResponse> {
+            const localVarFetchArgs = ReportingApiFetchParamCreator(configuration).getMetricCatalogEndpointReportingMetricCatalogGet(options);
+            return (fetch: FetchAPI = isomorphicFetch, basePath: string = BASE_PATH) => {
+                return fetch(basePath + localVarFetchArgs.url, localVarFetchArgs.options).then((response) => {
+                    if (response.status >= 200 && response.status < 300) {
+                        return response.json();
+                    } else {
+                        throw response;
+                    }
+                });
+            };
+        },
+        /**
+         * List charts visible to the caller: portal users see their own drafts plus charts linked on a dashboard in a readable space; API keys see tenant-shared null-owner drafts plus those published charts.
+         * @summary List Charts
+         * @param {any} [spaceId] 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        listChartsEndpointReportingChartsGet(spaceId?: any, options?: any): (fetch?: FetchAPI, basePath?: string) => Promise<ChartListResponse> {
+            const localVarFetchArgs = ReportingApiFetchParamCreator(configuration).listChartsEndpointReportingChartsGet(spaceId, options);
+            return (fetch: FetchAPI = isomorphicFetch, basePath: string = BASE_PATH) => {
+                return fetch(basePath + localVarFetchArgs.url, localVarFetchArgs.options).then((response) => {
+                    if (response.status >= 200 && response.status < 300) {
+                        return response.json();
+                    } else {
+                        throw response;
+                    }
+                });
+            };
+        },
+        /**
+         * List multi-chart dashboards in spaces the caller can read. Optionally filter with `space_id`.
+         * @summary List Dashboards
+         * @param {any} [spaceId] 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        listDashboardsEndpointReportingDashboardsGet(spaceId?: any, options?: any): (fetch?: FetchAPI, basePath?: string) => Promise<DashboardListResponse> {
+            const localVarFetchArgs = ReportingApiFetchParamCreator(configuration).listDashboardsEndpointReportingDashboardsGet(spaceId, options);
+            return (fetch: FetchAPI = isomorphicFetch, basePath: string = BASE_PATH) => {
+                return fetch(basePath + localVarFetchArgs.url, localVarFetchArgs.options).then((response) => {
+                    if (response.status >= 200 && response.status < 300) {
+                        return response.json();
+                    } else {
+                        throw response;
+                    }
+                });
+            };
+        },
+        /**
+         * Replace all chart placements on a dashboard. Linking a chart publishes it to space viewers. Validates col_index + col_span <= columns.
+         * @summary Replace Dashboard Items
+         * @param {DashboardItemsPutRequest} body 
+         * @param {any} dashboardId Reporting dashboard UUID returned by the dashboard create or list endpoint.
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        putDashboardItemsEndpointReportingDashboardsDashboardIdItemsPut(body: DashboardItemsPutRequest, dashboardId: any, options?: any): (fetch?: FetchAPI, basePath?: string) => Promise<DashboardResponse> {
+            const localVarFetchArgs = ReportingApiFetchParamCreator(configuration).putDashboardItemsEndpointReportingDashboardsDashboardIdItemsPut(body, dashboardId, options);
+            return (fetch: FetchAPI = isomorphicFetch, basePath: string = BASE_PATH) => {
+                return fetch(basePath + localVarFetchArgs.url, localVarFetchArgs.options).then((response) => {
+                    if (response.status >= 200 && response.status < 300) {
+                        return response.json();
+                    } else {
+                        throw response;
+                    }
+                });
+            };
+        },
+        /**
+         * Replace space hyperparameters. Requires space steward (organization admins also qualify as stewards).
+         * @summary Put Reporting Defaults
+         * @param {ReportingDefaultsPutRequest} body 
+         * @param {any} spaceId Space UUID returned by the spaces list or create endpoint.
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        putDefaultsEndpointReportingDefaultsSpaceIdPut(body: ReportingDefaultsPutRequest, spaceId: any, options?: any): (fetch?: FetchAPI, basePath?: string) => Promise<ReportingDefaultsResponse> {
+            const localVarFetchArgs = ReportingApiFetchParamCreator(configuration).putDefaultsEndpointReportingDefaultsSpaceIdPut(body, spaceId, options);
+            return (fetch: FetchAPI = isomorphicFetch, basePath: string = BASE_PATH) => {
+                return fetch(basePath + localVarFetchArgs.url, localVarFetchArgs.options).then((response) => {
+                    if (response.status >= 200 && response.status < 300) {
+                        return response.json();
+                    } else {
+                        throw response;
+                    }
+                });
+            };
+        },
+        /**
+         * Mode B: server-side aggregate of daily reporting facts for a query binding. Dollar measures are derived at read time from space defaults.
+         * @summary Run Reporting Query
+         * @param {ReportingQueryRequest} body 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        reportingQueryEndpointReportingQueryPost(body: ReportingQueryRequest, options?: any): (fetch?: FetchAPI, basePath?: string) => Promise<ReportingQueryResponse> {
+            const localVarFetchArgs = ReportingApiFetchParamCreator(configuration).reportingQueryEndpointReportingQueryPost(body, options);
+            return (fetch: FetchAPI = isomorphicFetch, basePath: string = BASE_PATH) => {
+                return fetch(basePath + localVarFetchArgs.url, localVarFetchArgs.options).then((response) => {
+                    if (response.status >= 200 && response.status < 300) {
+                        return response.json();
+                    } else {
+                        throw response;
+                    }
+                });
+            };
+        },
+        /**
+         * Update title, description, viz spec, or query binding for a visible chart. Requires can_publish on the chart's space.
+         * @summary Update Chart
+         * @param {ChartUpdateRequest} body 
+         * @param {any} chartId Reporting chart UUID returned by the chart create or list endpoint.
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        updateChartEndpointReportingChartsChartIdPatch(body: ChartUpdateRequest, chartId: any, options?: any): (fetch?: FetchAPI, basePath?: string) => Promise<ChartResponse> {
+            const localVarFetchArgs = ReportingApiFetchParamCreator(configuration).updateChartEndpointReportingChartsChartIdPatch(body, chartId, options);
+            return (fetch: FetchAPI = isomorphicFetch, basePath: string = BASE_PATH) => {
+                return fetch(basePath + localVarFetchArgs.url, localVarFetchArgs.options).then((response) => {
+                    if (response.status >= 200 && response.status < 300) {
+                        return response.json();
+                    } else {
+                        throw response;
+                    }
+                });
+            };
+        },
+        /**
+         * Update dashboard metadata such as title, description, columns, or window preset. Requires can_publish on the dashboard's space.
+         * @summary Update Dashboard
+         * @param {DashboardUpdateRequest} body 
+         * @param {any} dashboardId Reporting dashboard UUID returned by the dashboard create or list endpoint.
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        updateDashboardEndpointReportingDashboardsDashboardIdPatch(body: DashboardUpdateRequest, dashboardId: any, options?: any): (fetch?: FetchAPI, basePath?: string) => Promise<DashboardResponse> {
+            const localVarFetchArgs = ReportingApiFetchParamCreator(configuration).updateDashboardEndpointReportingDashboardsDashboardIdPatch(body, dashboardId, options);
             return (fetch: FetchAPI = isomorphicFetch, basePath: string = BASE_PATH) => {
                 return fetch(basePath + localVarFetchArgs.url, localVarFetchArgs.options).then((response) => {
                     if (response.status >= 200 && response.status < 300) {
@@ -10674,137 +13754,379 @@ export const ProviderCredentialsApiFp = function(configuration?: Configuration) 
 };
 
 /**
- * ProviderCredentialsApi - factory interface
+ * ReportingApi - factory interface
  * @export
  */
-export const ProviderCredentialsApiFactory = function (configuration?: Configuration, fetch?: FetchAPI, basePath?: string) {
+export const ReportingApiFactory = function (configuration?: Configuration, fetch?: FetchAPI, basePath?: string) {
     return {
         /**
-         * Store a provider credential for tenant-wide or agent-specific use. The secret is write-only and is not returned. Use `metadata.base_url` only when the provider should use a non-default compatible endpoint.
-         * @summary Create Provider Credential
-         * @param {ProviderCredentialCreateRequest} body 
+         * Run the stored query_binding for a visible chart (Mode B).
+         * @summary Run Chart Data
+         * @param {any} chartId Reporting chart UUID returned by the chart create or list endpoint.
+         * @param {any} [body] 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        createCredentialCredentialsProvidersPost(body: ProviderCredentialCreateRequest, options?: any) {
-            return ProviderCredentialsApiFp(configuration).createCredentialCredentialsProvidersPost(body, options)(fetch, basePath);
+        chartDataEndpointReportingChartsChartIdDataPost(chartId: any, body?: any, options?: any) {
+            return ReportingApiFp(configuration).chartDataEndpointReportingChartsChartIdDataPost(chartId, body, options)(fetch, basePath);
         },
         /**
-         * Permanently remove a provider credential. Confirm dependent agents have another usable credential before deleting it.
-         * @summary Delete Provider Credential
-         * @param {any} credentialId Provider credential UUID returned by the create or list endpoint.
+         * Create a chart in a space (portal: private to the user until published; API key: null-owner draft shared among keys in the tenant). Requires can_publish on the space.
+         * @summary Create Chart
+         * @param {ChartCreateRequest} body 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        deleteCredentialCredentialsProvidersCredentialIdDelete(credentialId: any, options?: any) {
-            return ProviderCredentialsApiFp(configuration).deleteCredentialCredentialsProvidersCredentialIdDelete(credentialId, options)(fetch, basePath);
+        createChartEndpointReportingChartsPost(body: ChartCreateRequest, options?: any) {
+            return ReportingApiFp(configuration).createChartEndpointReportingChartsPost(body, options)(fetch, basePath);
         },
         /**
-         * Retrieve one provider credential's provider, binding, metadata, and active state. Secret material is never included.
-         * @summary Get Provider Credential
-         * @param {any} credentialId Provider credential UUID returned by the create or list endpoint.
+         * Create an empty multi-chart dashboard in a space. Requires can_publish on the space.
+         * @summary Create Dashboard
+         * @param {DashboardCreateRequest} body 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        getCredentialCredentialsProvidersCredentialIdGet(credentialId: any, options?: any) {
-            return ProviderCredentialsApiFp(configuration).getCredentialCredentialsProvidersCredentialIdGet(credentialId, options)(fetch, basePath);
+        createDashboardEndpointReportingDashboardsPost(body: DashboardCreateRequest, options?: any) {
+            return ReportingApiFp(configuration).createDashboardEndpointReportingDashboardsPost(body, options)(fetch, basePath);
         },
         /**
-         * List configured model-provider credentials without secret values. Filter by provider, binding type, agent, or active state when selecting a credential for an agent.
-         * @summary List Provider Credentials
-         * @param {any} [provider] 
-         * @param {any} [bindingType] 
-         * @param {any} [agentId] 
-         * @param {any} [includeInactive] 
+         * Delete a visible chart. Charts linked on dashboards are removed from those canvases via cascade. Requires can_publish on the chart's space.
+         * @summary Delete Chart
+         * @param {any} chartId Reporting chart UUID returned by the chart create or list endpoint.
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        listCredentialsCredentialsProvidersGet(provider?: any, bindingType?: any, agentId?: any, includeInactive?: any, options?: any) {
-            return ProviderCredentialsApiFp(configuration).listCredentialsCredentialsProvidersGet(provider, bindingType, agentId, includeInactive, options)(fetch, basePath);
+        deleteChartEndpointReportingChartsChartIdDelete(chartId: any, options?: any) {
+            return ReportingApiFp(configuration).deleteChartEndpointReportingChartsChartIdDelete(chartId, options)(fetch, basePath);
         },
         /**
-         * Update selected fields on a provider credential. Omit the secret to keep the current value. Omitted metadata is preserved; provider changes use that provider's default endpoint unless a base URL is supplied.
-         * @summary Update Provider Credential
-         * @param {ProviderCredentialUpdateRequest} body 
-         * @param {any} credentialId Provider credential UUID returned by the create or list endpoint.
+         * Delete a dashboard and its placements. Charts themselves are kept. Requires can_publish on the dashboard's space.
+         * @summary Delete Dashboard
+         * @param {any} dashboardId Reporting dashboard UUID returned by the dashboard create or list endpoint.
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        updateCredentialCredentialsProvidersCredentialIdPatch(body: ProviderCredentialUpdateRequest, credentialId: any, options?: any) {
-            return ProviderCredentialsApiFp(configuration).updateCredentialCredentialsProvidersCredentialIdPatch(body, credentialId, options)(fetch, basePath);
+        deleteDashboardEndpointReportingDashboardsDashboardIdDelete(dashboardId: any, options?: any) {
+            return ReportingApiFp(configuration).deleteDashboardEndpointReportingDashboardsDashboardIdDelete(dashboardId, options)(fetch, basePath);
+        },
+        /**
+         * Return a chart the caller can see: their own draft, a tenant-shared API-key draft, or a chart linked on a readable dashboard.
+         * @summary Get Chart
+         * @param {any} chartId Reporting chart UUID returned by the chart create or list endpoint.
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        getChartEndpointReportingChartsChartIdGet(chartId: any, options?: any) {
+            return ReportingApiFp(configuration).getChartEndpointReportingChartsChartIdGet(chartId, options)(fetch, basePath);
+        },
+        /**
+         * Return a dashboard and its chart placements when the caller can read the dashboard's space.
+         * @summary Get Dashboard
+         * @param {any} dashboardId Reporting dashboard UUID returned by the dashboard create or list endpoint.
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        getDashboardEndpointReportingDashboardsDashboardIdGet(dashboardId: any, options?: any) {
+            return ReportingApiFp(configuration).getDashboardEndpointReportingDashboardsDashboardIdGet(dashboardId, options)(fetch, basePath);
+        },
+        /**
+         * Return space hyperparameters used to derive dollar measures. Missing rows fall back to product defaults. Requires space viewer.
+         * @summary Get Reporting Defaults
+         * @param {any} spaceId Space UUID returned by the spaces list or create endpoint.
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        getDefaultsEndpointReportingDefaultsSpaceIdGet(spaceId: any, options?: any) {
+            return ReportingApiFp(configuration).getDefaultsEndpointReportingDefaultsSpaceIdGet(spaceId, options)(fetch, basePath);
+        },
+        /**
+         * Starter dimensions and measures for Graphic Walker field pickers.
+         * @summary Get Metric Catalog
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        getMetricCatalogEndpointReportingMetricCatalogGet(options?: any) {
+            return ReportingApiFp(configuration).getMetricCatalogEndpointReportingMetricCatalogGet(options)(fetch, basePath);
+        },
+        /**
+         * List charts visible to the caller: portal users see their own drafts plus charts linked on a dashboard in a readable space; API keys see tenant-shared null-owner drafts plus those published charts.
+         * @summary List Charts
+         * @param {any} [spaceId] 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        listChartsEndpointReportingChartsGet(spaceId?: any, options?: any) {
+            return ReportingApiFp(configuration).listChartsEndpointReportingChartsGet(spaceId, options)(fetch, basePath);
+        },
+        /**
+         * List multi-chart dashboards in spaces the caller can read. Optionally filter with `space_id`.
+         * @summary List Dashboards
+         * @param {any} [spaceId] 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        listDashboardsEndpointReportingDashboardsGet(spaceId?: any, options?: any) {
+            return ReportingApiFp(configuration).listDashboardsEndpointReportingDashboardsGet(spaceId, options)(fetch, basePath);
+        },
+        /**
+         * Replace all chart placements on a dashboard. Linking a chart publishes it to space viewers. Validates col_index + col_span <= columns.
+         * @summary Replace Dashboard Items
+         * @param {DashboardItemsPutRequest} body 
+         * @param {any} dashboardId Reporting dashboard UUID returned by the dashboard create or list endpoint.
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        putDashboardItemsEndpointReportingDashboardsDashboardIdItemsPut(body: DashboardItemsPutRequest, dashboardId: any, options?: any) {
+            return ReportingApiFp(configuration).putDashboardItemsEndpointReportingDashboardsDashboardIdItemsPut(body, dashboardId, options)(fetch, basePath);
+        },
+        /**
+         * Replace space hyperparameters. Requires space steward (organization admins also qualify as stewards).
+         * @summary Put Reporting Defaults
+         * @param {ReportingDefaultsPutRequest} body 
+         * @param {any} spaceId Space UUID returned by the spaces list or create endpoint.
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        putDefaultsEndpointReportingDefaultsSpaceIdPut(body: ReportingDefaultsPutRequest, spaceId: any, options?: any) {
+            return ReportingApiFp(configuration).putDefaultsEndpointReportingDefaultsSpaceIdPut(body, spaceId, options)(fetch, basePath);
+        },
+        /**
+         * Mode B: server-side aggregate of daily reporting facts for a query binding. Dollar measures are derived at read time from space defaults.
+         * @summary Run Reporting Query
+         * @param {ReportingQueryRequest} body 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        reportingQueryEndpointReportingQueryPost(body: ReportingQueryRequest, options?: any) {
+            return ReportingApiFp(configuration).reportingQueryEndpointReportingQueryPost(body, options)(fetch, basePath);
+        },
+        /**
+         * Update title, description, viz spec, or query binding for a visible chart. Requires can_publish on the chart's space.
+         * @summary Update Chart
+         * @param {ChartUpdateRequest} body 
+         * @param {any} chartId Reporting chart UUID returned by the chart create or list endpoint.
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        updateChartEndpointReportingChartsChartIdPatch(body: ChartUpdateRequest, chartId: any, options?: any) {
+            return ReportingApiFp(configuration).updateChartEndpointReportingChartsChartIdPatch(body, chartId, options)(fetch, basePath);
+        },
+        /**
+         * Update dashboard metadata such as title, description, columns, or window preset. Requires can_publish on the dashboard's space.
+         * @summary Update Dashboard
+         * @param {DashboardUpdateRequest} body 
+         * @param {any} dashboardId Reporting dashboard UUID returned by the dashboard create or list endpoint.
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        updateDashboardEndpointReportingDashboardsDashboardIdPatch(body: DashboardUpdateRequest, dashboardId: any, options?: any) {
+            return ReportingApiFp(configuration).updateDashboardEndpointReportingDashboardsDashboardIdPatch(body, dashboardId, options)(fetch, basePath);
         },
     };
 };
 
 /**
- * ProviderCredentialsApi - object-oriented interface
+ * ReportingApi - object-oriented interface
  * @export
- * @class ProviderCredentialsApi
+ * @class ReportingApi
  * @extends {BaseAPI}
  */
-export class ProviderCredentialsApi extends BaseAPI {
+export class ReportingApi extends BaseAPI {
     /**
-     * Store a provider credential for tenant-wide or agent-specific use. The secret is write-only and is not returned. Use `metadata.base_url` only when the provider should use a non-default compatible endpoint.
-     * @summary Create Provider Credential
-     * @param {ProviderCredentialCreateRequest} body 
+     * Run the stored query_binding for a visible chart (Mode B).
+     * @summary Run Chart Data
+     * @param {any} chartId Reporting chart UUID returned by the chart create or list endpoint.
+     * @param {any} [body] 
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
-     * @memberof ProviderCredentialsApi
+     * @memberof ReportingApi
      */
-    public createCredentialCredentialsProvidersPost(body: ProviderCredentialCreateRequest, options?: any) {
-        return ProviderCredentialsApiFp(this.configuration).createCredentialCredentialsProvidersPost(body, options)(this.fetch, this.basePath);
+    public chartDataEndpointReportingChartsChartIdDataPost(chartId: any, body?: any, options?: any) {
+        return ReportingApiFp(this.configuration).chartDataEndpointReportingChartsChartIdDataPost(chartId, body, options)(this.fetch, this.basePath);
     }
 
     /**
-     * Permanently remove a provider credential. Confirm dependent agents have another usable credential before deleting it.
-     * @summary Delete Provider Credential
-     * @param {any} credentialId Provider credential UUID returned by the create or list endpoint.
+     * Create a chart in a space (portal: private to the user until published; API key: null-owner draft shared among keys in the tenant). Requires can_publish on the space.
+     * @summary Create Chart
+     * @param {ChartCreateRequest} body 
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
-     * @memberof ProviderCredentialsApi
+     * @memberof ReportingApi
      */
-    public deleteCredentialCredentialsProvidersCredentialIdDelete(credentialId: any, options?: any) {
-        return ProviderCredentialsApiFp(this.configuration).deleteCredentialCredentialsProvidersCredentialIdDelete(credentialId, options)(this.fetch, this.basePath);
+    public createChartEndpointReportingChartsPost(body: ChartCreateRequest, options?: any) {
+        return ReportingApiFp(this.configuration).createChartEndpointReportingChartsPost(body, options)(this.fetch, this.basePath);
     }
 
     /**
-     * Retrieve one provider credential's provider, binding, metadata, and active state. Secret material is never included.
-     * @summary Get Provider Credential
-     * @param {any} credentialId Provider credential UUID returned by the create or list endpoint.
+     * Create an empty multi-chart dashboard in a space. Requires can_publish on the space.
+     * @summary Create Dashboard
+     * @param {DashboardCreateRequest} body 
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
-     * @memberof ProviderCredentialsApi
+     * @memberof ReportingApi
      */
-    public getCredentialCredentialsProvidersCredentialIdGet(credentialId: any, options?: any) {
-        return ProviderCredentialsApiFp(this.configuration).getCredentialCredentialsProvidersCredentialIdGet(credentialId, options)(this.fetch, this.basePath);
+    public createDashboardEndpointReportingDashboardsPost(body: DashboardCreateRequest, options?: any) {
+        return ReportingApiFp(this.configuration).createDashboardEndpointReportingDashboardsPost(body, options)(this.fetch, this.basePath);
     }
 
     /**
-     * List configured model-provider credentials without secret values. Filter by provider, binding type, agent, or active state when selecting a credential for an agent.
-     * @summary List Provider Credentials
-     * @param {any} [provider] 
-     * @param {any} [bindingType] 
-     * @param {any} [agentId] 
-     * @param {any} [includeInactive] 
+     * Delete a visible chart. Charts linked on dashboards are removed from those canvases via cascade. Requires can_publish on the chart's space.
+     * @summary Delete Chart
+     * @param {any} chartId Reporting chart UUID returned by the chart create or list endpoint.
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
-     * @memberof ProviderCredentialsApi
+     * @memberof ReportingApi
      */
-    public listCredentialsCredentialsProvidersGet(provider?: any, bindingType?: any, agentId?: any, includeInactive?: any, options?: any) {
-        return ProviderCredentialsApiFp(this.configuration).listCredentialsCredentialsProvidersGet(provider, bindingType, agentId, includeInactive, options)(this.fetch, this.basePath);
+    public deleteChartEndpointReportingChartsChartIdDelete(chartId: any, options?: any) {
+        return ReportingApiFp(this.configuration).deleteChartEndpointReportingChartsChartIdDelete(chartId, options)(this.fetch, this.basePath);
     }
 
     /**
-     * Update selected fields on a provider credential. Omit the secret to keep the current value. Omitted metadata is preserved; provider changes use that provider's default endpoint unless a base URL is supplied.
-     * @summary Update Provider Credential
-     * @param {ProviderCredentialUpdateRequest} body 
-     * @param {any} credentialId Provider credential UUID returned by the create or list endpoint.
+     * Delete a dashboard and its placements. Charts themselves are kept. Requires can_publish on the dashboard's space.
+     * @summary Delete Dashboard
+     * @param {any} dashboardId Reporting dashboard UUID returned by the dashboard create or list endpoint.
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
-     * @memberof ProviderCredentialsApi
+     * @memberof ReportingApi
      */
-    public updateCredentialCredentialsProvidersCredentialIdPatch(body: ProviderCredentialUpdateRequest, credentialId: any, options?: any) {
-        return ProviderCredentialsApiFp(this.configuration).updateCredentialCredentialsProvidersCredentialIdPatch(body, credentialId, options)(this.fetch, this.basePath);
+    public deleteDashboardEndpointReportingDashboardsDashboardIdDelete(dashboardId: any, options?: any) {
+        return ReportingApiFp(this.configuration).deleteDashboardEndpointReportingDashboardsDashboardIdDelete(dashboardId, options)(this.fetch, this.basePath);
+    }
+
+    /**
+     * Return a chart the caller can see: their own draft, a tenant-shared API-key draft, or a chart linked on a readable dashboard.
+     * @summary Get Chart
+     * @param {any} chartId Reporting chart UUID returned by the chart create or list endpoint.
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof ReportingApi
+     */
+    public getChartEndpointReportingChartsChartIdGet(chartId: any, options?: any) {
+        return ReportingApiFp(this.configuration).getChartEndpointReportingChartsChartIdGet(chartId, options)(this.fetch, this.basePath);
+    }
+
+    /**
+     * Return a dashboard and its chart placements when the caller can read the dashboard's space.
+     * @summary Get Dashboard
+     * @param {any} dashboardId Reporting dashboard UUID returned by the dashboard create or list endpoint.
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof ReportingApi
+     */
+    public getDashboardEndpointReportingDashboardsDashboardIdGet(dashboardId: any, options?: any) {
+        return ReportingApiFp(this.configuration).getDashboardEndpointReportingDashboardsDashboardIdGet(dashboardId, options)(this.fetch, this.basePath);
+    }
+
+    /**
+     * Return space hyperparameters used to derive dollar measures. Missing rows fall back to product defaults. Requires space viewer.
+     * @summary Get Reporting Defaults
+     * @param {any} spaceId Space UUID returned by the spaces list or create endpoint.
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof ReportingApi
+     */
+    public getDefaultsEndpointReportingDefaultsSpaceIdGet(spaceId: any, options?: any) {
+        return ReportingApiFp(this.configuration).getDefaultsEndpointReportingDefaultsSpaceIdGet(spaceId, options)(this.fetch, this.basePath);
+    }
+
+    /**
+     * Starter dimensions and measures for Graphic Walker field pickers.
+     * @summary Get Metric Catalog
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof ReportingApi
+     */
+    public getMetricCatalogEndpointReportingMetricCatalogGet(options?: any) {
+        return ReportingApiFp(this.configuration).getMetricCatalogEndpointReportingMetricCatalogGet(options)(this.fetch, this.basePath);
+    }
+
+    /**
+     * List charts visible to the caller: portal users see their own drafts plus charts linked on a dashboard in a readable space; API keys see tenant-shared null-owner drafts plus those published charts.
+     * @summary List Charts
+     * @param {any} [spaceId] 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof ReportingApi
+     */
+    public listChartsEndpointReportingChartsGet(spaceId?: any, options?: any) {
+        return ReportingApiFp(this.configuration).listChartsEndpointReportingChartsGet(spaceId, options)(this.fetch, this.basePath);
+    }
+
+    /**
+     * List multi-chart dashboards in spaces the caller can read. Optionally filter with `space_id`.
+     * @summary List Dashboards
+     * @param {any} [spaceId] 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof ReportingApi
+     */
+    public listDashboardsEndpointReportingDashboardsGet(spaceId?: any, options?: any) {
+        return ReportingApiFp(this.configuration).listDashboardsEndpointReportingDashboardsGet(spaceId, options)(this.fetch, this.basePath);
+    }
+
+    /**
+     * Replace all chart placements on a dashboard. Linking a chart publishes it to space viewers. Validates col_index + col_span <= columns.
+     * @summary Replace Dashboard Items
+     * @param {DashboardItemsPutRequest} body 
+     * @param {any} dashboardId Reporting dashboard UUID returned by the dashboard create or list endpoint.
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof ReportingApi
+     */
+    public putDashboardItemsEndpointReportingDashboardsDashboardIdItemsPut(body: DashboardItemsPutRequest, dashboardId: any, options?: any) {
+        return ReportingApiFp(this.configuration).putDashboardItemsEndpointReportingDashboardsDashboardIdItemsPut(body, dashboardId, options)(this.fetch, this.basePath);
+    }
+
+    /**
+     * Replace space hyperparameters. Requires space steward (organization admins also qualify as stewards).
+     * @summary Put Reporting Defaults
+     * @param {ReportingDefaultsPutRequest} body 
+     * @param {any} spaceId Space UUID returned by the spaces list or create endpoint.
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof ReportingApi
+     */
+    public putDefaultsEndpointReportingDefaultsSpaceIdPut(body: ReportingDefaultsPutRequest, spaceId: any, options?: any) {
+        return ReportingApiFp(this.configuration).putDefaultsEndpointReportingDefaultsSpaceIdPut(body, spaceId, options)(this.fetch, this.basePath);
+    }
+
+    /**
+     * Mode B: server-side aggregate of daily reporting facts for a query binding. Dollar measures are derived at read time from space defaults.
+     * @summary Run Reporting Query
+     * @param {ReportingQueryRequest} body 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof ReportingApi
+     */
+    public reportingQueryEndpointReportingQueryPost(body: ReportingQueryRequest, options?: any) {
+        return ReportingApiFp(this.configuration).reportingQueryEndpointReportingQueryPost(body, options)(this.fetch, this.basePath);
+    }
+
+    /**
+     * Update title, description, viz spec, or query binding for a visible chart. Requires can_publish on the chart's space.
+     * @summary Update Chart
+     * @param {ChartUpdateRequest} body 
+     * @param {any} chartId Reporting chart UUID returned by the chart create or list endpoint.
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof ReportingApi
+     */
+    public updateChartEndpointReportingChartsChartIdPatch(body: ChartUpdateRequest, chartId: any, options?: any) {
+        return ReportingApiFp(this.configuration).updateChartEndpointReportingChartsChartIdPatch(body, chartId, options)(this.fetch, this.basePath);
+    }
+
+    /**
+     * Update dashboard metadata such as title, description, columns, or window preset. Requires can_publish on the dashboard's space.
+     * @summary Update Dashboard
+     * @param {DashboardUpdateRequest} body 
+     * @param {any} dashboardId Reporting dashboard UUID returned by the dashboard create or list endpoint.
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof ReportingApi
+     */
+    public updateDashboardEndpointReportingDashboardsDashboardIdPatch(body: DashboardUpdateRequest, dashboardId: any, options?: any) {
+        return ReportingApiFp(this.configuration).updateDashboardEndpointReportingDashboardsDashboardIdPatch(body, dashboardId, options)(this.fetch, this.basePath);
     }
 
 }
@@ -11645,14 +14967,15 @@ export class SessionsApi extends BaseAPI {
 export const SpacesApiFetchParamCreator = function (configuration?: Configuration) {
     return {
         /**
-         * List spaces the caller can read in the active tenant. Use these UUIDs when selecting an agent home space or filtering accessible agents.
+         * List spaces in the active tenant. Default (`for=read`) returns spaces the caller can read. Pass `for=publish` for spaces the caller may publish to (agent home-space picker). When `for=publish`, personal spaces owned by other users are excluded.
          * @summary List Spaces
          * @param {any} [limit] Maximum number of items to return on this page.
          * @param {any} [cursor] Opaque pagination token from the previous response&#x27;s &#x60;next_cursor&#x60;. Pass it back unchanged; omit it to start again from the first page.
+         * @param {any} [_for] &#x60;read&#x60; (default): readable spaces. &#x60;publish&#x60;: spaces the caller may publish to (home-space picker).
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        listSpacesEndpointSpacesGet(limit?: any, cursor?: any, options: any = {}): FetchArgs {
+        listSpacesEndpointSpacesGet(limit?: any, cursor?: any, _for?: any, options: any = {}): FetchArgs {
             const localVarPath = `/spaces`;
             const localVarUrlObj = url.parse(localVarPath, true);
             const localVarRequestOptions = Object.assign({ method: 'GET' }, options);
@@ -11675,6 +14998,10 @@ export const SpacesApiFetchParamCreator = function (configuration?: Configuratio
                 localVarQueryParameter['cursor'] = cursor;
             }
 
+            if (_for !== undefined) {
+                localVarQueryParameter['for'] = _for;
+            }
+
             localVarUrlObj.query = Object.assign({}, localVarUrlObj.query, localVarQueryParameter, options.query);
             // fix override query string Detail: https://stackoverflow.com/a/7517673/1077943
             localVarUrlObj.search = null;
@@ -11695,15 +15022,16 @@ export const SpacesApiFetchParamCreator = function (configuration?: Configuratio
 export const SpacesApiFp = function(configuration?: Configuration) {
     return {
         /**
-         * List spaces the caller can read in the active tenant. Use these UUIDs when selecting an agent home space or filtering accessible agents.
+         * List spaces in the active tenant. Default (`for=read`) returns spaces the caller can read. Pass `for=publish` for spaces the caller may publish to (agent home-space picker). When `for=publish`, personal spaces owned by other users are excluded.
          * @summary List Spaces
          * @param {any} [limit] Maximum number of items to return on this page.
          * @param {any} [cursor] Opaque pagination token from the previous response&#x27;s &#x60;next_cursor&#x60;. Pass it back unchanged; omit it to start again from the first page.
+         * @param {any} [_for] &#x60;read&#x60; (default): readable spaces. &#x60;publish&#x60;: spaces the caller may publish to (home-space picker).
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        listSpacesEndpointSpacesGet(limit?: any, cursor?: any, options?: any): (fetch?: FetchAPI, basePath?: string) => Promise<SpaceListResponse> {
-            const localVarFetchArgs = SpacesApiFetchParamCreator(configuration).listSpacesEndpointSpacesGet(limit, cursor, options);
+        listSpacesEndpointSpacesGet(limit?: any, cursor?: any, _for?: any, options?: any): (fetch?: FetchAPI, basePath?: string) => Promise<SpaceListResponse> {
+            const localVarFetchArgs = SpacesApiFetchParamCreator(configuration).listSpacesEndpointSpacesGet(limit, cursor, _for, options);
             return (fetch: FetchAPI = isomorphicFetch, basePath: string = BASE_PATH) => {
                 return fetch(basePath + localVarFetchArgs.url, localVarFetchArgs.options).then((response) => {
                     if (response.status >= 200 && response.status < 300) {
@@ -11724,15 +15052,16 @@ export const SpacesApiFp = function(configuration?: Configuration) {
 export const SpacesApiFactory = function (configuration?: Configuration, fetch?: FetchAPI, basePath?: string) {
     return {
         /**
-         * List spaces the caller can read in the active tenant. Use these UUIDs when selecting an agent home space or filtering accessible agents.
+         * List spaces in the active tenant. Default (`for=read`) returns spaces the caller can read. Pass `for=publish` for spaces the caller may publish to (agent home-space picker). When `for=publish`, personal spaces owned by other users are excluded.
          * @summary List Spaces
          * @param {any} [limit] Maximum number of items to return on this page.
          * @param {any} [cursor] Opaque pagination token from the previous response&#x27;s &#x60;next_cursor&#x60;. Pass it back unchanged; omit it to start again from the first page.
+         * @param {any} [_for] &#x60;read&#x60; (default): readable spaces. &#x60;publish&#x60;: spaces the caller may publish to (home-space picker).
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        listSpacesEndpointSpacesGet(limit?: any, cursor?: any, options?: any) {
-            return SpacesApiFp(configuration).listSpacesEndpointSpacesGet(limit, cursor, options)(fetch, basePath);
+        listSpacesEndpointSpacesGet(limit?: any, cursor?: any, _for?: any, options?: any) {
+            return SpacesApiFp(configuration).listSpacesEndpointSpacesGet(limit, cursor, _for, options)(fetch, basePath);
         },
     };
 };
@@ -11745,16 +15074,17 @@ export const SpacesApiFactory = function (configuration?: Configuration, fetch?:
  */
 export class SpacesApi extends BaseAPI {
     /**
-     * List spaces the caller can read in the active tenant. Use these UUIDs when selecting an agent home space or filtering accessible agents.
+     * List spaces in the active tenant. Default (`for=read`) returns spaces the caller can read. Pass `for=publish` for spaces the caller may publish to (agent home-space picker). When `for=publish`, personal spaces owned by other users are excluded.
      * @summary List Spaces
      * @param {any} [limit] Maximum number of items to return on this page.
      * @param {any} [cursor] Opaque pagination token from the previous response&#x27;s &#x60;next_cursor&#x60;. Pass it back unchanged; omit it to start again from the first page.
+     * @param {any} [_for] &#x60;read&#x60; (default): readable spaces. &#x60;publish&#x60;: spaces the caller may publish to (home-space picker).
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      * @memberof SpacesApi
      */
-    public listSpacesEndpointSpacesGet(limit?: any, cursor?: any, options?: any) {
-        return SpacesApiFp(this.configuration).listSpacesEndpointSpacesGet(limit, cursor, options)(this.fetch, this.basePath);
+    public listSpacesEndpointSpacesGet(limit?: any, cursor?: any, _for?: any, options?: any) {
+        return SpacesApiFp(this.configuration).listSpacesEndpointSpacesGet(limit, cursor, _for, options)(this.fetch, this.basePath);
     }
 
 }

@@ -34,6 +34,7 @@ class SpaceResponse(object):
         'department_id': 'object',
         'owner_identity_user_id': 'object',
         'agent_count': 'object',
+        'caller_is_steward': 'object',
         'created_at': 'object'
     }
 
@@ -44,10 +45,11 @@ class SpaceResponse(object):
         'department_id': 'department_id',
         'owner_identity_user_id': 'owner_identity_user_id',
         'agent_count': 'agent_count',
+        'caller_is_steward': 'caller_is_steward',
         'created_at': 'created_at'
     }
 
-    def __init__(self, id=None, name=None, kind=None, department_id=None, owner_identity_user_id=None, agent_count=None, created_at=None):  # noqa: E501
+    def __init__(self, id=None, name=None, kind=None, department_id=None, owner_identity_user_id=None, agent_count=None, caller_is_steward=None, created_at=None):  # noqa: E501
         """SpaceResponse - a model defined in Swagger"""  # noqa: E501
         self._id = None
         self._name = None
@@ -55,6 +57,7 @@ class SpaceResponse(object):
         self._department_id = None
         self._owner_identity_user_id = None
         self._agent_count = None
+        self._caller_is_steward = None
         self._created_at = None
         self.discriminator = None
         self.id = id
@@ -65,6 +68,8 @@ class SpaceResponse(object):
         if owner_identity_user_id is not None:
             self.owner_identity_user_id = owner_identity_user_id
         self.agent_count = agent_count
+        if caller_is_steward is not None:
+            self.caller_is_steward = caller_is_steward
         self.created_at = created_at
 
     @property
@@ -206,6 +211,29 @@ class SpaceResponse(object):
             raise ValueError("Invalid value for `agent_count`, must not be `None`")  # noqa: E501
 
         self._agent_count = agent_count
+
+    @property
+    def caller_is_steward(self):
+        """Gets the caller_is_steward of this SpaceResponse.  # noqa: E501
+
+        True when the authenticated caller may steward this space: a direct steward grant, personal-space owner (creator), or org admin/owner (steward via org admin). Used by the portal for manage-member UX.  # noqa: E501
+
+        :return: The caller_is_steward of this SpaceResponse.  # noqa: E501
+        :rtype: object
+        """
+        return self._caller_is_steward
+
+    @caller_is_steward.setter
+    def caller_is_steward(self, caller_is_steward):
+        """Sets the caller_is_steward of this SpaceResponse.
+
+        True when the authenticated caller may steward this space: a direct steward grant, personal-space owner (creator), or org admin/owner (steward via org admin). Used by the portal for manage-member UX.  # noqa: E501
+
+        :param caller_is_steward: The caller_is_steward of this SpaceResponse.  # noqa: E501
+        :type: object
+        """
+
+        self._caller_is_steward = caller_is_steward
 
     @property
     def created_at(self):

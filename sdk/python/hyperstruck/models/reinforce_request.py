@@ -59,7 +59,7 @@ class ReinforceRequest(object):
     def agent_name(self):
         """Gets the agent_name of this ReinforceRequest.  # noqa: E501
 
-        Human-readable agent name, unique within your tenant. Not the hosted agent UUID used in `/agents/{agent_id}` REST paths. If no agent with this name exists yet, the platform creates one automatically on the first boundary call. Reuse the same name to target the same learning corpus.  # noqa: E501
+        Human-readable agent name, unique within your tenant. This is not the hosted agent UUID used in `/agents/{agent_id}` REST paths. If no agent with this name exists yet, the platform creates one automatically on the first boundary call (a minimal learning agent scoped to your tenant). Reuse the same name on resolve, observe, reinforce, and distill to target the same learning corpus. Clients conventionally namespace an agent-loop `run_id` as `<agent_name>:...`; if yours does, avoid the name `distill`, because `distill:` is reserved for corpus distillation run ids and every agent-loop write would be refused.  # noqa: E501
 
         :return: The agent_name of this ReinforceRequest.  # noqa: E501
         :rtype: object
@@ -70,7 +70,7 @@ class ReinforceRequest(object):
     def agent_name(self, agent_name):
         """Sets the agent_name of this ReinforceRequest.
 
-        Human-readable agent name, unique within your tenant. Not the hosted agent UUID used in `/agents/{agent_id}` REST paths. If no agent with this name exists yet, the platform creates one automatically on the first boundary call. Reuse the same name to target the same learning corpus.  # noqa: E501
+        Human-readable agent name, unique within your tenant. This is not the hosted agent UUID used in `/agents/{agent_id}` REST paths. If no agent with this name exists yet, the platform creates one automatically on the first boundary call (a minimal learning agent scoped to your tenant). Reuse the same name on resolve, observe, reinforce, and distill to target the same learning corpus. Clients conventionally namespace an agent-loop `run_id` as `<agent_name>:...`; if yours does, avoid the name `distill`, because `distill:` is reserved for corpus distillation run ids and every agent-loop write would be refused.  # noqa: E501
 
         :param agent_name: The agent_name of this ReinforceRequest.  # noqa: E501
         :type: object

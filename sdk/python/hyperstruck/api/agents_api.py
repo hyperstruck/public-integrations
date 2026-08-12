@@ -336,7 +336,7 @@ class AgentsApi(object):
     def get_agent_endpoint_agents_agent_id_get(self, agent_id, **kwargs):  # noqa: E501
         """Get Agent  # noqa: E501
 
-        Retrieve one hosted agent and its effective configuration. Optional query flags can include usage or non-secret provider-credential metadata.  # noqa: E501
+        Retrieve one hosted agent and its effective configuration. An optional query flag can include a per-agent usage summary.  # noqa: E501
         This method makes a synchronous HTTP request by default. To make an
         asynchronous HTTP request, please pass async_req=True
         >>> thread = api.get_agent_endpoint_agents_agent_id_get(agent_id, async_req=True)
@@ -344,7 +344,6 @@ class AgentsApi(object):
 
         :param async_req bool
         :param object agent_id: Hosted agent UUID returned by the agent create or list endpoint. (required)
-        :param object include_llm_credential: When true (default), resolve effective provider credential metadata for this agent's `model_provider` without exposing secrets.
         :param object include_summary: When true, include a per-agent usage summary.
         :param object include_access: Reserved for future access details. Currently accepted as a no-op for forward compatibility.
         :param UsageTimeWindow window: Window applied when `include_summary` is true.
@@ -362,7 +361,7 @@ class AgentsApi(object):
     def get_agent_endpoint_agents_agent_id_get_with_http_info(self, agent_id, **kwargs):  # noqa: E501
         """Get Agent  # noqa: E501
 
-        Retrieve one hosted agent and its effective configuration. Optional query flags can include usage or non-secret provider-credential metadata.  # noqa: E501
+        Retrieve one hosted agent and its effective configuration. An optional query flag can include a per-agent usage summary.  # noqa: E501
         This method makes a synchronous HTTP request by default. To make an
         asynchronous HTTP request, please pass async_req=True
         >>> thread = api.get_agent_endpoint_agents_agent_id_get_with_http_info(agent_id, async_req=True)
@@ -370,7 +369,6 @@ class AgentsApi(object):
 
         :param async_req bool
         :param object agent_id: Hosted agent UUID returned by the agent create or list endpoint. (required)
-        :param object include_llm_credential: When true (default), resolve effective provider credential metadata for this agent's `model_provider` without exposing secrets.
         :param object include_summary: When true, include a per-agent usage summary.
         :param object include_access: Reserved for future access details. Currently accepted as a no-op for forward compatibility.
         :param UsageTimeWindow window: Window applied when `include_summary` is true.
@@ -379,7 +377,7 @@ class AgentsApi(object):
                  returns the request thread.
         """
 
-        all_params = ['agent_id', 'include_llm_credential', 'include_summary', 'include_access', 'window']  # noqa: E501
+        all_params = ['agent_id', 'include_summary', 'include_access', 'window']  # noqa: E501
         all_params.append('async_req')
         all_params.append('_return_http_data_only')
         all_params.append('_preload_content')
@@ -406,8 +404,6 @@ class AgentsApi(object):
             path_params['agent_id'] = params['agent_id']  # noqa: E501
 
         query_params = []
-        if 'include_llm_credential' in params:
-            query_params.append(('include_llm_credential', params['include_llm_credential']))  # noqa: E501
         if 'include_summary' in params:
             query_params.append(('include_summary', params['include_summary']))  # noqa: E501
         if 'include_access' in params:

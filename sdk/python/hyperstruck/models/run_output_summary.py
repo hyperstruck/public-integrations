@@ -30,20 +30,23 @@ class RunOutputSummary(object):
     swagger_types = {
         'result': 'object',
         'error': 'object',
-        'suspension': 'object'
+        'suspension': 'object',
+        'approvals_recorded': 'object'
     }
 
     attribute_map = {
         'result': 'result',
         'error': 'error',
-        'suspension': 'suspension'
+        'suspension': 'suspension',
+        'approvals_recorded': 'approvals_recorded'
     }
 
-    def __init__(self, result=None, error=None, suspension=None):  # noqa: E501
+    def __init__(self, result=None, error=None, suspension=None, approvals_recorded=None):  # noqa: E501
         """RunOutputSummary - a model defined in Swagger"""  # noqa: E501
         self._result = None
         self._error = None
         self._suspension = None
+        self._approvals_recorded = None
         self.discriminator = None
         if result is not None:
             self.result = result
@@ -51,6 +54,8 @@ class RunOutputSummary(object):
             self.error = error
         if suspension is not None:
             self.suspension = suspension
+        if approvals_recorded is not None:
+            self.approvals_recorded = approvals_recorded
 
     @property
     def result(self):
@@ -114,6 +119,29 @@ class RunOutputSummary(object):
         """
 
         self._suspension = suspension
+
+    @property
+    def approvals_recorded(self):
+        """Gets the approvals_recorded of this RunOutputSummary.  # noqa: E501
+
+        For a suspension awaiting a multi-approver quorum, the number of distinct approvals recorded so far (out of the suspension's ``required_approvals``). Null when the suspension is not a quorum.  # noqa: E501
+
+        :return: The approvals_recorded of this RunOutputSummary.  # noqa: E501
+        :rtype: object
+        """
+        return self._approvals_recorded
+
+    @approvals_recorded.setter
+    def approvals_recorded(self, approvals_recorded):
+        """Sets the approvals_recorded of this RunOutputSummary.
+
+        For a suspension awaiting a multi-approver quorum, the number of distinct approvals recorded so far (out of the suspension's ``required_approvals``). Null when the suspension is not a quorum.  # noqa: E501
+
+        :param approvals_recorded: The approvals_recorded of this RunOutputSummary.  # noqa: E501
+        :type: object
+        """
+
+        self._approvals_recorded = approvals_recorded
 
     def to_dict(self):
         """Returns the model properties as a dict"""

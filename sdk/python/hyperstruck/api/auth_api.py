@@ -35,7 +35,7 @@ class AuthApi(object):
     def me_me_get(self, **kwargs):  # noqa: E501
         """Get Current Portal Identity  # noqa: E501
 
-        Return the signed-in portal user's identity, active tenant, memberships, role, and effective scopes. This endpoint requires a portal session; Bearer API keys should call resource endpoints directly.  # noqa: E501
+        Return the signed-in portal user's identity, active tenant, memberships, role, effective scopes, and UI-facing tenant feature flags. This endpoint requires a portal session; Bearer API keys should call resource endpoints directly.  # noqa: E501
         This method makes a synchronous HTTP request by default. To make an
         asynchronous HTTP request, please pass async_req=True
         >>> thread = api.me_me_get(async_req=True)
@@ -56,7 +56,7 @@ class AuthApi(object):
     def me_me_get_with_http_info(self, **kwargs):  # noqa: E501
         """Get Current Portal Identity  # noqa: E501
 
-        Return the signed-in portal user's identity, active tenant, memberships, role, and effective scopes. This endpoint requires a portal session; Bearer API keys should call resource endpoints directly.  # noqa: E501
+        Return the signed-in portal user's identity, active tenant, memberships, role, effective scopes, and UI-facing tenant feature flags. This endpoint requires a portal session; Bearer API keys should call resource endpoints directly.  # noqa: E501
         This method makes a synchronous HTTP request by default. To make an
         asynchronous HTTP request, please pass async_req=True
         >>> thread = api.me_me_get_with_http_info(async_req=True)

@@ -35,7 +35,7 @@ class SpacesApi(object):
     def list_spaces_endpoint_spaces_get(self, **kwargs):  # noqa: E501
         """List Spaces  # noqa: E501
 
-        List spaces the caller can read in the active tenant. Use these UUIDs when selecting an agent home space or filtering accessible agents.  # noqa: E501
+        List spaces in the active tenant. Default (`for=read`) returns spaces the caller can read. Pass `for=publish` for spaces the caller may publish to (agent home-space picker). When `for=publish`, personal spaces owned by other users are excluded.  # noqa: E501
         This method makes a synchronous HTTP request by default. To make an
         asynchronous HTTP request, please pass async_req=True
         >>> thread = api.list_spaces_endpoint_spaces_get(async_req=True)
@@ -44,6 +44,7 @@ class SpacesApi(object):
         :param async_req bool
         :param object limit: Maximum number of items to return on this page.
         :param object cursor: Opaque pagination token from the previous response's `next_cursor`. Pass it back unchanged; omit it to start again from the first page.
+        :param object _for: `read` (default): readable spaces. `publish`: spaces the caller may publish to (home-space picker).
         :return: SpaceListResponse
                  If the method is called asynchronously,
                  returns the request thread.
@@ -58,7 +59,7 @@ class SpacesApi(object):
     def list_spaces_endpoint_spaces_get_with_http_info(self, **kwargs):  # noqa: E501
         """List Spaces  # noqa: E501
 
-        List spaces the caller can read in the active tenant. Use these UUIDs when selecting an agent home space or filtering accessible agents.  # noqa: E501
+        List spaces in the active tenant. Default (`for=read`) returns spaces the caller can read. Pass `for=publish` for spaces the caller may publish to (agent home-space picker). When `for=publish`, personal spaces owned by other users are excluded.  # noqa: E501
         This method makes a synchronous HTTP request by default. To make an
         asynchronous HTTP request, please pass async_req=True
         >>> thread = api.list_spaces_endpoint_spaces_get_with_http_info(async_req=True)
@@ -67,12 +68,13 @@ class SpacesApi(object):
         :param async_req bool
         :param object limit: Maximum number of items to return on this page.
         :param object cursor: Opaque pagination token from the previous response's `next_cursor`. Pass it back unchanged; omit it to start again from the first page.
+        :param object _for: `read` (default): readable spaces. `publish`: spaces the caller may publish to (home-space picker).
         :return: SpaceListResponse
                  If the method is called asynchronously,
                  returns the request thread.
         """
 
-        all_params = ['limit', 'cursor']  # noqa: E501
+        all_params = ['limit', 'cursor', '_for']  # noqa: E501
         all_params.append('async_req')
         all_params.append('_return_http_data_only')
         all_params.append('_preload_content')
@@ -97,6 +99,8 @@ class SpacesApi(object):
             query_params.append(('limit', params['limit']))  # noqa: E501
         if 'cursor' in params:
             query_params.append(('cursor', params['cursor']))  # noqa: E501
+        if '_for' in params:
+            query_params.append(('for', params['_for']))  # noqa: E501
 
         header_params = {}
 

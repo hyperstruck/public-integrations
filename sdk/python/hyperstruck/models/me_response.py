@@ -33,7 +33,8 @@ class MeResponse(object):
         'memberships': 'object',
         'role': 'object',
         'scopes': 'object',
-        'auth_method': 'object'
+        'auth_method': 'object',
+        'feature_flags': 'object'
     }
 
     attribute_map = {
@@ -42,10 +43,11 @@ class MeResponse(object):
         'memberships': 'memberships',
         'role': 'role',
         'scopes': 'scopes',
-        'auth_method': 'authMethod'
+        'auth_method': 'authMethod',
+        'feature_flags': 'featureFlags'
     }
 
-    def __init__(self, user=None, active_tenant=None, memberships=None, role=None, scopes=None, auth_method=None):  # noqa: E501
+    def __init__(self, user=None, active_tenant=None, memberships=None, role=None, scopes=None, auth_method=None, feature_flags=None):  # noqa: E501
         """MeResponse - a model defined in Swagger"""  # noqa: E501
         self._user = None
         self._active_tenant = None
@@ -53,6 +55,7 @@ class MeResponse(object):
         self._role = None
         self._scopes = None
         self._auth_method = None
+        self._feature_flags = None
         self.discriminator = None
         if user is not None:
             self.user = user
@@ -65,6 +68,8 @@ class MeResponse(object):
         if scopes is not None:
             self.scopes = scopes
         self.auth_method = auth_method
+        if feature_flags is not None:
+            self.feature_flags = feature_flags
 
     @property
     def user(self):
@@ -193,6 +198,27 @@ class MeResponse(object):
             raise ValueError("Invalid value for `auth_method`, must not be `None`")  # noqa: E501
 
         self._auth_method = auth_method
+
+    @property
+    def feature_flags(self):
+        """Gets the feature_flags of this MeResponse.  # noqa: E501
+
+
+        :return: The feature_flags of this MeResponse.  # noqa: E501
+        :rtype: object
+        """
+        return self._feature_flags
+
+    @feature_flags.setter
+    def feature_flags(self, feature_flags):
+        """Sets the feature_flags of this MeResponse.
+
+
+        :param feature_flags: The feature_flags of this MeResponse.  # noqa: E501
+        :type: object
+        """
+
+        self._feature_flags = feature_flags
 
     def to_dict(self):
         """Returns the model properties as a dict"""

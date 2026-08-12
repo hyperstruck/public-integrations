@@ -26,8 +26,6 @@ class AgentDefinitionSuggestionKind(object):
     """
     TEMPLATE = "template"
     REASONING_PROFILE = "reasoning_profile"
-    MEMORY_PROFILE = "memory_profile"
-    KNOWLEDGE_SCOPE = "knowledge_scope"
     MCP_SERVER = "mcp_server"
     GUARDRAIL = "guardrail"
     CODE_EXAMPLE = "code_example"

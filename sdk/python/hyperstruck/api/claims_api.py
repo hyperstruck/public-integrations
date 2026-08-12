@@ -579,6 +579,109 @@ class ClaimsApi(object):
             _request_timeout=params.get('_request_timeout'),
             collection_formats=collection_formats)
 
+    def get_attribute_endpoint_agents_agent_id_claims_attributes_attribute_id_get(self, agent_id, attribute_id, **kwargs):  # noqa: E501
+        """Resolve a claim attribute registry id  # noqa: E501
+
+        Returns the attribute_key for a registry UUID so a curator can confirm they are adopting an abstained claim under the intended filing slot before the one-shot adopt.  # noqa: E501
+        This method makes a synchronous HTTP request by default. To make an
+        asynchronous HTTP request, please pass async_req=True
+        >>> thread = api.get_attribute_endpoint_agents_agent_id_claims_attributes_attribute_id_get(agent_id, attribute_id, async_req=True)
+        >>> result = thread.get()
+
+        :param async_req bool
+        :param object agent_id: Hosted agent UUID returned by the agent create or list endpoint. (required)
+        :param object attribute_id: Claim attribute registry UUID (filing slot for structured facts). (required)
+        :return: AttributeRef
+                 If the method is called asynchronously,
+                 returns the request thread.
+        """
+        kwargs['_return_http_data_only'] = True
+        if kwargs.get('async_req'):
+            return self.get_attribute_endpoint_agents_agent_id_claims_attributes_attribute_id_get_with_http_info(agent_id, attribute_id, **kwargs)  # noqa: E501
+        else:
+            (data) = self.get_attribute_endpoint_agents_agent_id_claims_attributes_attribute_id_get_with_http_info(agent_id, attribute_id, **kwargs)  # noqa: E501
+            return data
+
+    def get_attribute_endpoint_agents_agent_id_claims_attributes_attribute_id_get_with_http_info(self, agent_id, attribute_id, **kwargs):  # noqa: E501
+        """Resolve a claim attribute registry id  # noqa: E501
+
+        Returns the attribute_key for a registry UUID so a curator can confirm they are adopting an abstained claim under the intended filing slot before the one-shot adopt.  # noqa: E501
+        This method makes a synchronous HTTP request by default. To make an
+        asynchronous HTTP request, please pass async_req=True
+        >>> thread = api.get_attribute_endpoint_agents_agent_id_claims_attributes_attribute_id_get_with_http_info(agent_id, attribute_id, async_req=True)
+        >>> result = thread.get()
+
+        :param async_req bool
+        :param object agent_id: Hosted agent UUID returned by the agent create or list endpoint. (required)
+        :param object attribute_id: Claim attribute registry UUID (filing slot for structured facts). (required)
+        :return: AttributeRef
+                 If the method is called asynchronously,
+                 returns the request thread.
+        """
+
+        all_params = ['agent_id', 'attribute_id']  # noqa: E501
+        all_params.append('async_req')
+        all_params.append('_return_http_data_only')
+        all_params.append('_preload_content')
+        all_params.append('_request_timeout')
+
+        params = locals()
+        for key, val in six.iteritems(params['kwargs']):
+            if key not in all_params:
+                raise TypeError(
+                    "Got an unexpected keyword argument '%s'"
+                    " to method get_attribute_endpoint_agents_agent_id_claims_attributes_attribute_id_get" % key
+                )
+            params[key] = val
+        del params['kwargs']
+        # verify the required parameter 'agent_id' is set
+        if ('agent_id' not in params or
+                params['agent_id'] is None):
+            raise ValueError("Missing the required parameter `agent_id` when calling `get_attribute_endpoint_agents_agent_id_claims_attributes_attribute_id_get`")  # noqa: E501
+        # verify the required parameter 'attribute_id' is set
+        if ('attribute_id' not in params or
+                params['attribute_id'] is None):
+            raise ValueError("Missing the required parameter `attribute_id` when calling `get_attribute_endpoint_agents_agent_id_claims_attributes_attribute_id_get`")  # noqa: E501
+
+        collection_formats = {}
+
+        path_params = {}
+        if 'agent_id' in params:
+            path_params['agent_id'] = params['agent_id']  # noqa: E501
+        if 'attribute_id' in params:
+            path_params['attribute_id'] = params['attribute_id']  # noqa: E501
+
+        query_params = []
+
+        header_params = {}
+
+        form_params = []
+        local_var_files = {}
+
+        body_params = None
+        # HTTP header `Accept`
+        header_params['Accept'] = self.api_client.select_header_accept(
+            ['application/json'])  # noqa: E501
+
+        # Authentication setting
+        auth_settings = ['BearerApiKey']  # noqa: E501
+
+        return self.api_client.call_api(
+            '/agents/{agent_id}/claims/attributes/{attribute_id}', 'GET',
+            path_params,
+            query_params,
+            header_params,
+            body=body_params,
+            post_params=form_params,
+            files=local_var_files,
+            response_type='AttributeRef',  # noqa: E501
+            auth_settings=auth_settings,
+            async_req=params.get('async_req'),
+            _return_http_data_only=params.get('_return_http_data_only'),
+            _preload_content=params.get('_preload_content', True),
+            _request_timeout=params.get('_request_timeout'),
+            collection_formats=collection_formats)
+
     def get_entity_dossier_endpoint_agents_agent_id_claims_entities_entity_id_get(self, agent_id, entity_id, **kwargs):  # noqa: E501
         """Get an entity's curation dossier  # noqa: E501
 
@@ -873,6 +976,204 @@ class ClaimsApi(object):
             post_params=form_params,
             files=local_var_files,
             response_type='AbstainedQueueResponse',  # noqa: E501
+            auth_settings=auth_settings,
+            async_req=params.get('async_req'),
+            _return_http_data_only=params.get('_return_http_data_only'),
+            _preload_content=params.get('_preload_content', True),
+            _request_timeout=params.get('_request_timeout'),
+            collection_formats=collection_formats)
+
+    def list_attribute_merges_endpoint_agents_agent_id_claims_attribute_merges_get(self, agent_id, **kwargs):  # noqa: E501
+        """List attribute merge edges  # noqa: E501
+
+        Every assertion that two attribute keys name the same property, newest first, active and withdrawn alike. A withdrawn edge is kept rather than deleted, because the supersessions it caused are recorded against it.  # noqa: E501
+        This method makes a synchronous HTTP request by default. To make an
+        asynchronous HTTP request, please pass async_req=True
+        >>> thread = api.list_attribute_merges_endpoint_agents_agent_id_claims_attribute_merges_get(agent_id, async_req=True)
+        >>> result = thread.get()
+
+        :param async_req bool
+        :param object agent_id: Hosted agent UUID returned by the agent create or list endpoint. (required)
+        :return: AttributeMergesResponse
+                 If the method is called asynchronously,
+                 returns the request thread.
+        """
+        kwargs['_return_http_data_only'] = True
+        if kwargs.get('async_req'):
+            return self.list_attribute_merges_endpoint_agents_agent_id_claims_attribute_merges_get_with_http_info(agent_id, **kwargs)  # noqa: E501
+        else:
+            (data) = self.list_attribute_merges_endpoint_agents_agent_id_claims_attribute_merges_get_with_http_info(agent_id, **kwargs)  # noqa: E501
+            return data
+
+    def list_attribute_merges_endpoint_agents_agent_id_claims_attribute_merges_get_with_http_info(self, agent_id, **kwargs):  # noqa: E501
+        """List attribute merge edges  # noqa: E501
+
+        Every assertion that two attribute keys name the same property, newest first, active and withdrawn alike. A withdrawn edge is kept rather than deleted, because the supersessions it caused are recorded against it.  # noqa: E501
+        This method makes a synchronous HTTP request by default. To make an
+        asynchronous HTTP request, please pass async_req=True
+        >>> thread = api.list_attribute_merges_endpoint_agents_agent_id_claims_attribute_merges_get_with_http_info(agent_id, async_req=True)
+        >>> result = thread.get()
+
+        :param async_req bool
+        :param object agent_id: Hosted agent UUID returned by the agent create or list endpoint. (required)
+        :return: AttributeMergesResponse
+                 If the method is called asynchronously,
+                 returns the request thread.
+        """
+
+        all_params = ['agent_id']  # noqa: E501
+        all_params.append('async_req')
+        all_params.append('_return_http_data_only')
+        all_params.append('_preload_content')
+        all_params.append('_request_timeout')
+
+        params = locals()
+        for key, val in six.iteritems(params['kwargs']):
+            if key not in all_params:
+                raise TypeError(
+                    "Got an unexpected keyword argument '%s'"
+                    " to method list_attribute_merges_endpoint_agents_agent_id_claims_attribute_merges_get" % key
+                )
+            params[key] = val
+        del params['kwargs']
+        # verify the required parameter 'agent_id' is set
+        if ('agent_id' not in params or
+                params['agent_id'] is None):
+            raise ValueError("Missing the required parameter `agent_id` when calling `list_attribute_merges_endpoint_agents_agent_id_claims_attribute_merges_get`")  # noqa: E501
+
+        collection_formats = {}
+
+        path_params = {}
+        if 'agent_id' in params:
+            path_params['agent_id'] = params['agent_id']  # noqa: E501
+
+        query_params = []
+
+        header_params = {}
+
+        form_params = []
+        local_var_files = {}
+
+        body_params = None
+        # HTTP header `Accept`
+        header_params['Accept'] = self.api_client.select_header_accept(
+            ['application/json'])  # noqa: E501
+
+        # Authentication setting
+        auth_settings = ['BearerApiKey']  # noqa: E501
+
+        return self.api_client.call_api(
+            '/agents/{agent_id}/claims/attribute-merges', 'GET',
+            path_params,
+            query_params,
+            header_params,
+            body=body_params,
+            post_params=form_params,
+            files=local_var_files,
+            response_type='AttributeMergesResponse',  # noqa: E501
+            auth_settings=auth_settings,
+            async_req=params.get('async_req'),
+            _return_http_data_only=params.get('_return_http_data_only'),
+            _preload_content=params.get('_preload_content', True),
+            _request_timeout=params.get('_request_timeout'),
+            collection_formats=collection_formats)
+
+    def list_entity_aliases_endpoint_agents_agent_id_claims_entities_entity_id_aliases_get(self, agent_id, entity_id, **kwargs):  # noqa: E501
+        """List aliases for an entity  # noqa: E501
+
+        Every alias surface form linked to this entity (active and inactive), newest first. Used by the curation console so a reviewer can see which names already fold onto the entity before authoring another.  # noqa: E501
+        This method makes a synchronous HTTP request by default. To make an
+        asynchronous HTTP request, please pass async_req=True
+        >>> thread = api.list_entity_aliases_endpoint_agents_agent_id_claims_entities_entity_id_aliases_get(agent_id, entity_id, async_req=True)
+        >>> result = thread.get()
+
+        :param async_req bool
+        :param object agent_id: Hosted agent UUID returned by the agent create or list endpoint. (required)
+        :param object entity_id: Claim entity UUID (the unit of identity and of erasure). (required)
+        :return: EntityAliasesResponse
+                 If the method is called asynchronously,
+                 returns the request thread.
+        """
+        kwargs['_return_http_data_only'] = True
+        if kwargs.get('async_req'):
+            return self.list_entity_aliases_endpoint_agents_agent_id_claims_entities_entity_id_aliases_get_with_http_info(agent_id, entity_id, **kwargs)  # noqa: E501
+        else:
+            (data) = self.list_entity_aliases_endpoint_agents_agent_id_claims_entities_entity_id_aliases_get_with_http_info(agent_id, entity_id, **kwargs)  # noqa: E501
+            return data
+
+    def list_entity_aliases_endpoint_agents_agent_id_claims_entities_entity_id_aliases_get_with_http_info(self, agent_id, entity_id, **kwargs):  # noqa: E501
+        """List aliases for an entity  # noqa: E501
+
+        Every alias surface form linked to this entity (active and inactive), newest first. Used by the curation console so a reviewer can see which names already fold onto the entity before authoring another.  # noqa: E501
+        This method makes a synchronous HTTP request by default. To make an
+        asynchronous HTTP request, please pass async_req=True
+        >>> thread = api.list_entity_aliases_endpoint_agents_agent_id_claims_entities_entity_id_aliases_get_with_http_info(agent_id, entity_id, async_req=True)
+        >>> result = thread.get()
+
+        :param async_req bool
+        :param object agent_id: Hosted agent UUID returned by the agent create or list endpoint. (required)
+        :param object entity_id: Claim entity UUID (the unit of identity and of erasure). (required)
+        :return: EntityAliasesResponse
+                 If the method is called asynchronously,
+                 returns the request thread.
+        """
+
+        all_params = ['agent_id', 'entity_id']  # noqa: E501
+        all_params.append('async_req')
+        all_params.append('_return_http_data_only')
+        all_params.append('_preload_content')
+        all_params.append('_request_timeout')
+
+        params = locals()
+        for key, val in six.iteritems(params['kwargs']):
+            if key not in all_params:
+                raise TypeError(
+                    "Got an unexpected keyword argument '%s'"
+                    " to method list_entity_aliases_endpoint_agents_agent_id_claims_entities_entity_id_aliases_get" % key
+                )
+            params[key] = val
+        del params['kwargs']
+        # verify the required parameter 'agent_id' is set
+        if ('agent_id' not in params or
+                params['agent_id'] is None):
+            raise ValueError("Missing the required parameter `agent_id` when calling `list_entity_aliases_endpoint_agents_agent_id_claims_entities_entity_id_aliases_get`")  # noqa: E501
+        # verify the required parameter 'entity_id' is set
+        if ('entity_id' not in params or
+                params['entity_id'] is None):
+            raise ValueError("Missing the required parameter `entity_id` when calling `list_entity_aliases_endpoint_agents_agent_id_claims_entities_entity_id_aliases_get`")  # noqa: E501
+
+        collection_formats = {}
+
+        path_params = {}
+        if 'agent_id' in params:
+            path_params['agent_id'] = params['agent_id']  # noqa: E501
+        if 'entity_id' in params:
+            path_params['entity_id'] = params['entity_id']  # noqa: E501
+
+        query_params = []
+
+        header_params = {}
+
+        form_params = []
+        local_var_files = {}
+
+        body_params = None
+        # HTTP header `Accept`
+        header_params['Accept'] = self.api_client.select_header_accept(
+            ['application/json'])  # noqa: E501
+
+        # Authentication setting
+        auth_settings = ['BearerApiKey']  # noqa: E501
+
+        return self.api_client.call_api(
+            '/agents/{agent_id}/claims/entities/{entity_id}/aliases', 'GET',
+            path_params,
+            query_params,
+            header_params,
+            body=body_params,
+            post_params=form_params,
+            files=local_var_files,
+            response_type='EntityAliasesResponse',  # noqa: E501
             auth_settings=auth_settings,
             async_req=params.get('async_req'),
             _return_http_data_only=params.get('_return_http_data_only'),
@@ -1404,6 +1705,109 @@ class ClaimsApi(object):
             post_params=form_params,
             files=local_var_files,
             response_type='ResolveSplitResponse',  # noqa: E501
+            auth_settings=auth_settings,
+            async_req=params.get('async_req'),
+            _return_http_data_only=params.get('_return_http_data_only'),
+            _preload_content=params.get('_preload_content', True),
+            _request_timeout=params.get('_request_timeout'),
+            collection_formats=collection_formats)
+
+    def reverse_attribute_merge_endpoint_agents_agent_id_claims_attribute_merges_merge_id_reverse_post(self, agent_id, merge_id, **kwargs):  # noqa: E501
+        """Withdraw an attribute merge  # noqa: E501
+
+        Withdraw a merge and reopen exactly the versions it closed. The repair path for the one destructive operation in the claim layer: a wrong merge folds two unrelated properties into one history and the earlier one silently stops binding. Repairs beliefs, not actions.  # noqa: E501
+        This method makes a synchronous HTTP request by default. To make an
+        asynchronous HTTP request, please pass async_req=True
+        >>> thread = api.reverse_attribute_merge_endpoint_agents_agent_id_claims_attribute_merges_merge_id_reverse_post(agent_id, merge_id, async_req=True)
+        >>> result = thread.get()
+
+        :param async_req bool
+        :param object agent_id: Hosted agent UUID returned by the agent create or list endpoint. (required)
+        :param object merge_id: Attribute merge edge UUID returned by the merge listing endpoint. (required)
+        :return: AttributeMergeReversalResponse
+                 If the method is called asynchronously,
+                 returns the request thread.
+        """
+        kwargs['_return_http_data_only'] = True
+        if kwargs.get('async_req'):
+            return self.reverse_attribute_merge_endpoint_agents_agent_id_claims_attribute_merges_merge_id_reverse_post_with_http_info(agent_id, merge_id, **kwargs)  # noqa: E501
+        else:
+            (data) = self.reverse_attribute_merge_endpoint_agents_agent_id_claims_attribute_merges_merge_id_reverse_post_with_http_info(agent_id, merge_id, **kwargs)  # noqa: E501
+            return data
+
+    def reverse_attribute_merge_endpoint_agents_agent_id_claims_attribute_merges_merge_id_reverse_post_with_http_info(self, agent_id, merge_id, **kwargs):  # noqa: E501
+        """Withdraw an attribute merge  # noqa: E501
+
+        Withdraw a merge and reopen exactly the versions it closed. The repair path for the one destructive operation in the claim layer: a wrong merge folds two unrelated properties into one history and the earlier one silently stops binding. Repairs beliefs, not actions.  # noqa: E501
+        This method makes a synchronous HTTP request by default. To make an
+        asynchronous HTTP request, please pass async_req=True
+        >>> thread = api.reverse_attribute_merge_endpoint_agents_agent_id_claims_attribute_merges_merge_id_reverse_post_with_http_info(agent_id, merge_id, async_req=True)
+        >>> result = thread.get()
+
+        :param async_req bool
+        :param object agent_id: Hosted agent UUID returned by the agent create or list endpoint. (required)
+        :param object merge_id: Attribute merge edge UUID returned by the merge listing endpoint. (required)
+        :return: AttributeMergeReversalResponse
+                 If the method is called asynchronously,
+                 returns the request thread.
+        """
+
+        all_params = ['agent_id', 'merge_id']  # noqa: E501
+        all_params.append('async_req')
+        all_params.append('_return_http_data_only')
+        all_params.append('_preload_content')
+        all_params.append('_request_timeout')
+
+        params = locals()
+        for key, val in six.iteritems(params['kwargs']):
+            if key not in all_params:
+                raise TypeError(
+                    "Got an unexpected keyword argument '%s'"
+                    " to method reverse_attribute_merge_endpoint_agents_agent_id_claims_attribute_merges_merge_id_reverse_post" % key
+                )
+            params[key] = val
+        del params['kwargs']
+        # verify the required parameter 'agent_id' is set
+        if ('agent_id' not in params or
+                params['agent_id'] is None):
+            raise ValueError("Missing the required parameter `agent_id` when calling `reverse_attribute_merge_endpoint_agents_agent_id_claims_attribute_merges_merge_id_reverse_post`")  # noqa: E501
+        # verify the required parameter 'merge_id' is set
+        if ('merge_id' not in params or
+                params['merge_id'] is None):
+            raise ValueError("Missing the required parameter `merge_id` when calling `reverse_attribute_merge_endpoint_agents_agent_id_claims_attribute_merges_merge_id_reverse_post`")  # noqa: E501
+
+        collection_formats = {}
+
+        path_params = {}
+        if 'agent_id' in params:
+            path_params['agent_id'] = params['agent_id']  # noqa: E501
+        if 'merge_id' in params:
+            path_params['merge_id'] = params['merge_id']  # noqa: E501
+
+        query_params = []
+
+        header_params = {}
+
+        form_params = []
+        local_var_files = {}
+
+        body_params = None
+        # HTTP header `Accept`
+        header_params['Accept'] = self.api_client.select_header_accept(
+            ['application/json'])  # noqa: E501
+
+        # Authentication setting
+        auth_settings = ['BearerApiKey']  # noqa: E501
+
+        return self.api_client.call_api(
+            '/agents/{agent_id}/claims/attribute-merges/{merge_id}/reverse', 'POST',
+            path_params,
+            query_params,
+            header_params,
+            body=body_params,
+            post_params=form_params,
+            files=local_var_files,
+            response_type='AttributeMergeReversalResponse',  # noqa: E501
             auth_settings=auth_settings,
             async_req=params.get('async_req'),
             _return_http_data_only=params.get('_return_http_data_only'),
