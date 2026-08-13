@@ -1,6 +1,6 @@
 # Hyperstruck API reference (learnings)
 
-Load this file when you need full request/response schemas or error-code details beyond what SKILL.md covers. Prefer this file during normal runs to save context. Fetch `{BASE_URL}/openapi.json` only when API errors suggest schema or path drift and this file is not enough.
+Load this file when you need full request/response schemas or error-code details beyond what SKILL.md covers. Prefer this file during normal runs to save context. Treat this file as the contract: hosted Hyperstruck does not serve `{BASE_URL}/openapi.json`, and neither a 404 (authenticated: the route does not exist) nor a 401 (unauthenticated: the auth middleware runs before routing) means your base URL is wrong.
 
 ---
 

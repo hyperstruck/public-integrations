@@ -1,6 +1,6 @@
 # Hyperstruck API reference (plans)
 
-Load this file when you need full request/response schemas or error-code details beyond what `SKILL.md` covers. Fetch `{BASE_URL}/openapi.json` only when this file and the inline skill instructions are insufficient.
+Load this file when you need full request/response schemas or error-code details beyond what `SKILL.md` covers. Treat this file as the contract: hosted Hyperstruck does not serve `{BASE_URL}/openapi.json`, and neither a 404 (authenticated: the route does not exist) nor a 401 (unauthenticated: the auth middleware runs before routing) means your base URL is wrong.
 
 ---
 

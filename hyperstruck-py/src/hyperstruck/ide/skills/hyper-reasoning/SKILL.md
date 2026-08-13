@@ -88,7 +88,7 @@ If `HYPER_API_KEY_SET=no` above, the block already tried both `./.env` and `~/.h
   Content-Type: application/json
   Accept: application/json
   ```
-- **Paths and JSON shapes**: Follow [reference.md](reference.md). **Do not** fetch `GET {BASE_URL}/openapi.json` up front — the document is large and wastes context. Rely on `reference.md` unless you hit errors that suggest API drift (see **Error handling**).
+- **Paths and JSON shapes**: Follow [reference.md](reference.md). It is the contract: hosted Hyperstruck does not serve `{BASE_URL}/openapi.json`, so there is no schema to fetch at runtime. The published document lives in the public-integrations repository as `openapi.json` if you need the full surface (see **Error handling**).
 
 ---
 
@@ -279,12 +279,8 @@ See [reference.md](reference.md) for full endpoint schemas and error codes. Summ
 - **409**: session has a non-terminal run. Poll it first or omit `session_id`.
 - **5xx**: retry once after 5 s; if still failing, report and continue.
 
-### When to fetch `openapi.json` (troubleshooting only)
+### There is no `openapi.json` to fetch
 
-After a failed or confusing API call, if fixing IDs/payloads using [reference.md](reference.md) does not help, fetch once:
+Hosted Hyperstruck does not serve `{BASE_URL}/openapi.json`, `/docs` or `/redoc`: the document is disabled outside local development. An authenticated request gets 404 because the route does not exist; an unauthenticated one gets 401, because the auth middleware runs before routing. Neither says anything about `HYPER_BASE_URL`.
 
-```
-GET {BASE_URL}/openapi.json
-```
-
-Use it only to reconcile paths, methods, or fields — **do not** paste the whole spec into the user thread. Extract the minimum fragment needed, then continue. If `openapi.json` is unreachable, stay with `reference.md` and ask the user to confirm `HYPER_BASE_URL` and API version.
+[reference.md](reference.md) is the contract. If a call still fails after reconciling it against that file, report the request and the response body rather than hunting for a schema document.

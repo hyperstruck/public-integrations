@@ -18,13 +18,49 @@ Putting domain expertise, knowledge, and memory to work is what turns AI into **
 | [claude_skills/hyper-plans/](claude_skills/hyper-plans/)         | **Plans API** from your agent: search similar plans and review candidate learnings surfaced with those results.                                                         |
 | [hyperstruck-py/](hyperstruck-py/)                              | The hand-written **`hyperstruck`** Python package: a thin HTTP client plus an optional LangGraph middleware (the `langgraph` extra). The ergonomic learning surface, installed straight from this repository (see [hyperstruck-py/README.md](hyperstruck-py/README.md#install)), and your agent learns run over run. |
 | [sdk/](sdk/)                                                    | Generated low-level API clients (Python and TypeScript) produced from the platform's OpenAPI schema. Raw, fully-typed access to every endpoint; prefer `hyperstruck-py` for the ergonomic learning surface, reach for these when you need an endpoint the package does not wrap. |
-
+| [openapi.json](openapi.json)                                    | The published OpenAPI document. It lives here as a file because no deployment serves `/openapi.json`: the interactive docs and the schema route are mounted only in local development, so this file is the machine-readable contract. |
 
 Together, these skills mirror how Core is meant to be used: **reason** when problems are deep or cross-cutting, **learn** continuously so the next session starts smarter.
 
 Skill names use the **`hyper-` prefix** so they do not clash with third-party skills in a shared skills directory. See [claude_skills/README.md](claude_skills/README.md) for a short directory overview.
 
 There are **no extra scripts or package dependencies**. Instructions tell your AI assistant how to call the **Hyperstruck HTTP API** using built-in capabilities (for example `curl` or `WebFetch`).
+
+### The OpenAPI document, and what publishing it does and does not close
+
+`openapi.json` here **is** the contract: no deployed environment serves
+`/openapi.json`, `/docs` or `/redoc`, so this file is where the schema lives.
+
+Be clear about what that buys, because the file is published rather than hidden.
+This repository is a public mirror, so the API surface it describes is
+world-readable and stays so. What closing the served routes removes is the
+interactive documentation UI on every deployed host, and with it the unescaped
+HTML that the configurable docs paths were interpolated into. It is not schema
+confidentiality, and nothing here should be read as offering it. Endpoints that
+must not be enumerated are kept out of the schema entirely with
+`include_in_schema=False`, which is a separate mechanism and the one that
+actually hides a surface.
+
+#### Regenerating it
+
+A contract test pins this file to the schema the app builds, so any change to the
+API surface fails CI until it is refreshed. The document is
+environment-independent, so no `HYPER_ENV` is needed and setting one changes
+nothing:
+
+```bash
+uv run python -c "
+import json
+from api.main import create_app
+with open('public_integrations/openapi.json', 'w') as f:
+    json.dump(create_app().openapi(), f, indent=2, sort_keys=True)
+    f.write('\n')
+"
+```
+
+The generated clients under [sdk/](sdk/) are produced from this same document but
+are **not** pinned to it by a test, so refreshing the schema does not refresh
+them. Regenerate them alongside any change that alters the surface they wrap.
 
 ### Learning standing and corpus compatibility
 
