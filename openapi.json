@@ -2336,6 +2336,149 @@
         "title": "ClaimReviewContext",
         "type": "object"
       },
+      "ClaimStabilityPopulations": {
+        "description": "How warm a claim corpus is, for the decision to enable the plan-rewrite pass.\n\nHow to read these numbers, and why a near-empty ``admitted_slots`` is the designed state rather\nthan a fault, is in ``docs/claim_curation_api.md``.",
+        "properties": {
+          "admitted_slots": {
+            "description": "What the axis would admit right now. An upper bound on read elimination, not a count of it: the bind gate independently refuses a currency-decayed claim and a high-stakes attribute key, neither of which this axis judges.",
+            "title": "Admitted Slots",
+            "type": "integer"
+          },
+          "bindable_slots": {
+            "description": "Keyed, open, non-quarantined slots: the population the axis judges at all.",
+            "title": "Bindable Slots",
+            "type": "integer"
+          },
+          "confidence": {
+            "description": "The deployment's stability confidence this count was evaluated at.",
+            "title": "Confidence",
+            "type": "number"
+          },
+          "lapsed_slots": {
+            "description": "Slots with demonstrated survival whose licence no longer covers the gap since.",
+            "title": "Lapsed Slots",
+            "type": "integer"
+          },
+          "mean_survived_days": {
+            "description": "total_survived_days divided by re_observed_slots, not by bindable_slots, so the numerator and denominator cover the same population. Zero when nothing was re-observed.",
+            "title": "Mean Survived Days",
+            "type": "number"
+          },
+          "never_re_observed_slots": {
+            "description": "Slots never seen to hold for any elapsed time. A cold corpus is nearly all of these.",
+            "title": "Never Re Observed Slots",
+            "type": "integer"
+          },
+          "prior_changes": {
+            "description": "The deployment's stability prior-changes this count was evaluated at.",
+            "title": "Prior Changes",
+            "type": "number"
+          },
+          "re_observed_slots": {
+            "description": "Slots with any demonstrated survival, which is the population that can qualify.",
+            "title": "Re Observed Slots",
+            "type": "integer"
+          },
+          "slots_with_a_recorded_change": {
+            "description": "Slots observed to have moved to a different value at least once.",
+            "title": "Slots With A Recorded Change",
+            "type": "integer"
+          },
+          "total_survived_days": {
+            "description": "Demonstrated survival summed over the re-observed slots only.",
+            "title": "Total Survived Days",
+            "type": "number"
+          }
+        },
+        "required": [
+          "bindable_slots",
+          "never_re_observed_slots",
+          "re_observed_slots",
+          "admitted_slots",
+          "lapsed_slots",
+          "slots_with_a_recorded_change",
+          "total_survived_days",
+          "mean_survived_days",
+          "confidence",
+          "prior_changes"
+        ],
+        "title": "ClaimStabilityPopulations",
+        "type": "object"
+      },
+      "ClaimStabilitySummary": {
+        "description": "One agent's populations, labelled with the agent they belong to.",
+        "properties": {
+          "admitted_slots": {
+            "description": "What the axis would admit right now. An upper bound on read elimination, not a count of it: the bind gate independently refuses a currency-decayed claim and a high-stakes attribute key, neither of which this axis judges.",
+            "title": "Admitted Slots",
+            "type": "integer"
+          },
+          "agent_id": {
+            "title": "Agent Id",
+            "type": "string"
+          },
+          "bindable_slots": {
+            "description": "Keyed, open, non-quarantined slots: the population the axis judges at all.",
+            "title": "Bindable Slots",
+            "type": "integer"
+          },
+          "confidence": {
+            "description": "The deployment's stability confidence this count was evaluated at.",
+            "title": "Confidence",
+            "type": "number"
+          },
+          "lapsed_slots": {
+            "description": "Slots with demonstrated survival whose licence no longer covers the gap since.",
+            "title": "Lapsed Slots",
+            "type": "integer"
+          },
+          "mean_survived_days": {
+            "description": "total_survived_days divided by re_observed_slots, not by bindable_slots, so the numerator and denominator cover the same population. Zero when nothing was re-observed.",
+            "title": "Mean Survived Days",
+            "type": "number"
+          },
+          "never_re_observed_slots": {
+            "description": "Slots never seen to hold for any elapsed time. A cold corpus is nearly all of these.",
+            "title": "Never Re Observed Slots",
+            "type": "integer"
+          },
+          "prior_changes": {
+            "description": "The deployment's stability prior-changes this count was evaluated at.",
+            "title": "Prior Changes",
+            "type": "number"
+          },
+          "re_observed_slots": {
+            "description": "Slots with any demonstrated survival, which is the population that can qualify.",
+            "title": "Re Observed Slots",
+            "type": "integer"
+          },
+          "slots_with_a_recorded_change": {
+            "description": "Slots observed to have moved to a different value at least once.",
+            "title": "Slots With A Recorded Change",
+            "type": "integer"
+          },
+          "total_survived_days": {
+            "description": "Demonstrated survival summed over the re-observed slots only.",
+            "title": "Total Survived Days",
+            "type": "number"
+          }
+        },
+        "required": [
+          "bindable_slots",
+          "never_re_observed_slots",
+          "re_observed_slots",
+          "admitted_slots",
+          "lapsed_slots",
+          "slots_with_a_recorded_change",
+          "total_survived_days",
+          "mean_survived_days",
+          "confidence",
+          "prior_changes",
+          "agent_id"
+        ],
+        "title": "ClaimStabilitySummary",
+        "type": "object"
+      },
       "CreateAliasRequest": {
         "properties": {
           "alias_text": {
@@ -5387,6 +5530,32 @@
           "episode"
         ],
         "title": "ObserveRequest",
+        "type": "object"
+      },
+      "OrgClaimStabilitySummary": {
+        "description": "Every agent's stability reading for one tenant, plus the tenant total.\n\nThe enable decision is taken per agent but reviewed per tenant, and walking agent ids by hand to\nassemble that view is how it does not get reviewed at all. ``total`` sums the per-agent\npopulations, which is sound because an agent's slots are disjoint from every other agent's.\n\n``is_truncated`` says the tenant has more agents than ``limit``, so ``total`` covers only the\nagents listed. A truncated total that read as a tenant total would understate the corpus, which\nis the permissive direction on a decision about deleting planned reads.",
+        "properties": {
+          "agents": {
+            "items": {
+              "$ref": "#/components/schemas/ClaimStabilitySummary"
+            },
+            "title": "Agents",
+            "type": "array"
+          },
+          "is_truncated": {
+            "title": "Is Truncated",
+            "type": "boolean"
+          },
+          "total": {
+            "$ref": "#/components/schemas/ClaimStabilityPopulations"
+          }
+        },
+        "required": [
+          "agents",
+          "total",
+          "is_truncated"
+        ],
+        "title": "OrgClaimStabilitySummary",
         "type": "object"
       },
       "OrgDirectoryItem": {
@@ -9976,6 +10145,66 @@
         ]
       }
     },
+    "/agents/{agent_id}/claims/stability": {
+      "get": {
+        "description": "The slot populations the decision to enable the plan-rewrite pass is taken on, and the confidence and prior_changes they were evaluated at. Read admitted_slots as a series, not a single number, and as an upper bound on read elimination rather than a count of it. See the claim curation API guide for how to interpret each population.",
+        "operationId": "get_stability_summary_endpoint_agents__agent_id__claims_stability_get",
+        "parameters": [
+          {
+            "description": "Hosted agent UUID returned by the agent create or list endpoint.",
+            "in": "path",
+            "name": "agent_id",
+            "required": true,
+            "schema": {
+              "description": "Hosted agent UUID returned by the agent create or list endpoint.",
+              "examples": [
+                "11111111-1111-4111-8111-111111111111"
+              ],
+              "format": "uuid",
+              "title": "Agent Id",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ClaimStabilitySummary"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          },
+          "501": {
+            "description": "The deployed Core predates the slot-stability axis, so there is no readout to return. This is the expected answer until the Core pin ships the axis; retrying will not help."
+          },
+          "503": {
+            "description": "A claim migration has not been applied to this database."
+          }
+        },
+        "security": [
+          {
+            "BearerApiKey": []
+          }
+        ],
+        "summary": "Read how warm this agent's claim corpus is",
+        "tags": [
+          "claims"
+        ]
+      }
+    },
     "/agents/{agent_id}/claims/{claim_id}/admin-release": {
       "post": {
         "description": "Release any quarantined claim, including an untrusted (possible-injection) one, with re-verification. Admin-tier because releasing attacker-reachable content into a corpus the planner reads is the sharpest curation action. Requires the If-Match consent token.",
@@ -10527,7 +10756,7 @@
         ]
       },
       "get": {
-        "description": "Paginated, filterable inventory of an agent's learnings for the curation workbench. Non-semantic (unlike /search). Defaults to the active bucket (excludes archived/superseded); use `state` for other buckets. Pagination is created_at keyset via the opaque cursor.",
+        "description": "Paginated, filterable inventory of an agent's learnings for the curation workbench. Non-semantic (unlike /search). Defaults to the active bucket (excludes archived/superseded); use `state` for other buckets. Optional `q` ANDs free-text / learning-id match with the selected facet (requires a full-text index on learning content). Pagination is created_at keyset via the opaque cursor.",
         "operationId": "list_agent_learnings_endpoint_agents__agent_id__learnings_get",
         "parameters": [
           {
@@ -10604,6 +10833,25 @@
               "$ref": "#/components/schemas/LearningStateFilter",
               "default": "active",
               "description": "Review bucket: active (default), needs_review, archived, superseded, or all."
+            }
+          },
+          {
+            "description": "Optional inventory text filter (content MatchText or exact learning id). ANDed with `state`. Omit or blank to disable.",
+            "in": "query",
+            "name": "q",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "maxLength": 200,
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Optional inventory text filter (content MatchText or exact learning id). ANDed with `state`. Omit or blank to disable.",
+              "title": "Q"
             }
           }
         ],
@@ -12289,6 +12537,68 @@
           }
         ],
         "summary": "List open split proposals across the tenant",
+        "tags": [
+          "claims"
+        ]
+      }
+    },
+    "/org/claims/stability": {
+      "get": {
+        "description": "The per-agent stability readings the decision to enable the plan-rewrite pass is taken on, plus the tenant total. The decision is per agent but reviewed per tenant, and this is the view that makes that possible without knowing every agent id. is_truncated says the tenant has more agents than limit, so the total covers only the agents listed. See the claim curation API guide for how to interpret each population.",
+        "operationId": "get_org_stability_summary_endpoint_org_claims_stability_get",
+        "parameters": [
+          {
+            "description": "Maximum number of items to return on this page.",
+            "in": "query",
+            "name": "limit",
+            "required": false,
+            "schema": {
+              "default": 50,
+              "description": "Maximum number of items to return on this page.",
+              "examples": [
+                25
+              ],
+              "maximum": 100,
+              "minimum": 1,
+              "title": "Limit",
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OrgClaimStabilitySummary"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          },
+          "501": {
+            "description": "The deployed Core predates the slot-stability axis, so there is no readout to return. Expected until the Core pin ships the axis; retrying will not help."
+          },
+          "503": {
+            "description": "A claim migration has not been applied to this database."
+          }
+        },
+        "security": [
+          {
+            "BearerApiKey": []
+          }
+        ],
+        "summary": "Read how warm every agent's claim corpus is across the tenant",
         "tags": [
           "claims"
         ]
