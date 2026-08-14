@@ -14,6 +14,7 @@ is the thin, fail-open client that wires it into your editor.
 - [What gets learned, and when](#what-gets-learned-and-when)
 - [Distilling a referenced corpus](#distilling-a-referenced-corpus)
 - [Outcome: scoring a turn on what happened next](#outcome-scoring-a-turn-on-what-happened-next)
+- [Proving the model was shown it](#proving-the-model-was-shown-it)
 - [Privacy](#privacy)
 - [Identity](#identity)
 - [Fail-open by design](#fail-open-by-design)
@@ -188,6 +189,47 @@ corroborator. When the evidence is weak or conflicting, the provisional label
 stands, because abstaining beats a confident-wrong flip. Each turn's learning is
 therefore written exactly once, with no need to retract a label later.
 
+## Proving the model was shown it
+
+A learning earns credit only once something confirms the model was actually shown it.
+Offering is not showing: an injected block can be refused by a hook, trimmed by a prompt
+budget, or evicted by compaction, and from inside this client every one of those looks
+identical to success.
+
+The evidence has to be the *editor's* artefact, never this client's. Echoing back the
+block we emitted would match every offered rule by construction and assert exactly the
+thing the evidence exists to establish. That failure is not hypothetical: Cursor's prompt
+hook cannot inject at all, so recall rides on a tool event, and a Cursor turn that calls
+no tool resolves learnings and never shows them.
+
+```
+  block emitted ──stamped with this run's id──▶ editor decides
+                                                     │
+                          accepted ──▶ recorded in the transcript ──▶ receipt
+                          denied   ──▶ nothing recorded            ──▶ no receipt
+```
+
+Under Claude Code the editor writes each accepted hook context into its transcript as its
+own record, distinct from the record of what the hook printed. The stop hook reads back
+the records carrying this run's marker, and that becomes the receipt. The marker leads the
+block so a truncated tail still resolves to the right run, and the truncation then shows
+up honestly as the missing rules being absent.
+
+Under every other host nothing is sent, and those runs credit nothing. That is the safe
+answer rather than a silent one: the platform logs each run that offered learnings and
+heard nothing back, and names the client behind it, so a host that structurally cannot
+report is distinguishable from one that should have and did not.
+
+Two things follow that are easy to get backwards:
+
+- **A turn that never injected sends no receipt at all**, rather than an empty one. It
+  stamped no marker, so there is nothing in the transcript to find.
+- **An oversized receipt is clipped ABOVE the boundary's own ceiling, not below it.** The
+  server treats a receipt it had to clip as an incomplete account and demotes nothing. A
+  client that clipped to fit under that ceiling would hand over a truncated receipt
+  looking complete, and every rule past the cut would be recorded as never shown, which
+  is permanent.
+
 ## Privacy
 
 Redaction happens on your machine, before anything leaves it.
@@ -228,6 +270,9 @@ Redaction happens on your machine, before anything leaves it.
   an unclipped long prompt would cost the turn its learnings and then its episode,
   silently on both counts. An overlong turn is clipped to the boundary's step cap
   the same way, keeping the trailing steps that carry the outcome.
+- **The exposure receipt is scrubbed like everything else.** It is a slice of your
+  editor's transcript, and the platform matches it rather than storing it, which is a
+  reason to keep it out of a column and never a reason to put a credential on the wire.
 
 Your source never leaves; only scrubbed, pattern-level learnings do.
 

@@ -56,6 +56,32 @@ def test_localhost_http_allowed() -> None:
     assert client._base_url == "http://localhost:8000"
 
 
+def test_the_declared_host_reaches_the_user_agent() -> None:
+    """The server's adoption gate reads the host out of this string.
+
+    Version alone cannot answer whether a receipt can exist: that is a property of the
+    editor, and Cursor at the newest version sends an identical string while keeping no
+    record of what it accepted. Without the host segment the gate reads a fleet that can
+    report nothing as fully adopted.
+    """
+    client = HostedLearningClient(api_key="k", client_host="claude-code")
+
+    assert client._headers["User-Agent"].endswith(" (host=claude-code)")
+
+
+def test_a_client_that_declares_no_host_leaves_the_user_agent_unchanged() -> None:
+    client = HostedLearningClient(api_key="k")
+
+    assert "host=" not in client._headers["User-Agent"]
+
+
+def test_a_hostile_host_string_cannot_forge_a_capable_looking_agent() -> None:
+    """The host is an argument, so it is sanitised rather than trusted verbatim."""
+    client = HostedLearningClient(api_key="k", client_host="cursor) (host=claude-code")
+
+    assert client._headers["User-Agent"].endswith(" (host=cursorhostclaude-code)")
+
+
 def test_missing_api_key_fails_fast(monkeypatch: pytest.MonkeyPatch) -> None:
     monkeypatch.delenv("HYPERSTRUCK_API_KEY", raising=False)
     monkeypatch.delenv("HYPER_API_KEY", raising=False)

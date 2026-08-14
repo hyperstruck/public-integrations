@@ -13,6 +13,7 @@ swappable client.
 - [Quick start (IDE: Claude Code & Cursor)](#quick-start-ide-claude-code--cursor)
 - [Quick start (MCP host)](#quick-start-mcp-host)
 - [How it works](#how-it-works)
+  - [Credit follows evidence, not assertion](#credit-follows-evidence-not-assertion)
 - [Configuration](#configuration)
 - [Privacy: client-side redaction](#privacy-client-side-redaction)
 - [Reliability](#reliability)
@@ -145,8 +146,50 @@ redaction inside their own process can run the self-host build (enterprise).
 - **Record** (during the run): planned tool calls and their outcomes are joined
   by tool-call id, so the platform knows which learning helped which step.
 - **Observe and reinforce** (run end): the finished run is shipped for
-  server-side extraction and the learnings it used are credited. Both happen in
-  the background, so your `invoke()` is never blocked.
+  server-side extraction, and the learnings the model was *shown* are credited.
+  Both happen in the background, so your `invoke()` is never blocked.
+
+### Credit follows evidence, not assertion
+
+A learning is credited only once something confirms the model actually saw it. That
+is not the same as the platform having selected it: an injected block can be trimmed
+by a prompt budget, refused by an editor's hook, or dropped by compaction long after
+this client hands it over, and from here every one of those looks identical.
+
+So the run end carries an **exposure receipt**: the block as the host's own artefact
+records it, never an echo of what this client emitted. An echo would match every
+offered rule by construction and assert precisely the thing the receipt exists to
+evidence. The platform re-derives the match itself, against what it offered.
+
+```
+   offered ──▶ rendered ──▶ shown ──▶ credited
+      │            │           │
+      │            │           └─ the receipt reports it  ▶ EXPOSED    earns credit
+      │            └───────────── the receipt omits it    ▶ UNEXPOSED  demoted
+      └────────────────────────── no receipt at all       ▶ UNVERIFIED credits nothing
+```
+
+The last two are kept apart on purpose. "We know it was not shown" and "we cannot
+say" license different conclusions, and collapsing them would make a host with broken
+wiring indistinguishable from a corpus with nothing left to learn.
+
+What produces the receipt depends on the host, and today only one host can produce
+one. The IDE integration under Claude Code reads the editor's own transcript record of
+what it accepted, matched to the run by an identifier this client stamps into the
+block, so a denied injection on one turn can never pair a verdict with another turn's
+learnings.
+
+Every other host sends nothing, deliberately. Cursor keeps no record of what it
+accepted; the LangGraph middleware sees only what it emitted, and sending that back
+would be the echo above wearing a receipt's name. A host that sends nothing earns no
+reinforcement, which is the safe answer rather than a silent one: the platform logs
+each run that offered learnings and never heard back, and names the client behind it so
+an unsupported host is distinguishable from a broken one.
+
+That is why the client declares its host in the `User-Agent`, as
+`hyperstruck-py/<version> (host=claude-code)`. Whether an honest receipt can exist is a
+property of the editor rather than of this library, so a version alone would report a
+host that can never send one as ready for the credit rules that require it.
 
 The `utility` value exposed in learning standing is a derived,
 recency-weighted application-outcome score. Later evidence that a learning

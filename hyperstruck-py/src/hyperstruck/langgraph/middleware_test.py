@@ -23,6 +23,7 @@ class FakeLearningClient:
         self.resolved_tools: list[tuple] = []
         self.observed: list[Episode] = []
         self.reinforced: list[tuple[Episode, bool]] = []
+        self.receipts: list[str | None] = []
 
     async def resolve(self, *, identity, run_id, goal, available_tools=(), max_learnings=8, model_context_window=None):
         self.resolved.append(run_id)
@@ -32,7 +33,10 @@ class FakeLearningClient:
     async def observe(self, *, identity, episode) -> None:
         self.observed.append(episode)
 
-    async def reinforce(self, *, identity, episode, is_org_promotion_allowed=False) -> None:
+    async def reinforce(
+        self, *, identity, episode, is_org_promotion_allowed=False, context_receipt=None
+    ) -> None:
+        self.receipts.append(context_receipt)
         self.reinforced.append((episode, is_org_promotion_allowed))
 
 

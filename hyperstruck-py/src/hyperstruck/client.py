@@ -188,6 +188,7 @@ class LearningClient(Protocol):
         identity: AgentIdentity,
         episode: Episode,
         is_org_promotion_allowed: bool = False,
+        context_receipt: str | None = None,
     ) -> None:
         """Credit the learnings the run used. Non-blocking."""
         ...
@@ -243,6 +244,7 @@ class HostedLearningClient:
         resolve_timeout: float | None = None,
         max_write_retries: int = 3,
         retry_backoff: float = 0.5,
+        client_host: str = "",
     ) -> None:
         resolved_key = api_key or first_env(API_KEY_ENV_VARS)
         if not resolved_key:
@@ -259,6 +261,9 @@ class HostedLearningClient:
             resolve_timeout
             if resolve_timeout is not None
             else env_float(RESOLVE_TIMEOUT_ENV, DEFAULT_RESOLVE_TIMEOUT)
+        )
+        self._client_host = "".join(
+            c for c in client_host.strip().lower() if c.isalnum() or c == "-"
         )
         self._max_write_retries = max(1, max_write_retries)
         self._retry_backoff = retry_backoff
@@ -286,9 +291,16 @@ class HostedLearningClient:
         # The version is load bearing, not decoration: without it a stale client is
         # indistinguishable from a current one server-side, so a bad release cannot
         # be attributed or filtered, and the host cannot be attributed at resolve.
+        # The host segment carries the other half: whether a receipt can exist at all
+        # is a property of the editor, not of this library, so a version alone would
+        # report a host that can never send one as ready for the credit rules that
+        # require it.
+        agent = f"hyperstruck-py/{__version__}"
+        if self._client_host:
+            agent = f"{agent} (host={self._client_host})"
         return {
             "Authorization": f"Bearer {self._api_key}",
-            "User-Agent": f"hyperstruck-py/{__version__}",
+            "User-Agent": agent,
         }
 
     def _url(self, path: str) -> str:
@@ -342,12 +354,14 @@ class HostedLearningClient:
         identity: AgentIdentity,
         episode: Episode,
         is_org_promotion_allowed: bool = False,
+        context_receipt: str | None = None,
     ) -> None:
         body = {
             "agent_name": identity.agent_name,
             "org_id": identity.org_id,
             "episode": redact_episode_payload(episode.to_payload()),
             "is_org_promotion_allowed": is_org_promotion_allowed,
+            "context_receipt": context_receipt,
         }
         self._schedule_write("/reinforce", body)
 

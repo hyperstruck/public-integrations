@@ -2,7 +2,9 @@
 
 from __future__ import annotations
 
+import dataclasses
 import json
+from typing import Any
 
 import pytest
 
@@ -210,6 +212,53 @@ def test_session_id_cannot_escape_session_dir() -> None:
         assert sdir.name not in ("", ".", "..")
 
 
+def _assert_every_field_differs_from_its_default(populated: Any, empty: Any) -> None:
+    """Fail unless the fixture sets every field to something its default is not.
+
+    Without this the round-trip assertions below are vacuous: a field added to the
+    dataclass but omitted from both the fixture and the reader round-trips as its own
+    default and the equality still passes, while the field is silently dropped in
+    production. That is exactly how ``is_injected`` and then ``context_receipt`` broke.
+    """
+    unset = [
+        field.name
+        for field in dataclasses.fields(populated)
+        if getattr(populated, field.name) == getattr(empty, field.name)
+    ]
+    assert not unset, (
+        f"fields {unset} are at their default in this fixture, so the round-trip "
+        "assertion cannot detect them being dropped by the reader"
+    )
+
+
+def test_an_active_turn_round_trips_every_field() -> None:
+    """The sweep reads a turn nobody is holding in memory, so a dropped field is silent."""
+    turn = ActiveTurn(
+        run_id="r1",
+        agent_name="a",
+        goal="fix the vacuity gate",
+        source_framework="claude-code",
+        started_at=1.0,
+        offered_learning_ids=("l1",),
+        is_injected=True,
+        transcript_path="/tmp/session/transcript.jsonl",
+    )
+    _assert_every_field_differs_from_its_default(
+        turn,
+        ActiveTurn(
+            run_id="",
+            agent_name="",
+            goal="",
+            source_framework="",
+            started_at=0.0,
+        ),
+    )
+
+    state.write_active("s-round-trip", turn)
+
+    assert state.read_active("s-round-trip") == turn
+
+
 def test_a_pending_turn_round_trips_every_field() -> None:
     """Anything written but not read back is dead on disk, which is how is_injected broke."""
     pending = PendingTurn(
@@ -223,6 +272,20 @@ def test_a_pending_turn_round_trips_every_field() -> None:
         offered_learning_ids=("l1",),
         is_injected=True,
         principal_utterance="we do not add word lists to our code",
+        context_receipt="<!-- hyperstruck-run: r1 -->\n- the rule the editor accepted",
+    )
+
+    _assert_every_field_differs_from_its_default(
+        pending,
+        PendingTurn(
+            run_id="",
+            agent_name="",
+            goal="",
+            steps=(),
+            is_success=False,
+            source_framework="",
+            ended_at=0.0,
+        ),
     )
 
     restored = state._pending_from_dict(state._pending_to_dict(pending))

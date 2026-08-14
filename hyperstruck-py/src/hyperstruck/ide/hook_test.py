@@ -5,6 +5,7 @@ from __future__ import annotations
 import argparse
 import asyncio
 import json
+from dataclasses import replace
 from types import SimpleNamespace
 from typing import Any
 
@@ -18,6 +19,7 @@ from hyperstruck._wire import (
     TerminalOutcome,
 )
 from hyperstruck import client
+from hyperstruck.ide import receipt
 from hyperstruck.ide import hook, state
 from hyperstruck.ide.constants import CREDENTIAL_HEAD_CHARS
 from hyperstruck.redaction import REDACTION_MARKER
@@ -31,6 +33,13 @@ from hyperstruck.ide.constants import (
 # can exercise the real _resolve rather than the fixture's readonly stub.
 _REAL_RESOLVE = hook._resolve
 _REAL_SPAWN_RESOLVE = hook._spawn_resolve
+
+# The boundary's own CONTEXT_RECEIPT_MAX_CHARS, restated because this is a separate
+# distribution that cannot import the server. The real ordering between the two is
+# enforced against the actual server constant by the platform's
+# api/boundary_exposure_receipt_guard_test.py; this copy only lets the clip test state
+# what the clip is FOR.
+_BOUNDARY_RECEIPT_CEILING = 200_000
 
 
 @pytest.fixture(autouse=True)
@@ -1013,13 +1022,14 @@ def test_claude_posttooluse_injects_once_and_attributes_offers(_env, capsys) -> 
         hook._parse_args(["tool"]),
     )
     payload = json.loads(capsys.readouterr().out)
-    assert payload == {
-        "hookSpecificOutput": {
-            "hookEventName": "PostToolUse",
-            "additionalContext": "INJECTED",
-        }
-    }
+    emitted = payload["hookSpecificOutput"]["additionalContext"]
+    assert payload["hookSpecificOutput"]["hookEventName"] == "PostToolUse"
     active = state.read_active("s1")
+    assert active is not None
+    # The run's marker leads the block, and it is what the stop hook finds this turn's
+    # acceptance record by. Position in the transcript would pair the wrong run with the
+    # wrong verdict the first time any turn's injection is denied.
+    assert emitted == f"{receipt.marker(active.run_id)}\nINJECTED"
     assert active is not None
     assert active.is_injected is True
     assert active.offered_learning_ids == ("L1",)
@@ -1062,7 +1072,7 @@ def test_failed_validation_leaves_recall_for_a_later_hook(_env, capsys) -> None:
         hook._parse_args(["tool"]),
     )
     payload = json.loads(capsys.readouterr().out)
-    assert payload["hookSpecificOutput"]["additionalContext"] == "INJECTED"
+    assert payload["hookSpecificOutput"]["additionalContext"].endswith("INJECTED")
     active = state.read_active("s1")
     assert active.is_injected is True
     assert active.offered_learning_ids == ("L1",)
@@ -1078,7 +1088,9 @@ def test_cursor_posttooluse_injects_once(_env, capsys) -> None:
         {"conversation_id": "c1", "tool_name": "Read", "cwd": "/repo"},
         hook._parse_args(["tool", "--source", "cursor", "--inject"]),
     )
-    assert json.loads(capsys.readouterr().out) == {"additional_context": "INJECTED"}
+    assert json.loads(capsys.readouterr().out)["additional_context"].endswith(
+        "INJECTED"
+    )
     assert state.read_active("c1").is_injected is True
     # A second postToolUse in the same turn must not re-inject.
     hook.cmd_tool(
@@ -1761,7 +1773,7 @@ def test_adistill_reports_delivery_outcome(
     captured: dict[str, Any] = {}
 
     class FakeClient:
-        def __init__(self):
+        def __init__(self, **_kwargs):
             self.writes_delivered = 0
             self.writes_duplicated = 0
             self.writes_failed = 0
@@ -1815,7 +1827,7 @@ def test_deliver_decline_calls_the_client_and_reports_outcome(
     captured: dict[str, Any] = {}
 
     class FakeClient:
-        def __init__(self):
+        def __init__(self, **_kwargs):
             self.writes_delivered = 0
             self.writes_failed = 0
             self.writes_terminal_failed = False
@@ -1859,7 +1871,7 @@ def test_deliver_decline_reports_a_terminal_rejection(_env, monkeypatch) -> None
     import hyperstruck.client as client_module
 
     class FakeClient:
-        def __init__(self):
+        def __init__(self, **_kwargs):
             self.writes_delivered = 0
             self.writes_failed = 1
             self.writes_terminal_failed = True
@@ -2007,3 +2019,324 @@ def test_the_payload_omits_the_key_when_there_is_no_utterance() -> None:
     )
 
     assert "principal_utterance" not in episode.to_payload()
+
+
+def test_delivery_hands_the_receipt_to_reinforce(monkeypatch) -> None:
+    """The staged receipt must survive the rebuild that happens at the moment of delivery.
+
+    Delivery reconstructs the wire call field by field in a detached process, which is how
+    the principal utterance was plumbed through five layers and never transmitted. A receipt
+    lost there is worse than one never captured: the run credits nothing and every counter
+    reports a host that stayed silent.
+    """
+    import asyncio
+
+    from hyperstruck import client as client_module
+
+    captured: dict[str, object] = {}
+
+    class FakeClient:
+        def __init__(self, **_kwargs):
+            self.writes_delivered = 0
+            self.writes_failed = 0
+            self.writes_terminal_failed = False
+            self.last_write_error = None
+
+        async def observe(self, **kwargs):
+            captured["observed"] = True
+
+        async def reinforce(self, **kwargs):
+            captured.update(kwargs)
+
+        async def drain(self, timeout=30.0):
+            return None
+
+        async def aclose(self, drain_timeout=30.0):
+            return None
+
+    monkeypatch.setattr(client_module, "HostedLearningClient", FakeClient)
+
+    outcome, _cause = asyncio.run(
+        hook._deliver(
+            {
+                "agent_name": "agent-x",
+                "episode": {
+                    "run_id": "agent-x:s1:r",
+                    "goal": "ship it",
+                    "steps": [],
+                    "outcome": {
+                        "is_success": True,
+                        "total_steps": 0,
+                        "completed_steps": 0,
+                        "failed_steps": 0,
+                    },
+                    "source_framework": "claude-code",
+                },
+                "do_observe": False,
+                "do_reinforce": True,
+                "context_receipt": "<!-- hyperstruck-run: agent-x:s1:r -->\n- the rule",
+            }
+        )
+    )
+
+    assert outcome is hook.FlushOutcome.DELIVERED
+    assert captured["context_receipt"] == (
+        "<!-- hyperstruck-run: agent-x:s1:r -->\n- the rule"
+    )
+
+
+def test_a_turn_with_no_receipt_delivers_none_rather_than_a_claim(monkeypatch) -> None:
+    """A host that observed nothing says nothing; it never substitutes what it emitted."""
+    import asyncio
+
+    from hyperstruck import client as client_module
+
+    captured: dict[str, object] = {}
+
+    class FakeClient:
+        def __init__(self, **_kwargs):
+            self.writes_delivered = 0
+            self.writes_failed = 0
+            self.writes_terminal_failed = False
+            self.last_write_error = None
+
+        async def reinforce(self, **kwargs):
+            captured.update(kwargs)
+
+        async def drain(self, timeout=30.0):
+            return None
+
+        async def aclose(self, drain_timeout=30.0):
+            return None
+
+    monkeypatch.setattr(client_module, "HostedLearningClient", FakeClient)
+
+    asyncio.run(
+        hook._deliver(
+            {
+                "agent_name": "agent-x",
+                "episode": {
+                    "run_id": "agent-x:s1:r",
+                    "goal": "ship it",
+                    "steps": [],
+                    "outcome": {
+                        "is_success": True,
+                        "total_steps": 0,
+                        "completed_steps": 0,
+                        "failed_steps": 0,
+                    },
+                    "source_framework": "claude-code",
+                },
+                "do_observe": False,
+                "do_reinforce": True,
+            }
+        )
+    )
+
+    assert captured["context_receipt"] is None
+
+
+# -- exposure receipt capture ------------------------------------------------
+
+
+def _accepted_line(run_id: str, body: str) -> str:
+    """One editor acceptance record, the artefact the receipt is read out of."""
+    return json.dumps(
+        {
+            "type": "attachment",
+            "attachment": {
+                "type": "hook_additional_context",
+                "content": [f"{receipt.marker(run_id)}\n{body}"],
+            },
+        }
+    )
+
+
+def _transcript(tmp_path, *lines: str):
+    path = tmp_path / "transcript.jsonl"
+    path.write_text("\n".join(lines) + "\n")
+    return str(path)
+
+
+def test_an_interrupted_turn_still_reports_what_the_editor_accepted(
+    _env, tmp_path
+) -> None:
+    """Orphan recovery is the commonest end for a turn, so a blind one loses most credit.
+
+    A turn whose stop hook never fired is finalised by the NEXT prompt, and its marker is
+    already in the transcript the next prompt is handed. Recovering with no receipt would
+    make every interrupted turn credit nothing while looking exactly like a host that
+    reported honestly and matched nothing.
+    """
+    session = "s-orphan"
+    hook.cmd_prompt(
+        {"session_id": session, "prompt": "edit a.py", "cwd": "/repo"}, _args("prompt")
+    )
+    hook.cmd_tool(
+        {
+            "session_id": session,
+            "tool_name": "Edit",
+            "file_path": "a.py",
+            "tool_response": "ok",
+        },
+        _args("tool"),
+    )
+    orphan = state.read_active(session)
+    assert orphan is not None
+    path = _transcript(tmp_path, _accepted_line(orphan.run_id, "- the recovered rule"))
+
+    hook.cmd_prompt(
+        {
+            "session_id": session,
+            "prompt": "now edit b.py",
+            "cwd": "/repo",
+            "transcript_path": path,
+        },
+        _args("prompt"),
+    )
+
+    pending = state.read_pending(session)
+    assert pending is not None
+    assert "the recovered rule" in pending.context_receipt
+
+
+def test_a_swept_turn_reads_the_transcript_it_recorded_at_its_start(
+    _env, tmp_path
+) -> None:
+    """The sweep finalises ANOTHER session's turn, so no payload it holds is about it.
+
+    Without the path stored on the turn there is nowhere to look, and every abandoned
+    session credits nothing however faithfully its editor recorded the block.
+    """
+    staged = _env
+    path = _transcript(tmp_path, _accepted_line("agent-x:oldsess:r1", "- the swept rule"))
+    state.write_active(
+        "oldsess",
+        state.ActiveTurn(
+            run_id="agent-x:oldsess:r1",
+            agent_name="agent-x",
+            goal="g",
+            source_framework="claude-code",
+            started_at=0.0,  # far past the eviction window
+            offered_learning_ids=("L1",),
+            is_injected=True,
+            transcript_path=path,
+        ),
+    )
+
+    hook._sweep_stale(exclude="other")
+
+    pending = state.read_pending("oldsess")
+    assert pending is not None
+    assert "the swept rule" in pending.context_receipt
+    assert staged == []  # the swept turn becomes pending; its own flush waits
+
+
+def test_the_live_payloads_transcript_wins_over_the_one_stored_at_turn_start(
+    _env, tmp_path
+) -> None:
+    """A resumed session writes to a new transcript, so the stored path goes stale."""
+    session = "s-resumed"
+    hook.cmd_prompt(
+        {
+            "session_id": session,
+            "prompt": "do x",
+            "cwd": "/repo",
+            "transcript_path": str(tmp_path / "gone.jsonl"),
+        },
+        _args("prompt"),
+    )
+    active = state.read_active(session)
+    assert active is not None
+    current = tmp_path / "resumed.jsonl"
+    current.write_text(_accepted_line(active.run_id, "- the rule after resume") + "\n")
+    state.write_active(session, replace(active, is_injected=True), reset_steps=False)
+
+    hook.cmd_stop(
+        {"session_id": session, "cwd": "/repo", "transcript_path": str(current)},
+        _args("stop"),
+    )
+
+    pending = state.read_pending(session)
+    assert pending is not None
+    assert "the rule after resume" in pending.context_receipt
+
+
+def test_only_claude_codes_block_is_stamped_with_a_marker(_env, capsys) -> None:
+    """Cursor keeps no acceptance record, so a marker there is context spent for nothing."""
+    hook.cmd_prompt(
+        {"conversation_id": "c-mark", "prompt": "do x", "cwd": "/repo"},
+        hook._parse_args(["prompt", "--source", "cursor"]),
+    )
+    capsys.readouterr()
+    hook.cmd_tool(
+        {"conversation_id": "c-mark", "tool_name": "Read", "cwd": "/repo"},
+        hook._parse_args(["tool", "--source", "cursor", "--inject"]),
+    )
+
+    emitted = json.loads(capsys.readouterr().out)["additional_context"]
+
+    assert emitted == "INJECTED"
+    active = state.read_active("c-mark")
+    assert active is not None
+    assert receipt.marker(active.run_id) not in emitted
+
+
+def test_an_oversized_receipt_is_clipped_rather_than_dropped(_env) -> None:
+    """Clipping costs the rules past the cut; dropping costs the run every rule it has.
+
+    What the clip must preserve is the server's ability to SEE that it was clipped.
+    An over-cap receipt puts the boundary into its confirm-only lane, where nothing is
+    demoted; a receipt cut to fit under that ceiling would read as a complete account of
+    the block, and every rule past the cut would be recorded UNEXPOSED, which is
+    terminal. So the assertion that matters is not the length, it is that the delivered
+    body is still over the boundary's ceiling and still names its run.
+    """
+    marker = receipt.marker("agent-x:s1:r1")
+    oversized = marker + "\n" + ("- a rule that will not fit. " * 20_000)
+    assert len(oversized) > hook.MAX_RECEIPT_CHARS
+
+    clipped = hook._clipped_receipt(oversized)
+
+    assert clipped is not None
+    assert len(clipped) > _BOUNDARY_RECEIPT_CEILING, (
+        "a clip below the boundary's ceiling would be read as complete evidence and "
+        "would demote every rule past the cut"
+    )
+    assert clipped.startswith(marker), "a clipped receipt must still name its run"
+    assert hook._clipped_receipt("") is None
+    assert hook._clipped_receipt(marker) == marker
+
+
+def test_a_turn_that_never_injected_reads_no_transcript(_env, tmp_path) -> None:
+    """No injection means no marker, so the read is a guaranteed miss over a growing file."""
+    transcript = tmp_path / "t.jsonl"
+    transcript.write_text(_accepted_line("agent-x:s:r", "- a rule") + "\n")
+    turn = state.ActiveTurn(
+        run_id="agent-x:s:r",
+        agent_name="agent-x",
+        goal="do x",
+        source_framework="claude-code",
+        started_at=0.0,
+        transcript_path=str(transcript),
+        is_injected=False,
+    )
+
+    assert hook._acceptance_record(turn) == ""
+    assert hook._acceptance_record(replace(turn, is_injected=True)) != ""
+
+
+def test_a_receipt_is_scrubbed_before_it_leaves_the_machine() -> None:
+    """The receipt is a slice of the user's transcript, not an exempt internal field.
+
+    It is matched rather than stored server-side, which is a reason to keep it out of a
+    column, never a reason to put a credential on the wire.
+    """
+    marker = receipt.marker("agent-x:s1:r1")
+    body = f"{marker}\n- use the key sk-abcdefghijklmnop0123456789 when calling out"
+
+    scrubbed = hook._clipped_receipt(body)
+
+    assert scrubbed is not None
+    assert "sk-abcdefghijklmnop0123456789" not in scrubbed
+    assert scrubbed.startswith(marker)

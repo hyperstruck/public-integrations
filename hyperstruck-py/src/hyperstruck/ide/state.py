@@ -50,6 +50,10 @@ class ActiveTurn:
     # their recall, then carried to pending so deferred reinforce can credit them.
     offered_learning_ids: tuple[str, ...] = field(default_factory=tuple)
     is_injected: bool = False
+    # Where the editor keeps its own record of what it accepted. Stored at turn start
+    # because the backstop sweep finalises an abandoned turn from another session, with
+    # no payload of its own to read it from; without it those turns credit nothing.
+    transcript_path: str = ""
 
 
 @dataclass(frozen=True)
@@ -77,6 +81,9 @@ class PendingTurn:
     # message could not honestly be offered as the principal's own words (see
     # hook._principal_utterance for the four rules that decide).
     principal_utterance: str = ""
+    # What the editor recorded itself accepting for this turn, its own artefact rather
+    # than this client's claim. Empty when the host produced none, which credits nothing.
+    context_receipt: str = ""
 
 
 def session_dir(session_id: str) -> Path:
@@ -119,6 +126,7 @@ def read_active(session_id: str) -> ActiveTurn | None:
             started_at=float(data.get("started_at", 0.0)),
             offered_learning_ids=tuple(data.get("offered_learning_ids") or ()),
             is_injected=bool(data.get("is_injected", False)),
+            transcript_path=data.get("transcript_path", ""),
         )
     except (KeyError, TypeError, ValueError):
         return None
@@ -381,6 +389,7 @@ def _pending_from_dict(data: dict[str, Any] | None) -> PendingTurn | None:
             # payload's is_delivered was permanently wrong.
             is_injected=bool(data.get("is_injected", False)),
             principal_utterance=data.get("principal_utterance", ""),
+            context_receipt=data.get("context_receipt", ""),
         )
     except (KeyError, TypeError, ValueError):
         return None

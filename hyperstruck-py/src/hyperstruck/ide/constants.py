@@ -137,6 +137,15 @@ TRUNCATION_MARKER = " [TRUNCATED]"
 # api/models/payload_bounds.py, which is a different limit for a different path.
 MAX_BOUNDARY_GOAL_CHARS = 8000
 MAX_EPISODE_STEPS = 500
+
+# Deliberately ABOVE the boundary's own ceiling (CONTEXT_RECEIPT_MAX_CHARS, 200k), not
+# below it. The server clips an over-cap body rather than refusing it, and treats what
+# it had to clip as no account of what the model was NOT shown: it confirms only, and
+# demotes nothing. Clipping first, under that ceiling, would hand the server a truncated
+# receipt that looks complete, and every rule that fell off the end would be recorded
+# UNEXPOSED, which is terminal and unrepairable. So this cap only bounds the request
+# body; the decision about truncated evidence stays with the side that can act on it.
+MAX_RECEIPT_CHARS = 220_000
 MAX_STEP_FIELD_CHARS = 200
 
 # -- distil run ids ----------------------------------------------------------

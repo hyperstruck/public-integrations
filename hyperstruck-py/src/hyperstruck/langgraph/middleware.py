@@ -187,7 +187,15 @@ class HyperstruckLearningMiddleware(AgentMiddleware):
             except Exception:  # noqa: BLE001 - fail open, already counted in the task
                 pass
         if ledger.injected_text:
-            request = request.override(messages=[SystemMessage(content=ledger.injected_text), *request.messages])
+            injected = SystemMessage(content=ledger.injected_text)
+            request = request.override(messages=[injected, *request.messages])
+            # No receipt is sent from this host, deliberately. The only artefact it could
+            # return is the block it just built itself, and echoing that back matches
+            # every offered fragment by construction: it asserts the very thing a receipt
+            # exists to evidence, and it would report a rendered learning just as
+            # confidently for a run that a context-trimming middleware downstream of this
+            # one had emptied. Unverified is the honest state for a host with no
+            # independent record, so these runs earn no credit until one exists.
         return await handler(request)
 
     async def aafter_model(self, state: Any, runtime: Any) -> dict[str, Any] | None:  # noqa: ARG002

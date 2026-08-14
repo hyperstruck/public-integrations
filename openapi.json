@@ -5217,6 +5217,19 @@
             "title": "Name",
             "type": "string"
           },
+          "tool_timeout_ms": {
+            "anyOf": [
+              {
+                "minimum": 1.0,
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Deadline for every tool from this server, overriding the engine's config-wide default. Per server rather than per tool because that is what an operator knows: a remote server's latency is a property of the server, and the engine's default was chosen for a local call.",
+            "title": "Tool Timeout Ms"
+          },
           "url": {
             "anyOf": [
               {
@@ -6624,6 +6637,19 @@
             "minLength": 1,
             "title": "Agent Name",
             "type": "string"
+          },
+          "context_receipt": {
+            "anyOf": [
+              {
+                "maxLength": 2000000,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "The host's record of the context block as its editor accepted it, used to confirm which offered learnings the model was actually shown. A learning no receipt reports as rendered credits nothing, so a host that omits this earns no reinforcement. Send the artefact the editor produced, never the text this client emitted: an echo of what was sent asserts the very thing the receipt exists to evidence. An over-cap receipt is clipped when folded rather than refused, because refusing it would cost the run its whole reinforcement and not merely its evidence; the bound on this field is far above that clip and exists only to stop an unbounded body.",
+            "title": "Context Receipt"
           },
           "episode": {
             "$ref": "#/components/schemas/EpisodeModel",

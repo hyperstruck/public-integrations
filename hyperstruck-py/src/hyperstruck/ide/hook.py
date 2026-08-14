@@ -49,8 +49,9 @@ from hyperstruck._wire import (
 from hyperstruck.client import DEFAULT_RECALL_TIMEOUT, HostedLearningClient
 from hyperstruck.env import RESOLVE_TIMEOUT_ENV, env_float
 from hyperstruck.identity import AgentIdentity
-from hyperstruck.ide import outcome, state
+from hyperstruck.ide import outcome, receipt, state
 from hyperstruck.ide.config import configured_agent_name, load_env
+from hyperstruck.ide.debug import debug as _debug
 from hyperstruck.ide.constants import (
     CREDENTIAL_HEAD_CHARS,
     DEFAULT_FLUSH_MAX_ATTEMPTS,
@@ -58,11 +59,10 @@ from hyperstruck.ide.constants import (
     EVICTION_WINDOW_SECONDS,
     FLUSH_MAX_ATTEMPTS_ENV,
     FLUSH_STALE_SECONDS,
-    HOOK_DEBUG_ENV,
-    HOOK_DEBUG_OFF_VALUES,
     HOOK_FAILURES_LOG,
     HOOK_FAILURES_LOG_MAX_BYTES,
     MAX_EPISODE_STEPS,
+    MAX_RECEIPT_CHARS,
     MAX_STEP_FIELD_CHARS,
     MIN_RECALL_TIMEOUT,
     MINTED_RUN_ID_CHARS,
@@ -137,7 +137,16 @@ def cmd_prompt(payload: dict[str, Any], args: argparse.Namespace) -> None:
     #    resolves the prior pending and becomes pending itself.
     orphan = state.read_active(session_id)
     if orphan is not None:
-        _finalise(session_id, orphan, state.read_steps(session_id), native_status=None)
+        # An interrupted turn still showed the model its recall, and its marker is
+        # already in this session's transcript, so recover the receipt here rather
+        # than crediting nothing for every turn whose stop hook never fired.
+        _finalise(
+            session_id,
+            orphan,
+            state.read_steps(session_id),
+            native_status=None,
+            context_receipt=_acceptance_record(orphan, payload),
+        )
     # 2. Sweep stale sessions on their provisional label (backstop delivery).
     _sweep_stale(exclude=session_id)
     # 3. No configured agent means nothing to learn into: fail open, no injection.
@@ -154,6 +163,7 @@ def cmd_prompt(payload: dict[str, Any], args: argparse.Namespace) -> None:
             goal=goal,
             source_framework=_source(args),
             started_at=time.time(),
+            transcript_path=str(payload.get("transcript_path") or ""),
         ),
     )
     _spawn_resolve(session_id)
@@ -193,6 +203,7 @@ def cmd_tool(payload: dict[str, Any], args: argparse.Namespace) -> None:
                 goal="",
                 source_framework=_source(args),
                 started_at=time.time(),
+                transcript_path=str(payload.get("transcript_path") or ""),
             ),
             reset_steps=False,
         )
@@ -214,7 +225,13 @@ def cmd_stop(payload: dict[str, Any], args: argparse.Namespace) -> None:
         return
     steps = state.read_steps(session_id)
     native_status = args.native_status or payload.get("status")
-    _finalise(session_id, active, steps, native_status=native_status)
+    _finalise(
+        session_id,
+        active,
+        steps,
+        native_status=native_status,
+        context_receipt=_acceptance_record(active, payload),
+    )
 
 
 # -- command: resolve (detached recall) --------------------------------------
@@ -760,6 +777,7 @@ def _finalise(
     current_steps: list[dict[str, Any]],
     *,
     native_status: str | None,
+    context_receipt: str | None = None,
 ) -> None:
     """Resolve the prior turn using this turn's evidence, then hold this turn.
 
@@ -795,8 +813,59 @@ def _finalise(
             ended_at=time.time(),
             offered_learning_ids=current.offered_learning_ids,
             is_injected=current.is_injected,
+            context_receipt=context_receipt or "",
         ),
     )
+
+
+def _transcript_path(payload: dict[str, Any], turn: ActiveTurn) -> str:
+    """Where to look for this turn's acceptance record.
+
+    The live payload wins where there is one: a session that was resumed into a new
+    transcript file keeps writing to the current path, and the turn's stored path is
+    then the stale one. The stored path is what the backstop sweep has, since it
+    finalises another session's abandoned turn from a payload that is not about it.
+    """
+    return str(payload.get("transcript_path") or turn.transcript_path or "")
+
+
+def _acceptance_record(turn: ActiveTurn, payload: dict[str, Any] | None = None) -> str:
+    """This turn's receipt, or nothing when there is provably none to find.
+
+    A turn that never injected stamped no marker, so the transcript cannot hold an
+    acceptance record for it and the read is a guaranteed miss over a file that grows
+    with the session. Skipping it also keeps a turn that offered nothing from posting an
+    empty receipt, which the boundary would otherwise have to warn about.
+    """
+    if not turn.is_injected:
+        return ""
+    return receipt.acceptance_record(_transcript_path(payload or {}, turn), turn.run_id)
+
+
+def _clipped_receipt(receipt_text: str) -> str | None:
+    """Scrub the receipt, then bound it without pretending the evidence is complete.
+
+    The receipt is a slice of the editor's own transcript, so it is user content and
+    gets the same scrubbing every other outbound field gets, not an exemption for being
+    matched rather than stored. Scrubbing before clipping, because a redaction changes
+    the length. It can in principle cost a rule its match, if the rule's own text looks
+    like a credential; that trade goes to privacy.
+
+    ``MAX_RECEIPT_CHARS`` sits ABOVE the boundary's own ceiling, so a receipt clipped
+    here still arrives over-cap and the server engages its confirm-only lane: it credits
+    what it can match and demotes nothing, because a payload it had to cut says nothing
+    about what is missing from it. Clipping to a lower cap would deliver a truncated
+    receipt that reads as a complete account, and every rule past the cut would be
+    recorded UNEXPOSED, which is terminal. The marker leads what survives, so the
+    receipt still resolves to this run.
+    """
+    if not receipt_text:
+        return None
+    scrubbed = scrub_secrets(receipt_text)
+    if len(scrubbed) <= MAX_RECEIPT_CHARS:
+        return scrubbed
+    _debug(f"receipt clipped from {len(scrubbed)} to {MAX_RECEIPT_CHARS} chars")
+    return scrubbed[:MAX_RECEIPT_CHARS]
 
 
 def _stage_and_flush(
@@ -832,6 +901,7 @@ def _stage_and_flush(
         "episode": redact_ide_episode(episode),
         "do_observe": do_observe,
         "do_reinforce": do_reinforce,
+        "context_receipt": _clipped_receipt(pending.context_receipt),
     }
     path = state.stage_flush(session_id, pending.run_id, staged)
     _spawn_flush(path)
@@ -912,7 +982,11 @@ def _sweep_stale(*, exclude: str) -> None:
         orphan = state.read_active(session_id)
         if orphan is not None and now - orphan.started_at > EVICTION_WINDOW_SECONDS:
             _finalise(
-                session_id, orphan, state.read_steps(session_id), native_status=None
+                session_id,
+                orphan,
+                state.read_steps(session_id),
+                native_status=None,
+                context_receipt=_acceptance_record(orphan),
             )
         elif orphan is None:
             state.clear_recall(session_id)
@@ -999,7 +1073,8 @@ async def _aresolve(
     client = HostedLearningClient(
         resolve_timeout=(
             _recall_timeout() if resolve_timeout is None else resolve_timeout
-        )
+        ),
+        client_host=source_framework,
     )
     try:
         context = await client.resolve(
@@ -1025,7 +1100,9 @@ async def _deliver_decline(
     if not run_id or not reason:
         return FlushOutcome.UNRECOVERABLE, "malformed staged decline"
     try:
-        client = HostedLearningClient()
+        client = HostedLearningClient(
+            client_host=str(decline.get("source_framework") or SOURCE_CLAUDE_CODE)
+        )
     except ValueError:
         return FlushOutcome.UNRECOVERABLE, "no API key configured"
     try:
@@ -1088,7 +1165,11 @@ async def _deliver(payload: dict[str, Any]) -> tuple[FlushOutcome, str | None]:
         thread_id=episode_data.get("thread_id"),
     )
     try:
-        client = HostedLearningClient()
+        client = HostedLearningClient(
+            client_host=str(
+                episode_data.get("source_framework") or SOURCE_CLAUDE_CODE
+            )
+        )
     except ValueError:
         return FlushOutcome.UNRECOVERABLE, "no API key configured"
     try:
@@ -1098,7 +1179,10 @@ async def _deliver(payload: dict[str, Any]) -> tuple[FlushOutcome, str | None]:
         if payload.get("do_reinforce"):
             # IDE tool calls are undeclared, so an IDE turn never auto-promotes.
             await client.reinforce(
-                identity=identity, episode=episode, is_org_promotion_allowed=False
+                identity=identity,
+                episode=episode,
+                is_org_promotion_allowed=False,
+                context_receipt=payload.get("context_receipt"),
             )
             await client.drain()
         # The client retries internally then drops with a counter rather than
@@ -1225,21 +1309,6 @@ def _failed_exit(code: Any) -> bool:
 
 
 # -- process plumbing --------------------------------------------------------
-
-
-def _debug(message: str) -> None:
-    """Write one diagnostic breadcrumb to stderr when ``HYPER_HOOK_DEBUG`` is set.
-
-    stderr, never stdout: stdout carries the injection JSON and must stay clean.
-    Guarded so it can never raise and break the loop's fail-open contract.
-    """
-    if (os.environ.get(HOOK_DEBUG_ENV) or "").strip().lower() in HOOK_DEBUG_OFF_VALUES:
-        return
-    try:
-        sys.stderr.write(f"[hyperstruck-hook] {message}\n")
-        sys.stderr.flush()
-    except (OSError, ValueError):
-        pass
 
 
 def _new_run_id(agent_name: str, session_id: str) -> str:
@@ -1380,7 +1449,18 @@ def _inject_pending(session_id: str, source: str) -> None:
         claimed = state.claim_recall(session_id)
         if claimed is None:
             return  # a parallel hook won the claim
-        if not _emit_tool_context(claimed.get("injected_text"), source):
+        # Only Claude Code records what its editor accepted, so only there can a marker
+        # ever be redeemed for evidence. Stamping Cursor's block would spend the
+        # customer's context on an identifier nothing can read back.
+        block = str(claimed.get("injected_text") or "")
+        if not block:
+            # The peek above and this claim are separate reads. Stamping an empty block
+            # makes it truthy, so the marker alone would be emitted: context spent on an
+            # identifier with nothing behind it, and the turn marked injected.
+            return
+        if source == SOURCE_CLAUDE_CODE:
+            block = receipt.stamp(block, active.run_id)
+        if not _emit_tool_context(block, source):
             return
         offered = tuple(str(item) for item in claimed.get("offered_learning_ids") or ())
         merged = tuple(dict.fromkeys((*active.offered_learning_ids, *offered)))
