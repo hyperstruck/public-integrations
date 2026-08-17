@@ -28,42 +28,65 @@ class LearningAuditListResponse(object):
                             and the value is json key in definition.
     """
     swagger_types = {
+        'facets': 'object',
         'items': 'object',
         'next_cursor': 'object',
-        'facets': 'object',
         'omitted_learning_count': 'object',
         'partial_failures': 'object',
         'retrieved_at': 'object'
     }
 
     attribute_map = {
+        'facets': 'facets',
         'items': 'items',
         'next_cursor': 'next_cursor',
-        'facets': 'facets',
         'omitted_learning_count': 'omitted_learning_count',
         'partial_failures': 'partial_failures',
         'retrieved_at': 'retrieved_at'
     }
 
-    def __init__(self, items=None, next_cursor=None, facets=None, omitted_learning_count=None, partial_failures=None, retrieved_at=None):  # noqa: E501
+    def __init__(self, facets=None, items=None, next_cursor=None, omitted_learning_count=None, partial_failures=None, retrieved_at=None):  # noqa: E501
         """LearningAuditListResponse - a model defined in Swagger"""  # noqa: E501
+        self._facets = None
         self._items = None
         self._next_cursor = None
-        self._facets = None
         self._omitted_learning_count = None
         self._partial_failures = None
         self._retrieved_at = None
         self.discriminator = None
+        if facets is not None:
+            self.facets = facets
         self.items = items
         if next_cursor is not None:
             self.next_cursor = next_cursor
-        if facets is not None:
-            self.facets = facets
         if omitted_learning_count is not None:
             self.omitted_learning_count = omitted_learning_count
         if partial_failures is not None:
             self.partial_failures = partial_failures
         self.retrieved_at = retrieved_at
+
+    @property
+    def facets(self):
+        """Gets the facets of this LearningAuditListResponse.  # noqa: E501
+
+        Corpus-wide bucket counts; only populated on the first page.  # noqa: E501
+
+        :return: The facets of this LearningAuditListResponse.  # noqa: E501
+        :rtype: object
+        """
+        return self._facets
+
+    @facets.setter
+    def facets(self, facets):
+        """Sets the facets of this LearningAuditListResponse.
+
+        Corpus-wide bucket counts; only populated on the first page.  # noqa: E501
+
+        :param facets: The facets of this LearningAuditListResponse.  # noqa: E501
+        :type: object
+        """
+
+        self._facets = facets
 
     @property
     def items(self):
@@ -110,29 +133,6 @@ class LearningAuditListResponse(object):
         """
 
         self._next_cursor = next_cursor
-
-    @property
-    def facets(self):
-        """Gets the facets of this LearningAuditListResponse.  # noqa: E501
-
-        Corpus-wide bucket counts; only populated on the first page.  # noqa: E501
-
-        :return: The facets of this LearningAuditListResponse.  # noqa: E501
-        :rtype: object
-        """
-        return self._facets
-
-    @facets.setter
-    def facets(self, facets):
-        """Sets the facets of this LearningAuditListResponse.
-
-        Corpus-wide bucket counts; only populated on the first page.  # noqa: E501
-
-        :param facets: The facets of this LearningAuditListResponse.  # noqa: E501
-        :type: object
-        """
-
-        self._facets = facets
 
     @property
     def omitted_learning_count(self):

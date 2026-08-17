@@ -28,97 +28,39 @@ class RunOutputSummary(object):
                             and the value is json key in definition.
     """
     swagger_types = {
-        'result': 'object',
+        'approvals_recorded': 'object',
+        'claim_attribution': 'object',
         'error': 'object',
-        'suspension': 'object',
-        'approvals_recorded': 'object'
+        'result': 'object',
+        'suspension': 'object'
     }
 
     attribute_map = {
-        'result': 'result',
+        'approvals_recorded': 'approvals_recorded',
+        'claim_attribution': 'claim_attribution',
         'error': 'error',
-        'suspension': 'suspension',
-        'approvals_recorded': 'approvals_recorded'
+        'result': 'result',
+        'suspension': 'suspension'
     }
 
-    def __init__(self, result=None, error=None, suspension=None, approvals_recorded=None):  # noqa: E501
+    def __init__(self, approvals_recorded=None, claim_attribution=None, error=None, result=None, suspension=None):  # noqa: E501
         """RunOutputSummary - a model defined in Swagger"""  # noqa: E501
-        self._result = None
-        self._error = None
-        self._suspension = None
         self._approvals_recorded = None
+        self._claim_attribution = None
+        self._error = None
+        self._result = None
+        self._suspension = None
         self.discriminator = None
-        if result is not None:
-            self.result = result
-        if error is not None:
-            self.error = error
-        if suspension is not None:
-            self.suspension = suspension
         if approvals_recorded is not None:
             self.approvals_recorded = approvals_recorded
-
-    @property
-    def result(self):
-        """Gets the result of this RunOutputSummary.  # noqa: E501
-
-
-        :return: The result of this RunOutputSummary.  # noqa: E501
-        :rtype: object
-        """
-        return self._result
-
-    @result.setter
-    def result(self, result):
-        """Sets the result of this RunOutputSummary.
-
-
-        :param result: The result of this RunOutputSummary.  # noqa: E501
-        :type: object
-        """
-
-        self._result = result
-
-    @property
-    def error(self):
-        """Gets the error of this RunOutputSummary.  # noqa: E501
-
-
-        :return: The error of this RunOutputSummary.  # noqa: E501
-        :rtype: object
-        """
-        return self._error
-
-    @error.setter
-    def error(self, error):
-        """Sets the error of this RunOutputSummary.
-
-
-        :param error: The error of this RunOutputSummary.  # noqa: E501
-        :type: object
-        """
-
-        self._error = error
-
-    @property
-    def suspension(self):
-        """Gets the suspension of this RunOutputSummary.  # noqa: E501
-
-
-        :return: The suspension of this RunOutputSummary.  # noqa: E501
-        :rtype: object
-        """
-        return self._suspension
-
-    @suspension.setter
-    def suspension(self, suspension):
-        """Sets the suspension of this RunOutputSummary.
-
-
-        :param suspension: The suspension of this RunOutputSummary.  # noqa: E501
-        :type: object
-        """
-
-        self._suspension = suspension
+        if claim_attribution is not None:
+            self.claim_attribution = claim_attribution
+        if error is not None:
+            self.error = error
+        if result is not None:
+            self.result = result
+        if suspension is not None:
+            self.suspension = suspension
 
     @property
     def approvals_recorded(self):
@@ -142,6 +84,92 @@ class RunOutputSummary(object):
         """
 
         self._approvals_recorded = approvals_recorded
+
+    @property
+    def claim_attribution(self):
+        """Gets the claim_attribution of this RunOutputSummary.  # noqa: E501
+
+        Which stored facts this run used. ``bound`` is everything that reached the planner, used or not, so ``bound`` minus ``applied`` answers why a fact was not used; each applied id carries its credit route (``by_construction`` is certain, ``by_value_equality`` is a guarded match); ``misled`` is the subset the outcome then contradicted. When nothing was applied, ``reason`` says which of a closed set applies, so an empty result is never confused with a pass that failed or never ran. ``child_run_ids`` references delegated runs rather than absorbing their claims, which are scoped to their own agent. Null when the run predates the record or claims are not configured.  # noqa: E501
+
+        :return: The claim_attribution of this RunOutputSummary.  # noqa: E501
+        :rtype: object
+        """
+        return self._claim_attribution
+
+    @claim_attribution.setter
+    def claim_attribution(self, claim_attribution):
+        """Sets the claim_attribution of this RunOutputSummary.
+
+        Which stored facts this run used. ``bound`` is everything that reached the planner, used or not, so ``bound`` minus ``applied`` answers why a fact was not used; each applied id carries its credit route (``by_construction`` is certain, ``by_value_equality`` is a guarded match); ``misled`` is the subset the outcome then contradicted. When nothing was applied, ``reason`` says which of a closed set applies, so an empty result is never confused with a pass that failed or never ran. ``child_run_ids`` references delegated runs rather than absorbing their claims, which are scoped to their own agent. Null when the run predates the record or claims are not configured.  # noqa: E501
+
+        :param claim_attribution: The claim_attribution of this RunOutputSummary.  # noqa: E501
+        :type: object
+        """
+
+        self._claim_attribution = claim_attribution
+
+    @property
+    def error(self):
+        """Gets the error of this RunOutputSummary.  # noqa: E501
+
+
+        :return: The error of this RunOutputSummary.  # noqa: E501
+        :rtype: object
+        """
+        return self._error
+
+    @error.setter
+    def error(self, error):
+        """Sets the error of this RunOutputSummary.
+
+
+        :param error: The error of this RunOutputSummary.  # noqa: E501
+        :type: object
+        """
+
+        self._error = error
+
+    @property
+    def result(self):
+        """Gets the result of this RunOutputSummary.  # noqa: E501
+
+
+        :return: The result of this RunOutputSummary.  # noqa: E501
+        :rtype: object
+        """
+        return self._result
+
+    @result.setter
+    def result(self, result):
+        """Sets the result of this RunOutputSummary.
+
+
+        :param result: The result of this RunOutputSummary.  # noqa: E501
+        :type: object
+        """
+
+        self._result = result
+
+    @property
+    def suspension(self):
+        """Gets the suspension of this RunOutputSummary.  # noqa: E501
+
+
+        :return: The suspension of this RunOutputSummary.  # noqa: E501
+        :rtype: object
+        """
+        return self._suspension
+
+    @suspension.setter
+    def suspension(self, suspension):
+        """Sets the suspension of this RunOutputSummary.
+
+
+        :param suspension: The suspension of this RunOutputSummary.  # noqa: E501
+        :type: object
+        """
+
+        self._suspension = suspension
 
     def to_dict(self):
         """Returns the model properties as a dict"""

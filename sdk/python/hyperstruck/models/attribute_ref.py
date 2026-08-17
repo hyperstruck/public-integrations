@@ -28,49 +28,26 @@ class AttributeRef(object):
                             and the value is json key in definition.
     """
     swagger_types = {
-        'attribute_id': 'object',
         'agent_id': 'object',
+        'attribute_id': 'object',
         'attribute_key': 'object'
     }
 
     attribute_map = {
-        'attribute_id': 'attribute_id',
         'agent_id': 'agent_id',
+        'attribute_id': 'attribute_id',
         'attribute_key': 'attribute_key'
     }
 
-    def __init__(self, attribute_id=None, agent_id=None, attribute_key=None):  # noqa: E501
+    def __init__(self, agent_id=None, attribute_id=None, attribute_key=None):  # noqa: E501
         """AttributeRef - a model defined in Swagger"""  # noqa: E501
-        self._attribute_id = None
         self._agent_id = None
+        self._attribute_id = None
         self._attribute_key = None
         self.discriminator = None
-        self.attribute_id = attribute_id
         self.agent_id = agent_id
+        self.attribute_id = attribute_id
         self.attribute_key = attribute_key
-
-    @property
-    def attribute_id(self):
-        """Gets the attribute_id of this AttributeRef.  # noqa: E501
-
-
-        :return: The attribute_id of this AttributeRef.  # noqa: E501
-        :rtype: object
-        """
-        return self._attribute_id
-
-    @attribute_id.setter
-    def attribute_id(self, attribute_id):
-        """Sets the attribute_id of this AttributeRef.
-
-
-        :param attribute_id: The attribute_id of this AttributeRef.  # noqa: E501
-        :type: object
-        """
-        if attribute_id is None:
-            raise ValueError("Invalid value for `attribute_id`, must not be `None`")  # noqa: E501
-
-        self._attribute_id = attribute_id
 
     @property
     def agent_id(self):
@@ -94,6 +71,29 @@ class AttributeRef(object):
             raise ValueError("Invalid value for `agent_id`, must not be `None`")  # noqa: E501
 
         self._agent_id = agent_id
+
+    @property
+    def attribute_id(self):
+        """Gets the attribute_id of this AttributeRef.  # noqa: E501
+
+
+        :return: The attribute_id of this AttributeRef.  # noqa: E501
+        :rtype: object
+        """
+        return self._attribute_id
+
+    @attribute_id.setter
+    def attribute_id(self, attribute_id):
+        """Sets the attribute_id of this AttributeRef.
+
+
+        :param attribute_id: The attribute_id of this AttributeRef.  # noqa: E501
+        :type: object
+        """
+        if attribute_id is None:
+            raise ValueError("Invalid value for `attribute_id`, must not be `None`")  # noqa: E501
+
+        self._attribute_id = attribute_id
 
     @property
     def attribute_key(self):

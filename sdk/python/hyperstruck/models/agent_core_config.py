@@ -28,87 +28,64 @@ class AgentCoreConfig(object):
                             and the value is json key in definition.
     """
     swagger_types = {
-        'instructions': 'object',
         'description': 'object',
-        'mcp_servers': 'object',
+        'domain_dimensions': 'object',
         'guardrails_config': 'object',
-        'hitl_enabled': 'object',
         'hitl_autonomy_level': 'object',
+        'hitl_enabled': 'object',
         'hitl_policy_preset': 'HitlPolicyPreset',
         'hitl_required_approvals': 'object',
-        'metadata': 'object',
-        'domain_dimensions': 'object'
+        'instructions': 'object',
+        'mcp_servers': 'object',
+        'metadata': 'object'
     }
 
     attribute_map = {
-        'instructions': 'instructions',
         'description': 'description',
-        'mcp_servers': 'mcp_servers',
+        'domain_dimensions': 'domain_dimensions',
         'guardrails_config': 'guardrails_config',
-        'hitl_enabled': 'hitl_enabled',
         'hitl_autonomy_level': 'hitl_autonomy_level',
+        'hitl_enabled': 'hitl_enabled',
         'hitl_policy_preset': 'hitl_policy_preset',
         'hitl_required_approvals': 'hitl_required_approvals',
-        'metadata': 'metadata',
-        'domain_dimensions': 'domain_dimensions'
+        'instructions': 'instructions',
+        'mcp_servers': 'mcp_servers',
+        'metadata': 'metadata'
     }
 
-    def __init__(self, instructions=None, description=None, mcp_servers=None, guardrails_config=None, hitl_enabled=None, hitl_autonomy_level=None, hitl_policy_preset=None, hitl_required_approvals=None, metadata=None, domain_dimensions=None):  # noqa: E501
+    def __init__(self, description=None, domain_dimensions=None, guardrails_config=None, hitl_autonomy_level=None, hitl_enabled=None, hitl_policy_preset=None, hitl_required_approvals=None, instructions=None, mcp_servers=None, metadata=None):  # noqa: E501
         """AgentCoreConfig - a model defined in Swagger"""  # noqa: E501
-        self._instructions = None
         self._description = None
-        self._mcp_servers = None
+        self._domain_dimensions = None
         self._guardrails_config = None
-        self._hitl_enabled = None
         self._hitl_autonomy_level = None
+        self._hitl_enabled = None
         self._hitl_policy_preset = None
         self._hitl_required_approvals = None
+        self._instructions = None
+        self._mcp_servers = None
         self._metadata = None
-        self._domain_dimensions = None
         self.discriminator = None
-        if instructions is not None:
-            self.instructions = instructions
         if description is not None:
             self.description = description
-        if mcp_servers is not None:
-            self.mcp_servers = mcp_servers
+        if domain_dimensions is not None:
+            self.domain_dimensions = domain_dimensions
         if guardrails_config is not None:
             self.guardrails_config = guardrails_config
-        if hitl_enabled is not None:
-            self.hitl_enabled = hitl_enabled
         if hitl_autonomy_level is not None:
             self.hitl_autonomy_level = hitl_autonomy_level
+        if hitl_enabled is not None:
+            self.hitl_enabled = hitl_enabled
         if hitl_policy_preset is not None:
             self.hitl_policy_preset = hitl_policy_preset
         if hitl_required_approvals is not None:
             self.hitl_required_approvals = hitl_required_approvals
+        if instructions is not None:
+            self.instructions = instructions
+        if mcp_servers is not None:
+            self.mcp_servers = mcp_servers
         if metadata is not None:
             self.metadata = metadata
-        if domain_dimensions is not None:
-            self.domain_dimensions = domain_dimensions
-
-    @property
-    def instructions(self):
-        """Gets the instructions of this AgentCoreConfig.  # noqa: E501
-
-        System prompt / instructions for `AgentConfig.instructions`. Create requests must provide a non-empty value; empty strings may appear for legacy rows until backfilled.  # noqa: E501
-
-        :return: The instructions of this AgentCoreConfig.  # noqa: E501
-        :rtype: object
-        """
-        return self._instructions
-
-    @instructions.setter
-    def instructions(self, instructions):
-        """Sets the instructions of this AgentCoreConfig.
-
-        System prompt / instructions for `AgentConfig.instructions`. Create requests must provide a non-empty value; empty strings may appear for legacy rows until backfilled.  # noqa: E501
-
-        :param instructions: The instructions of this AgentCoreConfig.  # noqa: E501
-        :type: object
-        """
-
-        self._instructions = instructions
 
     @property
     def description(self):
@@ -134,27 +111,27 @@ class AgentCoreConfig(object):
         self._description = description
 
     @property
-    def mcp_servers(self):
-        """Gets the mcp_servers of this AgentCoreConfig.  # noqa: E501
+    def domain_dimensions(self):
+        """Gets the domain_dimensions of this AgentCoreConfig.  # noqa: E501
 
-        MCP tool servers (`AgentConfig.mcp_servers`). Use `auth_type` + `auth_token_env` for hosted-safe references to secrets, or explicit `auth` objects when injecting credentials out-of-band.  # noqa: E501
+        Domain dimensions this agent focuses on when extracting and keeping learnings. Each entry has a name, description, and optional example values. Learnings store the matching names in ``domain_dimensions`` (list of strings). Omit or null when unguided; on PATCH, pass null or [] to clear.  # noqa: E501
 
-        :return: The mcp_servers of this AgentCoreConfig.  # noqa: E501
+        :return: The domain_dimensions of this AgentCoreConfig.  # noqa: E501
         :rtype: object
         """
-        return self._mcp_servers
+        return self._domain_dimensions
 
-    @mcp_servers.setter
-    def mcp_servers(self, mcp_servers):
-        """Sets the mcp_servers of this AgentCoreConfig.
+    @domain_dimensions.setter
+    def domain_dimensions(self, domain_dimensions):
+        """Sets the domain_dimensions of this AgentCoreConfig.
 
-        MCP tool servers (`AgentConfig.mcp_servers`). Use `auth_type` + `auth_token_env` for hosted-safe references to secrets, or explicit `auth` objects when injecting credentials out-of-band.  # noqa: E501
+        Domain dimensions this agent focuses on when extracting and keeping learnings. Each entry has a name, description, and optional example values. Learnings store the matching names in ``domain_dimensions`` (list of strings). Omit or null when unguided; on PATCH, pass null or [] to clear.  # noqa: E501
 
-        :param mcp_servers: The mcp_servers of this AgentCoreConfig.  # noqa: E501
+        :param domain_dimensions: The domain_dimensions of this AgentCoreConfig.  # noqa: E501
         :type: object
         """
 
-        self._mcp_servers = mcp_servers
+        self._domain_dimensions = domain_dimensions
 
     @property
     def guardrails_config(self):
@@ -180,29 +157,6 @@ class AgentCoreConfig(object):
         self._guardrails_config = guardrails_config
 
     @property
-    def hitl_enabled(self):
-        """Gets the hitl_enabled of this AgentCoreConfig.  # noqa: E501
-
-        Enable Human-in-the-Loop suspensions for this agent runtime.  # noqa: E501
-
-        :return: The hitl_enabled of this AgentCoreConfig.  # noqa: E501
-        :rtype: object
-        """
-        return self._hitl_enabled
-
-    @hitl_enabled.setter
-    def hitl_enabled(self, hitl_enabled):
-        """Sets the hitl_enabled of this AgentCoreConfig.
-
-        Enable Human-in-the-Loop suspensions for this agent runtime.  # noqa: E501
-
-        :param hitl_enabled: The hitl_enabled of this AgentCoreConfig.  # noqa: E501
-        :type: object
-        """
-
-        self._hitl_enabled = hitl_enabled
-
-    @property
     def hitl_autonomy_level(self):
         """Gets the hitl_autonomy_level of this AgentCoreConfig.  # noqa: E501
 
@@ -224,6 +178,29 @@ class AgentCoreConfig(object):
         """
 
         self._hitl_autonomy_level = hitl_autonomy_level
+
+    @property
+    def hitl_enabled(self):
+        """Gets the hitl_enabled of this AgentCoreConfig.  # noqa: E501
+
+        Enable Human-in-the-Loop suspensions for this agent runtime.  # noqa: E501
+
+        :return: The hitl_enabled of this AgentCoreConfig.  # noqa: E501
+        :rtype: object
+        """
+        return self._hitl_enabled
+
+    @hitl_enabled.setter
+    def hitl_enabled(self, hitl_enabled):
+        """Sets the hitl_enabled of this AgentCoreConfig.
+
+        Enable Human-in-the-Loop suspensions for this agent runtime.  # noqa: E501
+
+        :param hitl_enabled: The hitl_enabled of this AgentCoreConfig.  # noqa: E501
+        :type: object
+        """
+
+        self._hitl_enabled = hitl_enabled
 
     @property
     def hitl_policy_preset(self):
@@ -272,6 +249,52 @@ class AgentCoreConfig(object):
         self._hitl_required_approvals = hitl_required_approvals
 
     @property
+    def instructions(self):
+        """Gets the instructions of this AgentCoreConfig.  # noqa: E501
+
+        System prompt / instructions for `AgentConfig.instructions`. Create requests must provide a non-empty value; empty strings may appear for legacy rows until backfilled.  # noqa: E501
+
+        :return: The instructions of this AgentCoreConfig.  # noqa: E501
+        :rtype: object
+        """
+        return self._instructions
+
+    @instructions.setter
+    def instructions(self, instructions):
+        """Sets the instructions of this AgentCoreConfig.
+
+        System prompt / instructions for `AgentConfig.instructions`. Create requests must provide a non-empty value; empty strings may appear for legacy rows until backfilled.  # noqa: E501
+
+        :param instructions: The instructions of this AgentCoreConfig.  # noqa: E501
+        :type: object
+        """
+
+        self._instructions = instructions
+
+    @property
+    def mcp_servers(self):
+        """Gets the mcp_servers of this AgentCoreConfig.  # noqa: E501
+
+        MCP tool servers (`AgentConfig.mcp_servers`). Use `auth_type` + `auth_token_env` for hosted-safe references to secrets, or explicit `auth` objects when injecting credentials out-of-band.  # noqa: E501
+
+        :return: The mcp_servers of this AgentCoreConfig.  # noqa: E501
+        :rtype: object
+        """
+        return self._mcp_servers
+
+    @mcp_servers.setter
+    def mcp_servers(self, mcp_servers):
+        """Sets the mcp_servers of this AgentCoreConfig.
+
+        MCP tool servers (`AgentConfig.mcp_servers`). Use `auth_type` + `auth_token_env` for hosted-safe references to secrets, or explicit `auth` objects when injecting credentials out-of-band.  # noqa: E501
+
+        :param mcp_servers: The mcp_servers of this AgentCoreConfig.  # noqa: E501
+        :type: object
+        """
+
+        self._mcp_servers = mcp_servers
+
+    @property
     def metadata(self):
         """Gets the metadata of this AgentCoreConfig.  # noqa: E501
 
@@ -293,29 +316,6 @@ class AgentCoreConfig(object):
         """
 
         self._metadata = metadata
-
-    @property
-    def domain_dimensions(self):
-        """Gets the domain_dimensions of this AgentCoreConfig.  # noqa: E501
-
-        Domain dimensions this agent focuses on when extracting and keeping learnings. Each entry has a name, description, and optional example values. Learnings store the matching names in ``domain_dimensions`` (list of strings). Omit or null when unguided; on PATCH, pass null or [] to clear.  # noqa: E501
-
-        :return: The domain_dimensions of this AgentCoreConfig.  # noqa: E501
-        :rtype: object
-        """
-        return self._domain_dimensions
-
-    @domain_dimensions.setter
-    def domain_dimensions(self, domain_dimensions):
-        """Sets the domain_dimensions of this AgentCoreConfig.
-
-        Domain dimensions this agent focuses on when extracting and keeping learnings. Each entry has a name, description, and optional example values. Learnings store the matching names in ``domain_dimensions`` (list of strings). Omit or null when unguided; on PATCH, pass null or [] to clear.  # noqa: E501
-
-        :param domain_dimensions: The domain_dimensions of this AgentCoreConfig.  # noqa: E501
-        :type: object
-        """
-
-        self._domain_dimensions = domain_dimensions
 
     def to_dict(self):
         """Returns the model properties as a dict"""

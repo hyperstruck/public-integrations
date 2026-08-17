@@ -28,76 +28,30 @@ class MembershipModel(object):
                             and the value is json key in definition.
     """
     swagger_types = {
-        'tenant_id': 'object',
-        'tenant_name': 'object',
         'role': 'object',
-        'status': 'object'
+        'status': 'object',
+        'tenant_id': 'object',
+        'tenant_name': 'object'
     }
 
     attribute_map = {
-        'tenant_id': 'tenantId',
-        'tenant_name': 'tenantName',
         'role': 'role',
-        'status': 'status'
+        'status': 'status',
+        'tenant_id': 'tenantId',
+        'tenant_name': 'tenantName'
     }
 
-    def __init__(self, tenant_id=None, tenant_name=None, role=None, status=None):  # noqa: E501
+    def __init__(self, role=None, status=None, tenant_id=None, tenant_name=None):  # noqa: E501
         """MembershipModel - a model defined in Swagger"""  # noqa: E501
-        self._tenant_id = None
-        self._tenant_name = None
         self._role = None
         self._status = None
+        self._tenant_id = None
+        self._tenant_name = None
         self.discriminator = None
-        self.tenant_id = tenant_id
-        self.tenant_name = tenant_name
         self.role = role
         self.status = status
-
-    @property
-    def tenant_id(self):
-        """Gets the tenant_id of this MembershipModel.  # noqa: E501
-
-
-        :return: The tenant_id of this MembershipModel.  # noqa: E501
-        :rtype: object
-        """
-        return self._tenant_id
-
-    @tenant_id.setter
-    def tenant_id(self, tenant_id):
-        """Sets the tenant_id of this MembershipModel.
-
-
-        :param tenant_id: The tenant_id of this MembershipModel.  # noqa: E501
-        :type: object
-        """
-        if tenant_id is None:
-            raise ValueError("Invalid value for `tenant_id`, must not be `None`")  # noqa: E501
-
-        self._tenant_id = tenant_id
-
-    @property
-    def tenant_name(self):
-        """Gets the tenant_name of this MembershipModel.  # noqa: E501
-
-
-        :return: The tenant_name of this MembershipModel.  # noqa: E501
-        :rtype: object
-        """
-        return self._tenant_name
-
-    @tenant_name.setter
-    def tenant_name(self, tenant_name):
-        """Sets the tenant_name of this MembershipModel.
-
-
-        :param tenant_name: The tenant_name of this MembershipModel.  # noqa: E501
-        :type: object
-        """
-        if tenant_name is None:
-            raise ValueError("Invalid value for `tenant_name`, must not be `None`")  # noqa: E501
-
-        self._tenant_name = tenant_name
+        self.tenant_id = tenant_id
+        self.tenant_name = tenant_name
 
     @property
     def role(self):
@@ -144,6 +98,52 @@ class MembershipModel(object):
             raise ValueError("Invalid value for `status`, must not be `None`")  # noqa: E501
 
         self._status = status
+
+    @property
+    def tenant_id(self):
+        """Gets the tenant_id of this MembershipModel.  # noqa: E501
+
+
+        :return: The tenant_id of this MembershipModel.  # noqa: E501
+        :rtype: object
+        """
+        return self._tenant_id
+
+    @tenant_id.setter
+    def tenant_id(self, tenant_id):
+        """Sets the tenant_id of this MembershipModel.
+
+
+        :param tenant_id: The tenant_id of this MembershipModel.  # noqa: E501
+        :type: object
+        """
+        if tenant_id is None:
+            raise ValueError("Invalid value for `tenant_id`, must not be `None`")  # noqa: E501
+
+        self._tenant_id = tenant_id
+
+    @property
+    def tenant_name(self):
+        """Gets the tenant_name of this MembershipModel.  # noqa: E501
+
+
+        :return: The tenant_name of this MembershipModel.  # noqa: E501
+        :rtype: object
+        """
+        return self._tenant_name
+
+    @tenant_name.setter
+    def tenant_name(self, tenant_name):
+        """Sets the tenant_name of this MembershipModel.
+
+
+        :param tenant_name: The tenant_name of this MembershipModel.  # noqa: E501
+        :type: object
+        """
+        if tenant_name is None:
+            raise ValueError("Invalid value for `tenant_name`, must not be `None`")  # noqa: E501
+
+        self._tenant_name = tenant_name
 
     def to_dict(self):
         """Returns the model properties as a dict"""

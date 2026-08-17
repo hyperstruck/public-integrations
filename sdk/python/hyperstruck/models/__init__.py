@@ -58,6 +58,8 @@ from hyperstruck.models.claim_assists_response import ClaimAssistsResponse
 from hyperstruck.models.claim_dossier_response import ClaimDossierResponse
 from hyperstruck.models.claim_erasure_receipt import ClaimErasureReceipt
 from hyperstruck.models.claim_review_context import ClaimReviewContext
+from hyperstruck.models.claim_stability_populations import ClaimStabilityPopulations
+from hyperstruck.models.claim_stability_summary import ClaimStabilitySummary
 from hyperstruck.models.create_alias_request import CreateAliasRequest
 from hyperstruck.models.create_space_request import CreateSpaceRequest
 from hyperstruck.models.curated_claim import CuratedClaim
@@ -123,6 +125,7 @@ from hyperstruck.models.metric_catalog_field import MetricCatalogField
 from hyperstruck.models.metric_catalog_response import MetricCatalogResponse
 from hyperstruck.models.multi_agent_plan_search_request import MultiAgentPlanSearchRequest
 from hyperstruck.models.observe_request import ObserveRequest
+from hyperstruck.models.org_claim_stability_summary import OrgClaimStabilitySummary
 from hyperstruck.models.org_directory_item import OrgDirectoryItem
 from hyperstruck.models.org_directory_list_response import OrgDirectoryListResponse
 from hyperstruck.models.org_learning_item import OrgLearningItem

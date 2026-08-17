@@ -28,95 +28,72 @@ class UsageRunItem(object):
                             and the value is json key in definition.
     """
     swagger_types = {
-        'id': 'object',
         'agent_id': 'object',
-        'session_id': 'object',
-        'parent_run_id': 'object',
-        'run_type': 'RunType',
-        'status': 'RunStatus',
-        'worker_profile': 'object',
-        'started_at': 'object',
-        'ended_at': 'object',
         'compute_seconds': 'object',
+        'created_at': 'object',
+        'ended_at': 'object',
         'estimated_compute_cost_usd': 'object',
         'estimated_llm_cost_usd': 'object',
         'estimated_total_cost_usd': 'object',
-        'created_at': 'object'
+        'id': 'object',
+        'parent_run_id': 'object',
+        'run_type': 'RunType',
+        'session_id': 'object',
+        'started_at': 'object',
+        'status': 'RunStatus',
+        'worker_profile': 'object'
     }
 
     attribute_map = {
-        'id': 'id',
         'agent_id': 'agent_id',
-        'session_id': 'session_id',
-        'parent_run_id': 'parent_run_id',
-        'run_type': 'run_type',
-        'status': 'status',
-        'worker_profile': 'worker_profile',
-        'started_at': 'started_at',
-        'ended_at': 'ended_at',
         'compute_seconds': 'compute_seconds',
+        'created_at': 'created_at',
+        'ended_at': 'ended_at',
         'estimated_compute_cost_usd': 'estimated_compute_cost_usd',
         'estimated_llm_cost_usd': 'estimated_llm_cost_usd',
         'estimated_total_cost_usd': 'estimated_total_cost_usd',
-        'created_at': 'created_at'
+        'id': 'id',
+        'parent_run_id': 'parent_run_id',
+        'run_type': 'run_type',
+        'session_id': 'session_id',
+        'started_at': 'started_at',
+        'status': 'status',
+        'worker_profile': 'worker_profile'
     }
 
-    def __init__(self, id=None, agent_id=None, session_id=None, parent_run_id=None, run_type=None, status=None, worker_profile=None, started_at=None, ended_at=None, compute_seconds=None, estimated_compute_cost_usd=None, estimated_llm_cost_usd=None, estimated_total_cost_usd=None, created_at=None):  # noqa: E501
+    def __init__(self, agent_id=None, compute_seconds=None, created_at=None, ended_at=None, estimated_compute_cost_usd=None, estimated_llm_cost_usd=None, estimated_total_cost_usd=None, id=None, parent_run_id=None, run_type=None, session_id=None, started_at=None, status=None, worker_profile=None):  # noqa: E501
         """UsageRunItem - a model defined in Swagger"""  # noqa: E501
-        self._id = None
         self._agent_id = None
-        self._session_id = None
-        self._parent_run_id = None
-        self._run_type = None
-        self._status = None
-        self._worker_profile = None
-        self._started_at = None
-        self._ended_at = None
         self._compute_seconds = None
+        self._created_at = None
+        self._ended_at = None
         self._estimated_compute_cost_usd = None
         self._estimated_llm_cost_usd = None
         self._estimated_total_cost_usd = None
-        self._created_at = None
+        self._id = None
+        self._parent_run_id = None
+        self._run_type = None
+        self._session_id = None
+        self._started_at = None
+        self._status = None
+        self._worker_profile = None
         self.discriminator = None
-        self.id = id
         if agent_id is not None:
             self.agent_id = agent_id
-        self.session_id = session_id
-        if parent_run_id is not None:
-            self.parent_run_id = parent_run_id
-        self.run_type = run_type
-        self.status = status
-        self.worker_profile = worker_profile
-        self.started_at = started_at
-        self.ended_at = ended_at
         self.compute_seconds = compute_seconds
+        self.created_at = created_at
+        self.ended_at = ended_at
         self.estimated_compute_cost_usd = estimated_compute_cost_usd
         self.estimated_llm_cost_usd = estimated_llm_cost_usd
         self.estimated_total_cost_usd = estimated_total_cost_usd
-        self.created_at = created_at
-
-    @property
-    def id(self):
-        """Gets the id of this UsageRunItem.  # noqa: E501
-
-
-        :return: The id of this UsageRunItem.  # noqa: E501
-        :rtype: object
-        """
-        return self._id
-
-    @id.setter
-    def id(self, id):
-        """Sets the id of this UsageRunItem.
-
-
-        :param id: The id of this UsageRunItem.  # noqa: E501
-        :type: object
-        """
-        if id is None:
-            raise ValueError("Invalid value for `id`, must not be `None`")  # noqa: E501
-
-        self._id = id
+        self.id = id
+        if parent_run_id is not None:
+            self.parent_run_id = parent_run_id
+        self.run_type = run_type
+        self.session_id = session_id
+        self.started_at = started_at
+        self.status = status
+        self.worker_profile = worker_profile
 
     @property
     def agent_id(self):
@@ -140,140 +117,50 @@ class UsageRunItem(object):
         self._agent_id = agent_id
 
     @property
-    def session_id(self):
-        """Gets the session_id of this UsageRunItem.  # noqa: E501
+    def compute_seconds(self):
+        """Gets the compute_seconds of this UsageRunItem.  # noqa: E501
 
 
-        :return: The session_id of this UsageRunItem.  # noqa: E501
+        :return: The compute_seconds of this UsageRunItem.  # noqa: E501
         :rtype: object
         """
-        return self._session_id
+        return self._compute_seconds
 
-    @session_id.setter
-    def session_id(self, session_id):
-        """Sets the session_id of this UsageRunItem.
+    @compute_seconds.setter
+    def compute_seconds(self, compute_seconds):
+        """Sets the compute_seconds of this UsageRunItem.
 
 
-        :param session_id: The session_id of this UsageRunItem.  # noqa: E501
+        :param compute_seconds: The compute_seconds of this UsageRunItem.  # noqa: E501
         :type: object
         """
-        if session_id is None:
-            raise ValueError("Invalid value for `session_id`, must not be `None`")  # noqa: E501
+        if compute_seconds is None:
+            raise ValueError("Invalid value for `compute_seconds`, must not be `None`")  # noqa: E501
 
-        self._session_id = session_id
+        self._compute_seconds = compute_seconds
 
     @property
-    def parent_run_id(self):
-        """Gets the parent_run_id of this UsageRunItem.  # noqa: E501
+    def created_at(self):
+        """Gets the created_at of this UsageRunItem.  # noqa: E501
 
 
-        :return: The parent_run_id of this UsageRunItem.  # noqa: E501
+        :return: The created_at of this UsageRunItem.  # noqa: E501
         :rtype: object
         """
-        return self._parent_run_id
+        return self._created_at
 
-    @parent_run_id.setter
-    def parent_run_id(self, parent_run_id):
-        """Sets the parent_run_id of this UsageRunItem.
+    @created_at.setter
+    def created_at(self, created_at):
+        """Sets the created_at of this UsageRunItem.
 
 
-        :param parent_run_id: The parent_run_id of this UsageRunItem.  # noqa: E501
+        :param created_at: The created_at of this UsageRunItem.  # noqa: E501
         :type: object
         """
+        if created_at is None:
+            raise ValueError("Invalid value for `created_at`, must not be `None`")  # noqa: E501
 
-        self._parent_run_id = parent_run_id
-
-    @property
-    def run_type(self):
-        """Gets the run_type of this UsageRunItem.  # noqa: E501
-
-
-        :return: The run_type of this UsageRunItem.  # noqa: E501
-        :rtype: RunType
-        """
-        return self._run_type
-
-    @run_type.setter
-    def run_type(self, run_type):
-        """Sets the run_type of this UsageRunItem.
-
-
-        :param run_type: The run_type of this UsageRunItem.  # noqa: E501
-        :type: RunType
-        """
-        if run_type is None:
-            raise ValueError("Invalid value for `run_type`, must not be `None`")  # noqa: E501
-
-        self._run_type = run_type
-
-    @property
-    def status(self):
-        """Gets the status of this UsageRunItem.  # noqa: E501
-
-
-        :return: The status of this UsageRunItem.  # noqa: E501
-        :rtype: RunStatus
-        """
-        return self._status
-
-    @status.setter
-    def status(self, status):
-        """Sets the status of this UsageRunItem.
-
-
-        :param status: The status of this UsageRunItem.  # noqa: E501
-        :type: RunStatus
-        """
-        if status is None:
-            raise ValueError("Invalid value for `status`, must not be `None`")  # noqa: E501
-
-        self._status = status
-
-    @property
-    def worker_profile(self):
-        """Gets the worker_profile of this UsageRunItem.  # noqa: E501
-
-
-        :return: The worker_profile of this UsageRunItem.  # noqa: E501
-        :rtype: object
-        """
-        return self._worker_profile
-
-    @worker_profile.setter
-    def worker_profile(self, worker_profile):
-        """Sets the worker_profile of this UsageRunItem.
-
-
-        :param worker_profile: The worker_profile of this UsageRunItem.  # noqa: E501
-        :type: object
-        """
-        if worker_profile is None:
-            raise ValueError("Invalid value for `worker_profile`, must not be `None`")  # noqa: E501
-
-        self._worker_profile = worker_profile
-
-    @property
-    def started_at(self):
-        """Gets the started_at of this UsageRunItem.  # noqa: E501
-
-
-        :return: The started_at of this UsageRunItem.  # noqa: E501
-        :rtype: object
-        """
-        return self._started_at
-
-    @started_at.setter
-    def started_at(self, started_at):
-        """Sets the started_at of this UsageRunItem.
-
-
-        :param started_at: The started_at of this UsageRunItem.  # noqa: E501
-        :type: object
-        """
-        if started_at is None:
-            raise ValueError("Invalid value for `started_at`, must not be `None`")  # noqa: E501
-
-        self._started_at = started_at
+        self._created_at = created_at
 
     @property
     def ended_at(self):
@@ -297,29 +184,6 @@ class UsageRunItem(object):
             raise ValueError("Invalid value for `ended_at`, must not be `None`")  # noqa: E501
 
         self._ended_at = ended_at
-
-    @property
-    def compute_seconds(self):
-        """Gets the compute_seconds of this UsageRunItem.  # noqa: E501
-
-
-        :return: The compute_seconds of this UsageRunItem.  # noqa: E501
-        :rtype: object
-        """
-        return self._compute_seconds
-
-    @compute_seconds.setter
-    def compute_seconds(self, compute_seconds):
-        """Sets the compute_seconds of this UsageRunItem.
-
-
-        :param compute_seconds: The compute_seconds of this UsageRunItem.  # noqa: E501
-        :type: object
-        """
-        if compute_seconds is None:
-            raise ValueError("Invalid value for `compute_seconds`, must not be `None`")  # noqa: E501
-
-        self._compute_seconds = compute_seconds
 
     @property
     def estimated_compute_cost_usd(self):
@@ -391,27 +255,163 @@ class UsageRunItem(object):
         self._estimated_total_cost_usd = estimated_total_cost_usd
 
     @property
-    def created_at(self):
-        """Gets the created_at of this UsageRunItem.  # noqa: E501
+    def id(self):
+        """Gets the id of this UsageRunItem.  # noqa: E501
 
 
-        :return: The created_at of this UsageRunItem.  # noqa: E501
+        :return: The id of this UsageRunItem.  # noqa: E501
         :rtype: object
         """
-        return self._created_at
+        return self._id
 
-    @created_at.setter
-    def created_at(self, created_at):
-        """Sets the created_at of this UsageRunItem.
+    @id.setter
+    def id(self, id):
+        """Sets the id of this UsageRunItem.
 
 
-        :param created_at: The created_at of this UsageRunItem.  # noqa: E501
+        :param id: The id of this UsageRunItem.  # noqa: E501
         :type: object
         """
-        if created_at is None:
-            raise ValueError("Invalid value for `created_at`, must not be `None`")  # noqa: E501
+        if id is None:
+            raise ValueError("Invalid value for `id`, must not be `None`")  # noqa: E501
 
-        self._created_at = created_at
+        self._id = id
+
+    @property
+    def parent_run_id(self):
+        """Gets the parent_run_id of this UsageRunItem.  # noqa: E501
+
+
+        :return: The parent_run_id of this UsageRunItem.  # noqa: E501
+        :rtype: object
+        """
+        return self._parent_run_id
+
+    @parent_run_id.setter
+    def parent_run_id(self, parent_run_id):
+        """Sets the parent_run_id of this UsageRunItem.
+
+
+        :param parent_run_id: The parent_run_id of this UsageRunItem.  # noqa: E501
+        :type: object
+        """
+
+        self._parent_run_id = parent_run_id
+
+    @property
+    def run_type(self):
+        """Gets the run_type of this UsageRunItem.  # noqa: E501
+
+
+        :return: The run_type of this UsageRunItem.  # noqa: E501
+        :rtype: RunType
+        """
+        return self._run_type
+
+    @run_type.setter
+    def run_type(self, run_type):
+        """Sets the run_type of this UsageRunItem.
+
+
+        :param run_type: The run_type of this UsageRunItem.  # noqa: E501
+        :type: RunType
+        """
+        if run_type is None:
+            raise ValueError("Invalid value for `run_type`, must not be `None`")  # noqa: E501
+
+        self._run_type = run_type
+
+    @property
+    def session_id(self):
+        """Gets the session_id of this UsageRunItem.  # noqa: E501
+
+
+        :return: The session_id of this UsageRunItem.  # noqa: E501
+        :rtype: object
+        """
+        return self._session_id
+
+    @session_id.setter
+    def session_id(self, session_id):
+        """Sets the session_id of this UsageRunItem.
+
+
+        :param session_id: The session_id of this UsageRunItem.  # noqa: E501
+        :type: object
+        """
+        if session_id is None:
+            raise ValueError("Invalid value for `session_id`, must not be `None`")  # noqa: E501
+
+        self._session_id = session_id
+
+    @property
+    def started_at(self):
+        """Gets the started_at of this UsageRunItem.  # noqa: E501
+
+
+        :return: The started_at of this UsageRunItem.  # noqa: E501
+        :rtype: object
+        """
+        return self._started_at
+
+    @started_at.setter
+    def started_at(self, started_at):
+        """Sets the started_at of this UsageRunItem.
+
+
+        :param started_at: The started_at of this UsageRunItem.  # noqa: E501
+        :type: object
+        """
+        if started_at is None:
+            raise ValueError("Invalid value for `started_at`, must not be `None`")  # noqa: E501
+
+        self._started_at = started_at
+
+    @property
+    def status(self):
+        """Gets the status of this UsageRunItem.  # noqa: E501
+
+
+        :return: The status of this UsageRunItem.  # noqa: E501
+        :rtype: RunStatus
+        """
+        return self._status
+
+    @status.setter
+    def status(self, status):
+        """Sets the status of this UsageRunItem.
+
+
+        :param status: The status of this UsageRunItem.  # noqa: E501
+        :type: RunStatus
+        """
+        if status is None:
+            raise ValueError("Invalid value for `status`, must not be `None`")  # noqa: E501
+
+        self._status = status
+
+    @property
+    def worker_profile(self):
+        """Gets the worker_profile of this UsageRunItem.  # noqa: E501
+
+
+        :return: The worker_profile of this UsageRunItem.  # noqa: E501
+        :rtype: object
+        """
+        return self._worker_profile
+
+    @worker_profile.setter
+    def worker_profile(self, worker_profile):
+        """Sets the worker_profile of this UsageRunItem.
+
+
+        :param worker_profile: The worker_profile of this UsageRunItem.  # noqa: E501
+        :type: object
+        """
+        if worker_profile is None:
+            raise ValueError("Invalid value for `worker_profile`, must not be `None`")  # noqa: E501
+
+        self._worker_profile = worker_profile
 
     def to_dict(self):
         """Returns the model properties as a dict"""

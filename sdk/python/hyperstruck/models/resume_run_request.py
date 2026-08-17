@@ -28,67 +28,65 @@ class ResumeRunRequest(object):
                             and the value is json key in definition.
     """
     swagger_types = {
-        'suspension_id': 'object',
-        'decision_type': 'DecisionType',
         'data': 'object',
+        'decision_type': 'DecisionType',
+        'metadata': 'object',
         'reason': 'object',
-        'worker_profile': 'object',
-        'metadata': 'object'
+        'suspension_id': 'object',
+        'worker_profile': 'object'
     }
 
     attribute_map = {
-        'suspension_id': 'suspension_id',
-        'decision_type': 'decision_type',
         'data': 'data',
+        'decision_type': 'decision_type',
+        'metadata': 'metadata',
         'reason': 'reason',
-        'worker_profile': 'worker_profile',
-        'metadata': 'metadata'
+        'suspension_id': 'suspension_id',
+        'worker_profile': 'worker_profile'
     }
 
-    def __init__(self, suspension_id=None, decision_type=None, data=None, reason=None, worker_profile=None, metadata=None):  # noqa: E501
+    def __init__(self, data=None, decision_type=None, metadata=None, reason=None, suspension_id=None, worker_profile=None):  # noqa: E501
         """ResumeRunRequest - a model defined in Swagger"""  # noqa: E501
-        self._suspension_id = None
-        self._decision_type = None
         self._data = None
-        self._reason = None
-        self._worker_profile = None
+        self._decision_type = None
         self._metadata = None
+        self._reason = None
+        self._suspension_id = None
+        self._worker_profile = None
         self.discriminator = None
-        self.suspension_id = suspension_id
-        self.decision_type = decision_type
         if data is not None:
             self.data = data
-        if reason is not None:
-            self.reason = reason
-        if worker_profile is not None:
-            self.worker_profile = worker_profile
+        self.decision_type = decision_type
         if metadata is not None:
             self.metadata = metadata
+        if reason is not None:
+            self.reason = reason
+        self.suspension_id = suspension_id
+        if worker_profile is not None:
+            self.worker_profile = worker_profile
 
     @property
-    def suspension_id(self):
-        """Gets the suspension_id of this ResumeRunRequest.  # noqa: E501
+    def data(self):
+        """Gets the data of this ResumeRunRequest.  # noqa: E501
 
-        ID of the suspension to respond to (from the suspended run metadata).  # noqa: E501
+        Optional decision payload, such as modified instructions, selected items, or additional human input.  # noqa: E501
 
-        :return: The suspension_id of this ResumeRunRequest.  # noqa: E501
+        :return: The data of this ResumeRunRequest.  # noqa: E501
         :rtype: object
         """
-        return self._suspension_id
+        return self._data
 
-    @suspension_id.setter
-    def suspension_id(self, suspension_id):
-        """Sets the suspension_id of this ResumeRunRequest.
+    @data.setter
+    def data(self, data):
+        """Sets the data of this ResumeRunRequest.
 
-        ID of the suspension to respond to (from the suspended run metadata).  # noqa: E501
+        Optional decision payload, such as modified instructions, selected items, or additional human input.  # noqa: E501
 
-        :param suspension_id: The suspension_id of this ResumeRunRequest.  # noqa: E501
+        :param data: The data of this ResumeRunRequest.  # noqa: E501
         :type: object
         """
-        if suspension_id is None:
-            raise ValueError("Invalid value for `suspension_id`, must not be `None`")  # noqa: E501
 
-        self._suspension_id = suspension_id
+        self._data = data
 
     @property
     def decision_type(self):
@@ -116,27 +114,27 @@ class ResumeRunRequest(object):
         self._decision_type = decision_type
 
     @property
-    def data(self):
-        """Gets the data of this ResumeRunRequest.  # noqa: E501
+    def metadata(self):
+        """Gets the metadata of this ResumeRunRequest.  # noqa: E501
 
-        Optional decision payload, such as modified instructions, selected items, or additional human input.  # noqa: E501
+        Optional caller-defined metadata for the child run.  # noqa: E501
 
-        :return: The data of this ResumeRunRequest.  # noqa: E501
+        :return: The metadata of this ResumeRunRequest.  # noqa: E501
         :rtype: object
         """
-        return self._data
+        return self._metadata
 
-    @data.setter
-    def data(self, data):
-        """Sets the data of this ResumeRunRequest.
+    @metadata.setter
+    def metadata(self, metadata):
+        """Sets the metadata of this ResumeRunRequest.
 
-        Optional decision payload, such as modified instructions, selected items, or additional human input.  # noqa: E501
+        Optional caller-defined metadata for the child run.  # noqa: E501
 
-        :param data: The data of this ResumeRunRequest.  # noqa: E501
+        :param metadata: The metadata of this ResumeRunRequest.  # noqa: E501
         :type: object
         """
 
-        self._data = data
+        self._metadata = metadata
 
     @property
     def reason(self):
@@ -162,6 +160,31 @@ class ResumeRunRequest(object):
         self._reason = reason
 
     @property
+    def suspension_id(self):
+        """Gets the suspension_id of this ResumeRunRequest.  # noqa: E501
+
+        ID of the suspension to respond to (from the suspended run metadata).  # noqa: E501
+
+        :return: The suspension_id of this ResumeRunRequest.  # noqa: E501
+        :rtype: object
+        """
+        return self._suspension_id
+
+    @suspension_id.setter
+    def suspension_id(self, suspension_id):
+        """Sets the suspension_id of this ResumeRunRequest.
+
+        ID of the suspension to respond to (from the suspended run metadata).  # noqa: E501
+
+        :param suspension_id: The suspension_id of this ResumeRunRequest.  # noqa: E501
+        :type: object
+        """
+        if suspension_id is None:
+            raise ValueError("Invalid value for `suspension_id`, must not be `None`")  # noqa: E501
+
+        self._suspension_id = suspension_id
+
+    @property
     def worker_profile(self):
         """Gets the worker_profile of this ResumeRunRequest.  # noqa: E501
 
@@ -183,29 +206,6 @@ class ResumeRunRequest(object):
         """
 
         self._worker_profile = worker_profile
-
-    @property
-    def metadata(self):
-        """Gets the metadata of this ResumeRunRequest.  # noqa: E501
-
-        Optional caller-defined metadata for the child run.  # noqa: E501
-
-        :return: The metadata of this ResumeRunRequest.  # noqa: E501
-        :rtype: object
-        """
-        return self._metadata
-
-    @metadata.setter
-    def metadata(self, metadata):
-        """Sets the metadata of this ResumeRunRequest.
-
-        Optional caller-defined metadata for the child run.  # noqa: E501
-
-        :param metadata: The metadata of this ResumeRunRequest.  # noqa: E501
-        :type: object
-        """
-
-        self._metadata = metadata
 
     def to_dict(self):
         """Returns the model properties as a dict"""

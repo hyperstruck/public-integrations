@@ -29,31 +29,31 @@ class MCPConnectionConfig(object):
     """
     swagger_types = {
         'reconnect_attempts': 'object',
-        'reconnect_delay_ms': 'object',
         'reconnect_backoff_multiplier': 'object',
+        'reconnect_delay_ms': 'object',
         'reconnect_max_delay_ms': 'object'
     }
 
     attribute_map = {
         'reconnect_attempts': 'reconnect_attempts',
-        'reconnect_delay_ms': 'reconnect_delay_ms',
         'reconnect_backoff_multiplier': 'reconnect_backoff_multiplier',
+        'reconnect_delay_ms': 'reconnect_delay_ms',
         'reconnect_max_delay_ms': 'reconnect_max_delay_ms'
     }
 
-    def __init__(self, reconnect_attempts=None, reconnect_delay_ms=None, reconnect_backoff_multiplier=None, reconnect_max_delay_ms=None):  # noqa: E501
+    def __init__(self, reconnect_attempts=None, reconnect_backoff_multiplier=None, reconnect_delay_ms=None, reconnect_max_delay_ms=None):  # noqa: E501
         """MCPConnectionConfig - a model defined in Swagger"""  # noqa: E501
         self._reconnect_attempts = None
-        self._reconnect_delay_ms = None
         self._reconnect_backoff_multiplier = None
+        self._reconnect_delay_ms = None
         self._reconnect_max_delay_ms = None
         self.discriminator = None
         if reconnect_attempts is not None:
             self.reconnect_attempts = reconnect_attempts
-        if reconnect_delay_ms is not None:
-            self.reconnect_delay_ms = reconnect_delay_ms
         if reconnect_backoff_multiplier is not None:
             self.reconnect_backoff_multiplier = reconnect_backoff_multiplier
+        if reconnect_delay_ms is not None:
+            self.reconnect_delay_ms = reconnect_delay_ms
         if reconnect_max_delay_ms is not None:
             self.reconnect_max_delay_ms = reconnect_max_delay_ms
 
@@ -79,27 +79,6 @@ class MCPConnectionConfig(object):
         self._reconnect_attempts = reconnect_attempts
 
     @property
-    def reconnect_delay_ms(self):
-        """Gets the reconnect_delay_ms of this MCPConnectionConfig.  # noqa: E501
-
-
-        :return: The reconnect_delay_ms of this MCPConnectionConfig.  # noqa: E501
-        :rtype: object
-        """
-        return self._reconnect_delay_ms
-
-    @reconnect_delay_ms.setter
-    def reconnect_delay_ms(self, reconnect_delay_ms):
-        """Sets the reconnect_delay_ms of this MCPConnectionConfig.
-
-
-        :param reconnect_delay_ms: The reconnect_delay_ms of this MCPConnectionConfig.  # noqa: E501
-        :type: object
-        """
-
-        self._reconnect_delay_ms = reconnect_delay_ms
-
-    @property
     def reconnect_backoff_multiplier(self):
         """Gets the reconnect_backoff_multiplier of this MCPConnectionConfig.  # noqa: E501
 
@@ -119,6 +98,27 @@ class MCPConnectionConfig(object):
         """
 
         self._reconnect_backoff_multiplier = reconnect_backoff_multiplier
+
+    @property
+    def reconnect_delay_ms(self):
+        """Gets the reconnect_delay_ms of this MCPConnectionConfig.  # noqa: E501
+
+
+        :return: The reconnect_delay_ms of this MCPConnectionConfig.  # noqa: E501
+        :rtype: object
+        """
+        return self._reconnect_delay_ms
+
+    @reconnect_delay_ms.setter
+    def reconnect_delay_ms(self, reconnect_delay_ms):
+        """Sets the reconnect_delay_ms of this MCPConnectionConfig.
+
+
+        :param reconnect_delay_ms: The reconnect_delay_ms of this MCPConnectionConfig.  # noqa: E501
+        :type: object
+        """
+
+        self._reconnect_delay_ms = reconnect_delay_ms
 
     @property
     def reconnect_max_delay_ms(self):

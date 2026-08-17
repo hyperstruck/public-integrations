@@ -28,86 +28,38 @@ class ClaimAssistsResponse(object):
                             and the value is json key in definition.
     """
     swagger_types = {
-        'tenant_id': 'object',
-        'window_hours': 'object',
         'applied': 'object',
-        'misled': 'object',
         'assisted_runs': 'object',
-        'total_runs': 'object'
+        'misled': 'object',
+        'tenant_id': 'object',
+        'total_runs': 'object',
+        'window_hours': 'object'
     }
 
     attribute_map = {
-        'tenant_id': 'tenant_id',
-        'window_hours': 'window_hours',
         'applied': 'applied',
-        'misled': 'misled',
         'assisted_runs': 'assisted_runs',
-        'total_runs': 'total_runs'
+        'misled': 'misled',
+        'tenant_id': 'tenant_id',
+        'total_runs': 'total_runs',
+        'window_hours': 'window_hours'
     }
 
-    def __init__(self, tenant_id=None, window_hours=None, applied=None, misled=None, assisted_runs=None, total_runs=None):  # noqa: E501
+    def __init__(self, applied=None, assisted_runs=None, misled=None, tenant_id=None, total_runs=None, window_hours=None):  # noqa: E501
         """ClaimAssistsResponse - a model defined in Swagger"""  # noqa: E501
-        self._tenant_id = None
-        self._window_hours = None
         self._applied = None
-        self._misled = None
         self._assisted_runs = None
+        self._misled = None
+        self._tenant_id = None
         self._total_runs = None
+        self._window_hours = None
         self.discriminator = None
-        self.tenant_id = tenant_id
-        self.window_hours = window_hours
         self.applied = applied
-        self.misled = misled
         self.assisted_runs = assisted_runs
+        self.misled = misled
+        self.tenant_id = tenant_id
         self.total_runs = total_runs
-
-    @property
-    def tenant_id(self):
-        """Gets the tenant_id of this ClaimAssistsResponse.  # noqa: E501
-
-
-        :return: The tenant_id of this ClaimAssistsResponse.  # noqa: E501
-        :rtype: object
-        """
-        return self._tenant_id
-
-    @tenant_id.setter
-    def tenant_id(self, tenant_id):
-        """Sets the tenant_id of this ClaimAssistsResponse.
-
-
-        :param tenant_id: The tenant_id of this ClaimAssistsResponse.  # noqa: E501
-        :type: object
-        """
-        if tenant_id is None:
-            raise ValueError("Invalid value for `tenant_id`, must not be `None`")  # noqa: E501
-
-        self._tenant_id = tenant_id
-
-    @property
-    def window_hours(self):
-        """Gets the window_hours of this ClaimAssistsResponse.  # noqa: E501
-
-        The recent window aggregated over.  # noqa: E501
-
-        :return: The window_hours of this ClaimAssistsResponse.  # noqa: E501
-        :rtype: object
-        """
-        return self._window_hours
-
-    @window_hours.setter
-    def window_hours(self, window_hours):
-        """Sets the window_hours of this ClaimAssistsResponse.
-
-        The recent window aggregated over.  # noqa: E501
-
-        :param window_hours: The window_hours of this ClaimAssistsResponse.  # noqa: E501
-        :type: object
-        """
-        if window_hours is None:
-            raise ValueError("Invalid value for `window_hours`, must not be `None`")  # noqa: E501
-
-        self._window_hours = window_hours
+        self.window_hours = window_hours
 
     @property
     def applied(self):
@@ -135,31 +87,6 @@ class ClaimAssistsResponse(object):
         self._applied = applied
 
     @property
-    def misled(self):
-        """Gets the misled of this ClaimAssistsResponse.  # noqa: E501
-
-        Bound claims proven wrong at execution.  # noqa: E501
-
-        :return: The misled of this ClaimAssistsResponse.  # noqa: E501
-        :rtype: object
-        """
-        return self._misled
-
-    @misled.setter
-    def misled(self, misled):
-        """Sets the misled of this ClaimAssistsResponse.
-
-        Bound claims proven wrong at execution.  # noqa: E501
-
-        :param misled: The misled of this ClaimAssistsResponse.  # noqa: E501
-        :type: object
-        """
-        if misled is None:
-            raise ValueError("Invalid value for `misled`, must not be `None`")  # noqa: E501
-
-        self._misled = misled
-
-    @property
     def assisted_runs(self):
         """Gets the assisted_runs of this ClaimAssistsResponse.  # noqa: E501
 
@@ -185,6 +112,54 @@ class ClaimAssistsResponse(object):
         self._assisted_runs = assisted_runs
 
     @property
+    def misled(self):
+        """Gets the misled of this ClaimAssistsResponse.  # noqa: E501
+
+        Bound claims proven wrong at execution.  # noqa: E501
+
+        :return: The misled of this ClaimAssistsResponse.  # noqa: E501
+        :rtype: object
+        """
+        return self._misled
+
+    @misled.setter
+    def misled(self, misled):
+        """Sets the misled of this ClaimAssistsResponse.
+
+        Bound claims proven wrong at execution.  # noqa: E501
+
+        :param misled: The misled of this ClaimAssistsResponse.  # noqa: E501
+        :type: object
+        """
+        if misled is None:
+            raise ValueError("Invalid value for `misled`, must not be `None`")  # noqa: E501
+
+        self._misled = misled
+
+    @property
+    def tenant_id(self):
+        """Gets the tenant_id of this ClaimAssistsResponse.  # noqa: E501
+
+
+        :return: The tenant_id of this ClaimAssistsResponse.  # noqa: E501
+        :rtype: object
+        """
+        return self._tenant_id
+
+    @tenant_id.setter
+    def tenant_id(self, tenant_id):
+        """Sets the tenant_id of this ClaimAssistsResponse.
+
+
+        :param tenant_id: The tenant_id of this ClaimAssistsResponse.  # noqa: E501
+        :type: object
+        """
+        if tenant_id is None:
+            raise ValueError("Invalid value for `tenant_id`, must not be `None`")  # noqa: E501
+
+        self._tenant_id = tenant_id
+
+    @property
     def total_runs(self):
         """Gets the total_runs of this ClaimAssistsResponse.  # noqa: E501
 
@@ -208,6 +183,31 @@ class ClaimAssistsResponse(object):
             raise ValueError("Invalid value for `total_runs`, must not be `None`")  # noqa: E501
 
         self._total_runs = total_runs
+
+    @property
+    def window_hours(self):
+        """Gets the window_hours of this ClaimAssistsResponse.  # noqa: E501
+
+        The recent window aggregated over.  # noqa: E501
+
+        :return: The window_hours of this ClaimAssistsResponse.  # noqa: E501
+        :rtype: object
+        """
+        return self._window_hours
+
+    @window_hours.setter
+    def window_hours(self, window_hours):
+        """Sets the window_hours of this ClaimAssistsResponse.
+
+        The recent window aggregated over.  # noqa: E501
+
+        :param window_hours: The window_hours of this ClaimAssistsResponse.  # noqa: E501
+        :type: object
+        """
+        if window_hours is None:
+            raise ValueError("Invalid value for `window_hours`, must not be `None`")  # noqa: E501
+
+        self._window_hours = window_hours
 
     def to_dict(self):
         """Returns the model properties as a dict"""

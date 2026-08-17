@@ -28,50 +28,48 @@ class IdentityUserModel(object):
                             and the value is json key in definition.
     """
     swagger_types = {
-        'id': 'object',
+        'display_name': 'object',
         'email': 'object',
-        'display_name': 'object'
+        'id': 'object'
     }
 
     attribute_map = {
-        'id': 'id',
+        'display_name': 'displayName',
         'email': 'email',
-        'display_name': 'displayName'
+        'id': 'id'
     }
 
-    def __init__(self, id=None, email=None, display_name=None):  # noqa: E501
+    def __init__(self, display_name=None, email=None, id=None):  # noqa: E501
         """IdentityUserModel - a model defined in Swagger"""  # noqa: E501
-        self._id = None
-        self._email = None
         self._display_name = None
+        self._email = None
+        self._id = None
         self.discriminator = None
-        self.id = id
-        self.email = email
         if display_name is not None:
             self.display_name = display_name
+        self.email = email
+        self.id = id
 
     @property
-    def id(self):
-        """Gets the id of this IdentityUserModel.  # noqa: E501
+    def display_name(self):
+        """Gets the display_name of this IdentityUserModel.  # noqa: E501
 
 
-        :return: The id of this IdentityUserModel.  # noqa: E501
+        :return: The display_name of this IdentityUserModel.  # noqa: E501
         :rtype: object
         """
-        return self._id
+        return self._display_name
 
-    @id.setter
-    def id(self, id):
-        """Sets the id of this IdentityUserModel.
+    @display_name.setter
+    def display_name(self, display_name):
+        """Sets the display_name of this IdentityUserModel.
 
 
-        :param id: The id of this IdentityUserModel.  # noqa: E501
+        :param display_name: The display_name of this IdentityUserModel.  # noqa: E501
         :type: object
         """
-        if id is None:
-            raise ValueError("Invalid value for `id`, must not be `None`")  # noqa: E501
 
-        self._id = id
+        self._display_name = display_name
 
     @property
     def email(self):
@@ -97,25 +95,27 @@ class IdentityUserModel(object):
         self._email = email
 
     @property
-    def display_name(self):
-        """Gets the display_name of this IdentityUserModel.  # noqa: E501
+    def id(self):
+        """Gets the id of this IdentityUserModel.  # noqa: E501
 
 
-        :return: The display_name of this IdentityUserModel.  # noqa: E501
+        :return: The id of this IdentityUserModel.  # noqa: E501
         :rtype: object
         """
-        return self._display_name
+        return self._id
 
-    @display_name.setter
-    def display_name(self, display_name):
-        """Sets the display_name of this IdentityUserModel.
+    @id.setter
+    def id(self, id):
+        """Sets the id of this IdentityUserModel.
 
 
-        :param display_name: The display_name of this IdentityUserModel.  # noqa: E501
+        :param id: The id of this IdentityUserModel.  # noqa: E501
         :type: object
         """
+        if id is None:
+            raise ValueError("Invalid value for `id`, must not be `None`")  # noqa: E501
 
-        self._display_name = display_name
+        self._id = id
 
     def to_dict(self):
         """Returns the model properties as a dict"""

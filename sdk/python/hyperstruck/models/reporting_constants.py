@@ -28,122 +28,80 @@ class ReportingConstants(object):
                             and the value is json key in definition.
     """
     swagger_types = {
-        'minutes_per_retrieval': 'object',
-        'minutes_per_application': 'object',
-        'minutes_per_learning_saved': 'object',
+        'hourly_rate_usd': 'object',
         'minutes_correct_assist': 'object',
-        'minutes_rework_per_mislead': 'object',
+        'minutes_per_application': 'object',
         'minutes_per_assisted_run': 'object',
+        'minutes_per_learning_saved': 'object',
+        'minutes_per_retrieval': 'object',
+        'minutes_rework_per_mislead': 'object',
         'minutes_to_relearn': 'object',
-        'usd_per_utility_weighted_help': 'object',
-        'hourly_rate_usd': 'object'
+        'usd_per_utility_weighted_help': 'object'
     }
 
     attribute_map = {
-        'minutes_per_retrieval': 'minutes_per_retrieval',
-        'minutes_per_application': 'minutes_per_application',
-        'minutes_per_learning_saved': 'minutes_per_learning_saved',
+        'hourly_rate_usd': 'hourly_rate_usd',
         'minutes_correct_assist': 'minutes_correct_assist',
-        'minutes_rework_per_mislead': 'minutes_rework_per_mislead',
+        'minutes_per_application': 'minutes_per_application',
         'minutes_per_assisted_run': 'minutes_per_assisted_run',
+        'minutes_per_learning_saved': 'minutes_per_learning_saved',
+        'minutes_per_retrieval': 'minutes_per_retrieval',
+        'minutes_rework_per_mislead': 'minutes_rework_per_mislead',
         'minutes_to_relearn': 'minutes_to_relearn',
-        'usd_per_utility_weighted_help': 'usd_per_utility_weighted_help',
-        'hourly_rate_usd': 'hourly_rate_usd'
+        'usd_per_utility_weighted_help': 'usd_per_utility_weighted_help'
     }
 
-    def __init__(self, minutes_per_retrieval=None, minutes_per_application=None, minutes_per_learning_saved=None, minutes_correct_assist=None, minutes_rework_per_mislead=None, minutes_per_assisted_run=None, minutes_to_relearn=None, usd_per_utility_weighted_help=None, hourly_rate_usd=None):  # noqa: E501
+    def __init__(self, hourly_rate_usd=None, minutes_correct_assist=None, minutes_per_application=None, minutes_per_assisted_run=None, minutes_per_learning_saved=None, minutes_per_retrieval=None, minutes_rework_per_mislead=None, minutes_to_relearn=None, usd_per_utility_weighted_help=None):  # noqa: E501
         """ReportingConstants - a model defined in Swagger"""  # noqa: E501
-        self._minutes_per_retrieval = None
-        self._minutes_per_application = None
-        self._minutes_per_learning_saved = None
+        self._hourly_rate_usd = None
         self._minutes_correct_assist = None
-        self._minutes_rework_per_mislead = None
+        self._minutes_per_application = None
         self._minutes_per_assisted_run = None
+        self._minutes_per_learning_saved = None
+        self._minutes_per_retrieval = None
+        self._minutes_rework_per_mislead = None
         self._minutes_to_relearn = None
         self._usd_per_utility_weighted_help = None
-        self._hourly_rate_usd = None
         self.discriminator = None
-        if minutes_per_retrieval is not None:
-            self.minutes_per_retrieval = minutes_per_retrieval
-        if minutes_per_application is not None:
-            self.minutes_per_application = minutes_per_application
-        if minutes_per_learning_saved is not None:
-            self.minutes_per_learning_saved = minutes_per_learning_saved
+        if hourly_rate_usd is not None:
+            self.hourly_rate_usd = hourly_rate_usd
         if minutes_correct_assist is not None:
             self.minutes_correct_assist = minutes_correct_assist
-        if minutes_rework_per_mislead is not None:
-            self.minutes_rework_per_mislead = minutes_rework_per_mislead
+        if minutes_per_application is not None:
+            self.minutes_per_application = minutes_per_application
         if minutes_per_assisted_run is not None:
             self.minutes_per_assisted_run = minutes_per_assisted_run
+        if minutes_per_learning_saved is not None:
+            self.minutes_per_learning_saved = minutes_per_learning_saved
+        if minutes_per_retrieval is not None:
+            self.minutes_per_retrieval = minutes_per_retrieval
+        if minutes_rework_per_mislead is not None:
+            self.minutes_rework_per_mislead = minutes_rework_per_mislead
         if minutes_to_relearn is not None:
             self.minutes_to_relearn = minutes_to_relearn
         if usd_per_utility_weighted_help is not None:
             self.usd_per_utility_weighted_help = usd_per_utility_weighted_help
-        if hourly_rate_usd is not None:
-            self.hourly_rate_usd = hourly_rate_usd
 
     @property
-    def minutes_per_retrieval(self):
-        """Gets the minutes_per_retrieval of this ReportingConstants.  # noqa: E501
+    def hourly_rate_usd(self):
+        """Gets the hourly_rate_usd of this ReportingConstants.  # noqa: E501
 
 
-        :return: The minutes_per_retrieval of this ReportingConstants.  # noqa: E501
+        :return: The hourly_rate_usd of this ReportingConstants.  # noqa: E501
         :rtype: object
         """
-        return self._minutes_per_retrieval
+        return self._hourly_rate_usd
 
-    @minutes_per_retrieval.setter
-    def minutes_per_retrieval(self, minutes_per_retrieval):
-        """Sets the minutes_per_retrieval of this ReportingConstants.
+    @hourly_rate_usd.setter
+    def hourly_rate_usd(self, hourly_rate_usd):
+        """Sets the hourly_rate_usd of this ReportingConstants.
 
 
-        :param minutes_per_retrieval: The minutes_per_retrieval of this ReportingConstants.  # noqa: E501
+        :param hourly_rate_usd: The hourly_rate_usd of this ReportingConstants.  # noqa: E501
         :type: object
         """
 
-        self._minutes_per_retrieval = minutes_per_retrieval
-
-    @property
-    def minutes_per_application(self):
-        """Gets the minutes_per_application of this ReportingConstants.  # noqa: E501
-
-
-        :return: The minutes_per_application of this ReportingConstants.  # noqa: E501
-        :rtype: object
-        """
-        return self._minutes_per_application
-
-    @minutes_per_application.setter
-    def minutes_per_application(self, minutes_per_application):
-        """Sets the minutes_per_application of this ReportingConstants.
-
-
-        :param minutes_per_application: The minutes_per_application of this ReportingConstants.  # noqa: E501
-        :type: object
-        """
-
-        self._minutes_per_application = minutes_per_application
-
-    @property
-    def minutes_per_learning_saved(self):
-        """Gets the minutes_per_learning_saved of this ReportingConstants.  # noqa: E501
-
-
-        :return: The minutes_per_learning_saved of this ReportingConstants.  # noqa: E501
-        :rtype: object
-        """
-        return self._minutes_per_learning_saved
-
-    @minutes_per_learning_saved.setter
-    def minutes_per_learning_saved(self, minutes_per_learning_saved):
-        """Sets the minutes_per_learning_saved of this ReportingConstants.
-
-
-        :param minutes_per_learning_saved: The minutes_per_learning_saved of this ReportingConstants.  # noqa: E501
-        :type: object
-        """
-
-        self._minutes_per_learning_saved = minutes_per_learning_saved
+        self._hourly_rate_usd = hourly_rate_usd
 
     @property
     def minutes_correct_assist(self):
@@ -167,25 +125,25 @@ class ReportingConstants(object):
         self._minutes_correct_assist = minutes_correct_assist
 
     @property
-    def minutes_rework_per_mislead(self):
-        """Gets the minutes_rework_per_mislead of this ReportingConstants.  # noqa: E501
+    def minutes_per_application(self):
+        """Gets the minutes_per_application of this ReportingConstants.  # noqa: E501
 
 
-        :return: The minutes_rework_per_mislead of this ReportingConstants.  # noqa: E501
+        :return: The minutes_per_application of this ReportingConstants.  # noqa: E501
         :rtype: object
         """
-        return self._minutes_rework_per_mislead
+        return self._minutes_per_application
 
-    @minutes_rework_per_mislead.setter
-    def minutes_rework_per_mislead(self, minutes_rework_per_mislead):
-        """Sets the minutes_rework_per_mislead of this ReportingConstants.
+    @minutes_per_application.setter
+    def minutes_per_application(self, minutes_per_application):
+        """Sets the minutes_per_application of this ReportingConstants.
 
 
-        :param minutes_rework_per_mislead: The minutes_rework_per_mislead of this ReportingConstants.  # noqa: E501
+        :param minutes_per_application: The minutes_per_application of this ReportingConstants.  # noqa: E501
         :type: object
         """
 
-        self._minutes_rework_per_mislead = minutes_rework_per_mislead
+        self._minutes_per_application = minutes_per_application
 
     @property
     def minutes_per_assisted_run(self):
@@ -207,6 +165,69 @@ class ReportingConstants(object):
         """
 
         self._minutes_per_assisted_run = minutes_per_assisted_run
+
+    @property
+    def minutes_per_learning_saved(self):
+        """Gets the minutes_per_learning_saved of this ReportingConstants.  # noqa: E501
+
+
+        :return: The minutes_per_learning_saved of this ReportingConstants.  # noqa: E501
+        :rtype: object
+        """
+        return self._minutes_per_learning_saved
+
+    @minutes_per_learning_saved.setter
+    def minutes_per_learning_saved(self, minutes_per_learning_saved):
+        """Sets the minutes_per_learning_saved of this ReportingConstants.
+
+
+        :param minutes_per_learning_saved: The minutes_per_learning_saved of this ReportingConstants.  # noqa: E501
+        :type: object
+        """
+
+        self._minutes_per_learning_saved = minutes_per_learning_saved
+
+    @property
+    def minutes_per_retrieval(self):
+        """Gets the minutes_per_retrieval of this ReportingConstants.  # noqa: E501
+
+
+        :return: The minutes_per_retrieval of this ReportingConstants.  # noqa: E501
+        :rtype: object
+        """
+        return self._minutes_per_retrieval
+
+    @minutes_per_retrieval.setter
+    def minutes_per_retrieval(self, minutes_per_retrieval):
+        """Sets the minutes_per_retrieval of this ReportingConstants.
+
+
+        :param minutes_per_retrieval: The minutes_per_retrieval of this ReportingConstants.  # noqa: E501
+        :type: object
+        """
+
+        self._minutes_per_retrieval = minutes_per_retrieval
+
+    @property
+    def minutes_rework_per_mislead(self):
+        """Gets the minutes_rework_per_mislead of this ReportingConstants.  # noqa: E501
+
+
+        :return: The minutes_rework_per_mislead of this ReportingConstants.  # noqa: E501
+        :rtype: object
+        """
+        return self._minutes_rework_per_mislead
+
+    @minutes_rework_per_mislead.setter
+    def minutes_rework_per_mislead(self, minutes_rework_per_mislead):
+        """Sets the minutes_rework_per_mislead of this ReportingConstants.
+
+
+        :param minutes_rework_per_mislead: The minutes_rework_per_mislead of this ReportingConstants.  # noqa: E501
+        :type: object
+        """
+
+        self._minutes_rework_per_mislead = minutes_rework_per_mislead
 
     @property
     def minutes_to_relearn(self):
@@ -249,27 +270,6 @@ class ReportingConstants(object):
         """
 
         self._usd_per_utility_weighted_help = usd_per_utility_weighted_help
-
-    @property
-    def hourly_rate_usd(self):
-        """Gets the hourly_rate_usd of this ReportingConstants.  # noqa: E501
-
-
-        :return: The hourly_rate_usd of this ReportingConstants.  # noqa: E501
-        :rtype: object
-        """
-        return self._hourly_rate_usd
-
-    @hourly_rate_usd.setter
-    def hourly_rate_usd(self, hourly_rate_usd):
-        """Sets the hourly_rate_usd of this ReportingConstants.
-
-
-        :param hourly_rate_usd: The hourly_rate_usd of this ReportingConstants.  # noqa: E501
-        :type: object
-        """
-
-        self._hourly_rate_usd = hourly_rate_usd
 
     def to_dict(self):
         """Returns the model properties as a dict"""

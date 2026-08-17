@@ -28,31 +28,52 @@ class TenantModel(object):
                             and the value is json key in definition.
     """
     swagger_types = {
+        'compliance_guardrails_addon': 'object',
         'id': 'object',
         'name': 'object',
-        'plan': 'object',
-        'compliance_guardrails_addon': 'object'
+        'plan': 'object'
     }
 
     attribute_map = {
+        'compliance_guardrails_addon': 'complianceGuardrailsAddon',
         'id': 'id',
         'name': 'name',
-        'plan': 'plan',
-        'compliance_guardrails_addon': 'complianceGuardrailsAddon'
+        'plan': 'plan'
     }
 
-    def __init__(self, id=None, name=None, plan=None, compliance_guardrails_addon=None):  # noqa: E501
+    def __init__(self, compliance_guardrails_addon=None, id=None, name=None, plan=None):  # noqa: E501
         """TenantModel - a model defined in Swagger"""  # noqa: E501
+        self._compliance_guardrails_addon = None
         self._id = None
         self._name = None
         self._plan = None
-        self._compliance_guardrails_addon = None
         self.discriminator = None
+        if compliance_guardrails_addon is not None:
+            self.compliance_guardrails_addon = compliance_guardrails_addon
         self.id = id
         self.name = name
         self.plan = plan
-        if compliance_guardrails_addon is not None:
-            self.compliance_guardrails_addon = compliance_guardrails_addon
+
+    @property
+    def compliance_guardrails_addon(self):
+        """Gets the compliance_guardrails_addon of this TenantModel.  # noqa: E501
+
+
+        :return: The compliance_guardrails_addon of this TenantModel.  # noqa: E501
+        :rtype: object
+        """
+        return self._compliance_guardrails_addon
+
+    @compliance_guardrails_addon.setter
+    def compliance_guardrails_addon(self, compliance_guardrails_addon):
+        """Sets the compliance_guardrails_addon of this TenantModel.
+
+
+        :param compliance_guardrails_addon: The compliance_guardrails_addon of this TenantModel.  # noqa: E501
+        :type: object
+        """
+
+        self._compliance_guardrails_addon = compliance_guardrails_addon
 
     @property
     def id(self):
@@ -122,27 +143,6 @@ class TenantModel(object):
             raise ValueError("Invalid value for `plan`, must not be `None`")  # noqa: E501
 
         self._plan = plan
-
-    @property
-    def compliance_guardrails_addon(self):
-        """Gets the compliance_guardrails_addon of this TenantModel.  # noqa: E501
-
-
-        :return: The compliance_guardrails_addon of this TenantModel.  # noqa: E501
-        :rtype: object
-        """
-        return self._compliance_guardrails_addon
-
-    @compliance_guardrails_addon.setter
-    def compliance_guardrails_addon(self, compliance_guardrails_addon):
-        """Sets the compliance_guardrails_addon of this TenantModel.
-
-
-        :param compliance_guardrails_addon: The compliance_guardrails_addon of this TenantModel.  # noqa: E501
-        :type: object
-        """
-
-        self._compliance_guardrails_addon = compliance_guardrails_addon
 
     def to_dict(self):
         """Returns the model properties as a dict"""

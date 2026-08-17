@@ -28,164 +28,49 @@ class SpaceResponse(object):
                             and the value is json key in definition.
     """
     swagger_types = {
-        'id': 'object',
-        'name': 'object',
-        'kind': 'SpaceKind',
-        'department_id': 'object',
-        'owner_identity_user_id': 'object',
         'agent_count': 'object',
         'caller_is_steward': 'object',
-        'created_at': 'object'
+        'created_at': 'object',
+        'department_id': 'object',
+        'id': 'object',
+        'kind': 'SpaceKind',
+        'name': 'object',
+        'owner_identity_user_id': 'object'
     }
 
     attribute_map = {
-        'id': 'id',
-        'name': 'name',
-        'kind': 'kind',
-        'department_id': 'department_id',
-        'owner_identity_user_id': 'owner_identity_user_id',
         'agent_count': 'agent_count',
         'caller_is_steward': 'caller_is_steward',
-        'created_at': 'created_at'
+        'created_at': 'created_at',
+        'department_id': 'department_id',
+        'id': 'id',
+        'kind': 'kind',
+        'name': 'name',
+        'owner_identity_user_id': 'owner_identity_user_id'
     }
 
-    def __init__(self, id=None, name=None, kind=None, department_id=None, owner_identity_user_id=None, agent_count=None, caller_is_steward=None, created_at=None):  # noqa: E501
+    def __init__(self, agent_count=None, caller_is_steward=None, created_at=None, department_id=None, id=None, kind=None, name=None, owner_identity_user_id=None):  # noqa: E501
         """SpaceResponse - a model defined in Swagger"""  # noqa: E501
-        self._id = None
-        self._name = None
-        self._kind = None
-        self._department_id = None
-        self._owner_identity_user_id = None
         self._agent_count = None
         self._caller_is_steward = None
         self._created_at = None
+        self._department_id = None
+        self._id = None
+        self._kind = None
+        self._name = None
+        self._owner_identity_user_id = None
         self.discriminator = None
-        self.id = id
-        self.name = name
-        self.kind = kind
-        if department_id is not None:
-            self.department_id = department_id
-        if owner_identity_user_id is not None:
-            self.owner_identity_user_id = owner_identity_user_id
         self.agent_count = agent_count
         if caller_is_steward is not None:
             self.caller_is_steward = caller_is_steward
         self.created_at = created_at
-
-    @property
-    def id(self):
-        """Gets the id of this SpaceResponse.  # noqa: E501
-
-
-        :return: The id of this SpaceResponse.  # noqa: E501
-        :rtype: object
-        """
-        return self._id
-
-    @id.setter
-    def id(self, id):
-        """Sets the id of this SpaceResponse.
-
-
-        :param id: The id of this SpaceResponse.  # noqa: E501
-        :type: object
-        """
-        if id is None:
-            raise ValueError("Invalid value for `id`, must not be `None`")  # noqa: E501
-
-        self._id = id
-
-    @property
-    def name(self):
-        """Gets the name of this SpaceResponse.  # noqa: E501
-
-
-        :return: The name of this SpaceResponse.  # noqa: E501
-        :rtype: object
-        """
-        return self._name
-
-    @name.setter
-    def name(self, name):
-        """Sets the name of this SpaceResponse.
-
-
-        :param name: The name of this SpaceResponse.  # noqa: E501
-        :type: object
-        """
-        if name is None:
-            raise ValueError("Invalid value for `name`, must not be `None`")  # noqa: E501
-
-        self._name = name
-
-    @property
-    def kind(self):
-        """Gets the kind of this SpaceResponse.  # noqa: E501
-
-
-        :return: The kind of this SpaceResponse.  # noqa: E501
-        :rtype: SpaceKind
-        """
-        return self._kind
-
-    @kind.setter
-    def kind(self, kind):
-        """Sets the kind of this SpaceResponse.
-
-
-        :param kind: The kind of this SpaceResponse.  # noqa: E501
-        :type: SpaceKind
-        """
-        if kind is None:
-            raise ValueError("Invalid value for `kind`, must not be `None`")  # noqa: E501
-
-        self._kind = kind
-
-    @property
-    def department_id(self):
-        """Gets the department_id of this SpaceResponse.  # noqa: E501
-
-        WorkOS directory group id; set iff kind == 'department'.  # noqa: E501
-
-        :return: The department_id of this SpaceResponse.  # noqa: E501
-        :rtype: object
-        """
-        return self._department_id
-
-    @department_id.setter
-    def department_id(self, department_id):
-        """Sets the department_id of this SpaceResponse.
-
-        WorkOS directory group id; set iff kind == 'department'.  # noqa: E501
-
-        :param department_id: The department_id of this SpaceResponse.  # noqa: E501
-        :type: object
-        """
-
-        self._department_id = department_id
-
-    @property
-    def owner_identity_user_id(self):
-        """Gets the owner_identity_user_id of this SpaceResponse.  # noqa: E501
-
-        Steward identity user id; set iff kind == 'personal'.  # noqa: E501
-
-        :return: The owner_identity_user_id of this SpaceResponse.  # noqa: E501
-        :rtype: object
-        """
-        return self._owner_identity_user_id
-
-    @owner_identity_user_id.setter
-    def owner_identity_user_id(self, owner_identity_user_id):
-        """Sets the owner_identity_user_id of this SpaceResponse.
-
-        Steward identity user id; set iff kind == 'personal'.  # noqa: E501
-
-        :param owner_identity_user_id: The owner_identity_user_id of this SpaceResponse.  # noqa: E501
-        :type: object
-        """
-
-        self._owner_identity_user_id = owner_identity_user_id
+        if department_id is not None:
+            self.department_id = department_id
+        self.id = id
+        self.kind = kind
+        self.name = name
+        if owner_identity_user_id is not None:
+            self.owner_identity_user_id = owner_identity_user_id
 
     @property
     def agent_count(self):
@@ -257,6 +142,121 @@ class SpaceResponse(object):
             raise ValueError("Invalid value for `created_at`, must not be `None`")  # noqa: E501
 
         self._created_at = created_at
+
+    @property
+    def department_id(self):
+        """Gets the department_id of this SpaceResponse.  # noqa: E501
+
+        WorkOS directory group id; set iff kind == 'department'.  # noqa: E501
+
+        :return: The department_id of this SpaceResponse.  # noqa: E501
+        :rtype: object
+        """
+        return self._department_id
+
+    @department_id.setter
+    def department_id(self, department_id):
+        """Sets the department_id of this SpaceResponse.
+
+        WorkOS directory group id; set iff kind == 'department'.  # noqa: E501
+
+        :param department_id: The department_id of this SpaceResponse.  # noqa: E501
+        :type: object
+        """
+
+        self._department_id = department_id
+
+    @property
+    def id(self):
+        """Gets the id of this SpaceResponse.  # noqa: E501
+
+
+        :return: The id of this SpaceResponse.  # noqa: E501
+        :rtype: object
+        """
+        return self._id
+
+    @id.setter
+    def id(self, id):
+        """Sets the id of this SpaceResponse.
+
+
+        :param id: The id of this SpaceResponse.  # noqa: E501
+        :type: object
+        """
+        if id is None:
+            raise ValueError("Invalid value for `id`, must not be `None`")  # noqa: E501
+
+        self._id = id
+
+    @property
+    def kind(self):
+        """Gets the kind of this SpaceResponse.  # noqa: E501
+
+
+        :return: The kind of this SpaceResponse.  # noqa: E501
+        :rtype: SpaceKind
+        """
+        return self._kind
+
+    @kind.setter
+    def kind(self, kind):
+        """Sets the kind of this SpaceResponse.
+
+
+        :param kind: The kind of this SpaceResponse.  # noqa: E501
+        :type: SpaceKind
+        """
+        if kind is None:
+            raise ValueError("Invalid value for `kind`, must not be `None`")  # noqa: E501
+
+        self._kind = kind
+
+    @property
+    def name(self):
+        """Gets the name of this SpaceResponse.  # noqa: E501
+
+
+        :return: The name of this SpaceResponse.  # noqa: E501
+        :rtype: object
+        """
+        return self._name
+
+    @name.setter
+    def name(self, name):
+        """Sets the name of this SpaceResponse.
+
+
+        :param name: The name of this SpaceResponse.  # noqa: E501
+        :type: object
+        """
+        if name is None:
+            raise ValueError("Invalid value for `name`, must not be `None`")  # noqa: E501
+
+        self._name = name
+
+    @property
+    def owner_identity_user_id(self):
+        """Gets the owner_identity_user_id of this SpaceResponse.  # noqa: E501
+
+        Steward identity user id; set iff kind == 'personal'.  # noqa: E501
+
+        :return: The owner_identity_user_id of this SpaceResponse.  # noqa: E501
+        :rtype: object
+        """
+        return self._owner_identity_user_id
+
+    @owner_identity_user_id.setter
+    def owner_identity_user_id(self, owner_identity_user_id):
+        """Sets the owner_identity_user_id of this SpaceResponse.
+
+        Steward identity user id; set iff kind == 'personal'.  # noqa: E501
+
+        :param owner_identity_user_id: The owner_identity_user_id of this SpaceResponse.  # noqa: E501
+        :type: object
+        """
+
+        self._owner_identity_user_id = owner_identity_user_id
 
     def to_dict(self):
         """Returns the model properties as a dict"""

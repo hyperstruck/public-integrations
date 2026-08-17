@@ -28,23 +28,44 @@ class QueryMeasure(object):
                             and the value is json key in definition.
     """
     swagger_types = {
-        'field': 'object',
-        'agg': 'object'
+        'agg': 'object',
+        'field': 'object'
     }
 
     attribute_map = {
-        'field': 'field',
-        'agg': 'agg'
+        'agg': 'agg',
+        'field': 'field'
     }
 
-    def __init__(self, field=None, agg=None):  # noqa: E501
+    def __init__(self, agg=None, field=None):  # noqa: E501
         """QueryMeasure - a model defined in Swagger"""  # noqa: E501
-        self._field = None
         self._agg = None
+        self._field = None
         self.discriminator = None
-        self.field = field
         if agg is not None:
             self.agg = agg
+        self.field = field
+
+    @property
+    def agg(self):
+        """Gets the agg of this QueryMeasure.  # noqa: E501
+
+
+        :return: The agg of this QueryMeasure.  # noqa: E501
+        :rtype: object
+        """
+        return self._agg
+
+    @agg.setter
+    def agg(self, agg):
+        """Sets the agg of this QueryMeasure.
+
+
+        :param agg: The agg of this QueryMeasure.  # noqa: E501
+        :type: object
+        """
+
+        self._agg = agg
 
     @property
     def field(self):
@@ -68,27 +89,6 @@ class QueryMeasure(object):
             raise ValueError("Invalid value for `field`, must not be `None`")  # noqa: E501
 
         self._field = field
-
-    @property
-    def agg(self):
-        """Gets the agg of this QueryMeasure.  # noqa: E501
-
-
-        :return: The agg of this QueryMeasure.  # noqa: E501
-        :rtype: object
-        """
-        return self._agg
-
-    @agg.setter
-    def agg(self, agg):
-        """Sets the agg of this QueryMeasure.
-
-
-        :param agg: The agg of this QueryMeasure.  # noqa: E501
-        :type: object
-        """
-
-        self._agg = agg
 
     def to_dict(self):
         """Returns the model properties as a dict"""

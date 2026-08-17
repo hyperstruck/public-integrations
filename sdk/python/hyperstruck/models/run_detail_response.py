@@ -28,90 +28,272 @@ class RunDetailResponse(object):
                             and the value is json key in definition.
     """
     swagger_types = {
-        'id': 'object',
         'agent_id': 'object',
-        'session_id': 'object',
-        'parent_run_id': 'object',
-        'run_type': 'RunType',
-        'status': 'RunStatus',
-        'goal': 'object',
-        'worker_profile': 'object',
-        'started_at': 'object',
-        'ended_at': 'object',
         'compute_seconds': 'object',
+        'created_at': 'object',
+        'ended_at': 'object',
+        'error': 'object',
         'estimated_compute_cost_usd': 'object',
         'estimated_total_cost_usd': 'object',
-        'error': 'object',
-        'metadata': 'object',
-        'created_at': 'object',
+        'goal': 'object',
+        'id': 'object',
         'input': 'RunInputSummary',
-        'output': 'RunOutputSummary'
+        'metadata': 'object',
+        'output': 'RunOutputSummary',
+        'parent_run_id': 'object',
+        'run_type': 'RunType',
+        'session_id': 'object',
+        'started_at': 'object',
+        'status': 'RunStatus',
+        'worker_profile': 'object'
     }
 
     attribute_map = {
-        'id': 'id',
         'agent_id': 'agent_id',
-        'session_id': 'session_id',
-        'parent_run_id': 'parent_run_id',
-        'run_type': 'run_type',
-        'status': 'status',
-        'goal': 'goal',
-        'worker_profile': 'worker_profile',
-        'started_at': 'started_at',
-        'ended_at': 'ended_at',
         'compute_seconds': 'compute_seconds',
+        'created_at': 'created_at',
+        'ended_at': 'ended_at',
+        'error': 'error',
         'estimated_compute_cost_usd': 'estimated_compute_cost_usd',
         'estimated_total_cost_usd': 'estimated_total_cost_usd',
-        'error': 'error',
-        'metadata': 'metadata',
-        'created_at': 'created_at',
+        'goal': 'goal',
+        'id': 'id',
         'input': 'input',
-        'output': 'output'
+        'metadata': 'metadata',
+        'output': 'output',
+        'parent_run_id': 'parent_run_id',
+        'run_type': 'run_type',
+        'session_id': 'session_id',
+        'started_at': 'started_at',
+        'status': 'status',
+        'worker_profile': 'worker_profile'
     }
 
-    def __init__(self, id=None, agent_id=None, session_id=None, parent_run_id=None, run_type=None, status=None, goal=None, worker_profile=None, started_at=None, ended_at=None, compute_seconds=None, estimated_compute_cost_usd=None, estimated_total_cost_usd=None, error=None, metadata=None, created_at=None, input=None, output=None):  # noqa: E501
+    def __init__(self, agent_id=None, compute_seconds=None, created_at=None, ended_at=None, error=None, estimated_compute_cost_usd=None, estimated_total_cost_usd=None, goal=None, id=None, input=None, metadata=None, output=None, parent_run_id=None, run_type=None, session_id=None, started_at=None, status=None, worker_profile=None):  # noqa: E501
         """RunDetailResponse - a model defined in Swagger"""  # noqa: E501
-        self._id = None
         self._agent_id = None
-        self._session_id = None
-        self._parent_run_id = None
-        self._run_type = None
-        self._status = None
-        self._goal = None
-        self._worker_profile = None
-        self._started_at = None
-        self._ended_at = None
         self._compute_seconds = None
+        self._created_at = None
+        self._ended_at = None
+        self._error = None
         self._estimated_compute_cost_usd = None
         self._estimated_total_cost_usd = None
-        self._error = None
-        self._metadata = None
-        self._created_at = None
+        self._goal = None
+        self._id = None
         self._input = None
+        self._metadata = None
         self._output = None
+        self._parent_run_id = None
+        self._run_type = None
+        self._session_id = None
+        self._started_at = None
+        self._status = None
+        self._worker_profile = None
         self.discriminator = None
-        self.id = id
         if agent_id is not None:
             self.agent_id = agent_id
-        self.session_id = session_id
-        if parent_run_id is not None:
-            self.parent_run_id = parent_run_id
-        self.run_type = run_type
-        self.status = status
-        self.goal = goal
-        self.worker_profile = worker_profile
-        self.started_at = started_at
-        self.ended_at = ended_at
         self.compute_seconds = compute_seconds
+        self.created_at = created_at
+        self.ended_at = ended_at
+        self.error = error
         self.estimated_compute_cost_usd = estimated_compute_cost_usd
         if estimated_total_cost_usd is not None:
             self.estimated_total_cost_usd = estimated_total_cost_usd
-        self.error = error
+        self.goal = goal
+        self.id = id
+        self.input = input
         if metadata is not None:
             self.metadata = metadata
-        self.created_at = created_at
-        self.input = input
         self.output = output
+        if parent_run_id is not None:
+            self.parent_run_id = parent_run_id
+        self.run_type = run_type
+        self.session_id = session_id
+        self.started_at = started_at
+        self.status = status
+        self.worker_profile = worker_profile
+
+    @property
+    def agent_id(self):
+        """Gets the agent_id of this RunDetailResponse.  # noqa: E501
+
+        Hosted agent UUID associated with this run.  # noqa: E501
+
+        :return: The agent_id of this RunDetailResponse.  # noqa: E501
+        :rtype: object
+        """
+        return self._agent_id
+
+    @agent_id.setter
+    def agent_id(self, agent_id):
+        """Sets the agent_id of this RunDetailResponse.
+
+        Hosted agent UUID associated with this run.  # noqa: E501
+
+        :param agent_id: The agent_id of this RunDetailResponse.  # noqa: E501
+        :type: object
+        """
+
+        self._agent_id = agent_id
+
+    @property
+    def compute_seconds(self):
+        """Gets the compute_seconds of this RunDetailResponse.  # noqa: E501
+
+
+        :return: The compute_seconds of this RunDetailResponse.  # noqa: E501
+        :rtype: object
+        """
+        return self._compute_seconds
+
+    @compute_seconds.setter
+    def compute_seconds(self, compute_seconds):
+        """Sets the compute_seconds of this RunDetailResponse.
+
+
+        :param compute_seconds: The compute_seconds of this RunDetailResponse.  # noqa: E501
+        :type: object
+        """
+        if compute_seconds is None:
+            raise ValueError("Invalid value for `compute_seconds`, must not be `None`")  # noqa: E501
+
+        self._compute_seconds = compute_seconds
+
+    @property
+    def created_at(self):
+        """Gets the created_at of this RunDetailResponse.  # noqa: E501
+
+
+        :return: The created_at of this RunDetailResponse.  # noqa: E501
+        :rtype: object
+        """
+        return self._created_at
+
+    @created_at.setter
+    def created_at(self, created_at):
+        """Sets the created_at of this RunDetailResponse.
+
+
+        :param created_at: The created_at of this RunDetailResponse.  # noqa: E501
+        :type: object
+        """
+        if created_at is None:
+            raise ValueError("Invalid value for `created_at`, must not be `None`")  # noqa: E501
+
+        self._created_at = created_at
+
+    @property
+    def ended_at(self):
+        """Gets the ended_at of this RunDetailResponse.  # noqa: E501
+
+
+        :return: The ended_at of this RunDetailResponse.  # noqa: E501
+        :rtype: object
+        """
+        return self._ended_at
+
+    @ended_at.setter
+    def ended_at(self, ended_at):
+        """Sets the ended_at of this RunDetailResponse.
+
+
+        :param ended_at: The ended_at of this RunDetailResponse.  # noqa: E501
+        :type: object
+        """
+        if ended_at is None:
+            raise ValueError("Invalid value for `ended_at`, must not be `None`")  # noqa: E501
+
+        self._ended_at = ended_at
+
+    @property
+    def error(self):
+        """Gets the error of this RunDetailResponse.  # noqa: E501
+
+
+        :return: The error of this RunDetailResponse.  # noqa: E501
+        :rtype: object
+        """
+        return self._error
+
+    @error.setter
+    def error(self, error):
+        """Sets the error of this RunDetailResponse.
+
+
+        :param error: The error of this RunDetailResponse.  # noqa: E501
+        :type: object
+        """
+        if error is None:
+            raise ValueError("Invalid value for `error`, must not be `None`")  # noqa: E501
+
+        self._error = error
+
+    @property
+    def estimated_compute_cost_usd(self):
+        """Gets the estimated_compute_cost_usd of this RunDetailResponse.  # noqa: E501
+
+
+        :return: The estimated_compute_cost_usd of this RunDetailResponse.  # noqa: E501
+        :rtype: object
+        """
+        return self._estimated_compute_cost_usd
+
+    @estimated_compute_cost_usd.setter
+    def estimated_compute_cost_usd(self, estimated_compute_cost_usd):
+        """Sets the estimated_compute_cost_usd of this RunDetailResponse.
+
+
+        :param estimated_compute_cost_usd: The estimated_compute_cost_usd of this RunDetailResponse.  # noqa: E501
+        :type: object
+        """
+        if estimated_compute_cost_usd is None:
+            raise ValueError("Invalid value for `estimated_compute_cost_usd`, must not be `None`")  # noqa: E501
+
+        self._estimated_compute_cost_usd = estimated_compute_cost_usd
+
+    @property
+    def estimated_total_cost_usd(self):
+        """Gets the estimated_total_cost_usd of this RunDetailResponse.  # noqa: E501
+
+
+        :return: The estimated_total_cost_usd of this RunDetailResponse.  # noqa: E501
+        :rtype: object
+        """
+        return self._estimated_total_cost_usd
+
+    @estimated_total_cost_usd.setter
+    def estimated_total_cost_usd(self, estimated_total_cost_usd):
+        """Sets the estimated_total_cost_usd of this RunDetailResponse.
+
+
+        :param estimated_total_cost_usd: The estimated_total_cost_usd of this RunDetailResponse.  # noqa: E501
+        :type: object
+        """
+
+        self._estimated_total_cost_usd = estimated_total_cost_usd
+
+    @property
+    def goal(self):
+        """Gets the goal of this RunDetailResponse.  # noqa: E501
+
+
+        :return: The goal of this RunDetailResponse.  # noqa: E501
+        :rtype: object
+        """
+        return self._goal
+
+    @goal.setter
+    def goal(self, goal):
+        """Sets the goal of this RunDetailResponse.
+
+
+        :param goal: The goal of this RunDetailResponse.  # noqa: E501
+        :type: object
+        """
+        if goal is None:
+            raise ValueError("Invalid value for `goal`, must not be `None`")  # noqa: E501
+
+        self._goal = goal
 
     @property
     def id(self):
@@ -139,52 +321,71 @@ class RunDetailResponse(object):
         self._id = id
 
     @property
-    def agent_id(self):
-        """Gets the agent_id of this RunDetailResponse.  # noqa: E501
+    def input(self):
+        """Gets the input of this RunDetailResponse.  # noqa: E501
 
-        Hosted agent UUID associated with this run.  # noqa: E501
 
-        :return: The agent_id of this RunDetailResponse.  # noqa: E501
-        :rtype: object
+        :return: The input of this RunDetailResponse.  # noqa: E501
+        :rtype: RunInputSummary
         """
-        return self._agent_id
+        return self._input
 
-    @agent_id.setter
-    def agent_id(self, agent_id):
-        """Sets the agent_id of this RunDetailResponse.
+    @input.setter
+    def input(self, input):
+        """Sets the input of this RunDetailResponse.
 
-        Hosted agent UUID associated with this run.  # noqa: E501
 
-        :param agent_id: The agent_id of this RunDetailResponse.  # noqa: E501
-        :type: object
+        :param input: The input of this RunDetailResponse.  # noqa: E501
+        :type: RunInputSummary
         """
+        if input is None:
+            raise ValueError("Invalid value for `input`, must not be `None`")  # noqa: E501
 
-        self._agent_id = agent_id
+        self._input = input
 
     @property
-    def session_id(self):
-        """Gets the session_id of this RunDetailResponse.  # noqa: E501
+    def metadata(self):
+        """Gets the metadata of this RunDetailResponse.  # noqa: E501
 
-        Conversation session UUID, when the run belongs to a session.  # noqa: E501
 
-        :return: The session_id of this RunDetailResponse.  # noqa: E501
+        :return: The metadata of this RunDetailResponse.  # noqa: E501
         :rtype: object
         """
-        return self._session_id
+        return self._metadata
 
-    @session_id.setter
-    def session_id(self, session_id):
-        """Sets the session_id of this RunDetailResponse.
+    @metadata.setter
+    def metadata(self, metadata):
+        """Sets the metadata of this RunDetailResponse.
 
-        Conversation session UUID, when the run belongs to a session.  # noqa: E501
 
-        :param session_id: The session_id of this RunDetailResponse.  # noqa: E501
+        :param metadata: The metadata of this RunDetailResponse.  # noqa: E501
         :type: object
         """
-        if session_id is None:
-            raise ValueError("Invalid value for `session_id`, must not be `None`")  # noqa: E501
 
-        self._session_id = session_id
+        self._metadata = metadata
+
+    @property
+    def output(self):
+        """Gets the output of this RunDetailResponse.  # noqa: E501
+
+
+        :return: The output of this RunDetailResponse.  # noqa: E501
+        :rtype: RunOutputSummary
+        """
+        return self._output
+
+    @output.setter
+    def output(self, output):
+        """Sets the output of this RunDetailResponse.
+
+
+        :param output: The output of this RunDetailResponse.  # noqa: E501
+        :type: RunOutputSummary
+        """
+        if output is None:
+            raise ValueError("Invalid value for `output`, must not be `None`")  # noqa: E501
+
+        self._output = output
 
     @property
     def parent_run_id(self):
@@ -233,73 +434,29 @@ class RunDetailResponse(object):
         self._run_type = run_type
 
     @property
-    def status(self):
-        """Gets the status of this RunDetailResponse.  # noqa: E501
+    def session_id(self):
+        """Gets the session_id of this RunDetailResponse.  # noqa: E501
 
+        Conversation session UUID, when the run belongs to a session.  # noqa: E501
 
-        :return: The status of this RunDetailResponse.  # noqa: E501
-        :rtype: RunStatus
-        """
-        return self._status
-
-    @status.setter
-    def status(self, status):
-        """Sets the status of this RunDetailResponse.
-
-
-        :param status: The status of this RunDetailResponse.  # noqa: E501
-        :type: RunStatus
-        """
-        if status is None:
-            raise ValueError("Invalid value for `status`, must not be `None`")  # noqa: E501
-
-        self._status = status
-
-    @property
-    def goal(self):
-        """Gets the goal of this RunDetailResponse.  # noqa: E501
-
-
-        :return: The goal of this RunDetailResponse.  # noqa: E501
+        :return: The session_id of this RunDetailResponse.  # noqa: E501
         :rtype: object
         """
-        return self._goal
+        return self._session_id
 
-    @goal.setter
-    def goal(self, goal):
-        """Sets the goal of this RunDetailResponse.
+    @session_id.setter
+    def session_id(self, session_id):
+        """Sets the session_id of this RunDetailResponse.
 
+        Conversation session UUID, when the run belongs to a session.  # noqa: E501
 
-        :param goal: The goal of this RunDetailResponse.  # noqa: E501
+        :param session_id: The session_id of this RunDetailResponse.  # noqa: E501
         :type: object
         """
-        if goal is None:
-            raise ValueError("Invalid value for `goal`, must not be `None`")  # noqa: E501
+        if session_id is None:
+            raise ValueError("Invalid value for `session_id`, must not be `None`")  # noqa: E501
 
-        self._goal = goal
-
-    @property
-    def worker_profile(self):
-        """Gets the worker_profile of this RunDetailResponse.  # noqa: E501
-
-
-        :return: The worker_profile of this RunDetailResponse.  # noqa: E501
-        :rtype: object
-        """
-        return self._worker_profile
-
-    @worker_profile.setter
-    def worker_profile(self, worker_profile):
-        """Sets the worker_profile of this RunDetailResponse.
-
-
-        :param worker_profile: The worker_profile of this RunDetailResponse.  # noqa: E501
-        :type: object
-        """
-        if worker_profile is None:
-            raise ValueError("Invalid value for `worker_profile`, must not be `None`")  # noqa: E501
-
-        self._worker_profile = worker_profile
+        self._session_id = session_id
 
     @property
     def started_at(self):
@@ -325,207 +482,50 @@ class RunDetailResponse(object):
         self._started_at = started_at
 
     @property
-    def ended_at(self):
-        """Gets the ended_at of this RunDetailResponse.  # noqa: E501
+    def status(self):
+        """Gets the status of this RunDetailResponse.  # noqa: E501
 
 
-        :return: The ended_at of this RunDetailResponse.  # noqa: E501
+        :return: The status of this RunDetailResponse.  # noqa: E501
+        :rtype: RunStatus
+        """
+        return self._status
+
+    @status.setter
+    def status(self, status):
+        """Sets the status of this RunDetailResponse.
+
+
+        :param status: The status of this RunDetailResponse.  # noqa: E501
+        :type: RunStatus
+        """
+        if status is None:
+            raise ValueError("Invalid value for `status`, must not be `None`")  # noqa: E501
+
+        self._status = status
+
+    @property
+    def worker_profile(self):
+        """Gets the worker_profile of this RunDetailResponse.  # noqa: E501
+
+
+        :return: The worker_profile of this RunDetailResponse.  # noqa: E501
         :rtype: object
         """
-        return self._ended_at
+        return self._worker_profile
 
-    @ended_at.setter
-    def ended_at(self, ended_at):
-        """Sets the ended_at of this RunDetailResponse.
+    @worker_profile.setter
+    def worker_profile(self, worker_profile):
+        """Sets the worker_profile of this RunDetailResponse.
 
 
-        :param ended_at: The ended_at of this RunDetailResponse.  # noqa: E501
+        :param worker_profile: The worker_profile of this RunDetailResponse.  # noqa: E501
         :type: object
         """
-        if ended_at is None:
-            raise ValueError("Invalid value for `ended_at`, must not be `None`")  # noqa: E501
+        if worker_profile is None:
+            raise ValueError("Invalid value for `worker_profile`, must not be `None`")  # noqa: E501
 
-        self._ended_at = ended_at
-
-    @property
-    def compute_seconds(self):
-        """Gets the compute_seconds of this RunDetailResponse.  # noqa: E501
-
-
-        :return: The compute_seconds of this RunDetailResponse.  # noqa: E501
-        :rtype: object
-        """
-        return self._compute_seconds
-
-    @compute_seconds.setter
-    def compute_seconds(self, compute_seconds):
-        """Sets the compute_seconds of this RunDetailResponse.
-
-
-        :param compute_seconds: The compute_seconds of this RunDetailResponse.  # noqa: E501
-        :type: object
-        """
-        if compute_seconds is None:
-            raise ValueError("Invalid value for `compute_seconds`, must not be `None`")  # noqa: E501
-
-        self._compute_seconds = compute_seconds
-
-    @property
-    def estimated_compute_cost_usd(self):
-        """Gets the estimated_compute_cost_usd of this RunDetailResponse.  # noqa: E501
-
-
-        :return: The estimated_compute_cost_usd of this RunDetailResponse.  # noqa: E501
-        :rtype: object
-        """
-        return self._estimated_compute_cost_usd
-
-    @estimated_compute_cost_usd.setter
-    def estimated_compute_cost_usd(self, estimated_compute_cost_usd):
-        """Sets the estimated_compute_cost_usd of this RunDetailResponse.
-
-
-        :param estimated_compute_cost_usd: The estimated_compute_cost_usd of this RunDetailResponse.  # noqa: E501
-        :type: object
-        """
-        if estimated_compute_cost_usd is None:
-            raise ValueError("Invalid value for `estimated_compute_cost_usd`, must not be `None`")  # noqa: E501
-
-        self._estimated_compute_cost_usd = estimated_compute_cost_usd
-
-    @property
-    def estimated_total_cost_usd(self):
-        """Gets the estimated_total_cost_usd of this RunDetailResponse.  # noqa: E501
-
-
-        :return: The estimated_total_cost_usd of this RunDetailResponse.  # noqa: E501
-        :rtype: object
-        """
-        return self._estimated_total_cost_usd
-
-    @estimated_total_cost_usd.setter
-    def estimated_total_cost_usd(self, estimated_total_cost_usd):
-        """Sets the estimated_total_cost_usd of this RunDetailResponse.
-
-
-        :param estimated_total_cost_usd: The estimated_total_cost_usd of this RunDetailResponse.  # noqa: E501
-        :type: object
-        """
-
-        self._estimated_total_cost_usd = estimated_total_cost_usd
-
-    @property
-    def error(self):
-        """Gets the error of this RunDetailResponse.  # noqa: E501
-
-
-        :return: The error of this RunDetailResponse.  # noqa: E501
-        :rtype: object
-        """
-        return self._error
-
-    @error.setter
-    def error(self, error):
-        """Sets the error of this RunDetailResponse.
-
-
-        :param error: The error of this RunDetailResponse.  # noqa: E501
-        :type: object
-        """
-        if error is None:
-            raise ValueError("Invalid value for `error`, must not be `None`")  # noqa: E501
-
-        self._error = error
-
-    @property
-    def metadata(self):
-        """Gets the metadata of this RunDetailResponse.  # noqa: E501
-
-
-        :return: The metadata of this RunDetailResponse.  # noqa: E501
-        :rtype: object
-        """
-        return self._metadata
-
-    @metadata.setter
-    def metadata(self, metadata):
-        """Sets the metadata of this RunDetailResponse.
-
-
-        :param metadata: The metadata of this RunDetailResponse.  # noqa: E501
-        :type: object
-        """
-
-        self._metadata = metadata
-
-    @property
-    def created_at(self):
-        """Gets the created_at of this RunDetailResponse.  # noqa: E501
-
-
-        :return: The created_at of this RunDetailResponse.  # noqa: E501
-        :rtype: object
-        """
-        return self._created_at
-
-    @created_at.setter
-    def created_at(self, created_at):
-        """Sets the created_at of this RunDetailResponse.
-
-
-        :param created_at: The created_at of this RunDetailResponse.  # noqa: E501
-        :type: object
-        """
-        if created_at is None:
-            raise ValueError("Invalid value for `created_at`, must not be `None`")  # noqa: E501
-
-        self._created_at = created_at
-
-    @property
-    def input(self):
-        """Gets the input of this RunDetailResponse.  # noqa: E501
-
-
-        :return: The input of this RunDetailResponse.  # noqa: E501
-        :rtype: RunInputSummary
-        """
-        return self._input
-
-    @input.setter
-    def input(self, input):
-        """Sets the input of this RunDetailResponse.
-
-
-        :param input: The input of this RunDetailResponse.  # noqa: E501
-        :type: RunInputSummary
-        """
-        if input is None:
-            raise ValueError("Invalid value for `input`, must not be `None`")  # noqa: E501
-
-        self._input = input
-
-    @property
-    def output(self):
-        """Gets the output of this RunDetailResponse.  # noqa: E501
-
-
-        :return: The output of this RunDetailResponse.  # noqa: E501
-        :rtype: RunOutputSummary
-        """
-        return self._output
-
-    @output.setter
-    def output(self, output):
-        """Sets the output of this RunDetailResponse.
-
-
-        :param output: The output of this RunDetailResponse.  # noqa: E501
-        :type: RunOutputSummary
-        """
-        if output is None:
-            raise ValueError("Invalid value for `output`, must not be `None`")  # noqa: E501
-
-        self._output = output
+        self._worker_profile = worker_profile
 
     def to_dict(self):
         """Returns the model properties as a dict"""

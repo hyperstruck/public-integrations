@@ -29,36 +29,36 @@ class LearningAuditGraphNode(object):
     """
     swagger_types = {
         'id': 'object',
-        'node_type': 'LearningGraphNodeType',
         'label': 'object',
         'learning_id': 'object',
+        'node_type': 'LearningGraphNodeType',
         'review_state': 'object',
         'utility': 'object'
     }
 
     attribute_map = {
         'id': 'id',
-        'node_type': 'node_type',
         'label': 'label',
         'learning_id': 'learning_id',
+        'node_type': 'node_type',
         'review_state': 'review_state',
         'utility': 'utility'
     }
 
-    def __init__(self, id=None, node_type=None, label=None, learning_id=None, review_state=None, utility=None):  # noqa: E501
+    def __init__(self, id=None, label=None, learning_id=None, node_type=None, review_state=None, utility=None):  # noqa: E501
         """LearningAuditGraphNode - a model defined in Swagger"""  # noqa: E501
         self._id = None
-        self._node_type = None
         self._label = None
         self._learning_id = None
+        self._node_type = None
         self._review_state = None
         self._utility = None
         self.discriminator = None
         self.id = id
-        self.node_type = node_type
         self.label = label
         if learning_id is not None:
             self.learning_id = learning_id
+        self.node_type = node_type
         if review_state is not None:
             self.review_state = review_state
         if utility is not None:
@@ -86,29 +86,6 @@ class LearningAuditGraphNode(object):
             raise ValueError("Invalid value for `id`, must not be `None`")  # noqa: E501
 
         self._id = id
-
-    @property
-    def node_type(self):
-        """Gets the node_type of this LearningAuditGraphNode.  # noqa: E501
-
-
-        :return: The node_type of this LearningAuditGraphNode.  # noqa: E501
-        :rtype: LearningGraphNodeType
-        """
-        return self._node_type
-
-    @node_type.setter
-    def node_type(self, node_type):
-        """Sets the node_type of this LearningAuditGraphNode.
-
-
-        :param node_type: The node_type of this LearningAuditGraphNode.  # noqa: E501
-        :type: LearningGraphNodeType
-        """
-        if node_type is None:
-            raise ValueError("Invalid value for `node_type`, must not be `None`")  # noqa: E501
-
-        self._node_type = node_type
 
     @property
     def label(self):
@@ -155,6 +132,29 @@ class LearningAuditGraphNode(object):
         """
 
         self._learning_id = learning_id
+
+    @property
+    def node_type(self):
+        """Gets the node_type of this LearningAuditGraphNode.  # noqa: E501
+
+
+        :return: The node_type of this LearningAuditGraphNode.  # noqa: E501
+        :rtype: LearningGraphNodeType
+        """
+        return self._node_type
+
+    @node_type.setter
+    def node_type(self, node_type):
+        """Sets the node_type of this LearningAuditGraphNode.
+
+
+        :param node_type: The node_type of this LearningAuditGraphNode.  # noqa: E501
+        :type: LearningGraphNodeType
+        """
+        if node_type is None:
+            raise ValueError("Invalid value for `node_type`, must not be `None`")  # noqa: E501
+
+        self._node_type = node_type
 
     @property
     def review_state(self):

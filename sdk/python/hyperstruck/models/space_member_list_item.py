@@ -28,54 +28,52 @@ class SpaceMemberListItem(object):
                             and the value is json key in definition.
     """
     swagger_types = {
-        'identity_user_id': 'object',
-        'email': 'object',
         'display_name': 'object',
+        'email': 'object',
+        'identity_user_id': 'object',
         'relation': 'object'
     }
 
     attribute_map = {
-        'identity_user_id': 'identity_user_id',
-        'email': 'email',
         'display_name': 'display_name',
+        'email': 'email',
+        'identity_user_id': 'identity_user_id',
         'relation': 'relation'
     }
 
-    def __init__(self, identity_user_id=None, email=None, display_name=None, relation=None):  # noqa: E501
+    def __init__(self, display_name=None, email=None, identity_user_id=None, relation=None):  # noqa: E501
         """SpaceMemberListItem - a model defined in Swagger"""  # noqa: E501
-        self._identity_user_id = None
-        self._email = None
         self._display_name = None
+        self._email = None
+        self._identity_user_id = None
         self._relation = None
         self.discriminator = None
-        self.identity_user_id = identity_user_id
-        self.email = email
         if display_name is not None:
             self.display_name = display_name
+        self.email = email
+        self.identity_user_id = identity_user_id
         self.relation = relation
 
     @property
-    def identity_user_id(self):
-        """Gets the identity_user_id of this SpaceMemberListItem.  # noqa: E501
+    def display_name(self):
+        """Gets the display_name of this SpaceMemberListItem.  # noqa: E501
 
 
-        :return: The identity_user_id of this SpaceMemberListItem.  # noqa: E501
+        :return: The display_name of this SpaceMemberListItem.  # noqa: E501
         :rtype: object
         """
-        return self._identity_user_id
+        return self._display_name
 
-    @identity_user_id.setter
-    def identity_user_id(self, identity_user_id):
-        """Sets the identity_user_id of this SpaceMemberListItem.
+    @display_name.setter
+    def display_name(self, display_name):
+        """Sets the display_name of this SpaceMemberListItem.
 
 
-        :param identity_user_id: The identity_user_id of this SpaceMemberListItem.  # noqa: E501
+        :param display_name: The display_name of this SpaceMemberListItem.  # noqa: E501
         :type: object
         """
-        if identity_user_id is None:
-            raise ValueError("Invalid value for `identity_user_id`, must not be `None`")  # noqa: E501
 
-        self._identity_user_id = identity_user_id
+        self._display_name = display_name
 
     @property
     def email(self):
@@ -101,25 +99,27 @@ class SpaceMemberListItem(object):
         self._email = email
 
     @property
-    def display_name(self):
-        """Gets the display_name of this SpaceMemberListItem.  # noqa: E501
+    def identity_user_id(self):
+        """Gets the identity_user_id of this SpaceMemberListItem.  # noqa: E501
 
 
-        :return: The display_name of this SpaceMemberListItem.  # noqa: E501
+        :return: The identity_user_id of this SpaceMemberListItem.  # noqa: E501
         :rtype: object
         """
-        return self._display_name
+        return self._identity_user_id
 
-    @display_name.setter
-    def display_name(self, display_name):
-        """Sets the display_name of this SpaceMemberListItem.
+    @identity_user_id.setter
+    def identity_user_id(self, identity_user_id):
+        """Sets the identity_user_id of this SpaceMemberListItem.
 
 
-        :param display_name: The display_name of this SpaceMemberListItem.  # noqa: E501
+        :param identity_user_id: The identity_user_id of this SpaceMemberListItem.  # noqa: E501
         :type: object
         """
+        if identity_user_id is None:
+            raise ValueError("Invalid value for `identity_user_id`, must not be `None`")  # noqa: E501
 
-        self._display_name = display_name
+        self._identity_user_id = identity_user_id
 
     @property
     def relation(self):

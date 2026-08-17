@@ -28,59 +28,36 @@ class LearningAuditGraphResponse(object):
                             and the value is json key in definition.
     """
     swagger_types = {
-        'nodes': 'object',
         'edges': 'object',
         'learning_id': 'object',
-        'truncated': 'object',
-        'retrieved_at': 'object'
+        'nodes': 'object',
+        'retrieved_at': 'object',
+        'truncated': 'object'
     }
 
     attribute_map = {
-        'nodes': 'nodes',
         'edges': 'edges',
         'learning_id': 'learning_id',
-        'truncated': 'truncated',
-        'retrieved_at': 'retrieved_at'
+        'nodes': 'nodes',
+        'retrieved_at': 'retrieved_at',
+        'truncated': 'truncated'
     }
 
-    def __init__(self, nodes=None, edges=None, learning_id=None, truncated=None, retrieved_at=None):  # noqa: E501
+    def __init__(self, edges=None, learning_id=None, nodes=None, retrieved_at=None, truncated=None):  # noqa: E501
         """LearningAuditGraphResponse - a model defined in Swagger"""  # noqa: E501
-        self._nodes = None
         self._edges = None
         self._learning_id = None
-        self._truncated = None
+        self._nodes = None
         self._retrieved_at = None
+        self._truncated = None
         self.discriminator = None
-        self.nodes = nodes
         self.edges = edges
         if learning_id is not None:
             self.learning_id = learning_id
+        self.nodes = nodes
+        self.retrieved_at = retrieved_at
         if truncated is not None:
             self.truncated = truncated
-        self.retrieved_at = retrieved_at
-
-    @property
-    def nodes(self):
-        """Gets the nodes of this LearningAuditGraphResponse.  # noqa: E501
-
-
-        :return: The nodes of this LearningAuditGraphResponse.  # noqa: E501
-        :rtype: object
-        """
-        return self._nodes
-
-    @nodes.setter
-    def nodes(self, nodes):
-        """Sets the nodes of this LearningAuditGraphResponse.
-
-
-        :param nodes: The nodes of this LearningAuditGraphResponse.  # noqa: E501
-        :type: object
-        """
-        if nodes is None:
-            raise ValueError("Invalid value for `nodes`, must not be `None`")  # noqa: E501
-
-        self._nodes = nodes
 
     @property
     def edges(self):
@@ -127,27 +104,27 @@ class LearningAuditGraphResponse(object):
         self._learning_id = learning_id
 
     @property
-    def truncated(self):
-        """Gets the truncated of this LearningAuditGraphResponse.  # noqa: E501
+    def nodes(self):
+        """Gets the nodes of this LearningAuditGraphResponse.  # noqa: E501
 
-        True when caps dropped nodes/edges from the response.  # noqa: E501
 
-        :return: The truncated of this LearningAuditGraphResponse.  # noqa: E501
+        :return: The nodes of this LearningAuditGraphResponse.  # noqa: E501
         :rtype: object
         """
-        return self._truncated
+        return self._nodes
 
-    @truncated.setter
-    def truncated(self, truncated):
-        """Sets the truncated of this LearningAuditGraphResponse.
+    @nodes.setter
+    def nodes(self, nodes):
+        """Sets the nodes of this LearningAuditGraphResponse.
 
-        True when caps dropped nodes/edges from the response.  # noqa: E501
 
-        :param truncated: The truncated of this LearningAuditGraphResponse.  # noqa: E501
+        :param nodes: The nodes of this LearningAuditGraphResponse.  # noqa: E501
         :type: object
         """
+        if nodes is None:
+            raise ValueError("Invalid value for `nodes`, must not be `None`")  # noqa: E501
 
-        self._truncated = truncated
+        self._nodes = nodes
 
     @property
     def retrieved_at(self):
@@ -171,6 +148,29 @@ class LearningAuditGraphResponse(object):
             raise ValueError("Invalid value for `retrieved_at`, must not be `None`")  # noqa: E501
 
         self._retrieved_at = retrieved_at
+
+    @property
+    def truncated(self):
+        """Gets the truncated of this LearningAuditGraphResponse.  # noqa: E501
+
+        True when caps dropped nodes/edges from the response.  # noqa: E501
+
+        :return: The truncated of this LearningAuditGraphResponse.  # noqa: E501
+        :rtype: object
+        """
+        return self._truncated
+
+    @truncated.setter
+    def truncated(self, truncated):
+        """Sets the truncated of this LearningAuditGraphResponse.
+
+        True when caps dropped nodes/edges from the response.  # noqa: E501
+
+        :param truncated: The truncated of this LearningAuditGraphResponse.  # noqa: E501
+        :type: object
+        """
+
+        self._truncated = truncated
 
     def to_dict(self):
         """Returns the model properties as a dict"""

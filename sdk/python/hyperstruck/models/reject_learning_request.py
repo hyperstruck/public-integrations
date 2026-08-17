@@ -28,45 +28,24 @@ class RejectLearningRequest(object):
                             and the value is json key in definition.
     """
     swagger_types = {
-        'reason_code': 'RejectLearningReasonCode',
-        'reason': 'object'
+        'reason': 'object',
+        'reason_code': 'RejectLearningReasonCode'
     }
 
     attribute_map = {
-        'reason_code': 'reason_code',
-        'reason': 'reason'
+        'reason': 'reason',
+        'reason_code': 'reason_code'
     }
 
-    def __init__(self, reason_code=None, reason=None):  # noqa: E501
+    def __init__(self, reason=None, reason_code=None):  # noqa: E501
         """RejectLearningRequest - a model defined in Swagger"""  # noqa: E501
-        self._reason_code = None
         self._reason = None
+        self._reason_code = None
         self.discriminator = None
-        if reason_code is not None:
-            self.reason_code = reason_code
         if reason is not None:
             self.reason = reason
-
-    @property
-    def reason_code(self):
-        """Gets the reason_code of this RejectLearningRequest.  # noqa: E501
-
-
-        :return: The reason_code of this RejectLearningRequest.  # noqa: E501
-        :rtype: RejectLearningReasonCode
-        """
-        return self._reason_code
-
-    @reason_code.setter
-    def reason_code(self, reason_code):
-        """Sets the reason_code of this RejectLearningRequest.
-
-
-        :param reason_code: The reason_code of this RejectLearningRequest.  # noqa: E501
-        :type: RejectLearningReasonCode
-        """
-
-        self._reason_code = reason_code
+        if reason_code is not None:
+            self.reason_code = reason_code
 
     @property
     def reason(self):
@@ -88,6 +67,27 @@ class RejectLearningRequest(object):
         """
 
         self._reason = reason
+
+    @property
+    def reason_code(self):
+        """Gets the reason_code of this RejectLearningRequest.  # noqa: E501
+
+
+        :return: The reason_code of this RejectLearningRequest.  # noqa: E501
+        :rtype: RejectLearningReasonCode
+        """
+        return self._reason_code
+
+    @reason_code.setter
+    def reason_code(self, reason_code):
+        """Sets the reason_code of this RejectLearningRequest.
+
+
+        :param reason_code: The reason_code of this RejectLearningRequest.  # noqa: E501
+        :type: RejectLearningReasonCode
+        """
+
+        self._reason_code = reason_code
 
     def to_dict(self):
         """Returns the model properties as a dict"""

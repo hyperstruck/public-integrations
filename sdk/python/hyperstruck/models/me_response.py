@@ -28,69 +28,48 @@ class MeResponse(object):
                             and the value is json key in definition.
     """
     swagger_types = {
-        'user': 'object',
         'active_tenant': 'object',
+        'auth_method': 'object',
+        'feature_flags': 'object',
         'memberships': 'object',
         'role': 'object',
         'scopes': 'object',
-        'auth_method': 'object',
-        'feature_flags': 'object'
+        'user': 'object'
     }
 
     attribute_map = {
-        'user': 'user',
         'active_tenant': 'activeTenant',
+        'auth_method': 'authMethod',
+        'feature_flags': 'featureFlags',
         'memberships': 'memberships',
         'role': 'role',
         'scopes': 'scopes',
-        'auth_method': 'authMethod',
-        'feature_flags': 'featureFlags'
+        'user': 'user'
     }
 
-    def __init__(self, user=None, active_tenant=None, memberships=None, role=None, scopes=None, auth_method=None, feature_flags=None):  # noqa: E501
+    def __init__(self, active_tenant=None, auth_method=None, feature_flags=None, memberships=None, role=None, scopes=None, user=None):  # noqa: E501
         """MeResponse - a model defined in Swagger"""  # noqa: E501
-        self._user = None
         self._active_tenant = None
+        self._auth_method = None
+        self._feature_flags = None
         self._memberships = None
         self._role = None
         self._scopes = None
-        self._auth_method = None
-        self._feature_flags = None
+        self._user = None
         self.discriminator = None
-        if user is not None:
-            self.user = user
         if active_tenant is not None:
             self.active_tenant = active_tenant
+        self.auth_method = auth_method
+        if feature_flags is not None:
+            self.feature_flags = feature_flags
         if memberships is not None:
             self.memberships = memberships
         if role is not None:
             self.role = role
         if scopes is not None:
             self.scopes = scopes
-        self.auth_method = auth_method
-        if feature_flags is not None:
-            self.feature_flags = feature_flags
-
-    @property
-    def user(self):
-        """Gets the user of this MeResponse.  # noqa: E501
-
-
-        :return: The user of this MeResponse.  # noqa: E501
-        :rtype: object
-        """
-        return self._user
-
-    @user.setter
-    def user(self, user):
-        """Sets the user of this MeResponse.
-
-
-        :param user: The user of this MeResponse.  # noqa: E501
-        :type: object
-        """
-
-        self._user = user
+        if user is not None:
+            self.user = user
 
     @property
     def active_tenant(self):
@@ -112,6 +91,50 @@ class MeResponse(object):
         """
 
         self._active_tenant = active_tenant
+
+    @property
+    def auth_method(self):
+        """Gets the auth_method of this MeResponse.  # noqa: E501
+
+
+        :return: The auth_method of this MeResponse.  # noqa: E501
+        :rtype: object
+        """
+        return self._auth_method
+
+    @auth_method.setter
+    def auth_method(self, auth_method):
+        """Sets the auth_method of this MeResponse.
+
+
+        :param auth_method: The auth_method of this MeResponse.  # noqa: E501
+        :type: object
+        """
+        if auth_method is None:
+            raise ValueError("Invalid value for `auth_method`, must not be `None`")  # noqa: E501
+
+        self._auth_method = auth_method
+
+    @property
+    def feature_flags(self):
+        """Gets the feature_flags of this MeResponse.  # noqa: E501
+
+
+        :return: The feature_flags of this MeResponse.  # noqa: E501
+        :rtype: object
+        """
+        return self._feature_flags
+
+    @feature_flags.setter
+    def feature_flags(self, feature_flags):
+        """Sets the feature_flags of this MeResponse.
+
+
+        :param feature_flags: The feature_flags of this MeResponse.  # noqa: E501
+        :type: object
+        """
+
+        self._feature_flags = feature_flags
 
     @property
     def memberships(self):
@@ -177,48 +200,25 @@ class MeResponse(object):
         self._scopes = scopes
 
     @property
-    def auth_method(self):
-        """Gets the auth_method of this MeResponse.  # noqa: E501
+    def user(self):
+        """Gets the user of this MeResponse.  # noqa: E501
 
 
-        :return: The auth_method of this MeResponse.  # noqa: E501
+        :return: The user of this MeResponse.  # noqa: E501
         :rtype: object
         """
-        return self._auth_method
+        return self._user
 
-    @auth_method.setter
-    def auth_method(self, auth_method):
-        """Sets the auth_method of this MeResponse.
-
-
-        :param auth_method: The auth_method of this MeResponse.  # noqa: E501
-        :type: object
-        """
-        if auth_method is None:
-            raise ValueError("Invalid value for `auth_method`, must not be `None`")  # noqa: E501
-
-        self._auth_method = auth_method
-
-    @property
-    def feature_flags(self):
-        """Gets the feature_flags of this MeResponse.  # noqa: E501
+    @user.setter
+    def user(self, user):
+        """Sets the user of this MeResponse.
 
 
-        :return: The feature_flags of this MeResponse.  # noqa: E501
-        :rtype: object
-        """
-        return self._feature_flags
-
-    @feature_flags.setter
-    def feature_flags(self, feature_flags):
-        """Sets the feature_flags of this MeResponse.
-
-
-        :param feature_flags: The feature_flags of this MeResponse.  # noqa: E501
+        :param user: The user of this MeResponse.  # noqa: E501
         :type: object
         """
 
-        self._feature_flags = feature_flags
+        self._user = user
 
     def to_dict(self):
         """Returns the model properties as a dict"""

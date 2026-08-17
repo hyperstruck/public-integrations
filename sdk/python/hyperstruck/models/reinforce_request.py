@@ -29,31 +29,36 @@ class ReinforceRequest(object):
     """
     swagger_types = {
         'agent_name': 'object',
-        'org_id': 'object',
+        'context_receipt': 'object',
         'episode': 'EpisodeModel',
-        'is_org_promotion_allowed': 'object'
+        'is_org_promotion_allowed': 'object',
+        'org_id': 'object'
     }
 
     attribute_map = {
         'agent_name': 'agent_name',
-        'org_id': 'org_id',
+        'context_receipt': 'context_receipt',
         'episode': 'episode',
-        'is_org_promotion_allowed': 'is_org_promotion_allowed'
+        'is_org_promotion_allowed': 'is_org_promotion_allowed',
+        'org_id': 'org_id'
     }
 
-    def __init__(self, agent_name=None, org_id=None, episode=None, is_org_promotion_allowed=None):  # noqa: E501
+    def __init__(self, agent_name=None, context_receipt=None, episode=None, is_org_promotion_allowed=None, org_id=None):  # noqa: E501
         """ReinforceRequest - a model defined in Swagger"""  # noqa: E501
         self._agent_name = None
-        self._org_id = None
+        self._context_receipt = None
         self._episode = None
         self._is_org_promotion_allowed = None
+        self._org_id = None
         self.discriminator = None
         self.agent_name = agent_name
-        if org_id is not None:
-            self.org_id = org_id
+        if context_receipt is not None:
+            self.context_receipt = context_receipt
         self.episode = episode
         if is_org_promotion_allowed is not None:
             self.is_org_promotion_allowed = is_org_promotion_allowed
+        if org_id is not None:
+            self.org_id = org_id
 
     @property
     def agent_name(self):
@@ -81,27 +86,27 @@ class ReinforceRequest(object):
         self._agent_name = agent_name
 
     @property
-    def org_id(self):
-        """Gets the org_id of this ReinforceRequest.  # noqa: E501
+    def context_receipt(self):
+        """Gets the context_receipt of this ReinforceRequest.  # noqa: E501
 
-        Optional caller-owned organisation reference.  # noqa: E501
+        The host's record of the context block as its editor accepted it, used to confirm which offered learnings the model was actually shown. A learning no receipt reports as rendered credits nothing, so a host that omits this earns no reinforcement. Send the artefact the editor produced, never the text this client emitted: an echo of what was sent asserts the very thing the receipt exists to evidence. An over-cap receipt is clipped when folded rather than refused, because refusing it would cost the run its whole reinforcement and not merely its evidence; the bound on this field is far above that clip and exists only to stop an unbounded body.  # noqa: E501
 
-        :return: The org_id of this ReinforceRequest.  # noqa: E501
+        :return: The context_receipt of this ReinforceRequest.  # noqa: E501
         :rtype: object
         """
-        return self._org_id
+        return self._context_receipt
 
-    @org_id.setter
-    def org_id(self, org_id):
-        """Sets the org_id of this ReinforceRequest.
+    @context_receipt.setter
+    def context_receipt(self, context_receipt):
+        """Sets the context_receipt of this ReinforceRequest.
 
-        Optional caller-owned organisation reference.  # noqa: E501
+        The host's record of the context block as its editor accepted it, used to confirm which offered learnings the model was actually shown. A learning no receipt reports as rendered credits nothing, so a host that omits this earns no reinforcement. Send the artefact the editor produced, never the text this client emitted: an echo of what was sent asserts the very thing the receipt exists to evidence. An over-cap receipt is clipped when folded rather than refused, because refusing it would cost the run its whole reinforcement and not merely its evidence; the bound on this field is far above that clip and exists only to stop an unbounded body.  # noqa: E501
 
-        :param org_id: The org_id of this ReinforceRequest.  # noqa: E501
+        :param context_receipt: The context_receipt of this ReinforceRequest.  # noqa: E501
         :type: object
         """
 
-        self._org_id = org_id
+        self._context_receipt = context_receipt
 
     @property
     def episode(self):
@@ -150,6 +155,29 @@ class ReinforceRequest(object):
         """
 
         self._is_org_promotion_allowed = is_org_promotion_allowed
+
+    @property
+    def org_id(self):
+        """Gets the org_id of this ReinforceRequest.  # noqa: E501
+
+        Optional caller-owned organisation reference.  # noqa: E501
+
+        :return: The org_id of this ReinforceRequest.  # noqa: E501
+        :rtype: object
+        """
+        return self._org_id
+
+    @org_id.setter
+    def org_id(self, org_id):
+        """Sets the org_id of this ReinforceRequest.
+
+        Optional caller-owned organisation reference.  # noqa: E501
+
+        :param org_id: The org_id of this ReinforceRequest.  # noqa: E501
+        :type: object
+        """
+
+        self._org_id = org_id
 
     def to_dict(self):
         """Returns the model properties as a dict"""

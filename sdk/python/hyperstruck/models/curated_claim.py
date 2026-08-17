@@ -28,93 +28,70 @@ class CuratedClaim(object):
                             and the value is json key in definition.
     """
     swagger_types = {
-        'claim_id': 'object',
         'agent_id': 'object',
+        'claim_id': 'object',
         'entity_id': 'object',
-        'status': 'object',
-        'provenance_class': 'object',
-        'is_quarantined': 'object',
-        'quarantine_cause': 'object',
-        'is_release_lapsed': 'object',
-        'is_operator_asserted': 'object',
-        'is_bindable': 'object',
-        'human_attested_by': 'object',
         'human_attested_at': 'object',
-        'statement': 'RenderedText'
+        'human_attested_by': 'object',
+        'is_bindable': 'object',
+        'is_operator_asserted': 'object',
+        'is_quarantined': 'object',
+        'is_release_lapsed': 'object',
+        'provenance_class': 'object',
+        'quarantine_cause': 'object',
+        'statement': 'RenderedText',
+        'status': 'object'
     }
 
     attribute_map = {
-        'claim_id': 'claim_id',
         'agent_id': 'agent_id',
+        'claim_id': 'claim_id',
         'entity_id': 'entity_id',
-        'status': 'status',
-        'provenance_class': 'provenance_class',
-        'is_quarantined': 'is_quarantined',
-        'quarantine_cause': 'quarantine_cause',
-        'is_release_lapsed': 'is_release_lapsed',
-        'is_operator_asserted': 'is_operator_asserted',
-        'is_bindable': 'is_bindable',
-        'human_attested_by': 'human_attested_by',
         'human_attested_at': 'human_attested_at',
-        'statement': 'statement'
+        'human_attested_by': 'human_attested_by',
+        'is_bindable': 'is_bindable',
+        'is_operator_asserted': 'is_operator_asserted',
+        'is_quarantined': 'is_quarantined',
+        'is_release_lapsed': 'is_release_lapsed',
+        'provenance_class': 'provenance_class',
+        'quarantine_cause': 'quarantine_cause',
+        'statement': 'statement',
+        'status': 'status'
     }
 
-    def __init__(self, claim_id=None, agent_id=None, entity_id=None, status=None, provenance_class=None, is_quarantined=None, quarantine_cause=None, is_release_lapsed=None, is_operator_asserted=None, is_bindable=None, human_attested_by=None, human_attested_at=None, statement=None):  # noqa: E501
+    def __init__(self, agent_id=None, claim_id=None, entity_id=None, human_attested_at=None, human_attested_by=None, is_bindable=None, is_operator_asserted=None, is_quarantined=None, is_release_lapsed=None, provenance_class=None, quarantine_cause=None, statement=None, status=None):  # noqa: E501
         """CuratedClaim - a model defined in Swagger"""  # noqa: E501
-        self._claim_id = None
         self._agent_id = None
+        self._claim_id = None
         self._entity_id = None
-        self._status = None
-        self._provenance_class = None
-        self._is_quarantined = None
-        self._quarantine_cause = None
-        self._is_release_lapsed = None
-        self._is_operator_asserted = None
-        self._is_bindable = None
-        self._human_attested_by = None
         self._human_attested_at = None
+        self._human_attested_by = None
+        self._is_bindable = None
+        self._is_operator_asserted = None
+        self._is_quarantined = None
+        self._is_release_lapsed = None
+        self._provenance_class = None
+        self._quarantine_cause = None
         self._statement = None
+        self._status = None
         self.discriminator = None
-        self.claim_id = claim_id
         self.agent_id = agent_id
+        self.claim_id = claim_id
         self.entity_id = entity_id
-        self.status = status
-        self.provenance_class = provenance_class
-        self.is_quarantined = is_quarantined
-        if quarantine_cause is not None:
-            self.quarantine_cause = quarantine_cause
-        if is_release_lapsed is not None:
-            self.is_release_lapsed = is_release_lapsed
-        self.is_operator_asserted = is_operator_asserted
-        self.is_bindable = is_bindable
-        if human_attested_by is not None:
-            self.human_attested_by = human_attested_by
         if human_attested_at is not None:
             self.human_attested_at = human_attested_at
+        if human_attested_by is not None:
+            self.human_attested_by = human_attested_by
+        self.is_bindable = is_bindable
+        self.is_operator_asserted = is_operator_asserted
+        self.is_quarantined = is_quarantined
+        if is_release_lapsed is not None:
+            self.is_release_lapsed = is_release_lapsed
+        self.provenance_class = provenance_class
+        if quarantine_cause is not None:
+            self.quarantine_cause = quarantine_cause
         self.statement = statement
-
-    @property
-    def claim_id(self):
-        """Gets the claim_id of this CuratedClaim.  # noqa: E501
-
-
-        :return: The claim_id of this CuratedClaim.  # noqa: E501
-        :rtype: object
-        """
-        return self._claim_id
-
-    @claim_id.setter
-    def claim_id(self, claim_id):
-        """Sets the claim_id of this CuratedClaim.
-
-
-        :param claim_id: The claim_id of this CuratedClaim.  # noqa: E501
-        :type: object
-        """
-        if claim_id is None:
-            raise ValueError("Invalid value for `claim_id`, must not be `None`")  # noqa: E501
-
-        self._claim_id = claim_id
+        self.status = status
 
     @property
     def agent_id(self):
@@ -140,6 +117,29 @@ class CuratedClaim(object):
         self._agent_id = agent_id
 
     @property
+    def claim_id(self):
+        """Gets the claim_id of this CuratedClaim.  # noqa: E501
+
+
+        :return: The claim_id of this CuratedClaim.  # noqa: E501
+        :rtype: object
+        """
+        return self._claim_id
+
+    @claim_id.setter
+    def claim_id(self, claim_id):
+        """Sets the claim_id of this CuratedClaim.
+
+
+        :param claim_id: The claim_id of this CuratedClaim.  # noqa: E501
+        :type: object
+        """
+        if claim_id is None:
+            raise ValueError("Invalid value for `claim_id`, must not be `None`")  # noqa: E501
+
+        self._claim_id = claim_id
+
+    @property
     def entity_id(self):
         """Gets the entity_id of this CuratedClaim.  # noqa: E501
 
@@ -163,138 +163,46 @@ class CuratedClaim(object):
         self._entity_id = entity_id
 
     @property
-    def status(self):
-        """Gets the status of this CuratedClaim.  # noqa: E501
+    def human_attested_at(self):
+        """Gets the human_attested_at of this CuratedClaim.  # noqa: E501
 
 
-        :return: The status of this CuratedClaim.  # noqa: E501
+        :return: The human_attested_at of this CuratedClaim.  # noqa: E501
         :rtype: object
         """
-        return self._status
+        return self._human_attested_at
 
-    @status.setter
-    def status(self, status):
-        """Sets the status of this CuratedClaim.
+    @human_attested_at.setter
+    def human_attested_at(self, human_attested_at):
+        """Sets the human_attested_at of this CuratedClaim.
 
 
-        :param status: The status of this CuratedClaim.  # noqa: E501
+        :param human_attested_at: The human_attested_at of this CuratedClaim.  # noqa: E501
         :type: object
         """
-        if status is None:
-            raise ValueError("Invalid value for `status`, must not be `None`")  # noqa: E501
 
-        self._status = status
+        self._human_attested_at = human_attested_at
 
     @property
-    def provenance_class(self):
-        """Gets the provenance_class of this CuratedClaim.  # noqa: E501
+    def human_attested_by(self):
+        """Gets the human_attested_by of this CuratedClaim.  # noqa: E501
 
 
-        :return: The provenance_class of this CuratedClaim.  # noqa: E501
+        :return: The human_attested_by of this CuratedClaim.  # noqa: E501
         :rtype: object
         """
-        return self._provenance_class
+        return self._human_attested_by
 
-    @provenance_class.setter
-    def provenance_class(self, provenance_class):
-        """Sets the provenance_class of this CuratedClaim.
-
-
-        :param provenance_class: The provenance_class of this CuratedClaim.  # noqa: E501
-        :type: object
-        """
-        if provenance_class is None:
-            raise ValueError("Invalid value for `provenance_class`, must not be `None`")  # noqa: E501
-
-        self._provenance_class = provenance_class
-
-    @property
-    def is_quarantined(self):
-        """Gets the is_quarantined of this CuratedClaim.  # noqa: E501
+    @human_attested_by.setter
+    def human_attested_by(self, human_attested_by):
+        """Sets the human_attested_by of this CuratedClaim.
 
 
-        :return: The is_quarantined of this CuratedClaim.  # noqa: E501
-        :rtype: object
-        """
-        return self._is_quarantined
-
-    @is_quarantined.setter
-    def is_quarantined(self, is_quarantined):
-        """Sets the is_quarantined of this CuratedClaim.
-
-
-        :param is_quarantined: The is_quarantined of this CuratedClaim.  # noqa: E501
-        :type: object
-        """
-        if is_quarantined is None:
-            raise ValueError("Invalid value for `is_quarantined`, must not be `None`")  # noqa: E501
-
-        self._is_quarantined = is_quarantined
-
-    @property
-    def quarantine_cause(self):
-        """Gets the quarantine_cause of this CuratedClaim.  # noqa: E501
-
-
-        :return: The quarantine_cause of this CuratedClaim.  # noqa: E501
-        :rtype: object
-        """
-        return self._quarantine_cause
-
-    @quarantine_cause.setter
-    def quarantine_cause(self, quarantine_cause):
-        """Sets the quarantine_cause of this CuratedClaim.
-
-
-        :param quarantine_cause: The quarantine_cause of this CuratedClaim.  # noqa: E501
+        :param human_attested_by: The human_attested_by of this CuratedClaim.  # noqa: E501
         :type: object
         """
 
-        self._quarantine_cause = quarantine_cause
-
-    @property
-    def is_release_lapsed(self):
-        """Gets the is_release_lapsed of this CuratedClaim.  # noqa: E501
-
-
-        :return: The is_release_lapsed of this CuratedClaim.  # noqa: E501
-        :rtype: object
-        """
-        return self._is_release_lapsed
-
-    @is_release_lapsed.setter
-    def is_release_lapsed(self, is_release_lapsed):
-        """Sets the is_release_lapsed of this CuratedClaim.
-
-
-        :param is_release_lapsed: The is_release_lapsed of this CuratedClaim.  # noqa: E501
-        :type: object
-        """
-
-        self._is_release_lapsed = is_release_lapsed
-
-    @property
-    def is_operator_asserted(self):
-        """Gets the is_operator_asserted of this CuratedClaim.  # noqa: E501
-
-
-        :return: The is_operator_asserted of this CuratedClaim.  # noqa: E501
-        :rtype: object
-        """
-        return self._is_operator_asserted
-
-    @is_operator_asserted.setter
-    def is_operator_asserted(self, is_operator_asserted):
-        """Sets the is_operator_asserted of this CuratedClaim.
-
-
-        :param is_operator_asserted: The is_operator_asserted of this CuratedClaim.  # noqa: E501
-        :type: object
-        """
-        if is_operator_asserted is None:
-            raise ValueError("Invalid value for `is_operator_asserted`, must not be `None`")  # noqa: E501
-
-        self._is_operator_asserted = is_operator_asserted
+        self._human_attested_by = human_attested_by
 
     @property
     def is_bindable(self):
@@ -320,46 +228,115 @@ class CuratedClaim(object):
         self._is_bindable = is_bindable
 
     @property
-    def human_attested_by(self):
-        """Gets the human_attested_by of this CuratedClaim.  # noqa: E501
+    def is_operator_asserted(self):
+        """Gets the is_operator_asserted of this CuratedClaim.  # noqa: E501
 
 
-        :return: The human_attested_by of this CuratedClaim.  # noqa: E501
+        :return: The is_operator_asserted of this CuratedClaim.  # noqa: E501
         :rtype: object
         """
-        return self._human_attested_by
+        return self._is_operator_asserted
 
-    @human_attested_by.setter
-    def human_attested_by(self, human_attested_by):
-        """Sets the human_attested_by of this CuratedClaim.
+    @is_operator_asserted.setter
+    def is_operator_asserted(self, is_operator_asserted):
+        """Sets the is_operator_asserted of this CuratedClaim.
 
 
-        :param human_attested_by: The human_attested_by of this CuratedClaim.  # noqa: E501
+        :param is_operator_asserted: The is_operator_asserted of this CuratedClaim.  # noqa: E501
         :type: object
         """
+        if is_operator_asserted is None:
+            raise ValueError("Invalid value for `is_operator_asserted`, must not be `None`")  # noqa: E501
 
-        self._human_attested_by = human_attested_by
+        self._is_operator_asserted = is_operator_asserted
 
     @property
-    def human_attested_at(self):
-        """Gets the human_attested_at of this CuratedClaim.  # noqa: E501
+    def is_quarantined(self):
+        """Gets the is_quarantined of this CuratedClaim.  # noqa: E501
 
 
-        :return: The human_attested_at of this CuratedClaim.  # noqa: E501
+        :return: The is_quarantined of this CuratedClaim.  # noqa: E501
         :rtype: object
         """
-        return self._human_attested_at
+        return self._is_quarantined
 
-    @human_attested_at.setter
-    def human_attested_at(self, human_attested_at):
-        """Sets the human_attested_at of this CuratedClaim.
+    @is_quarantined.setter
+    def is_quarantined(self, is_quarantined):
+        """Sets the is_quarantined of this CuratedClaim.
 
 
-        :param human_attested_at: The human_attested_at of this CuratedClaim.  # noqa: E501
+        :param is_quarantined: The is_quarantined of this CuratedClaim.  # noqa: E501
+        :type: object
+        """
+        if is_quarantined is None:
+            raise ValueError("Invalid value for `is_quarantined`, must not be `None`")  # noqa: E501
+
+        self._is_quarantined = is_quarantined
+
+    @property
+    def is_release_lapsed(self):
+        """Gets the is_release_lapsed of this CuratedClaim.  # noqa: E501
+
+
+        :return: The is_release_lapsed of this CuratedClaim.  # noqa: E501
+        :rtype: object
+        """
+        return self._is_release_lapsed
+
+    @is_release_lapsed.setter
+    def is_release_lapsed(self, is_release_lapsed):
+        """Sets the is_release_lapsed of this CuratedClaim.
+
+
+        :param is_release_lapsed: The is_release_lapsed of this CuratedClaim.  # noqa: E501
         :type: object
         """
 
-        self._human_attested_at = human_attested_at
+        self._is_release_lapsed = is_release_lapsed
+
+    @property
+    def provenance_class(self):
+        """Gets the provenance_class of this CuratedClaim.  # noqa: E501
+
+
+        :return: The provenance_class of this CuratedClaim.  # noqa: E501
+        :rtype: object
+        """
+        return self._provenance_class
+
+    @provenance_class.setter
+    def provenance_class(self, provenance_class):
+        """Sets the provenance_class of this CuratedClaim.
+
+
+        :param provenance_class: The provenance_class of this CuratedClaim.  # noqa: E501
+        :type: object
+        """
+        if provenance_class is None:
+            raise ValueError("Invalid value for `provenance_class`, must not be `None`")  # noqa: E501
+
+        self._provenance_class = provenance_class
+
+    @property
+    def quarantine_cause(self):
+        """Gets the quarantine_cause of this CuratedClaim.  # noqa: E501
+
+
+        :return: The quarantine_cause of this CuratedClaim.  # noqa: E501
+        :rtype: object
+        """
+        return self._quarantine_cause
+
+    @quarantine_cause.setter
+    def quarantine_cause(self, quarantine_cause):
+        """Sets the quarantine_cause of this CuratedClaim.
+
+
+        :param quarantine_cause: The quarantine_cause of this CuratedClaim.  # noqa: E501
+        :type: object
+        """
+
+        self._quarantine_cause = quarantine_cause
 
     @property
     def statement(self):
@@ -383,6 +360,29 @@ class CuratedClaim(object):
             raise ValueError("Invalid value for `statement`, must not be `None`")  # noqa: E501
 
         self._statement = statement
+
+    @property
+    def status(self):
+        """Gets the status of this CuratedClaim.  # noqa: E501
+
+
+        :return: The status of this CuratedClaim.  # noqa: E501
+        :rtype: object
+        """
+        return self._status
+
+    @status.setter
+    def status(self, status):
+        """Sets the status of this CuratedClaim.
+
+
+        :param status: The status of this CuratedClaim.  # noqa: E501
+        :type: object
+        """
+        if status is None:
+            raise ValueError("Invalid value for `status`, must not be `None`")  # noqa: E501
+
+        self._status = status
 
     def to_dict(self):
         """Returns the model properties as a dict"""

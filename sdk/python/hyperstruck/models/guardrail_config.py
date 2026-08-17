@@ -28,62 +28,39 @@ class GuardrailConfig(object):
                             and the value is json key in definition.
     """
     swagger_types = {
-        'entities': 'object',
         'actions': 'object',
+        'entities': 'object',
         'language': 'object',
-        'score_threshold': 'object',
-        'operators': 'object'
+        'operators': 'object',
+        'score_threshold': 'object'
     }
 
     attribute_map = {
-        'entities': 'entities',
         'actions': 'actions',
+        'entities': 'entities',
         'language': 'language',
-        'score_threshold': 'score_threshold',
-        'operators': 'operators'
+        'operators': 'operators',
+        'score_threshold': 'score_threshold'
     }
 
-    def __init__(self, entities=None, actions=None, language=None, score_threshold=None, operators=None):  # noqa: E501
+    def __init__(self, actions=None, entities=None, language=None, operators=None, score_threshold=None):  # noqa: E501
         """GuardrailConfig - a model defined in Swagger"""  # noqa: E501
-        self._entities = None
         self._actions = None
+        self._entities = None
         self._language = None
-        self._score_threshold = None
         self._operators = None
+        self._score_threshold = None
         self.discriminator = None
-        if entities is not None:
-            self.entities = entities
         if actions is not None:
             self.actions = actions
+        if entities is not None:
+            self.entities = entities
         if language is not None:
             self.language = language
-        if score_threshold is not None:
-            self.score_threshold = score_threshold
         if operators is not None:
             self.operators = operators
-
-    @property
-    def entities(self):
-        """Gets the entities of this GuardrailConfig.  # noqa: E501
-
-        Entity types to detect (Presidio entity names)  # noqa: E501
-
-        :return: The entities of this GuardrailConfig.  # noqa: E501
-        :rtype: object
-        """
-        return self._entities
-
-    @entities.setter
-    def entities(self, entities):
-        """Sets the entities of this GuardrailConfig.
-
-        Entity types to detect (Presidio entity names)  # noqa: E501
-
-        :param entities: The entities of this GuardrailConfig.  # noqa: E501
-        :type: object
-        """
-
-        self._entities = entities
+        if score_threshold is not None:
+            self.score_threshold = score_threshold
 
     @property
     def actions(self):
@@ -109,6 +86,29 @@ class GuardrailConfig(object):
         self._actions = actions
 
     @property
+    def entities(self):
+        """Gets the entities of this GuardrailConfig.  # noqa: E501
+
+        Entity types to detect (Presidio entity names)  # noqa: E501
+
+        :return: The entities of this GuardrailConfig.  # noqa: E501
+        :rtype: object
+        """
+        return self._entities
+
+    @entities.setter
+    def entities(self, entities):
+        """Sets the entities of this GuardrailConfig.
+
+        Entity types to detect (Presidio entity names)  # noqa: E501
+
+        :param entities: The entities of this GuardrailConfig.  # noqa: E501
+        :type: object
+        """
+
+        self._entities = entities
+
+    @property
     def language(self):
         """Gets the language of this GuardrailConfig.  # noqa: E501
 
@@ -132,29 +132,6 @@ class GuardrailConfig(object):
         self._language = language
 
     @property
-    def score_threshold(self):
-        """Gets the score_threshold of this GuardrailConfig.  # noqa: E501
-
-        Minimum confidence score for PII detection  # noqa: E501
-
-        :return: The score_threshold of this GuardrailConfig.  # noqa: E501
-        :rtype: object
-        """
-        return self._score_threshold
-
-    @score_threshold.setter
-    def score_threshold(self, score_threshold):
-        """Sets the score_threshold of this GuardrailConfig.
-
-        Minimum confidence score for PII detection  # noqa: E501
-
-        :param score_threshold: The score_threshold of this GuardrailConfig.  # noqa: E501
-        :type: object
-        """
-
-        self._score_threshold = score_threshold
-
-    @property
     def operators(self):
         """Gets the operators of this GuardrailConfig.  # noqa: E501
 
@@ -176,6 +153,29 @@ class GuardrailConfig(object):
         """
 
         self._operators = operators
+
+    @property
+    def score_threshold(self):
+        """Gets the score_threshold of this GuardrailConfig.  # noqa: E501
+
+        Minimum confidence score for PII detection  # noqa: E501
+
+        :return: The score_threshold of this GuardrailConfig.  # noqa: E501
+        :rtype: object
+        """
+        return self._score_threshold
+
+    @score_threshold.setter
+    def score_threshold(self, score_threshold):
+        """Sets the score_threshold of this GuardrailConfig.
+
+        Minimum confidence score for PII detection  # noqa: E501
+
+        :param score_threshold: The score_threshold of this GuardrailConfig.  # noqa: E501
+        :type: object
+        """
+
+        self._score_threshold = score_threshold
 
     def to_dict(self):
         """Returns the model properties as a dict"""

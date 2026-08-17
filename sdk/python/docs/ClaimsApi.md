@@ -11,7 +11,9 @@ Method | HTTP request | Description
 [**erase_entity_endpoint_agents_agent_id_claims_entities_entity_id_erasure_post**](ClaimsApi.md#erase_entity_endpoint_agents_agent_id_claims_entities_entity_id_erasure_post) | **POST** /agents/{agent_id}/claims/entities/{entity_id}/erasure | Erase an entity&#x27;s claim layer
 [**get_attribute_endpoint_agents_agent_id_claims_attributes_attribute_id_get**](ClaimsApi.md#get_attribute_endpoint_agents_agent_id_claims_attributes_attribute_id_get) | **GET** /agents/{agent_id}/claims/attributes/{attribute_id} | Resolve a claim attribute registry id
 [**get_entity_dossier_endpoint_agents_agent_id_claims_entities_entity_id_get**](ClaimsApi.md#get_entity_dossier_endpoint_agents_agent_id_claims_entities_entity_id_get) | **GET** /agents/{agent_id}/claims/entities/{entity_id} | Get an entity&#x27;s curation dossier
+[**get_org_stability_summary_endpoint_org_claims_stability_get**](ClaimsApi.md#get_org_stability_summary_endpoint_org_claims_stability_get) | **GET** /org/claims/stability | Read how warm every agent&#x27;s claim corpus is across the tenant
 [**get_review_context_endpoint_agents_agent_id_claims_claim_id_review_context_get**](ClaimsApi.md#get_review_context_endpoint_agents_agent_id_claims_claim_id_review_context_get) | **GET** /agents/{agent_id}/claims/{claim_id}/review-context | Get a claim&#x27;s review context and consent token
+[**get_stability_summary_endpoint_agents_agent_id_claims_stability_get**](ClaimsApi.md#get_stability_summary_endpoint_agents_agent_id_claims_stability_get) | **GET** /agents/{agent_id}/claims/stability | Read how warm this agent&#x27;s claim corpus is
 [**list_abstained_queue_endpoint_org_claims_abstained_get**](ClaimsApi.md#list_abstained_queue_endpoint_org_claims_abstained_get) | **GET** /org/claims/abstained | List abstained claims across the tenant
 [**list_attribute_merges_endpoint_agents_agent_id_claims_attribute_merges_get**](ClaimsApi.md#list_attribute_merges_endpoint_agents_agent_id_claims_attribute_merges_get) | **GET** /agents/{agent_id}/claims/attribute-merges | List attribute merge edges
 [**list_entity_aliases_endpoint_agents_agent_id_claims_entities_entity_id_aliases_get**](ClaimsApi.md#list_entity_aliases_endpoint_agents_agent_id_claims_entities_entity_id_aliases_get) | **GET** /agents/{agent_id}/claims/entities/{entity_id}/aliases | List aliases for an entity
@@ -422,6 +424,60 @@ Name | Type | Description  | Notes
 
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 
+# **get_org_stability_summary_endpoint_org_claims_stability_get**
+> OrgClaimStabilitySummary get_org_stability_summary_endpoint_org_claims_stability_get(limit=limit)
+
+Read how warm every agent's claim corpus is across the tenant
+
+The per-agent stability readings the decision to enable the plan-rewrite pass is taken on, plus the tenant total. The decision is per agent but reviewed per tenant, and this is the view that makes that possible without knowing every agent id. is_truncated says the tenant has more agents than limit, so the total covers only the agents listed. See the claim curation API guide for how to interpret each population.
+
+### Example
+```python
+from __future__ import print_function
+import time
+import hyperstruck
+from hyperstruck.rest import ApiException
+from pprint import pprint
+
+# Configure API key authorization: BearerApiKey
+configuration = hyperstruck.Configuration()
+configuration.api_key['Authorization'] = 'YOUR_API_KEY'
+# Uncomment below to setup prefix (e.g. Bearer) for API key, if needed
+# configuration.api_key_prefix['Authorization'] = 'Bearer'
+
+# create an instance of the API class
+api_instance = hyperstruck.ClaimsApi(hyperstruck.ApiClient(configuration))
+limit = 50 # object | Maximum number of items to return on this page. (optional) (default to 50)
+
+try:
+    # Read how warm every agent's claim corpus is across the tenant
+    api_response = api_instance.get_org_stability_summary_endpoint_org_claims_stability_get(limit=limit)
+    pprint(api_response)
+except ApiException as e:
+    print("Exception when calling ClaimsApi->get_org_stability_summary_endpoint_org_claims_stability_get: %s\n" % e)
+```
+
+### Parameters
+
+Name | Type | Description  | Notes
+------------- | ------------- | ------------- | -------------
+ **limit** | [**object**](.md)| Maximum number of items to return on this page. | [optional] [default to 50]
+
+### Return type
+
+[**OrgClaimStabilitySummary**](OrgClaimStabilitySummary.md)
+
+### Authorization
+
+[BearerApiKey](../README.md#BearerApiKey)
+
+### HTTP request headers
+
+ - **Content-Type**: Not defined
+ - **Accept**: application/json
+
+[[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
+
 # **get_review_context_endpoint_agents_agent_id_claims_claim_id_review_context_get**
 > ClaimReviewContext get_review_context_endpoint_agents_agent_id_claims_claim_id_review_context_get(agent_id, claim_id)
 
@@ -466,6 +522,60 @@ Name | Type | Description  | Notes
 ### Return type
 
 [**ClaimReviewContext**](ClaimReviewContext.md)
+
+### Authorization
+
+[BearerApiKey](../README.md#BearerApiKey)
+
+### HTTP request headers
+
+ - **Content-Type**: Not defined
+ - **Accept**: application/json
+
+[[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
+
+# **get_stability_summary_endpoint_agents_agent_id_claims_stability_get**
+> ClaimStabilitySummary get_stability_summary_endpoint_agents_agent_id_claims_stability_get(agent_id)
+
+Read how warm this agent's claim corpus is
+
+The slot populations the decision to enable the plan-rewrite pass is taken on, and the confidence and prior_changes they were evaluated at. Read admitted_slots as a series, not a single number, and as an upper bound on read elimination rather than a count of it. See the claim curation API guide for how to interpret each population.
+
+### Example
+```python
+from __future__ import print_function
+import time
+import hyperstruck
+from hyperstruck.rest import ApiException
+from pprint import pprint
+
+# Configure API key authorization: BearerApiKey
+configuration = hyperstruck.Configuration()
+configuration.api_key['Authorization'] = 'YOUR_API_KEY'
+# Uncomment below to setup prefix (e.g. Bearer) for API key, if needed
+# configuration.api_key_prefix['Authorization'] = 'Bearer'
+
+# create an instance of the API class
+api_instance = hyperstruck.ClaimsApi(hyperstruck.ApiClient(configuration))
+agent_id = NULL # object | Hosted agent UUID returned by the agent create or list endpoint.
+
+try:
+    # Read how warm this agent's claim corpus is
+    api_response = api_instance.get_stability_summary_endpoint_agents_agent_id_claims_stability_get(agent_id)
+    pprint(api_response)
+except ApiException as e:
+    print("Exception when calling ClaimsApi->get_stability_summary_endpoint_agents_agent_id_claims_stability_get: %s\n" % e)
+```
+
+### Parameters
+
+Name | Type | Description  | Notes
+------------- | ------------- | ------------- | -------------
+ **agent_id** | [**object**](.md)| Hosted agent UUID returned by the agent create or list endpoint. |
+
+### Return type
+
+[**ClaimStabilitySummary**](ClaimStabilitySummary.md)
 
 ### Authorization
 

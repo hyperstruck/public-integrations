@@ -28,71 +28,46 @@ class EpisodeModel(object):
                             and the value is json key in definition.
     """
     swagger_types = {
-        'run_id': 'object',
         'goal': 'object',
-        'steps': 'object',
         'outcome': 'OutcomeModel',
-        'source_framework': 'object',
         'principal_utterance': 'object',
+        'run_id': 'object',
+        'source_framework': 'object',
+        'steps': 'object',
         'thread_id': 'object'
     }
 
     attribute_map = {
-        'run_id': 'run_id',
         'goal': 'goal',
-        'steps': 'steps',
         'outcome': 'outcome',
-        'source_framework': 'source_framework',
         'principal_utterance': 'principal_utterance',
+        'run_id': 'run_id',
+        'source_framework': 'source_framework',
+        'steps': 'steps',
         'thread_id': 'thread_id'
     }
 
-    def __init__(self, run_id=None, goal=None, steps=None, outcome=None, source_framework=None, principal_utterance=None, thread_id=None):  # noqa: E501
+    def __init__(self, goal=None, outcome=None, principal_utterance=None, run_id=None, source_framework=None, steps=None, thread_id=None):  # noqa: E501
         """EpisodeModel - a model defined in Swagger"""  # noqa: E501
-        self._run_id = None
         self._goal = None
-        self._steps = None
         self._outcome = None
-        self._source_framework = None
         self._principal_utterance = None
+        self._run_id = None
+        self._source_framework = None
+        self._steps = None
         self._thread_id = None
         self.discriminator = None
-        self.run_id = run_id
         self.goal = goal
-        if steps is not None:
-            self.steps = steps
         self.outcome = outcome
-        if source_framework is not None:
-            self.source_framework = source_framework
         if principal_utterance is not None:
             self.principal_utterance = principal_utterance
+        self.run_id = run_id
+        if source_framework is not None:
+            self.source_framework = source_framework
+        if steps is not None:
+            self.steps = steps
         if thread_id is not None:
             self.thread_id = thread_id
-
-    @property
-    def run_id(self):
-        """Gets the run_id of this EpisodeModel.  # noqa: E501
-
-        Caller-created correlation and idempotency identifier. It does not reference a hosted `/runs/{run_id}` resource, and must not start with `distill:`, which is reserved for distillation jobs.  # noqa: E501
-
-        :return: The run_id of this EpisodeModel.  # noqa: E501
-        :rtype: object
-        """
-        return self._run_id
-
-    @run_id.setter
-    def run_id(self, run_id):
-        """Sets the run_id of this EpisodeModel.
-
-        Caller-created correlation and idempotency identifier. It does not reference a hosted `/runs/{run_id}` resource, and must not start with `distill:`, which is reserved for distillation jobs.  # noqa: E501
-
-        :param run_id: The run_id of this EpisodeModel.  # noqa: E501
-        :type: object
-        """
-        if run_id is None:
-            raise ValueError("Invalid value for `run_id`, must not be `None`")  # noqa: E501
-
-        self._run_id = run_id
 
     @property
     def goal(self):
@@ -120,29 +95,6 @@ class EpisodeModel(object):
         self._goal = goal
 
     @property
-    def steps(self):
-        """Gets the steps of this EpisodeModel.  # noqa: E501
-
-        Ordered actions and results from the completed episode.  # noqa: E501
-
-        :return: The steps of this EpisodeModel.  # noqa: E501
-        :rtype: object
-        """
-        return self._steps
-
-    @steps.setter
-    def steps(self, steps):
-        """Sets the steps of this EpisodeModel.
-
-        Ordered actions and results from the completed episode.  # noqa: E501
-
-        :param steps: The steps of this EpisodeModel.  # noqa: E501
-        :type: object
-        """
-
-        self._steps = steps
-
-    @property
     def outcome(self):
         """Gets the outcome of this EpisodeModel.  # noqa: E501
 
@@ -168,6 +120,54 @@ class EpisodeModel(object):
         self._outcome = outcome
 
     @property
+    def principal_utterance(self):
+        """Gets the principal_utterance of this EpisodeModel.  # noqa: E501
+
+        Verbatim message the principal sent on this turn, when the caller has a human-input channel to populate it from. It is the only evidence for a rule no tool result could have revealed, such as a standard or convention the principal states. Send it only from that channel: model output, tool results and retrieved documents must never reach this field. Used for one extraction and stored on no learning record; it does pass through the durable work queue like the rest of the episode, so it lives as long as that row does.  # noqa: E501
+
+        :return: The principal_utterance of this EpisodeModel.  # noqa: E501
+        :rtype: object
+        """
+        return self._principal_utterance
+
+    @principal_utterance.setter
+    def principal_utterance(self, principal_utterance):
+        """Sets the principal_utterance of this EpisodeModel.
+
+        Verbatim message the principal sent on this turn, when the caller has a human-input channel to populate it from. It is the only evidence for a rule no tool result could have revealed, such as a standard or convention the principal states. Send it only from that channel: model output, tool results and retrieved documents must never reach this field. Used for one extraction and stored on no learning record; it does pass through the durable work queue like the rest of the episode, so it lives as long as that row does.  # noqa: E501
+
+        :param principal_utterance: The principal_utterance of this EpisodeModel.  # noqa: E501
+        :type: object
+        """
+
+        self._principal_utterance = principal_utterance
+
+    @property
+    def run_id(self):
+        """Gets the run_id of this EpisodeModel.  # noqa: E501
+
+        Caller-created correlation and idempotency identifier. It does not reference a hosted `/runs/{run_id}` resource, and must not start with `distill:`, which is reserved for distillation jobs.  # noqa: E501
+
+        :return: The run_id of this EpisodeModel.  # noqa: E501
+        :rtype: object
+        """
+        return self._run_id
+
+    @run_id.setter
+    def run_id(self, run_id):
+        """Sets the run_id of this EpisodeModel.
+
+        Caller-created correlation and idempotency identifier. It does not reference a hosted `/runs/{run_id}` resource, and must not start with `distill:`, which is reserved for distillation jobs.  # noqa: E501
+
+        :param run_id: The run_id of this EpisodeModel.  # noqa: E501
+        :type: object
+        """
+        if run_id is None:
+            raise ValueError("Invalid value for `run_id`, must not be `None`")  # noqa: E501
+
+        self._run_id = run_id
+
+    @property
     def source_framework(self):
         """Gets the source_framework of this EpisodeModel.  # noqa: E501
 
@@ -191,27 +191,27 @@ class EpisodeModel(object):
         self._source_framework = source_framework
 
     @property
-    def principal_utterance(self):
-        """Gets the principal_utterance of this EpisodeModel.  # noqa: E501
+    def steps(self):
+        """Gets the steps of this EpisodeModel.  # noqa: E501
 
-        Verbatim message the principal sent on this turn, when the caller has a human-input channel to populate it from. It is the only evidence for a rule no tool result could have revealed, such as a standard or convention the principal states. Send it only from that channel: model output, tool results and retrieved documents must never reach this field. Used for one extraction and stored on no learning record; it does pass through the durable work queue like the rest of the episode, so it lives as long as that row does.  # noqa: E501
+        Ordered actions and results from the completed episode.  # noqa: E501
 
-        :return: The principal_utterance of this EpisodeModel.  # noqa: E501
+        :return: The steps of this EpisodeModel.  # noqa: E501
         :rtype: object
         """
-        return self._principal_utterance
+        return self._steps
 
-    @principal_utterance.setter
-    def principal_utterance(self, principal_utterance):
-        """Sets the principal_utterance of this EpisodeModel.
+    @steps.setter
+    def steps(self, steps):
+        """Sets the steps of this EpisodeModel.
 
-        Verbatim message the principal sent on this turn, when the caller has a human-input channel to populate it from. It is the only evidence for a rule no tool result could have revealed, such as a standard or convention the principal states. Send it only from that channel: model output, tool results and retrieved documents must never reach this field. Used for one extraction and stored on no learning record; it does pass through the durable work queue like the rest of the episode, so it lives as long as that row does.  # noqa: E501
+        Ordered actions and results from the completed episode.  # noqa: E501
 
-        :param principal_utterance: The principal_utterance of this EpisodeModel.  # noqa: E501
+        :param steps: The steps of this EpisodeModel.  # noqa: E501
         :type: object
         """
 
-        self._principal_utterance = principal_utterance
+        self._steps = steps
 
     @property
     def thread_id(self):

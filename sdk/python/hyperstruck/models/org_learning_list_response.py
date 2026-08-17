@@ -30,29 +30,29 @@ class OrgLearningListResponse(object):
     swagger_types = {
         'items': 'object',
         'next_cursor': 'object',
-        'total': 'object',
-        'retrieved_at': 'object'
+        'retrieved_at': 'object',
+        'total': 'object'
     }
 
     attribute_map = {
         'items': 'items',
         'next_cursor': 'next_cursor',
-        'total': 'total',
-        'retrieved_at': 'retrieved_at'
+        'retrieved_at': 'retrieved_at',
+        'total': 'total'
     }
 
-    def __init__(self, items=None, next_cursor=None, total=None, retrieved_at=None):  # noqa: E501
+    def __init__(self, items=None, next_cursor=None, retrieved_at=None, total=None):  # noqa: E501
         """OrgLearningListResponse - a model defined in Swagger"""  # noqa: E501
         self._items = None
         self._next_cursor = None
-        self._total = None
         self._retrieved_at = None
+        self._total = None
         self.discriminator = None
         self.items = items
         if next_cursor is not None:
             self.next_cursor = next_cursor
-        self.total = total
         self.retrieved_at = retrieved_at
+        self.total = total
 
     @property
     def items(self):
@@ -99,29 +99,6 @@ class OrgLearningListResponse(object):
         self._next_cursor = next_cursor
 
     @property
-    def total(self):
-        """Gets the total of this OrgLearningListResponse.  # noqa: E501
-
-
-        :return: The total of this OrgLearningListResponse.  # noqa: E501
-        :rtype: object
-        """
-        return self._total
-
-    @total.setter
-    def total(self, total):
-        """Sets the total of this OrgLearningListResponse.
-
-
-        :param total: The total of this OrgLearningListResponse.  # noqa: E501
-        :type: object
-        """
-        if total is None:
-            raise ValueError("Invalid value for `total`, must not be `None`")  # noqa: E501
-
-        self._total = total
-
-    @property
     def retrieved_at(self):
         """Gets the retrieved_at of this OrgLearningListResponse.  # noqa: E501
 
@@ -143,6 +120,29 @@ class OrgLearningListResponse(object):
             raise ValueError("Invalid value for `retrieved_at`, must not be `None`")  # noqa: E501
 
         self._retrieved_at = retrieved_at
+
+    @property
+    def total(self):
+        """Gets the total of this OrgLearningListResponse.  # noqa: E501
+
+
+        :return: The total of this OrgLearningListResponse.  # noqa: E501
+        :rtype: object
+        """
+        return self._total
+
+    @total.setter
+    def total(self, total):
+        """Sets the total of this OrgLearningListResponse.
+
+
+        :param total: The total of this OrgLearningListResponse.  # noqa: E501
+        :type: object
+        """
+        if total is None:
+            raise ValueError("Invalid value for `total`, must not be `None`")  # noqa: E501
+
+        self._total = total
 
     def to_dict(self):
         """Returns the model properties as a dict"""

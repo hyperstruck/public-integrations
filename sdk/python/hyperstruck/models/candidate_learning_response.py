@@ -28,54 +28,31 @@ class CandidateLearningResponse(object):
                             and the value is json key in definition.
     """
     swagger_types = {
-        'learning_id': 'object',
         'content': 'object',
+        'learning_id': 'object',
         'score': 'object',
         'trust_level': 'object'
     }
 
     attribute_map = {
-        'learning_id': 'learning_id',
         'content': 'content',
+        'learning_id': 'learning_id',
         'score': 'score',
         'trust_level': 'trust_level'
     }
 
-    def __init__(self, learning_id=None, content=None, score=None, trust_level=None):  # noqa: E501
+    def __init__(self, content=None, learning_id=None, score=None, trust_level=None):  # noqa: E501
         """CandidateLearningResponse - a model defined in Swagger"""  # noqa: E501
-        self._learning_id = None
         self._content = None
+        self._learning_id = None
         self._score = None
         self._trust_level = None
         self.discriminator = None
-        self.learning_id = learning_id
         self.content = content
+        self.learning_id = learning_id
         if score is not None:
             self.score = score
         self.trust_level = trust_level
-
-    @property
-    def learning_id(self):
-        """Gets the learning_id of this CandidateLearningResponse.  # noqa: E501
-
-
-        :return: The learning_id of this CandidateLearningResponse.  # noqa: E501
-        :rtype: object
-        """
-        return self._learning_id
-
-    @learning_id.setter
-    def learning_id(self, learning_id):
-        """Sets the learning_id of this CandidateLearningResponse.
-
-
-        :param learning_id: The learning_id of this CandidateLearningResponse.  # noqa: E501
-        :type: object
-        """
-        if learning_id is None:
-            raise ValueError("Invalid value for `learning_id`, must not be `None`")  # noqa: E501
-
-        self._learning_id = learning_id
 
     @property
     def content(self):
@@ -99,6 +76,29 @@ class CandidateLearningResponse(object):
             raise ValueError("Invalid value for `content`, must not be `None`")  # noqa: E501
 
         self._content = content
+
+    @property
+    def learning_id(self):
+        """Gets the learning_id of this CandidateLearningResponse.  # noqa: E501
+
+
+        :return: The learning_id of this CandidateLearningResponse.  # noqa: E501
+        :rtype: object
+        """
+        return self._learning_id
+
+    @learning_id.setter
+    def learning_id(self, learning_id):
+        """Sets the learning_id of this CandidateLearningResponse.
+
+
+        :param learning_id: The learning_id of this CandidateLearningResponse.  # noqa: E501
+        :type: object
+        """
+        if learning_id is None:
+            raise ValueError("Invalid value for `learning_id`, must not be `None`")  # noqa: E501
+
+        self._learning_id = learning_id
 
     @property
     def score(self):

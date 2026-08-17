@@ -28,53 +28,28 @@ class RunSource(object):
                             and the value is json key in definition.
     """
     swagger_types = {
-        'text': 'object',
         'id': 'object',
-        'label': 'object'
+        'label': 'object',
+        'text': 'object'
     }
 
     attribute_map = {
-        'text': 'text',
         'id': 'id',
-        'label': 'label'
+        'label': 'label',
+        'text': 'text'
     }
 
-    def __init__(self, text=None, id=None, label=None):  # noqa: E501
+    def __init__(self, id=None, label=None, text=None):  # noqa: E501
         """RunSource - a model defined in Swagger"""  # noqa: E501
-        self._text = None
         self._id = None
         self._label = None
+        self._text = None
         self.discriminator = None
-        self.text = text
         if id is not None:
             self.id = id
         if label is not None:
             self.label = label
-
-    @property
-    def text(self):
-        """Gets the text of this RunSource.  # noqa: E501
-
-        Source-of-truth text that a response may rely on as evidence.  # noqa: E501
-
-        :return: The text of this RunSource.  # noqa: E501
-        :rtype: object
-        """
-        return self._text
-
-    @text.setter
-    def text(self, text):
-        """Sets the text of this RunSource.
-
-        Source-of-truth text that a response may rely on as evidence.  # noqa: E501
-
-        :param text: The text of this RunSource.  # noqa: E501
-        :type: object
-        """
-        if text is None:
-            raise ValueError("Invalid value for `text`, must not be `None`")  # noqa: E501
-
-        self._text = text
+        self.text = text
 
     @property
     def id(self):
@@ -121,6 +96,31 @@ class RunSource(object):
         """
 
         self._label = label
+
+    @property
+    def text(self):
+        """Gets the text of this RunSource.  # noqa: E501
+
+        Source-of-truth text that a response may rely on as evidence.  # noqa: E501
+
+        :return: The text of this RunSource.  # noqa: E501
+        :rtype: object
+        """
+        return self._text
+
+    @text.setter
+    def text(self, text):
+        """Sets the text of this RunSource.
+
+        Source-of-truth text that a response may rely on as evidence.  # noqa: E501
+
+        :param text: The text of this RunSource.  # noqa: E501
+        :type: object
+        """
+        if text is None:
+            raise ValueError("Invalid value for `text`, must not be `None`")  # noqa: E501
+
+        self._text = text
 
     def to_dict(self):
         """Returns the model properties as a dict"""

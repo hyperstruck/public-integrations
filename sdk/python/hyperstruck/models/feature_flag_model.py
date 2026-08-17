@@ -28,23 +28,44 @@ class FeatureFlagModel(object):
                             and the value is json key in definition.
     """
     swagger_types = {
-        'enabled': 'object',
-        'config': 'object'
+        'config': 'object',
+        'enabled': 'object'
     }
 
     attribute_map = {
-        'enabled': 'enabled',
-        'config': 'config'
+        'config': 'config',
+        'enabled': 'enabled'
     }
 
-    def __init__(self, enabled=None, config=None):  # noqa: E501
+    def __init__(self, config=None, enabled=None):  # noqa: E501
         """FeatureFlagModel - a model defined in Swagger"""  # noqa: E501
-        self._enabled = None
         self._config = None
+        self._enabled = None
         self.discriminator = None
-        self.enabled = enabled
         if config is not None:
             self.config = config
+        self.enabled = enabled
+
+    @property
+    def config(self):
+        """Gets the config of this FeatureFlagModel.  # noqa: E501
+
+
+        :return: The config of this FeatureFlagModel.  # noqa: E501
+        :rtype: object
+        """
+        return self._config
+
+    @config.setter
+    def config(self, config):
+        """Sets the config of this FeatureFlagModel.
+
+
+        :param config: The config of this FeatureFlagModel.  # noqa: E501
+        :type: object
+        """
+
+        self._config = config
 
     @property
     def enabled(self):
@@ -68,27 +89,6 @@ class FeatureFlagModel(object):
             raise ValueError("Invalid value for `enabled`, must not be `None`")  # noqa: E501
 
         self._enabled = enabled
-
-    @property
-    def config(self):
-        """Gets the config of this FeatureFlagModel.  # noqa: E501
-
-
-        :return: The config of this FeatureFlagModel.  # noqa: E501
-        :rtype: object
-        """
-        return self._config
-
-    @config.setter
-    def config(self, config):
-        """Sets the config of this FeatureFlagModel.
-
-
-        :param config: The config of this FeatureFlagModel.  # noqa: E501
-        :type: object
-        """
-
-        self._config = config
 
     def to_dict(self):
         """Returns the model properties as a dict"""

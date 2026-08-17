@@ -28,74 +28,51 @@ class ClaimErasureReceipt(object):
                             and the value is json key in definition.
     """
     swagger_types = {
-        'request_id': 'object',
         'agent_id': 'object',
-        'entity_id': 'object',
-        'operator_principal': 'object',
-        'status': 'object',
-        'requested_at': 'object',
         'completed_at': 'object',
+        'entity_id': 'object',
+        'not_reached': 'object',
+        'operator_principal': 'object',
         'reached': 'object',
-        'not_reached': 'object'
+        'request_id': 'object',
+        'requested_at': 'object',
+        'status': 'object'
     }
 
     attribute_map = {
-        'request_id': 'request_id',
         'agent_id': 'agent_id',
-        'entity_id': 'entity_id',
-        'operator_principal': 'operator_principal',
-        'status': 'status',
-        'requested_at': 'requested_at',
         'completed_at': 'completed_at',
+        'entity_id': 'entity_id',
+        'not_reached': 'not_reached',
+        'operator_principal': 'operator_principal',
         'reached': 'reached',
-        'not_reached': 'not_reached'
+        'request_id': 'request_id',
+        'requested_at': 'requested_at',
+        'status': 'status'
     }
 
-    def __init__(self, request_id=None, agent_id=None, entity_id=None, operator_principal=None, status=None, requested_at=None, completed_at=None, reached=None, not_reached=None):  # noqa: E501
+    def __init__(self, agent_id=None, completed_at=None, entity_id=None, not_reached=None, operator_principal=None, reached=None, request_id=None, requested_at=None, status=None):  # noqa: E501
         """ClaimErasureReceipt - a model defined in Swagger"""  # noqa: E501
-        self._request_id = None
         self._agent_id = None
-        self._entity_id = None
-        self._operator_principal = None
-        self._status = None
-        self._requested_at = None
         self._completed_at = None
-        self._reached = None
+        self._entity_id = None
         self._not_reached = None
+        self._operator_principal = None
+        self._reached = None
+        self._request_id = None
+        self._requested_at = None
+        self._status = None
         self.discriminator = None
-        self.request_id = request_id
         self.agent_id = agent_id
-        self.entity_id = entity_id
-        self.operator_principal = operator_principal
-        self.status = status
-        self.requested_at = requested_at
         if completed_at is not None:
             self.completed_at = completed_at
-        self.reached = reached
+        self.entity_id = entity_id
         self.not_reached = not_reached
-
-    @property
-    def request_id(self):
-        """Gets the request_id of this ClaimErasureReceipt.  # noqa: E501
-
-
-        :return: The request_id of this ClaimErasureReceipt.  # noqa: E501
-        :rtype: object
-        """
-        return self._request_id
-
-    @request_id.setter
-    def request_id(self, request_id):
-        """Sets the request_id of this ClaimErasureReceipt.
-
-
-        :param request_id: The request_id of this ClaimErasureReceipt.  # noqa: E501
-        :type: object
-        """
-        if request_id is None:
-            raise ValueError("Invalid value for `request_id`, must not be `None`")  # noqa: E501
-
-        self._request_id = request_id
+        self.operator_principal = operator_principal
+        self.reached = reached
+        self.request_id = request_id
+        self.requested_at = requested_at
+        self.status = status
 
     @property
     def agent_id(self):
@@ -121,6 +98,27 @@ class ClaimErasureReceipt(object):
         self._agent_id = agent_id
 
     @property
+    def completed_at(self):
+        """Gets the completed_at of this ClaimErasureReceipt.  # noqa: E501
+
+
+        :return: The completed_at of this ClaimErasureReceipt.  # noqa: E501
+        :rtype: object
+        """
+        return self._completed_at
+
+    @completed_at.setter
+    def completed_at(self, completed_at):
+        """Sets the completed_at of this ClaimErasureReceipt.
+
+
+        :param completed_at: The completed_at of this ClaimErasureReceipt.  # noqa: E501
+        :type: object
+        """
+
+        self._completed_at = completed_at
+
+    @property
     def entity_id(self):
         """Gets the entity_id of this ClaimErasureReceipt.  # noqa: E501
 
@@ -142,6 +140,29 @@ class ClaimErasureReceipt(object):
             raise ValueError("Invalid value for `entity_id`, must not be `None`")  # noqa: E501
 
         self._entity_id = entity_id
+
+    @property
+    def not_reached(self):
+        """Gets the not_reached of this ClaimErasureReceipt.  # noqa: E501
+
+
+        :return: The not_reached of this ClaimErasureReceipt.  # noqa: E501
+        :rtype: object
+        """
+        return self._not_reached
+
+    @not_reached.setter
+    def not_reached(self, not_reached):
+        """Sets the not_reached of this ClaimErasureReceipt.
+
+
+        :param not_reached: The not_reached of this ClaimErasureReceipt.  # noqa: E501
+        :type: object
+        """
+        if not_reached is None:
+            raise ValueError("Invalid value for `not_reached`, must not be `None`")  # noqa: E501
+
+        self._not_reached = not_reached
 
     @property
     def operator_principal(self):
@@ -167,27 +188,50 @@ class ClaimErasureReceipt(object):
         self._operator_principal = operator_principal
 
     @property
-    def status(self):
-        """Gets the status of this ClaimErasureReceipt.  # noqa: E501
+    def reached(self):
+        """Gets the reached of this ClaimErasureReceipt.  # noqa: E501
 
 
-        :return: The status of this ClaimErasureReceipt.  # noqa: E501
+        :return: The reached of this ClaimErasureReceipt.  # noqa: E501
         :rtype: object
         """
-        return self._status
+        return self._reached
 
-    @status.setter
-    def status(self, status):
-        """Sets the status of this ClaimErasureReceipt.
+    @reached.setter
+    def reached(self, reached):
+        """Sets the reached of this ClaimErasureReceipt.
 
 
-        :param status: The status of this ClaimErasureReceipt.  # noqa: E501
+        :param reached: The reached of this ClaimErasureReceipt.  # noqa: E501
         :type: object
         """
-        if status is None:
-            raise ValueError("Invalid value for `status`, must not be `None`")  # noqa: E501
+        if reached is None:
+            raise ValueError("Invalid value for `reached`, must not be `None`")  # noqa: E501
 
-        self._status = status
+        self._reached = reached
+
+    @property
+    def request_id(self):
+        """Gets the request_id of this ClaimErasureReceipt.  # noqa: E501
+
+
+        :return: The request_id of this ClaimErasureReceipt.  # noqa: E501
+        :rtype: object
+        """
+        return self._request_id
+
+    @request_id.setter
+    def request_id(self, request_id):
+        """Sets the request_id of this ClaimErasureReceipt.
+
+
+        :param request_id: The request_id of this ClaimErasureReceipt.  # noqa: E501
+        :type: object
+        """
+        if request_id is None:
+            raise ValueError("Invalid value for `request_id`, must not be `None`")  # noqa: E501
+
+        self._request_id = request_id
 
     @property
     def requested_at(self):
@@ -213,71 +257,27 @@ class ClaimErasureReceipt(object):
         self._requested_at = requested_at
 
     @property
-    def completed_at(self):
-        """Gets the completed_at of this ClaimErasureReceipt.  # noqa: E501
+    def status(self):
+        """Gets the status of this ClaimErasureReceipt.  # noqa: E501
 
 
-        :return: The completed_at of this ClaimErasureReceipt.  # noqa: E501
+        :return: The status of this ClaimErasureReceipt.  # noqa: E501
         :rtype: object
         """
-        return self._completed_at
+        return self._status
 
-    @completed_at.setter
-    def completed_at(self, completed_at):
-        """Sets the completed_at of this ClaimErasureReceipt.
+    @status.setter
+    def status(self, status):
+        """Sets the status of this ClaimErasureReceipt.
 
 
-        :param completed_at: The completed_at of this ClaimErasureReceipt.  # noqa: E501
+        :param status: The status of this ClaimErasureReceipt.  # noqa: E501
         :type: object
         """
+        if status is None:
+            raise ValueError("Invalid value for `status`, must not be `None`")  # noqa: E501
 
-        self._completed_at = completed_at
-
-    @property
-    def reached(self):
-        """Gets the reached of this ClaimErasureReceipt.  # noqa: E501
-
-
-        :return: The reached of this ClaimErasureReceipt.  # noqa: E501
-        :rtype: object
-        """
-        return self._reached
-
-    @reached.setter
-    def reached(self, reached):
-        """Sets the reached of this ClaimErasureReceipt.
-
-
-        :param reached: The reached of this ClaimErasureReceipt.  # noqa: E501
-        :type: object
-        """
-        if reached is None:
-            raise ValueError("Invalid value for `reached`, must not be `None`")  # noqa: E501
-
-        self._reached = reached
-
-    @property
-    def not_reached(self):
-        """Gets the not_reached of this ClaimErasureReceipt.  # noqa: E501
-
-
-        :return: The not_reached of this ClaimErasureReceipt.  # noqa: E501
-        :rtype: object
-        """
-        return self._not_reached
-
-    @not_reached.setter
-    def not_reached(self, not_reached):
-        """Sets the not_reached of this ClaimErasureReceipt.
-
-
-        :param not_reached: The not_reached of this ClaimErasureReceipt.  # noqa: E501
-        :type: object
-        """
-        if not_reached is None:
-            raise ValueError("Invalid value for `not_reached`, must not be `None`")  # noqa: E501
-
-        self._not_reached = not_reached
+        self._status = status
 
     def to_dict(self):
         """Returns the model properties as a dict"""

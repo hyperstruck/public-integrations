@@ -28,134 +28,38 @@ class UsageSummaryResponse(object):
                             and the value is json key in definition.
     """
     swagger_types = {
-        'tenant_id': 'object',
-        'window': 'UsageTimeWindow',
-        'period_start': 'object',
-        'period_end_exclusive': 'object',
         'agent_runs': 'UsageRunAggregates',
-        'learnings': 'UsageLearningAggregates'
+        'learnings': 'UsageLearningAggregates',
+        'period_end_exclusive': 'object',
+        'period_start': 'object',
+        'tenant_id': 'object',
+        'window': 'UsageTimeWindow'
     }
 
     attribute_map = {
-        'tenant_id': 'tenant_id',
-        'window': 'window',
-        'period_start': 'period_start',
-        'period_end_exclusive': 'period_end_exclusive',
         'agent_runs': 'agent_runs',
-        'learnings': 'learnings'
+        'learnings': 'learnings',
+        'period_end_exclusive': 'period_end_exclusive',
+        'period_start': 'period_start',
+        'tenant_id': 'tenant_id',
+        'window': 'window'
     }
 
-    def __init__(self, tenant_id=None, window=None, period_start=None, period_end_exclusive=None, agent_runs=None, learnings=None):  # noqa: E501
+    def __init__(self, agent_runs=None, learnings=None, period_end_exclusive=None, period_start=None, tenant_id=None, window=None):  # noqa: E501
         """UsageSummaryResponse - a model defined in Swagger"""  # noqa: E501
-        self._tenant_id = None
-        self._window = None
-        self._period_start = None
-        self._period_end_exclusive = None
         self._agent_runs = None
         self._learnings = None
+        self._period_end_exclusive = None
+        self._period_start = None
+        self._tenant_id = None
+        self._window = None
         self.discriminator = None
-        self.tenant_id = tenant_id
-        self.window = window
-        self.period_start = period_start
-        self.period_end_exclusive = period_end_exclusive
         self.agent_runs = agent_runs
         self.learnings = learnings
-
-    @property
-    def tenant_id(self):
-        """Gets the tenant_id of this UsageSummaryResponse.  # noqa: E501
-
-
-        :return: The tenant_id of this UsageSummaryResponse.  # noqa: E501
-        :rtype: object
-        """
-        return self._tenant_id
-
-    @tenant_id.setter
-    def tenant_id(self, tenant_id):
-        """Sets the tenant_id of this UsageSummaryResponse.
-
-
-        :param tenant_id: The tenant_id of this UsageSummaryResponse.  # noqa: E501
-        :type: object
-        """
-        if tenant_id is None:
-            raise ValueError("Invalid value for `tenant_id`, must not be `None`")  # noqa: E501
-
-        self._tenant_id = tenant_id
-
-    @property
-    def window(self):
-        """Gets the window of this UsageSummaryResponse.  # noqa: E501
-
-
-        :return: The window of this UsageSummaryResponse.  # noqa: E501
-        :rtype: UsageTimeWindow
-        """
-        return self._window
-
-    @window.setter
-    def window(self, window):
-        """Sets the window of this UsageSummaryResponse.
-
-
-        :param window: The window of this UsageSummaryResponse.  # noqa: E501
-        :type: UsageTimeWindow
-        """
-        if window is None:
-            raise ValueError("Invalid value for `window`, must not be `None`")  # noqa: E501
-
-        self._window = window
-
-    @property
-    def period_start(self):
-        """Gets the period_start of this UsageSummaryResponse.  # noqa: E501
-
-        Inclusive UTC boundary.  # noqa: E501
-
-        :return: The period_start of this UsageSummaryResponse.  # noqa: E501
-        :rtype: object
-        """
-        return self._period_start
-
-    @period_start.setter
-    def period_start(self, period_start):
-        """Sets the period_start of this UsageSummaryResponse.
-
-        Inclusive UTC boundary.  # noqa: E501
-
-        :param period_start: The period_start of this UsageSummaryResponse.  # noqa: E501
-        :type: object
-        """
-        if period_start is None:
-            raise ValueError("Invalid value for `period_start`, must not be `None`")  # noqa: E501
-
-        self._period_start = period_start
-
-    @property
-    def period_end_exclusive(self):
-        """Gets the period_end_exclusive of this UsageSummaryResponse.  # noqa: E501
-
-        Exclusive UTC boundary.  # noqa: E501
-
-        :return: The period_end_exclusive of this UsageSummaryResponse.  # noqa: E501
-        :rtype: object
-        """
-        return self._period_end_exclusive
-
-    @period_end_exclusive.setter
-    def period_end_exclusive(self, period_end_exclusive):
-        """Sets the period_end_exclusive of this UsageSummaryResponse.
-
-        Exclusive UTC boundary.  # noqa: E501
-
-        :param period_end_exclusive: The period_end_exclusive of this UsageSummaryResponse.  # noqa: E501
-        :type: object
-        """
-        if period_end_exclusive is None:
-            raise ValueError("Invalid value for `period_end_exclusive`, must not be `None`")  # noqa: E501
-
-        self._period_end_exclusive = period_end_exclusive
+        self.period_end_exclusive = period_end_exclusive
+        self.period_start = period_start
+        self.tenant_id = tenant_id
+        self.window = window
 
     @property
     def agent_runs(self):
@@ -202,6 +106,102 @@ class UsageSummaryResponse(object):
             raise ValueError("Invalid value for `learnings`, must not be `None`")  # noqa: E501
 
         self._learnings = learnings
+
+    @property
+    def period_end_exclusive(self):
+        """Gets the period_end_exclusive of this UsageSummaryResponse.  # noqa: E501
+
+        Exclusive UTC boundary.  # noqa: E501
+
+        :return: The period_end_exclusive of this UsageSummaryResponse.  # noqa: E501
+        :rtype: object
+        """
+        return self._period_end_exclusive
+
+    @period_end_exclusive.setter
+    def period_end_exclusive(self, period_end_exclusive):
+        """Sets the period_end_exclusive of this UsageSummaryResponse.
+
+        Exclusive UTC boundary.  # noqa: E501
+
+        :param period_end_exclusive: The period_end_exclusive of this UsageSummaryResponse.  # noqa: E501
+        :type: object
+        """
+        if period_end_exclusive is None:
+            raise ValueError("Invalid value for `period_end_exclusive`, must not be `None`")  # noqa: E501
+
+        self._period_end_exclusive = period_end_exclusive
+
+    @property
+    def period_start(self):
+        """Gets the period_start of this UsageSummaryResponse.  # noqa: E501
+
+        Inclusive UTC boundary.  # noqa: E501
+
+        :return: The period_start of this UsageSummaryResponse.  # noqa: E501
+        :rtype: object
+        """
+        return self._period_start
+
+    @period_start.setter
+    def period_start(self, period_start):
+        """Sets the period_start of this UsageSummaryResponse.
+
+        Inclusive UTC boundary.  # noqa: E501
+
+        :param period_start: The period_start of this UsageSummaryResponse.  # noqa: E501
+        :type: object
+        """
+        if period_start is None:
+            raise ValueError("Invalid value for `period_start`, must not be `None`")  # noqa: E501
+
+        self._period_start = period_start
+
+    @property
+    def tenant_id(self):
+        """Gets the tenant_id of this UsageSummaryResponse.  # noqa: E501
+
+
+        :return: The tenant_id of this UsageSummaryResponse.  # noqa: E501
+        :rtype: object
+        """
+        return self._tenant_id
+
+    @tenant_id.setter
+    def tenant_id(self, tenant_id):
+        """Sets the tenant_id of this UsageSummaryResponse.
+
+
+        :param tenant_id: The tenant_id of this UsageSummaryResponse.  # noqa: E501
+        :type: object
+        """
+        if tenant_id is None:
+            raise ValueError("Invalid value for `tenant_id`, must not be `None`")  # noqa: E501
+
+        self._tenant_id = tenant_id
+
+    @property
+    def window(self):
+        """Gets the window of this UsageSummaryResponse.  # noqa: E501
+
+
+        :return: The window of this UsageSummaryResponse.  # noqa: E501
+        :rtype: UsageTimeWindow
+        """
+        return self._window
+
+    @window.setter
+    def window(self, window):
+        """Sets the window of this UsageSummaryResponse.
+
+
+        :param window: The window of this UsageSummaryResponse.  # noqa: E501
+        :type: UsageTimeWindow
+        """
+        if window is None:
+            raise ValueError("Invalid value for `window`, must not be `None`")  # noqa: E501
+
+        self._window = window
 
     def to_dict(self):
         """Returns the model properties as a dict"""

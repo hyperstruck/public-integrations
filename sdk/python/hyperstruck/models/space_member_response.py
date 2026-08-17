@@ -28,49 +28,26 @@ class SpaceMemberResponse(object):
                             and the value is json key in definition.
     """
     swagger_types = {
-        'space_id': 'object',
         'identity_user_id': 'object',
-        'relation': 'object'
+        'relation': 'object',
+        'space_id': 'object'
     }
 
     attribute_map = {
-        'space_id': 'space_id',
         'identity_user_id': 'identity_user_id',
-        'relation': 'relation'
+        'relation': 'relation',
+        'space_id': 'space_id'
     }
 
-    def __init__(self, space_id=None, identity_user_id=None, relation=None):  # noqa: E501
+    def __init__(self, identity_user_id=None, relation=None, space_id=None):  # noqa: E501
         """SpaceMemberResponse - a model defined in Swagger"""  # noqa: E501
-        self._space_id = None
         self._identity_user_id = None
         self._relation = None
+        self._space_id = None
         self.discriminator = None
-        self.space_id = space_id
         self.identity_user_id = identity_user_id
         self.relation = relation
-
-    @property
-    def space_id(self):
-        """Gets the space_id of this SpaceMemberResponse.  # noqa: E501
-
-
-        :return: The space_id of this SpaceMemberResponse.  # noqa: E501
-        :rtype: object
-        """
-        return self._space_id
-
-    @space_id.setter
-    def space_id(self, space_id):
-        """Sets the space_id of this SpaceMemberResponse.
-
-
-        :param space_id: The space_id of this SpaceMemberResponse.  # noqa: E501
-        :type: object
-        """
-        if space_id is None:
-            raise ValueError("Invalid value for `space_id`, must not be `None`")  # noqa: E501
-
-        self._space_id = space_id
+        self.space_id = space_id
 
     @property
     def identity_user_id(self):
@@ -117,6 +94,29 @@ class SpaceMemberResponse(object):
             raise ValueError("Invalid value for `relation`, must not be `None`")  # noqa: E501
 
         self._relation = relation
+
+    @property
+    def space_id(self):
+        """Gets the space_id of this SpaceMemberResponse.  # noqa: E501
+
+
+        :return: The space_id of this SpaceMemberResponse.  # noqa: E501
+        :rtype: object
+        """
+        return self._space_id
+
+    @space_id.setter
+    def space_id(self, space_id):
+        """Sets the space_id of this SpaceMemberResponse.
+
+
+        :param space_id: The space_id of this SpaceMemberResponse.  # noqa: E501
+        :type: object
+        """
+        if space_id is None:
+            raise ValueError("Invalid value for `space_id`, must not be `None`")  # noqa: E501
+
+        self._space_id = space_id
 
     def to_dict(self):
         """Returns the model properties as a dict"""

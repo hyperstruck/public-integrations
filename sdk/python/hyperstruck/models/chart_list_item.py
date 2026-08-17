@@ -28,38 +28,61 @@ class ChartListItem(object):
                             and the value is json key in definition.
     """
     swagger_types = {
+        'description': 'object',
         'id': 'object',
+        'query_binding': 'QueryBinding',
         'space_id': 'object',
         'title': 'object',
-        'description': 'object',
-        'query_binding': 'QueryBinding',
         'updated_at': 'object'
     }
 
     attribute_map = {
+        'description': 'description',
         'id': 'id',
+        'query_binding': 'query_binding',
         'space_id': 'space_id',
         'title': 'title',
-        'description': 'description',
-        'query_binding': 'query_binding',
         'updated_at': 'updated_at'
     }
 
-    def __init__(self, id=None, space_id=None, title=None, description=None, query_binding=None, updated_at=None):  # noqa: E501
+    def __init__(self, description=None, id=None, query_binding=None, space_id=None, title=None, updated_at=None):  # noqa: E501
         """ChartListItem - a model defined in Swagger"""  # noqa: E501
+        self._description = None
         self._id = None
+        self._query_binding = None
         self._space_id = None
         self._title = None
-        self._description = None
-        self._query_binding = None
         self._updated_at = None
         self.discriminator = None
+        self.description = description
         self.id = id
+        self.query_binding = query_binding
         self.space_id = space_id
         self.title = title
-        self.description = description
-        self.query_binding = query_binding
         self.updated_at = updated_at
+
+    @property
+    def description(self):
+        """Gets the description of this ChartListItem.  # noqa: E501
+
+
+        :return: The description of this ChartListItem.  # noqa: E501
+        :rtype: object
+        """
+        return self._description
+
+    @description.setter
+    def description(self, description):
+        """Sets the description of this ChartListItem.
+
+
+        :param description: The description of this ChartListItem.  # noqa: E501
+        :type: object
+        """
+        if description is None:
+            raise ValueError("Invalid value for `description`, must not be `None`")  # noqa: E501
+
+        self._description = description
 
     @property
     def id(self):
@@ -83,6 +106,29 @@ class ChartListItem(object):
             raise ValueError("Invalid value for `id`, must not be `None`")  # noqa: E501
 
         self._id = id
+
+    @property
+    def query_binding(self):
+        """Gets the query_binding of this ChartListItem.  # noqa: E501
+
+
+        :return: The query_binding of this ChartListItem.  # noqa: E501
+        :rtype: QueryBinding
+        """
+        return self._query_binding
+
+    @query_binding.setter
+    def query_binding(self, query_binding):
+        """Sets the query_binding of this ChartListItem.
+
+
+        :param query_binding: The query_binding of this ChartListItem.  # noqa: E501
+        :type: QueryBinding
+        """
+        if query_binding is None:
+            raise ValueError("Invalid value for `query_binding`, must not be `None`")  # noqa: E501
+
+        self._query_binding = query_binding
 
     @property
     def space_id(self):
@@ -129,52 +175,6 @@ class ChartListItem(object):
             raise ValueError("Invalid value for `title`, must not be `None`")  # noqa: E501
 
         self._title = title
-
-    @property
-    def description(self):
-        """Gets the description of this ChartListItem.  # noqa: E501
-
-
-        :return: The description of this ChartListItem.  # noqa: E501
-        :rtype: object
-        """
-        return self._description
-
-    @description.setter
-    def description(self, description):
-        """Sets the description of this ChartListItem.
-
-
-        :param description: The description of this ChartListItem.  # noqa: E501
-        :type: object
-        """
-        if description is None:
-            raise ValueError("Invalid value for `description`, must not be `None`")  # noqa: E501
-
-        self._description = description
-
-    @property
-    def query_binding(self):
-        """Gets the query_binding of this ChartListItem.  # noqa: E501
-
-
-        :return: The query_binding of this ChartListItem.  # noqa: E501
-        :rtype: QueryBinding
-        """
-        return self._query_binding
-
-    @query_binding.setter
-    def query_binding(self, query_binding):
-        """Sets the query_binding of this ChartListItem.
-
-
-        :param query_binding: The query_binding of this ChartListItem.  # noqa: E501
-        :type: QueryBinding
-        """
-        if query_binding is None:
-            raise ValueError("Invalid value for `query_binding`, must not be `None`")  # noqa: E501
-
-        self._query_binding = query_binding
 
     @property
     def updated_at(self):

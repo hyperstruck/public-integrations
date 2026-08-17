@@ -28,23 +28,46 @@ class RunReference(object):
                             and the value is json key in definition.
     """
     swagger_types = {
-        'text': 'object',
-        'label': 'object'
+        'label': 'object',
+        'text': 'object'
     }
 
     attribute_map = {
-        'text': 'text',
-        'label': 'label'
+        'label': 'label',
+        'text': 'text'
     }
 
-    def __init__(self, text=None, label=None):  # noqa: E501
+    def __init__(self, label=None, text=None):  # noqa: E501
         """RunReference - a model defined in Swagger"""  # noqa: E501
-        self._text = None
         self._label = None
+        self._text = None
         self.discriminator = None
-        self.text = text
         if label is not None:
             self.label = label
+        self.text = text
+
+    @property
+    def label(self):
+        """Gets the label of this RunReference.  # noqa: E501
+
+        Optional human-readable label for the reference.  # noqa: E501
+
+        :return: The label of this RunReference.  # noqa: E501
+        :rtype: object
+        """
+        return self._label
+
+    @label.setter
+    def label(self, label):
+        """Sets the label of this RunReference.
+
+        Optional human-readable label for the reference.  # noqa: E501
+
+        :param label: The label of this RunReference.  # noqa: E501
+        :type: object
+        """
+
+        self._label = label
 
     @property
     def text(self):
@@ -70,29 +93,6 @@ class RunReference(object):
             raise ValueError("Invalid value for `text`, must not be `None`")  # noqa: E501
 
         self._text = text
-
-    @property
-    def label(self):
-        """Gets the label of this RunReference.  # noqa: E501
-
-        Optional human-readable label for the reference.  # noqa: E501
-
-        :return: The label of this RunReference.  # noqa: E501
-        :rtype: object
-        """
-        return self._label
-
-    @label.setter
-    def label(self, label):
-        """Sets the label of this RunReference.
-
-        Optional human-readable label for the reference.  # noqa: E501
-
-        :param label: The label of this RunReference.  # noqa: E501
-        :type: object
-        """
-
-        self._label = label
 
     def to_dict(self):
         """Returns the model properties as a dict"""

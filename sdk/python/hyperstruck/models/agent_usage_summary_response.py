@@ -29,33 +29,33 @@ class AgentUsageSummaryResponse(object):
     """
     swagger_types = {
         'agent_id': 'object',
-        'window': 'UsageTimeWindow',
-        'period_start': 'object',
+        'agent_runs': 'AgentRunStatusAggregates',
         'period_end_exclusive': 'object',
-        'agent_runs': 'AgentRunStatusAggregates'
+        'period_start': 'object',
+        'window': 'UsageTimeWindow'
     }
 
     attribute_map = {
         'agent_id': 'agent_id',
-        'window': 'window',
-        'period_start': 'period_start',
+        'agent_runs': 'agent_runs',
         'period_end_exclusive': 'period_end_exclusive',
-        'agent_runs': 'agent_runs'
+        'period_start': 'period_start',
+        'window': 'window'
     }
 
-    def __init__(self, agent_id=None, window=None, period_start=None, period_end_exclusive=None, agent_runs=None):  # noqa: E501
+    def __init__(self, agent_id=None, agent_runs=None, period_end_exclusive=None, period_start=None, window=None):  # noqa: E501
         """AgentUsageSummaryResponse - a model defined in Swagger"""  # noqa: E501
         self._agent_id = None
-        self._window = None
-        self._period_start = None
-        self._period_end_exclusive = None
         self._agent_runs = None
+        self._period_end_exclusive = None
+        self._period_start = None
+        self._window = None
         self.discriminator = None
         self.agent_id = agent_id
-        self.window = window
-        self.period_start = period_start
-        self.period_end_exclusive = period_end_exclusive
         self.agent_runs = agent_runs
+        self.period_end_exclusive = period_end_exclusive
+        self.period_start = period_start
+        self.window = window
 
     @property
     def agent_id(self):
@@ -81,50 +81,27 @@ class AgentUsageSummaryResponse(object):
         self._agent_id = agent_id
 
     @property
-    def window(self):
-        """Gets the window of this AgentUsageSummaryResponse.  # noqa: E501
+    def agent_runs(self):
+        """Gets the agent_runs of this AgentUsageSummaryResponse.  # noqa: E501
 
 
-        :return: The window of this AgentUsageSummaryResponse.  # noqa: E501
-        :rtype: UsageTimeWindow
+        :return: The agent_runs of this AgentUsageSummaryResponse.  # noqa: E501
+        :rtype: AgentRunStatusAggregates
         """
-        return self._window
+        return self._agent_runs
 
-    @window.setter
-    def window(self, window):
-        """Sets the window of this AgentUsageSummaryResponse.
+    @agent_runs.setter
+    def agent_runs(self, agent_runs):
+        """Sets the agent_runs of this AgentUsageSummaryResponse.
 
 
-        :param window: The window of this AgentUsageSummaryResponse.  # noqa: E501
-        :type: UsageTimeWindow
+        :param agent_runs: The agent_runs of this AgentUsageSummaryResponse.  # noqa: E501
+        :type: AgentRunStatusAggregates
         """
-        if window is None:
-            raise ValueError("Invalid value for `window`, must not be `None`")  # noqa: E501
+        if agent_runs is None:
+            raise ValueError("Invalid value for `agent_runs`, must not be `None`")  # noqa: E501
 
-        self._window = window
-
-    @property
-    def period_start(self):
-        """Gets the period_start of this AgentUsageSummaryResponse.  # noqa: E501
-
-
-        :return: The period_start of this AgentUsageSummaryResponse.  # noqa: E501
-        :rtype: object
-        """
-        return self._period_start
-
-    @period_start.setter
-    def period_start(self, period_start):
-        """Sets the period_start of this AgentUsageSummaryResponse.
-
-
-        :param period_start: The period_start of this AgentUsageSummaryResponse.  # noqa: E501
-        :type: object
-        """
-        if period_start is None:
-            raise ValueError("Invalid value for `period_start`, must not be `None`")  # noqa: E501
-
-        self._period_start = period_start
+        self._agent_runs = agent_runs
 
     @property
     def period_end_exclusive(self):
@@ -150,27 +127,50 @@ class AgentUsageSummaryResponse(object):
         self._period_end_exclusive = period_end_exclusive
 
     @property
-    def agent_runs(self):
-        """Gets the agent_runs of this AgentUsageSummaryResponse.  # noqa: E501
+    def period_start(self):
+        """Gets the period_start of this AgentUsageSummaryResponse.  # noqa: E501
 
 
-        :return: The agent_runs of this AgentUsageSummaryResponse.  # noqa: E501
-        :rtype: AgentRunStatusAggregates
+        :return: The period_start of this AgentUsageSummaryResponse.  # noqa: E501
+        :rtype: object
         """
-        return self._agent_runs
+        return self._period_start
 
-    @agent_runs.setter
-    def agent_runs(self, agent_runs):
-        """Sets the agent_runs of this AgentUsageSummaryResponse.
+    @period_start.setter
+    def period_start(self, period_start):
+        """Sets the period_start of this AgentUsageSummaryResponse.
 
 
-        :param agent_runs: The agent_runs of this AgentUsageSummaryResponse.  # noqa: E501
-        :type: AgentRunStatusAggregates
+        :param period_start: The period_start of this AgentUsageSummaryResponse.  # noqa: E501
+        :type: object
         """
-        if agent_runs is None:
-            raise ValueError("Invalid value for `agent_runs`, must not be `None`")  # noqa: E501
+        if period_start is None:
+            raise ValueError("Invalid value for `period_start`, must not be `None`")  # noqa: E501
 
-        self._agent_runs = agent_runs
+        self._period_start = period_start
+
+    @property
+    def window(self):
+        """Gets the window of this AgentUsageSummaryResponse.  # noqa: E501
+
+
+        :return: The window of this AgentUsageSummaryResponse.  # noqa: E501
+        :rtype: UsageTimeWindow
+        """
+        return self._window
+
+    @window.setter
+    def window(self, window):
+        """Sets the window of this AgentUsageSummaryResponse.
+
+
+        :param window: The window of this AgentUsageSummaryResponse.  # noqa: E501
+        :type: UsageTimeWindow
+        """
+        if window is None:
+            raise ValueError("Invalid value for `window`, must not be `None`")  # noqa: E501
+
+        self._window = window
 
     def to_dict(self):
         """Returns the model properties as a dict"""

@@ -3,16 +3,16 @@
 ## Properties
 Name | Type | Description | Notes
 ------------ | ------------- | ------------- | -------------
+**agent_id** | **object** |  |
+**attribute_key** | **object** |  |
+**canonical_name** | **object** |  |
+**classification** | **object** |  |
+**created_at** | **object** |  |
+**entity_id** | **object** |  |
 **item_kind** | **object** |  | [optional]
 **proposal_id** | **object** |  |
-**agent_id** | **object** |  |
-**entity_id** | **object** |  |
-**canonical_name** | **object** |  |
-**attribute_key** | **object** |  |
-**classification** | **object** |  |
-**status** | **object** |  |
 **proposed_qualifier** | **object** |  | [optional]
-**created_at** | **object** |  |
+**status** | **object** |  |
 
 [[Back to Model list]](../README.md#documentation-for-models) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to README]](../README.md)
 

@@ -30,32 +30,32 @@ class ReinforceLearningResponse(object):
     swagger_types = {
         'learning_id': 'object',
         'standing': 'LearningStanding',
-        'trust_level': 'TrustLevel',
         'times_applied': 'object',
-        'times_helpful': 'object'
+        'times_helpful': 'object',
+        'trust_level': 'TrustLevel'
     }
 
     attribute_map = {
         'learning_id': 'learning_id',
         'standing': 'standing',
-        'trust_level': 'trust_level',
         'times_applied': 'times_applied',
-        'times_helpful': 'times_helpful'
+        'times_helpful': 'times_helpful',
+        'trust_level': 'trust_level'
     }
 
-    def __init__(self, learning_id=None, standing=None, trust_level=None, times_applied=None, times_helpful=None):  # noqa: E501
+    def __init__(self, learning_id=None, standing=None, times_applied=None, times_helpful=None, trust_level=None):  # noqa: E501
         """ReinforceLearningResponse - a model defined in Swagger"""  # noqa: E501
         self._learning_id = None
         self._standing = None
-        self._trust_level = None
         self._times_applied = None
         self._times_helpful = None
+        self._trust_level = None
         self.discriminator = None
         self.learning_id = learning_id
         self.standing = standing
-        self.trust_level = trust_level
         self.times_applied = times_applied
         self.times_helpful = times_helpful
+        self.trust_level = trust_level
 
     @property
     def learning_id(self):
@@ -106,31 +106,6 @@ class ReinforceLearningResponse(object):
         self._standing = standing
 
     @property
-    def trust_level(self):
-        """Gets the trust_level of this ReinforceLearningResponse.  # noqa: E501
-
-        Current trust level after reinforcement.  # noqa: E501
-
-        :return: The trust_level of this ReinforceLearningResponse.  # noqa: E501
-        :rtype: TrustLevel
-        """
-        return self._trust_level
-
-    @trust_level.setter
-    def trust_level(self, trust_level):
-        """Sets the trust_level of this ReinforceLearningResponse.
-
-        Current trust level after reinforcement.  # noqa: E501
-
-        :param trust_level: The trust_level of this ReinforceLearningResponse.  # noqa: E501
-        :type: TrustLevel
-        """
-        if trust_level is None:
-            raise ValueError("Invalid value for `trust_level`, must not be `None`")  # noqa: E501
-
-        self._trust_level = trust_level
-
-    @property
     def times_applied(self):
         """Gets the times_applied of this ReinforceLearningResponse.  # noqa: E501
 
@@ -175,6 +150,31 @@ class ReinforceLearningResponse(object):
             raise ValueError("Invalid value for `times_helpful`, must not be `None`")  # noqa: E501
 
         self._times_helpful = times_helpful
+
+    @property
+    def trust_level(self):
+        """Gets the trust_level of this ReinforceLearningResponse.  # noqa: E501
+
+        Current trust level after reinforcement.  # noqa: E501
+
+        :return: The trust_level of this ReinforceLearningResponse.  # noqa: E501
+        :rtype: TrustLevel
+        """
+        return self._trust_level
+
+    @trust_level.setter
+    def trust_level(self, trust_level):
+        """Sets the trust_level of this ReinforceLearningResponse.
+
+        Current trust level after reinforcement.  # noqa: E501
+
+        :param trust_level: The trust_level of this ReinforceLearningResponse.  # noqa: E501
+        :type: TrustLevel
+        """
+        if trust_level is None:
+            raise ValueError("Invalid value for `trust_level`, must not be `None`")  # noqa: E501
+
+        self._trust_level = trust_level
 
     def to_dict(self):
         """Returns the model properties as a dict"""

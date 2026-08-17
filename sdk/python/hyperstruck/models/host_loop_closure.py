@@ -28,171 +28,77 @@ class HostLoopClosure(object):
                             and the value is json key in definition.
     """
     swagger_types = {
-        'host': 'object',
-        'resolved': 'object',
-        'offered': 'object',
-        'observed': 'object',
-        'reinforced': 'object',
+        'avg_seconds_to_close': 'object',
         'half_open': 'object',
+        'half_open_rate': 'object',
+        'host': 'object',
         'in_flight': 'object',
         'loop_closure_rate': 'object',
-        'half_open_rate': 'object',
-        'avg_seconds_to_close': 'object'
+        'observed': 'object',
+        'offered': 'object',
+        'reinforced': 'object',
+        'resolved': 'object'
     }
 
     attribute_map = {
-        'host': 'host',
-        'resolved': 'resolved',
-        'offered': 'offered',
-        'observed': 'observed',
-        'reinforced': 'reinforced',
+        'avg_seconds_to_close': 'avg_seconds_to_close',
         'half_open': 'half_open',
+        'half_open_rate': 'half_open_rate',
+        'host': 'host',
         'in_flight': 'in_flight',
         'loop_closure_rate': 'loop_closure_rate',
-        'half_open_rate': 'half_open_rate',
-        'avg_seconds_to_close': 'avg_seconds_to_close'
+        'observed': 'observed',
+        'offered': 'offered',
+        'reinforced': 'reinforced',
+        'resolved': 'resolved'
     }
 
-    def __init__(self, host=None, resolved=None, offered=None, observed=None, reinforced=None, half_open=None, in_flight=None, loop_closure_rate=None, half_open_rate=None, avg_seconds_to_close=None):  # noqa: E501
+    def __init__(self, avg_seconds_to_close=None, half_open=None, half_open_rate=None, host=None, in_flight=None, loop_closure_rate=None, observed=None, offered=None, reinforced=None, resolved=None):  # noqa: E501
         """HostLoopClosure - a model defined in Swagger"""  # noqa: E501
-        self._host = None
-        self._resolved = None
-        self._offered = None
-        self._observed = None
-        self._reinforced = None
+        self._avg_seconds_to_close = None
         self._half_open = None
+        self._half_open_rate = None
+        self._host = None
         self._in_flight = None
         self._loop_closure_rate = None
-        self._half_open_rate = None
-        self._avg_seconds_to_close = None
+        self._observed = None
+        self._offered = None
+        self._reinforced = None
+        self._resolved = None
         self.discriminator = None
-        self.host = host
-        self.resolved = resolved
-        self.offered = offered
-        self.observed = observed
-        self.reinforced = reinforced
+        if avg_seconds_to_close is not None:
+            self.avg_seconds_to_close = avg_seconds_to_close
         self.half_open = half_open
+        self.half_open_rate = half_open_rate
+        self.host = host
         if in_flight is not None:
             self.in_flight = in_flight
         self.loop_closure_rate = loop_closure_rate
-        self.half_open_rate = half_open_rate
-        if avg_seconds_to_close is not None:
-            self.avg_seconds_to_close = avg_seconds_to_close
+        self.observed = observed
+        self.offered = offered
+        self.reinforced = reinforced
+        self.resolved = resolved
 
     @property
-    def host(self):
-        """Gets the host of this HostLoopClosure.  # noqa: E501
+    def avg_seconds_to_close(self):
+        """Gets the avg_seconds_to_close of this HostLoopClosure.  # noqa: E501
 
 
-        :return: The host of this HostLoopClosure.  # noqa: E501
+        :return: The avg_seconds_to_close of this HostLoopClosure.  # noqa: E501
         :rtype: object
         """
-        return self._host
+        return self._avg_seconds_to_close
 
-    @host.setter
-    def host(self, host):
-        """Sets the host of this HostLoopClosure.
+    @avg_seconds_to_close.setter
+    def avg_seconds_to_close(self, avg_seconds_to_close):
+        """Sets the avg_seconds_to_close of this HostLoopClosure.
 
 
-        :param host: The host of this HostLoopClosure.  # noqa: E501
+        :param avg_seconds_to_close: The avg_seconds_to_close of this HostLoopClosure.  # noqa: E501
         :type: object
         """
-        if host is None:
-            raise ValueError("Invalid value for `host`, must not be `None`")  # noqa: E501
 
-        self._host = host
-
-    @property
-    def resolved(self):
-        """Gets the resolved of this HostLoopClosure.  # noqa: E501
-
-
-        :return: The resolved of this HostLoopClosure.  # noqa: E501
-        :rtype: object
-        """
-        return self._resolved
-
-    @resolved.setter
-    def resolved(self, resolved):
-        """Sets the resolved of this HostLoopClosure.
-
-
-        :param resolved: The resolved of this HostLoopClosure.  # noqa: E501
-        :type: object
-        """
-        if resolved is None:
-            raise ValueError("Invalid value for `resolved`, must not be `None`")  # noqa: E501
-
-        self._resolved = resolved
-
-    @property
-    def offered(self):
-        """Gets the offered of this HostLoopClosure.  # noqa: E501
-
-
-        :return: The offered of this HostLoopClosure.  # noqa: E501
-        :rtype: object
-        """
-        return self._offered
-
-    @offered.setter
-    def offered(self, offered):
-        """Sets the offered of this HostLoopClosure.
-
-
-        :param offered: The offered of this HostLoopClosure.  # noqa: E501
-        :type: object
-        """
-        if offered is None:
-            raise ValueError("Invalid value for `offered`, must not be `None`")  # noqa: E501
-
-        self._offered = offered
-
-    @property
-    def observed(self):
-        """Gets the observed of this HostLoopClosure.  # noqa: E501
-
-
-        :return: The observed of this HostLoopClosure.  # noqa: E501
-        :rtype: object
-        """
-        return self._observed
-
-    @observed.setter
-    def observed(self, observed):
-        """Sets the observed of this HostLoopClosure.
-
-
-        :param observed: The observed of this HostLoopClosure.  # noqa: E501
-        :type: object
-        """
-        if observed is None:
-            raise ValueError("Invalid value for `observed`, must not be `None`")  # noqa: E501
-
-        self._observed = observed
-
-    @property
-    def reinforced(self):
-        """Gets the reinforced of this HostLoopClosure.  # noqa: E501
-
-
-        :return: The reinforced of this HostLoopClosure.  # noqa: E501
-        :rtype: object
-        """
-        return self._reinforced
-
-    @reinforced.setter
-    def reinforced(self, reinforced):
-        """Sets the reinforced of this HostLoopClosure.
-
-
-        :param reinforced: The reinforced of this HostLoopClosure.  # noqa: E501
-        :type: object
-        """
-        if reinforced is None:
-            raise ValueError("Invalid value for `reinforced`, must not be `None`")  # noqa: E501
-
-        self._reinforced = reinforced
+        self._avg_seconds_to_close = avg_seconds_to_close
 
     @property
     def half_open(self):
@@ -216,6 +122,52 @@ class HostLoopClosure(object):
             raise ValueError("Invalid value for `half_open`, must not be `None`")  # noqa: E501
 
         self._half_open = half_open
+
+    @property
+    def half_open_rate(self):
+        """Gets the half_open_rate of this HostLoopClosure.  # noqa: E501
+
+
+        :return: The half_open_rate of this HostLoopClosure.  # noqa: E501
+        :rtype: object
+        """
+        return self._half_open_rate
+
+    @half_open_rate.setter
+    def half_open_rate(self, half_open_rate):
+        """Sets the half_open_rate of this HostLoopClosure.
+
+
+        :param half_open_rate: The half_open_rate of this HostLoopClosure.  # noqa: E501
+        :type: object
+        """
+        if half_open_rate is None:
+            raise ValueError("Invalid value for `half_open_rate`, must not be `None`")  # noqa: E501
+
+        self._half_open_rate = half_open_rate
+
+    @property
+    def host(self):
+        """Gets the host of this HostLoopClosure.  # noqa: E501
+
+
+        :return: The host of this HostLoopClosure.  # noqa: E501
+        :rtype: object
+        """
+        return self._host
+
+    @host.setter
+    def host(self, host):
+        """Sets the host of this HostLoopClosure.
+
+
+        :param host: The host of this HostLoopClosure.  # noqa: E501
+        :type: object
+        """
+        if host is None:
+            raise ValueError("Invalid value for `host`, must not be `None`")  # noqa: E501
+
+        self._host = host
 
     @property
     def in_flight(self):
@@ -262,48 +214,96 @@ class HostLoopClosure(object):
         self._loop_closure_rate = loop_closure_rate
 
     @property
-    def half_open_rate(self):
-        """Gets the half_open_rate of this HostLoopClosure.  # noqa: E501
+    def observed(self):
+        """Gets the observed of this HostLoopClosure.  # noqa: E501
 
 
-        :return: The half_open_rate of this HostLoopClosure.  # noqa: E501
+        :return: The observed of this HostLoopClosure.  # noqa: E501
         :rtype: object
         """
-        return self._half_open_rate
+        return self._observed
 
-    @half_open_rate.setter
-    def half_open_rate(self, half_open_rate):
-        """Sets the half_open_rate of this HostLoopClosure.
+    @observed.setter
+    def observed(self, observed):
+        """Sets the observed of this HostLoopClosure.
 
 
-        :param half_open_rate: The half_open_rate of this HostLoopClosure.  # noqa: E501
+        :param observed: The observed of this HostLoopClosure.  # noqa: E501
         :type: object
         """
-        if half_open_rate is None:
-            raise ValueError("Invalid value for `half_open_rate`, must not be `None`")  # noqa: E501
+        if observed is None:
+            raise ValueError("Invalid value for `observed`, must not be `None`")  # noqa: E501
 
-        self._half_open_rate = half_open_rate
+        self._observed = observed
 
     @property
-    def avg_seconds_to_close(self):
-        """Gets the avg_seconds_to_close of this HostLoopClosure.  # noqa: E501
+    def offered(self):
+        """Gets the offered of this HostLoopClosure.  # noqa: E501
 
 
-        :return: The avg_seconds_to_close of this HostLoopClosure.  # noqa: E501
+        :return: The offered of this HostLoopClosure.  # noqa: E501
         :rtype: object
         """
-        return self._avg_seconds_to_close
+        return self._offered
 
-    @avg_seconds_to_close.setter
-    def avg_seconds_to_close(self, avg_seconds_to_close):
-        """Sets the avg_seconds_to_close of this HostLoopClosure.
+    @offered.setter
+    def offered(self, offered):
+        """Sets the offered of this HostLoopClosure.
 
 
-        :param avg_seconds_to_close: The avg_seconds_to_close of this HostLoopClosure.  # noqa: E501
+        :param offered: The offered of this HostLoopClosure.  # noqa: E501
         :type: object
         """
+        if offered is None:
+            raise ValueError("Invalid value for `offered`, must not be `None`")  # noqa: E501
 
-        self._avg_seconds_to_close = avg_seconds_to_close
+        self._offered = offered
+
+    @property
+    def reinforced(self):
+        """Gets the reinforced of this HostLoopClosure.  # noqa: E501
+
+
+        :return: The reinforced of this HostLoopClosure.  # noqa: E501
+        :rtype: object
+        """
+        return self._reinforced
+
+    @reinforced.setter
+    def reinforced(self, reinforced):
+        """Sets the reinforced of this HostLoopClosure.
+
+
+        :param reinforced: The reinforced of this HostLoopClosure.  # noqa: E501
+        :type: object
+        """
+        if reinforced is None:
+            raise ValueError("Invalid value for `reinforced`, must not be `None`")  # noqa: E501
+
+        self._reinforced = reinforced
+
+    @property
+    def resolved(self):
+        """Gets the resolved of this HostLoopClosure.  # noqa: E501
+
+
+        :return: The resolved of this HostLoopClosure.  # noqa: E501
+        :rtype: object
+        """
+        return self._resolved
+
+    @resolved.setter
+    def resolved(self, resolved):
+        """Sets the resolved of this HostLoopClosure.
+
+
+        :param resolved: The resolved of this HostLoopClosure.  # noqa: E501
+        :type: object
+        """
+        if resolved is None:
+            raise ValueError("Invalid value for `resolved`, must not be `None`")  # noqa: E501
+
+        self._resolved = resolved
 
     def to_dict(self):
         """Returns the model properties as a dict"""

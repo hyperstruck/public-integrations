@@ -3,10 +3,10 @@
 ## Properties
 Name | Type | Description | Notes
 ------------ | ------------- | ------------- | -------------
-**space_id** | **object** |  |
 **constants** | [**ReportingConstants**](ReportingConstants.md) |  |
 **is_illustrative** | **object** |  |
 **schema_version** | **object** |  |
+**space_id** | **object** |  |
 **updated_at** | **object** |  | [optional]
 **updated_by** | **object** |  | [optional]
 

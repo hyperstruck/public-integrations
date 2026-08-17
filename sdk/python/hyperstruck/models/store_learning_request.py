@@ -28,124 +28,53 @@ class StoreLearningRequest(object):
                             and the value is json key in definition.
     """
     swagger_types = {
-        'content': 'object',
-        'utility': 'object',
-        'source_goal': 'object',
         'applicable_goals': 'object',
         'applicable_tools': 'object',
+        'content': 'object',
         'domain_dimensions': 'object',
+        'instances': 'object',
         'privacy': 'PrivacyClassification',
-        'instances': 'object'
+        'source_goal': 'object',
+        'utility': 'object'
     }
 
     attribute_map = {
-        'content': 'content',
-        'utility': 'utility',
-        'source_goal': 'source_goal',
         'applicable_goals': 'applicable_goals',
         'applicable_tools': 'applicable_tools',
+        'content': 'content',
         'domain_dimensions': 'domain_dimensions',
+        'instances': 'instances',
         'privacy': 'privacy',
-        'instances': 'instances'
+        'source_goal': 'source_goal',
+        'utility': 'utility'
     }
 
-    def __init__(self, content=None, utility=None, source_goal=None, applicable_goals=None, applicable_tools=None, domain_dimensions=None, privacy=None, instances=None):  # noqa: E501
+    def __init__(self, applicable_goals=None, applicable_tools=None, content=None, domain_dimensions=None, instances=None, privacy=None, source_goal=None, utility=None):  # noqa: E501
         """StoreLearningRequest - a model defined in Swagger"""  # noqa: E501
-        self._content = None
-        self._utility = None
-        self._source_goal = None
         self._applicable_goals = None
         self._applicable_tools = None
+        self._content = None
         self._domain_dimensions = None
-        self._privacy = None
         self._instances = None
+        self._privacy = None
+        self._source_goal = None
+        self._utility = None
         self.discriminator = None
-        self.content = content
-        if utility is not None:
-            self.utility = utility
-        if source_goal is not None:
-            self.source_goal = source_goal
         if applicable_goals is not None:
             self.applicable_goals = applicable_goals
         if applicable_tools is not None:
             self.applicable_tools = applicable_tools
+        self.content = content
         if domain_dimensions is not None:
             self.domain_dimensions = domain_dimensions
-        if privacy is not None:
-            self.privacy = privacy
         if instances is not None:
             self.instances = instances
-
-    @property
-    def content(self):
-        """Gets the content of this StoreLearningRequest.  # noqa: E501
-
-        The learning content to store.  # noqa: E501
-
-        :return: The content of this StoreLearningRequest.  # noqa: E501
-        :rtype: object
-        """
-        return self._content
-
-    @content.setter
-    def content(self, content):
-        """Sets the content of this StoreLearningRequest.
-
-        The learning content to store.  # noqa: E501
-
-        :param content: The content of this StoreLearningRequest.  # noqa: E501
-        :type: object
-        """
-        if content is None:
-            raise ValueError("Invalid value for `content`, must not be `None`")  # noqa: E501
-
-        self._content = content
-
-    @property
-    def utility(self):
-        """Gets the utility of this StoreLearningRequest.  # noqa: E501
-
-        Starting utility prior, the curator's initial belief in how useful this learning is when applied (0.0-1.0). Both utility and establishedness are then earned, utility from application outcomes and establishedness from corroboration, so the value read back moves off this prior over time.  # noqa: E501
-
-        :return: The utility of this StoreLearningRequest.  # noqa: E501
-        :rtype: object
-        """
-        return self._utility
-
-    @utility.setter
-    def utility(self, utility):
-        """Sets the utility of this StoreLearningRequest.
-
-        Starting utility prior, the curator's initial belief in how useful this learning is when applied (0.0-1.0). Both utility and establishedness are then earned, utility from application outcomes and establishedness from corroboration, so the value read back moves off this prior over time.  # noqa: E501
-
-        :param utility: The utility of this StoreLearningRequest.  # noqa: E501
-        :type: object
-        """
-
-        self._utility = utility
-
-    @property
-    def source_goal(self):
-        """Gets the source_goal of this StoreLearningRequest.  # noqa: E501
-
-        Goal or context this learning originated from.  # noqa: E501
-
-        :return: The source_goal of this StoreLearningRequest.  # noqa: E501
-        :rtype: object
-        """
-        return self._source_goal
-
-    @source_goal.setter
-    def source_goal(self, source_goal):
-        """Sets the source_goal of this StoreLearningRequest.
-
-        Goal or context this learning originated from.  # noqa: E501
-
-        :param source_goal: The source_goal of this StoreLearningRequest.  # noqa: E501
-        :type: object
-        """
-
-        self._source_goal = source_goal
+        if privacy is not None:
+            self.privacy = privacy
+        if source_goal is not None:
+            self.source_goal = source_goal
+        if utility is not None:
+            self.utility = utility
 
     @property
     def applicable_goals(self):
@@ -194,6 +123,31 @@ class StoreLearningRequest(object):
         self._applicable_tools = applicable_tools
 
     @property
+    def content(self):
+        """Gets the content of this StoreLearningRequest.  # noqa: E501
+
+        The learning content to store.  # noqa: E501
+
+        :return: The content of this StoreLearningRequest.  # noqa: E501
+        :rtype: object
+        """
+        return self._content
+
+    @content.setter
+    def content(self, content):
+        """Sets the content of this StoreLearningRequest.
+
+        The learning content to store.  # noqa: E501
+
+        :param content: The content of this StoreLearningRequest.  # noqa: E501
+        :type: object
+        """
+        if content is None:
+            raise ValueError("Invalid value for `content`, must not be `None`")  # noqa: E501
+
+        self._content = content
+
+    @property
     def domain_dimensions(self):
         """Gets the domain_dimensions of this StoreLearningRequest.  # noqa: E501
 
@@ -215,6 +169,29 @@ class StoreLearningRequest(object):
         """
 
         self._domain_dimensions = domain_dimensions
+
+    @property
+    def instances(self):
+        """Gets the instances of this StoreLearningRequest.  # noqa: E501
+
+        Specific structured examples that support the learning, expressed as entity values and observed outcomes.  # noqa: E501
+
+        :return: The instances of this StoreLearningRequest.  # noqa: E501
+        :rtype: object
+        """
+        return self._instances
+
+    @instances.setter
+    def instances(self, instances):
+        """Sets the instances of this StoreLearningRequest.
+
+        Specific structured examples that support the learning, expressed as entity values and observed outcomes.  # noqa: E501
+
+        :param instances: The instances of this StoreLearningRequest.  # noqa: E501
+        :type: object
+        """
+
+        self._instances = instances
 
     @property
     def privacy(self):
@@ -240,27 +217,50 @@ class StoreLearningRequest(object):
         self._privacy = privacy
 
     @property
-    def instances(self):
-        """Gets the instances of this StoreLearningRequest.  # noqa: E501
+    def source_goal(self):
+        """Gets the source_goal of this StoreLearningRequest.  # noqa: E501
 
-        Specific structured examples that support the learning, expressed as entity values and observed outcomes.  # noqa: E501
+        Goal or context this learning originated from.  # noqa: E501
 
-        :return: The instances of this StoreLearningRequest.  # noqa: E501
+        :return: The source_goal of this StoreLearningRequest.  # noqa: E501
         :rtype: object
         """
-        return self._instances
+        return self._source_goal
 
-    @instances.setter
-    def instances(self, instances):
-        """Sets the instances of this StoreLearningRequest.
+    @source_goal.setter
+    def source_goal(self, source_goal):
+        """Sets the source_goal of this StoreLearningRequest.
 
-        Specific structured examples that support the learning, expressed as entity values and observed outcomes.  # noqa: E501
+        Goal or context this learning originated from.  # noqa: E501
 
-        :param instances: The instances of this StoreLearningRequest.  # noqa: E501
+        :param source_goal: The source_goal of this StoreLearningRequest.  # noqa: E501
         :type: object
         """
 
-        self._instances = instances
+        self._source_goal = source_goal
+
+    @property
+    def utility(self):
+        """Gets the utility of this StoreLearningRequest.  # noqa: E501
+
+        Starting utility prior, the curator's initial belief in how useful this learning is when applied (0.0-1.0). Both utility and establishedness are then earned, utility from application outcomes and establishedness from corroboration, so the value read back moves off this prior over time.  # noqa: E501
+
+        :return: The utility of this StoreLearningRequest.  # noqa: E501
+        :rtype: object
+        """
+        return self._utility
+
+    @utility.setter
+    def utility(self, utility):
+        """Sets the utility of this StoreLearningRequest.
+
+        Starting utility prior, the curator's initial belief in how useful this learning is when applied (0.0-1.0). Both utility and establishedness are then earned, utility from application outcomes and establishedness from corroboration, so the value read back moves off this prior over time.  # noqa: E501
+
+        :param utility: The utility of this StoreLearningRequest.  # noqa: E501
+        :type: object
+        """
+
+        self._utility = utility
 
     def to_dict(self):
         """Returns the model properties as a dict"""

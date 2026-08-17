@@ -28,52 +28,27 @@ class DomainDimensionModel(object):
                             and the value is json key in definition.
     """
     swagger_types = {
-        'name': 'object',
         'description': 'object',
-        'examples': 'object'
+        'examples': 'object',
+        'name': 'object'
     }
 
     attribute_map = {
-        'name': 'name',
         'description': 'description',
-        'examples': 'examples'
+        'examples': 'examples',
+        'name': 'name'
     }
 
-    def __init__(self, name=None, description=None, examples=None):  # noqa: E501
+    def __init__(self, description=None, examples=None, name=None):  # noqa: E501
         """DomainDimensionModel - a model defined in Swagger"""  # noqa: E501
-        self._name = None
         self._description = None
         self._examples = None
+        self._name = None
         self.discriminator = None
-        self.name = name
         self.description = description
         if examples is not None:
             self.examples = examples
-
-    @property
-    def name(self):
-        """Gets the name of this DomainDimensionModel.  # noqa: E501
-
-        Short stable key for this focus area (e.g. reliability, OWASP, latency, apply_phase).  # noqa: E501
-
-        :return: The name of this DomainDimensionModel.  # noqa: E501
-        :rtype: object
-        """
-        return self._name
-
-    @name.setter
-    def name(self, name):
-        """Sets the name of this DomainDimensionModel.
-
-        Short stable key for this focus area (e.g. reliability, OWASP, latency, apply_phase).  # noqa: E501
-
-        :param name: The name of this DomainDimensionModel.  # noqa: E501
-        :type: object
-        """
-        if name is None:
-            raise ValueError("Invalid value for `name`, must not be `None`")  # noqa: E501
-
-        self._name = name
+        self.name = name
 
     @property
     def description(self):
@@ -122,6 +97,31 @@ class DomainDimensionModel(object):
         """
 
         self._examples = examples
+
+    @property
+    def name(self):
+        """Gets the name of this DomainDimensionModel.  # noqa: E501
+
+        Short stable key for this focus area (e.g. reliability, OWASP, latency, apply_phase).  # noqa: E501
+
+        :return: The name of this DomainDimensionModel.  # noqa: E501
+        :rtype: object
+        """
+        return self._name
+
+    @name.setter
+    def name(self, name):
+        """Sets the name of this DomainDimensionModel.
+
+        Short stable key for this focus area (e.g. reliability, OWASP, latency, apply_phase).  # noqa: E501
+
+        :param name: The name of this DomainDimensionModel.  # noqa: E501
+        :type: object
+        """
+        if name is None:
+            raise ValueError("Invalid value for `name`, must not be `None`")  # noqa: E501
+
+        self._name = name
 
     def to_dict(self):
         """Returns the model properties as a dict"""

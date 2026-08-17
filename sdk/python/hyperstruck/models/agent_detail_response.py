@@ -28,194 +28,56 @@ class AgentDetailResponse(object):
                             and the value is json key in definition.
     """
     swagger_types = {
-        'id': 'object',
-        'name': 'object',
-        'description': 'object',
-        'status': 'object',
-        'reasoning_profile': 'ReasoningTier',
-        'home_space_id': 'object',
         'core_config': 'AgentCoreConfig',
         'created_at': 'object',
-        'updated_at': 'object',
-        'summary': 'object'
+        'description': 'object',
+        'home_space_id': 'object',
+        'id': 'object',
+        'name': 'object',
+        'reasoning_profile': 'ReasoningTier',
+        'status': 'object',
+        'summary': 'object',
+        'updated_at': 'object'
     }
 
     attribute_map = {
-        'id': 'id',
-        'name': 'name',
-        'description': 'description',
-        'status': 'status',
-        'reasoning_profile': 'reasoning_profile',
-        'home_space_id': 'home_space_id',
         'core_config': 'core_config',
         'created_at': 'created_at',
-        'updated_at': 'updated_at',
-        'summary': 'summary'
+        'description': 'description',
+        'home_space_id': 'home_space_id',
+        'id': 'id',
+        'name': 'name',
+        'reasoning_profile': 'reasoning_profile',
+        'status': 'status',
+        'summary': 'summary',
+        'updated_at': 'updated_at'
     }
 
-    def __init__(self, id=None, name=None, description=None, status=None, reasoning_profile=None, home_space_id=None, core_config=None, created_at=None, updated_at=None, summary=None):  # noqa: E501
+    def __init__(self, core_config=None, created_at=None, description=None, home_space_id=None, id=None, name=None, reasoning_profile=None, status=None, summary=None, updated_at=None):  # noqa: E501
         """AgentDetailResponse - a model defined in Swagger"""  # noqa: E501
-        self._id = None
-        self._name = None
-        self._description = None
-        self._status = None
-        self._reasoning_profile = None
-        self._home_space_id = None
         self._core_config = None
         self._created_at = None
-        self._updated_at = None
+        self._description = None
+        self._home_space_id = None
+        self._id = None
+        self._name = None
+        self._reasoning_profile = None
+        self._status = None
         self._summary = None
+        self._updated_at = None
         self.discriminator = None
-        self.id = id
-        self.name = name
-        self.description = description
-        self.status = status
-        self.reasoning_profile = reasoning_profile
-        if home_space_id is not None:
-            self.home_space_id = home_space_id
         self.core_config = core_config
         self.created_at = created_at
-        self.updated_at = updated_at
+        self.description = description
+        if home_space_id is not None:
+            self.home_space_id = home_space_id
+        self.id = id
+        self.name = name
+        self.reasoning_profile = reasoning_profile
+        self.status = status
         if summary is not None:
             self.summary = summary
-
-    @property
-    def id(self):
-        """Gets the id of this AgentDetailResponse.  # noqa: E501
-
-
-        :return: The id of this AgentDetailResponse.  # noqa: E501
-        :rtype: object
-        """
-        return self._id
-
-    @id.setter
-    def id(self, id):
-        """Sets the id of this AgentDetailResponse.
-
-
-        :param id: The id of this AgentDetailResponse.  # noqa: E501
-        :type: object
-        """
-        if id is None:
-            raise ValueError("Invalid value for `id`, must not be `None`")  # noqa: E501
-
-        self._id = id
-
-    @property
-    def name(self):
-        """Gets the name of this AgentDetailResponse.  # noqa: E501
-
-
-        :return: The name of this AgentDetailResponse.  # noqa: E501
-        :rtype: object
-        """
-        return self._name
-
-    @name.setter
-    def name(self, name):
-        """Sets the name of this AgentDetailResponse.
-
-
-        :param name: The name of this AgentDetailResponse.  # noqa: E501
-        :type: object
-        """
-        if name is None:
-            raise ValueError("Invalid value for `name`, must not be `None`")  # noqa: E501
-
-        self._name = name
-
-    @property
-    def description(self):
-        """Gets the description of this AgentDetailResponse.  # noqa: E501
-
-
-        :return: The description of this AgentDetailResponse.  # noqa: E501
-        :rtype: object
-        """
-        return self._description
-
-    @description.setter
-    def description(self, description):
-        """Sets the description of this AgentDetailResponse.
-
-
-        :param description: The description of this AgentDetailResponse.  # noqa: E501
-        :type: object
-        """
-        if description is None:
-            raise ValueError("Invalid value for `description`, must not be `None`")  # noqa: E501
-
-        self._description = description
-
-    @property
-    def status(self):
-        """Gets the status of this AgentDetailResponse.  # noqa: E501
-
-
-        :return: The status of this AgentDetailResponse.  # noqa: E501
-        :rtype: object
-        """
-        return self._status
-
-    @status.setter
-    def status(self, status):
-        """Sets the status of this AgentDetailResponse.
-
-
-        :param status: The status of this AgentDetailResponse.  # noqa: E501
-        :type: object
-        """
-        if status is None:
-            raise ValueError("Invalid value for `status`, must not be `None`")  # noqa: E501
-
-        self._status = status
-
-    @property
-    def reasoning_profile(self):
-        """Gets the reasoning_profile of this AgentDetailResponse.  # noqa: E501
-
-
-        :return: The reasoning_profile of this AgentDetailResponse.  # noqa: E501
-        :rtype: ReasoningTier
-        """
-        return self._reasoning_profile
-
-    @reasoning_profile.setter
-    def reasoning_profile(self, reasoning_profile):
-        """Sets the reasoning_profile of this AgentDetailResponse.
-
-
-        :param reasoning_profile: The reasoning_profile of this AgentDetailResponse.  # noqa: E501
-        :type: ReasoningTier
-        """
-        if reasoning_profile is None:
-            raise ValueError("Invalid value for `reasoning_profile`, must not be `None`")  # noqa: E501
-
-        self._reasoning_profile = reasoning_profile
-
-    @property
-    def home_space_id(self):
-        """Gets the home_space_id of this AgentDetailResponse.  # noqa: E501
-
-        Home space UUID for this agent, if any.  # noqa: E501
-
-        :return: The home_space_id of this AgentDetailResponse.  # noqa: E501
-        :rtype: object
-        """
-        return self._home_space_id
-
-    @home_space_id.setter
-    def home_space_id(self, home_space_id):
-        """Sets the home_space_id of this AgentDetailResponse.
-
-        Home space UUID for this agent, if any.  # noqa: E501
-
-        :param home_space_id: The home_space_id of this AgentDetailResponse.  # noqa: E501
-        :type: object
-        """
-
-        self._home_space_id = home_space_id
+        self.updated_at = updated_at
 
     @property
     def core_config(self):
@@ -264,27 +126,142 @@ class AgentDetailResponse(object):
         self._created_at = created_at
 
     @property
-    def updated_at(self):
-        """Gets the updated_at of this AgentDetailResponse.  # noqa: E501
+    def description(self):
+        """Gets the description of this AgentDetailResponse.  # noqa: E501
 
 
-        :return: The updated_at of this AgentDetailResponse.  # noqa: E501
+        :return: The description of this AgentDetailResponse.  # noqa: E501
         :rtype: object
         """
-        return self._updated_at
+        return self._description
 
-    @updated_at.setter
-    def updated_at(self, updated_at):
-        """Sets the updated_at of this AgentDetailResponse.
+    @description.setter
+    def description(self, description):
+        """Sets the description of this AgentDetailResponse.
 
 
-        :param updated_at: The updated_at of this AgentDetailResponse.  # noqa: E501
+        :param description: The description of this AgentDetailResponse.  # noqa: E501
         :type: object
         """
-        if updated_at is None:
-            raise ValueError("Invalid value for `updated_at`, must not be `None`")  # noqa: E501
+        if description is None:
+            raise ValueError("Invalid value for `description`, must not be `None`")  # noqa: E501
 
-        self._updated_at = updated_at
+        self._description = description
+
+    @property
+    def home_space_id(self):
+        """Gets the home_space_id of this AgentDetailResponse.  # noqa: E501
+
+        Home space UUID for this agent, if any.  # noqa: E501
+
+        :return: The home_space_id of this AgentDetailResponse.  # noqa: E501
+        :rtype: object
+        """
+        return self._home_space_id
+
+    @home_space_id.setter
+    def home_space_id(self, home_space_id):
+        """Sets the home_space_id of this AgentDetailResponse.
+
+        Home space UUID for this agent, if any.  # noqa: E501
+
+        :param home_space_id: The home_space_id of this AgentDetailResponse.  # noqa: E501
+        :type: object
+        """
+
+        self._home_space_id = home_space_id
+
+    @property
+    def id(self):
+        """Gets the id of this AgentDetailResponse.  # noqa: E501
+
+
+        :return: The id of this AgentDetailResponse.  # noqa: E501
+        :rtype: object
+        """
+        return self._id
+
+    @id.setter
+    def id(self, id):
+        """Sets the id of this AgentDetailResponse.
+
+
+        :param id: The id of this AgentDetailResponse.  # noqa: E501
+        :type: object
+        """
+        if id is None:
+            raise ValueError("Invalid value for `id`, must not be `None`")  # noqa: E501
+
+        self._id = id
+
+    @property
+    def name(self):
+        """Gets the name of this AgentDetailResponse.  # noqa: E501
+
+
+        :return: The name of this AgentDetailResponse.  # noqa: E501
+        :rtype: object
+        """
+        return self._name
+
+    @name.setter
+    def name(self, name):
+        """Sets the name of this AgentDetailResponse.
+
+
+        :param name: The name of this AgentDetailResponse.  # noqa: E501
+        :type: object
+        """
+        if name is None:
+            raise ValueError("Invalid value for `name`, must not be `None`")  # noqa: E501
+
+        self._name = name
+
+    @property
+    def reasoning_profile(self):
+        """Gets the reasoning_profile of this AgentDetailResponse.  # noqa: E501
+
+
+        :return: The reasoning_profile of this AgentDetailResponse.  # noqa: E501
+        :rtype: ReasoningTier
+        """
+        return self._reasoning_profile
+
+    @reasoning_profile.setter
+    def reasoning_profile(self, reasoning_profile):
+        """Sets the reasoning_profile of this AgentDetailResponse.
+
+
+        :param reasoning_profile: The reasoning_profile of this AgentDetailResponse.  # noqa: E501
+        :type: ReasoningTier
+        """
+        if reasoning_profile is None:
+            raise ValueError("Invalid value for `reasoning_profile`, must not be `None`")  # noqa: E501
+
+        self._reasoning_profile = reasoning_profile
+
+    @property
+    def status(self):
+        """Gets the status of this AgentDetailResponse.  # noqa: E501
+
+
+        :return: The status of this AgentDetailResponse.  # noqa: E501
+        :rtype: object
+        """
+        return self._status
+
+    @status.setter
+    def status(self, status):
+        """Sets the status of this AgentDetailResponse.
+
+
+        :param status: The status of this AgentDetailResponse.  # noqa: E501
+        :type: object
+        """
+        if status is None:
+            raise ValueError("Invalid value for `status`, must not be `None`")  # noqa: E501
+
+        self._status = status
 
     @property
     def summary(self):
@@ -306,6 +283,29 @@ class AgentDetailResponse(object):
         """
 
         self._summary = summary
+
+    @property
+    def updated_at(self):
+        """Gets the updated_at of this AgentDetailResponse.  # noqa: E501
+
+
+        :return: The updated_at of this AgentDetailResponse.  # noqa: E501
+        :rtype: object
+        """
+        return self._updated_at
+
+    @updated_at.setter
+    def updated_at(self, updated_at):
+        """Sets the updated_at of this AgentDetailResponse.
+
+
+        :param updated_at: The updated_at of this AgentDetailResponse.  # noqa: E501
+        :type: object
+        """
+        if updated_at is None:
+            raise ValueError("Invalid value for `updated_at`, must not be `None`")  # noqa: E501
+
+        self._updated_at = updated_at
 
     def to_dict(self):
         """Returns the model properties as a dict"""

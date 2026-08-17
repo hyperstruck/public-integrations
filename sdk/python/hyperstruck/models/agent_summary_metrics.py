@@ -28,184 +28,69 @@ class AgentSummaryMetrics(object):
                             and the value is json key in definition.
     """
     swagger_types = {
-        'window': 'UsageTimeWindow',
-        'period_start': 'object',
-        'period_end_exclusive': 'object',
-        'run_count': 'object',
-        'session_count': 'object',
         'completed_run_count': 'object',
         'failed_run_count': 'object',
+        'last_run_at': 'object',
+        'learning_count': 'object',
+        'needs_review_learning_count': 'object',
+        'period_end_exclusive': 'object',
+        'period_start': 'object',
+        'run_count': 'object',
+        'session_count': 'object',
         'suspended_run_count': 'object',
         'total_compute_seconds': 'object',
         'total_estimated_cost_usd': 'object',
-        'last_run_at': 'object',
-        'learning_count': 'object',
-        'needs_review_learning_count': 'object'
+        'window': 'UsageTimeWindow'
     }
 
     attribute_map = {
-        'window': 'window',
-        'period_start': 'period_start',
-        'period_end_exclusive': 'period_end_exclusive',
-        'run_count': 'run_count',
-        'session_count': 'session_count',
         'completed_run_count': 'completed_run_count',
         'failed_run_count': 'failed_run_count',
+        'last_run_at': 'last_run_at',
+        'learning_count': 'learning_count',
+        'needs_review_learning_count': 'needs_review_learning_count',
+        'period_end_exclusive': 'period_end_exclusive',
+        'period_start': 'period_start',
+        'run_count': 'run_count',
+        'session_count': 'session_count',
         'suspended_run_count': 'suspended_run_count',
         'total_compute_seconds': 'total_compute_seconds',
         'total_estimated_cost_usd': 'total_estimated_cost_usd',
-        'last_run_at': 'last_run_at',
-        'learning_count': 'learning_count',
-        'needs_review_learning_count': 'needs_review_learning_count'
+        'window': 'window'
     }
 
-    def __init__(self, window=None, period_start=None, period_end_exclusive=None, run_count=None, session_count=None, completed_run_count=None, failed_run_count=None, suspended_run_count=None, total_compute_seconds=None, total_estimated_cost_usd=None, last_run_at=None, learning_count=None, needs_review_learning_count=None):  # noqa: E501
+    def __init__(self, completed_run_count=None, failed_run_count=None, last_run_at=None, learning_count=None, needs_review_learning_count=None, period_end_exclusive=None, period_start=None, run_count=None, session_count=None, suspended_run_count=None, total_compute_seconds=None, total_estimated_cost_usd=None, window=None):  # noqa: E501
         """AgentSummaryMetrics - a model defined in Swagger"""  # noqa: E501
-        self._window = None
-        self._period_start = None
-        self._period_end_exclusive = None
-        self._run_count = None
-        self._session_count = None
         self._completed_run_count = None
         self._failed_run_count = None
-        self._suspended_run_count = None
-        self._total_compute_seconds = None
-        self._total_estimated_cost_usd = None
         self._last_run_at = None
         self._learning_count = None
         self._needs_review_learning_count = None
+        self._period_end_exclusive = None
+        self._period_start = None
+        self._run_count = None
+        self._session_count = None
+        self._suspended_run_count = None
+        self._total_compute_seconds = None
+        self._total_estimated_cost_usd = None
+        self._window = None
         self.discriminator = None
-        self.window = window
-        self.period_start = period_start
-        self.period_end_exclusive = period_end_exclusive
-        self.run_count = run_count
-        self.session_count = session_count
         self.completed_run_count = completed_run_count
         self.failed_run_count = failed_run_count
-        self.suspended_run_count = suspended_run_count
-        self.total_compute_seconds = total_compute_seconds
-        self.total_estimated_cost_usd = total_estimated_cost_usd
         if last_run_at is not None:
             self.last_run_at = last_run_at
         if learning_count is not None:
             self.learning_count = learning_count
         if needs_review_learning_count is not None:
             self.needs_review_learning_count = needs_review_learning_count
-
-    @property
-    def window(self):
-        """Gets the window of this AgentSummaryMetrics.  # noqa: E501
-
-
-        :return: The window of this AgentSummaryMetrics.  # noqa: E501
-        :rtype: UsageTimeWindow
-        """
-        return self._window
-
-    @window.setter
-    def window(self, window):
-        """Sets the window of this AgentSummaryMetrics.
-
-
-        :param window: The window of this AgentSummaryMetrics.  # noqa: E501
-        :type: UsageTimeWindow
-        """
-        if window is None:
-            raise ValueError("Invalid value for `window`, must not be `None`")  # noqa: E501
-
-        self._window = window
-
-    @property
-    def period_start(self):
-        """Gets the period_start of this AgentSummaryMetrics.  # noqa: E501
-
-
-        :return: The period_start of this AgentSummaryMetrics.  # noqa: E501
-        :rtype: object
-        """
-        return self._period_start
-
-    @period_start.setter
-    def period_start(self, period_start):
-        """Sets the period_start of this AgentSummaryMetrics.
-
-
-        :param period_start: The period_start of this AgentSummaryMetrics.  # noqa: E501
-        :type: object
-        """
-        if period_start is None:
-            raise ValueError("Invalid value for `period_start`, must not be `None`")  # noqa: E501
-
-        self._period_start = period_start
-
-    @property
-    def period_end_exclusive(self):
-        """Gets the period_end_exclusive of this AgentSummaryMetrics.  # noqa: E501
-
-
-        :return: The period_end_exclusive of this AgentSummaryMetrics.  # noqa: E501
-        :rtype: object
-        """
-        return self._period_end_exclusive
-
-    @period_end_exclusive.setter
-    def period_end_exclusive(self, period_end_exclusive):
-        """Sets the period_end_exclusive of this AgentSummaryMetrics.
-
-
-        :param period_end_exclusive: The period_end_exclusive of this AgentSummaryMetrics.  # noqa: E501
-        :type: object
-        """
-        if period_end_exclusive is None:
-            raise ValueError("Invalid value for `period_end_exclusive`, must not be `None`")  # noqa: E501
-
-        self._period_end_exclusive = period_end_exclusive
-
-    @property
-    def run_count(self):
-        """Gets the run_count of this AgentSummaryMetrics.  # noqa: E501
-
-
-        :return: The run_count of this AgentSummaryMetrics.  # noqa: E501
-        :rtype: object
-        """
-        return self._run_count
-
-    @run_count.setter
-    def run_count(self, run_count):
-        """Sets the run_count of this AgentSummaryMetrics.
-
-
-        :param run_count: The run_count of this AgentSummaryMetrics.  # noqa: E501
-        :type: object
-        """
-        if run_count is None:
-            raise ValueError("Invalid value for `run_count`, must not be `None`")  # noqa: E501
-
-        self._run_count = run_count
-
-    @property
-    def session_count(self):
-        """Gets the session_count of this AgentSummaryMetrics.  # noqa: E501
-
-
-        :return: The session_count of this AgentSummaryMetrics.  # noqa: E501
-        :rtype: object
-        """
-        return self._session_count
-
-    @session_count.setter
-    def session_count(self, session_count):
-        """Sets the session_count of this AgentSummaryMetrics.
-
-
-        :param session_count: The session_count of this AgentSummaryMetrics.  # noqa: E501
-        :type: object
-        """
-        if session_count is None:
-            raise ValueError("Invalid value for `session_count`, must not be `None`")  # noqa: E501
-
-        self._session_count = session_count
+        self.period_end_exclusive = period_end_exclusive
+        self.period_start = period_start
+        self.run_count = run_count
+        self.session_count = session_count
+        self.suspended_run_count = suspended_run_count
+        self.total_compute_seconds = total_compute_seconds
+        self.total_estimated_cost_usd = total_estimated_cost_usd
+        self.window = window
 
     @property
     def completed_run_count(self):
@@ -252,6 +137,161 @@ class AgentSummaryMetrics(object):
             raise ValueError("Invalid value for `failed_run_count`, must not be `None`")  # noqa: E501
 
         self._failed_run_count = failed_run_count
+
+    @property
+    def last_run_at(self):
+        """Gets the last_run_at of this AgentSummaryMetrics.  # noqa: E501
+
+
+        :return: The last_run_at of this AgentSummaryMetrics.  # noqa: E501
+        :rtype: object
+        """
+        return self._last_run_at
+
+    @last_run_at.setter
+    def last_run_at(self, last_run_at):
+        """Sets the last_run_at of this AgentSummaryMetrics.
+
+
+        :param last_run_at: The last_run_at of this AgentSummaryMetrics.  # noqa: E501
+        :type: object
+        """
+
+        self._last_run_at = last_run_at
+
+    @property
+    def learning_count(self):
+        """Gets the learning_count of this AgentSummaryMetrics.  # noqa: E501
+
+
+        :return: The learning_count of this AgentSummaryMetrics.  # noqa: E501
+        :rtype: object
+        """
+        return self._learning_count
+
+    @learning_count.setter
+    def learning_count(self, learning_count):
+        """Sets the learning_count of this AgentSummaryMetrics.
+
+
+        :param learning_count: The learning_count of this AgentSummaryMetrics.  # noqa: E501
+        :type: object
+        """
+
+        self._learning_count = learning_count
+
+    @property
+    def needs_review_learning_count(self):
+        """Gets the needs_review_learning_count of this AgentSummaryMetrics.  # noqa: E501
+
+
+        :return: The needs_review_learning_count of this AgentSummaryMetrics.  # noqa: E501
+        :rtype: object
+        """
+        return self._needs_review_learning_count
+
+    @needs_review_learning_count.setter
+    def needs_review_learning_count(self, needs_review_learning_count):
+        """Sets the needs_review_learning_count of this AgentSummaryMetrics.
+
+
+        :param needs_review_learning_count: The needs_review_learning_count of this AgentSummaryMetrics.  # noqa: E501
+        :type: object
+        """
+
+        self._needs_review_learning_count = needs_review_learning_count
+
+    @property
+    def period_end_exclusive(self):
+        """Gets the period_end_exclusive of this AgentSummaryMetrics.  # noqa: E501
+
+
+        :return: The period_end_exclusive of this AgentSummaryMetrics.  # noqa: E501
+        :rtype: object
+        """
+        return self._period_end_exclusive
+
+    @period_end_exclusive.setter
+    def period_end_exclusive(self, period_end_exclusive):
+        """Sets the period_end_exclusive of this AgentSummaryMetrics.
+
+
+        :param period_end_exclusive: The period_end_exclusive of this AgentSummaryMetrics.  # noqa: E501
+        :type: object
+        """
+        if period_end_exclusive is None:
+            raise ValueError("Invalid value for `period_end_exclusive`, must not be `None`")  # noqa: E501
+
+        self._period_end_exclusive = period_end_exclusive
+
+    @property
+    def period_start(self):
+        """Gets the period_start of this AgentSummaryMetrics.  # noqa: E501
+
+
+        :return: The period_start of this AgentSummaryMetrics.  # noqa: E501
+        :rtype: object
+        """
+        return self._period_start
+
+    @period_start.setter
+    def period_start(self, period_start):
+        """Sets the period_start of this AgentSummaryMetrics.
+
+
+        :param period_start: The period_start of this AgentSummaryMetrics.  # noqa: E501
+        :type: object
+        """
+        if period_start is None:
+            raise ValueError("Invalid value for `period_start`, must not be `None`")  # noqa: E501
+
+        self._period_start = period_start
+
+    @property
+    def run_count(self):
+        """Gets the run_count of this AgentSummaryMetrics.  # noqa: E501
+
+
+        :return: The run_count of this AgentSummaryMetrics.  # noqa: E501
+        :rtype: object
+        """
+        return self._run_count
+
+    @run_count.setter
+    def run_count(self, run_count):
+        """Sets the run_count of this AgentSummaryMetrics.
+
+
+        :param run_count: The run_count of this AgentSummaryMetrics.  # noqa: E501
+        :type: object
+        """
+        if run_count is None:
+            raise ValueError("Invalid value for `run_count`, must not be `None`")  # noqa: E501
+
+        self._run_count = run_count
+
+    @property
+    def session_count(self):
+        """Gets the session_count of this AgentSummaryMetrics.  # noqa: E501
+
+
+        :return: The session_count of this AgentSummaryMetrics.  # noqa: E501
+        :rtype: object
+        """
+        return self._session_count
+
+    @session_count.setter
+    def session_count(self, session_count):
+        """Sets the session_count of this AgentSummaryMetrics.
+
+
+        :param session_count: The session_count of this AgentSummaryMetrics.  # noqa: E501
+        :type: object
+        """
+        if session_count is None:
+            raise ValueError("Invalid value for `session_count`, must not be `None`")  # noqa: E501
+
+        self._session_count = session_count
 
     @property
     def suspended_run_count(self):
@@ -323,67 +363,27 @@ class AgentSummaryMetrics(object):
         self._total_estimated_cost_usd = total_estimated_cost_usd
 
     @property
-    def last_run_at(self):
-        """Gets the last_run_at of this AgentSummaryMetrics.  # noqa: E501
+    def window(self):
+        """Gets the window of this AgentSummaryMetrics.  # noqa: E501
 
 
-        :return: The last_run_at of this AgentSummaryMetrics.  # noqa: E501
-        :rtype: object
+        :return: The window of this AgentSummaryMetrics.  # noqa: E501
+        :rtype: UsageTimeWindow
         """
-        return self._last_run_at
+        return self._window
 
-    @last_run_at.setter
-    def last_run_at(self, last_run_at):
-        """Sets the last_run_at of this AgentSummaryMetrics.
+    @window.setter
+    def window(self, window):
+        """Sets the window of this AgentSummaryMetrics.
 
 
-        :param last_run_at: The last_run_at of this AgentSummaryMetrics.  # noqa: E501
-        :type: object
+        :param window: The window of this AgentSummaryMetrics.  # noqa: E501
+        :type: UsageTimeWindow
         """
+        if window is None:
+            raise ValueError("Invalid value for `window`, must not be `None`")  # noqa: E501
 
-        self._last_run_at = last_run_at
-
-    @property
-    def learning_count(self):
-        """Gets the learning_count of this AgentSummaryMetrics.  # noqa: E501
-
-
-        :return: The learning_count of this AgentSummaryMetrics.  # noqa: E501
-        :rtype: object
-        """
-        return self._learning_count
-
-    @learning_count.setter
-    def learning_count(self, learning_count):
-        """Sets the learning_count of this AgentSummaryMetrics.
-
-
-        :param learning_count: The learning_count of this AgentSummaryMetrics.  # noqa: E501
-        :type: object
-        """
-
-        self._learning_count = learning_count
-
-    @property
-    def needs_review_learning_count(self):
-        """Gets the needs_review_learning_count of this AgentSummaryMetrics.  # noqa: E501
-
-
-        :return: The needs_review_learning_count of this AgentSummaryMetrics.  # noqa: E501
-        :rtype: object
-        """
-        return self._needs_review_learning_count
-
-    @needs_review_learning_count.setter
-    def needs_review_learning_count(self, needs_review_learning_count):
-        """Sets the needs_review_learning_count of this AgentSummaryMetrics.
-
-
-        :param needs_review_learning_count: The needs_review_learning_count of this AgentSummaryMetrics.  # noqa: E501
-        :type: object
-        """
-
-        self._needs_review_learning_count = needs_review_learning_count
+        self._window = window
 
     def to_dict(self):
         """Returns the model properties as a dict"""

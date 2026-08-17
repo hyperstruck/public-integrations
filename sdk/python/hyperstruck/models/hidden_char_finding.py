@@ -28,54 +28,31 @@ class HiddenCharFinding(object):
                             and the value is json key in definition.
     """
     swagger_types = {
-        'kind': 'object',
         'codepoint': 'object',
         'count': 'object',
-        'first_index': 'object'
+        'first_index': 'object',
+        'kind': 'object'
     }
 
     attribute_map = {
-        'kind': 'kind',
         'codepoint': 'codepoint',
         'count': 'count',
-        'first_index': 'first_index'
+        'first_index': 'first_index',
+        'kind': 'kind'
     }
 
-    def __init__(self, kind=None, codepoint=None, count=None, first_index=None):  # noqa: E501
+    def __init__(self, codepoint=None, count=None, first_index=None, kind=None):  # noqa: E501
         """HiddenCharFinding - a model defined in Swagger"""  # noqa: E501
-        self._kind = None
         self._codepoint = None
         self._count = None
         self._first_index = None
+        self._kind = None
         self.discriminator = None
-        self.kind = kind
         if codepoint is not None:
             self.codepoint = codepoint
         self.count = count
         self.first_index = first_index
-
-    @property
-    def kind(self):
-        """Gets the kind of this HiddenCharFinding.  # noqa: E501
-
-
-        :return: The kind of this HiddenCharFinding.  # noqa: E501
-        :rtype: object
-        """
-        return self._kind
-
-    @kind.setter
-    def kind(self, kind):
-        """Sets the kind of this HiddenCharFinding.
-
-
-        :param kind: The kind of this HiddenCharFinding.  # noqa: E501
-        :type: object
-        """
-        if kind is None:
-            raise ValueError("Invalid value for `kind`, must not be `None`")  # noqa: E501
-
-        self._kind = kind
+        self.kind = kind
 
     @property
     def codepoint(self):
@@ -149,6 +126,29 @@ class HiddenCharFinding(object):
             raise ValueError("Invalid value for `first_index`, must not be `None`")  # noqa: E501
 
         self._first_index = first_index
+
+    @property
+    def kind(self):
+        """Gets the kind of this HiddenCharFinding.  # noqa: E501
+
+
+        :return: The kind of this HiddenCharFinding.  # noqa: E501
+        :rtype: object
+        """
+        return self._kind
+
+    @kind.setter
+    def kind(self, kind):
+        """Sets the kind of this HiddenCharFinding.
+
+
+        :param kind: The kind of this HiddenCharFinding.  # noqa: E501
+        :type: object
+        """
+        if kind is None:
+            raise ValueError("Invalid value for `kind`, must not be `None`")  # noqa: E501
+
+        self._kind = kind
 
     def to_dict(self):
         """Returns the model properties as a dict"""

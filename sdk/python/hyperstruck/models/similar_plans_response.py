@@ -29,26 +29,26 @@ class SimilarPlansResponse(object):
     """
     swagger_types = {
         'items': 'object',
-        'retrieved_at': 'object',
-        'partial_failures': 'object'
+        'partial_failures': 'object',
+        'retrieved_at': 'object'
     }
 
     attribute_map = {
         'items': 'items',
-        'retrieved_at': 'retrieved_at',
-        'partial_failures': 'partial_failures'
+        'partial_failures': 'partial_failures',
+        'retrieved_at': 'retrieved_at'
     }
 
-    def __init__(self, items=None, retrieved_at=None, partial_failures=None):  # noqa: E501
+    def __init__(self, items=None, partial_failures=None, retrieved_at=None):  # noqa: E501
         """SimilarPlansResponse - a model defined in Swagger"""  # noqa: E501
         self._items = None
-        self._retrieved_at = None
         self._partial_failures = None
+        self._retrieved_at = None
         self.discriminator = None
         self.items = items
-        self.retrieved_at = retrieved_at
         if partial_failures is not None:
             self.partial_failures = partial_failures
+        self.retrieved_at = retrieved_at
 
     @property
     def items(self):
@@ -74,6 +74,27 @@ class SimilarPlansResponse(object):
         self._items = items
 
     @property
+    def partial_failures(self):
+        """Gets the partial_failures of this SimilarPlansResponse.  # noqa: E501
+
+
+        :return: The partial_failures of this SimilarPlansResponse.  # noqa: E501
+        :rtype: object
+        """
+        return self._partial_failures
+
+    @partial_failures.setter
+    def partial_failures(self, partial_failures):
+        """Sets the partial_failures of this SimilarPlansResponse.
+
+
+        :param partial_failures: The partial_failures of this SimilarPlansResponse.  # noqa: E501
+        :type: object
+        """
+
+        self._partial_failures = partial_failures
+
+    @property
     def retrieved_at(self):
         """Gets the retrieved_at of this SimilarPlansResponse.  # noqa: E501
 
@@ -95,27 +116,6 @@ class SimilarPlansResponse(object):
             raise ValueError("Invalid value for `retrieved_at`, must not be `None`")  # noqa: E501
 
         self._retrieved_at = retrieved_at
-
-    @property
-    def partial_failures(self):
-        """Gets the partial_failures of this SimilarPlansResponse.  # noqa: E501
-
-
-        :return: The partial_failures of this SimilarPlansResponse.  # noqa: E501
-        :rtype: object
-        """
-        return self._partial_failures
-
-    @partial_failures.setter
-    def partial_failures(self, partial_failures):
-        """Sets the partial_failures of this SimilarPlansResponse.
-
-
-        :param partial_failures: The partial_failures of this SimilarPlansResponse.  # noqa: E501
-        :type: object
-        """
-
-        self._partial_failures = partial_failures
 
     def to_dict(self):
         """Returns the model properties as a dict"""

@@ -28,58 +28,35 @@ class LearningClaimsListResponse(object):
                             and the value is json key in definition.
     """
     swagger_types = {
-        'learning_id': 'object',
         'agent_id': 'object',
-        'status': 'object',
         'items': 'object',
-        'next_cursor': 'object'
+        'learning_id': 'object',
+        'next_cursor': 'object',
+        'status': 'object'
     }
 
     attribute_map = {
-        'learning_id': 'learning_id',
         'agent_id': 'agent_id',
-        'status': 'status',
         'items': 'items',
-        'next_cursor': 'next_cursor'
+        'learning_id': 'learning_id',
+        'next_cursor': 'next_cursor',
+        'status': 'status'
     }
 
-    def __init__(self, learning_id=None, agent_id=None, status=None, items=None, next_cursor=None):  # noqa: E501
+    def __init__(self, agent_id=None, items=None, learning_id=None, next_cursor=None, status=None):  # noqa: E501
         """LearningClaimsListResponse - a model defined in Swagger"""  # noqa: E501
-        self._learning_id = None
         self._agent_id = None
-        self._status = None
         self._items = None
+        self._learning_id = None
         self._next_cursor = None
+        self._status = None
         self.discriminator = None
-        self.learning_id = learning_id
         self.agent_id = agent_id
-        self.status = status
         self.items = items
+        self.learning_id = learning_id
         if next_cursor is not None:
             self.next_cursor = next_cursor
-
-    @property
-    def learning_id(self):
-        """Gets the learning_id of this LearningClaimsListResponse.  # noqa: E501
-
-
-        :return: The learning_id of this LearningClaimsListResponse.  # noqa: E501
-        :rtype: object
-        """
-        return self._learning_id
-
-    @learning_id.setter
-    def learning_id(self, learning_id):
-        """Sets the learning_id of this LearningClaimsListResponse.
-
-
-        :param learning_id: The learning_id of this LearningClaimsListResponse.  # noqa: E501
-        :type: object
-        """
-        if learning_id is None:
-            raise ValueError("Invalid value for `learning_id`, must not be `None`")  # noqa: E501
-
-        self._learning_id = learning_id
+        self.status = status
 
     @property
     def agent_id(self):
@@ -105,29 +82,6 @@ class LearningClaimsListResponse(object):
         self._agent_id = agent_id
 
     @property
-    def status(self):
-        """Gets the status of this LearningClaimsListResponse.  # noqa: E501
-
-
-        :return: The status of this LearningClaimsListResponse.  # noqa: E501
-        :rtype: object
-        """
-        return self._status
-
-    @status.setter
-    def status(self, status):
-        """Sets the status of this LearningClaimsListResponse.
-
-
-        :param status: The status of this LearningClaimsListResponse.  # noqa: E501
-        :type: object
-        """
-        if status is None:
-            raise ValueError("Invalid value for `status`, must not be `None`")  # noqa: E501
-
-        self._status = status
-
-    @property
     def items(self):
         """Gets the items of this LearningClaimsListResponse.  # noqa: E501
 
@@ -151,6 +105,29 @@ class LearningClaimsListResponse(object):
         self._items = items
 
     @property
+    def learning_id(self):
+        """Gets the learning_id of this LearningClaimsListResponse.  # noqa: E501
+
+
+        :return: The learning_id of this LearningClaimsListResponse.  # noqa: E501
+        :rtype: object
+        """
+        return self._learning_id
+
+    @learning_id.setter
+    def learning_id(self, learning_id):
+        """Sets the learning_id of this LearningClaimsListResponse.
+
+
+        :param learning_id: The learning_id of this LearningClaimsListResponse.  # noqa: E501
+        :type: object
+        """
+        if learning_id is None:
+            raise ValueError("Invalid value for `learning_id`, must not be `None`")  # noqa: E501
+
+        self._learning_id = learning_id
+
+    @property
     def next_cursor(self):
         """Gets the next_cursor of this LearningClaimsListResponse.  # noqa: E501
 
@@ -170,6 +147,29 @@ class LearningClaimsListResponse(object):
         """
 
         self._next_cursor = next_cursor
+
+    @property
+    def status(self):
+        """Gets the status of this LearningClaimsListResponse.  # noqa: E501
+
+
+        :return: The status of this LearningClaimsListResponse.  # noqa: E501
+        :rtype: object
+        """
+        return self._status
+
+    @status.setter
+    def status(self, status):
+        """Sets the status of this LearningClaimsListResponse.
+
+
+        :param status: The status of this LearningClaimsListResponse.  # noqa: E501
+        :type: object
+        """
+        if status is None:
+            raise ValueError("Invalid value for `status`, must not be `None`")  # noqa: E501
+
+        self._status = status
 
     def to_dict(self):
         """Returns the model properties as a dict"""

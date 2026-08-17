@@ -28,49 +28,26 @@ class AttributeMergeReversalResponse(object):
                             and the value is json key in definition.
     """
     swagger_types = {
-        'merge_id': 'object',
         'claims_reopened': 'object',
-        'corroboration_unwound': 'object'
+        'corroboration_unwound': 'object',
+        'merge_id': 'object'
     }
 
     attribute_map = {
-        'merge_id': 'merge_id',
         'claims_reopened': 'claims_reopened',
-        'corroboration_unwound': 'corroboration_unwound'
+        'corroboration_unwound': 'corroboration_unwound',
+        'merge_id': 'merge_id'
     }
 
-    def __init__(self, merge_id=None, claims_reopened=None, corroboration_unwound=None):  # noqa: E501
+    def __init__(self, claims_reopened=None, corroboration_unwound=None, merge_id=None):  # noqa: E501
         """AttributeMergeReversalResponse - a model defined in Swagger"""  # noqa: E501
-        self._merge_id = None
         self._claims_reopened = None
         self._corroboration_unwound = None
+        self._merge_id = None
         self.discriminator = None
-        self.merge_id = merge_id
         self.claims_reopened = claims_reopened
         self.corroboration_unwound = corroboration_unwound
-
-    @property
-    def merge_id(self):
-        """Gets the merge_id of this AttributeMergeReversalResponse.  # noqa: E501
-
-
-        :return: The merge_id of this AttributeMergeReversalResponse.  # noqa: E501
-        :rtype: object
-        """
-        return self._merge_id
-
-    @merge_id.setter
-    def merge_id(self, merge_id):
-        """Sets the merge_id of this AttributeMergeReversalResponse.
-
-
-        :param merge_id: The merge_id of this AttributeMergeReversalResponse.  # noqa: E501
-        :type: object
-        """
-        if merge_id is None:
-            raise ValueError("Invalid value for `merge_id`, must not be `None`")  # noqa: E501
-
-        self._merge_id = merge_id
+        self.merge_id = merge_id
 
     @property
     def claims_reopened(self):
@@ -117,6 +94,29 @@ class AttributeMergeReversalResponse(object):
             raise ValueError("Invalid value for `corroboration_unwound`, must not be `None`")  # noqa: E501
 
         self._corroboration_unwound = corroboration_unwound
+
+    @property
+    def merge_id(self):
+        """Gets the merge_id of this AttributeMergeReversalResponse.  # noqa: E501
+
+
+        :return: The merge_id of this AttributeMergeReversalResponse.  # noqa: E501
+        :rtype: object
+        """
+        return self._merge_id
+
+    @merge_id.setter
+    def merge_id(self, merge_id):
+        """Sets the merge_id of this AttributeMergeReversalResponse.
+
+
+        :param merge_id: The merge_id of this AttributeMergeReversalResponse.  # noqa: E501
+        :type: object
+        """
+        if merge_id is None:
+            raise ValueError("Invalid value for `merge_id`, must not be `None`")  # noqa: E501
+
+        self._merge_id = merge_id
 
     def to_dict(self):
         """Returns the model properties as a dict"""

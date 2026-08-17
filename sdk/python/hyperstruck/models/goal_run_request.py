@@ -28,48 +28,71 @@ class GoalRunRequest(object):
                             and the value is json key in definition.
     """
     swagger_types = {
-        'goal': 'object',
         'context': 'object',
-        'session_id': 'object',
-        'worker_profile': 'object',
+        'goal': 'object',
         'metadata': 'object',
+        'references': 'object',
+        'session_id': 'object',
         'sources': 'object',
-        'references': 'object'
+        'worker_profile': 'object'
     }
 
     attribute_map = {
-        'goal': 'goal',
         'context': 'context',
-        'session_id': 'session_id',
-        'worker_profile': 'worker_profile',
+        'goal': 'goal',
         'metadata': 'metadata',
+        'references': 'references',
+        'session_id': 'session_id',
         'sources': 'sources',
-        'references': 'references'
+        'worker_profile': 'worker_profile'
     }
 
-    def __init__(self, goal=None, context=None, session_id=None, worker_profile=None, metadata=None, sources=None, references=None):  # noqa: E501
+    def __init__(self, context=None, goal=None, metadata=None, references=None, session_id=None, sources=None, worker_profile=None):  # noqa: E501
         """GoalRunRequest - a model defined in Swagger"""  # noqa: E501
-        self._goal = None
         self._context = None
-        self._session_id = None
-        self._worker_profile = None
+        self._goal = None
         self._metadata = None
-        self._sources = None
         self._references = None
+        self._session_id = None
+        self._sources = None
+        self._worker_profile = None
         self.discriminator = None
-        self.goal = goal
         if context is not None:
             self.context = context
-        if session_id is not None:
-            self.session_id = session_id
-        if worker_profile is not None:
-            self.worker_profile = worker_profile
+        self.goal = goal
         if metadata is not None:
             self.metadata = metadata
-        if sources is not None:
-            self.sources = sources
         if references is not None:
             self.references = references
+        if session_id is not None:
+            self.session_id = session_id
+        if sources is not None:
+            self.sources = sources
+        if worker_profile is not None:
+            self.worker_profile = worker_profile
+
+    @property
+    def context(self):
+        """Gets the context of this GoalRunRequest.  # noqa: E501
+
+        Optional additional context passed to the reasoning runtime.  # noqa: E501
+
+        :return: The context of this GoalRunRequest.  # noqa: E501
+        :rtype: object
+        """
+        return self._context
+
+    @context.setter
+    def context(self, context):
+        """Sets the context of this GoalRunRequest.
+
+        Optional additional context passed to the reasoning runtime.  # noqa: E501
+
+        :param context: The context of this GoalRunRequest.  # noqa: E501
+        :type: object
+        """
+
+        self._context = context
 
     @property
     def goal(self):
@@ -97,27 +120,50 @@ class GoalRunRequest(object):
         self._goal = goal
 
     @property
-    def context(self):
-        """Gets the context of this GoalRunRequest.  # noqa: E501
+    def metadata(self):
+        """Gets the metadata of this GoalRunRequest.  # noqa: E501
 
-        Optional additional context passed to the reasoning runtime.  # noqa: E501
+        Optional caller-defined metadata attached to the run.  # noqa: E501
 
-        :return: The context of this GoalRunRequest.  # noqa: E501
+        :return: The metadata of this GoalRunRequest.  # noqa: E501
         :rtype: object
         """
-        return self._context
+        return self._metadata
 
-    @context.setter
-    def context(self, context):
-        """Sets the context of this GoalRunRequest.
+    @metadata.setter
+    def metadata(self, metadata):
+        """Sets the metadata of this GoalRunRequest.
 
-        Optional additional context passed to the reasoning runtime.  # noqa: E501
+        Optional caller-defined metadata attached to the run.  # noqa: E501
 
-        :param context: The context of this GoalRunRequest.  # noqa: E501
+        :param metadata: The metadata of this GoalRunRequest.  # noqa: E501
         :type: object
         """
 
-        self._context = context
+        self._metadata = metadata
+
+    @property
+    def references(self):
+        """Gets the references of this GoalRunRequest.  # noqa: E501
+
+        Exemplar/calibration material shown to the model but never admitted as evidence.  # noqa: E501
+
+        :return: The references of this GoalRunRequest.  # noqa: E501
+        :rtype: object
+        """
+        return self._references
+
+    @references.setter
+    def references(self, references):
+        """Sets the references of this GoalRunRequest.
+
+        Exemplar/calibration material shown to the model but never admitted as evidence.  # noqa: E501
+
+        :param references: The references of this GoalRunRequest.  # noqa: E501
+        :type: object
+        """
+
+        self._references = references
 
     @property
     def session_id(self):
@@ -143,52 +189,6 @@ class GoalRunRequest(object):
         self._session_id = session_id
 
     @property
-    def worker_profile(self):
-        """Gets the worker_profile of this GoalRunRequest.  # noqa: E501
-
-        Logical worker profile (`default` or `large`).  # noqa: E501
-
-        :return: The worker_profile of this GoalRunRequest.  # noqa: E501
-        :rtype: object
-        """
-        return self._worker_profile
-
-    @worker_profile.setter
-    def worker_profile(self, worker_profile):
-        """Sets the worker_profile of this GoalRunRequest.
-
-        Logical worker profile (`default` or `large`).  # noqa: E501
-
-        :param worker_profile: The worker_profile of this GoalRunRequest.  # noqa: E501
-        :type: object
-        """
-
-        self._worker_profile = worker_profile
-
-    @property
-    def metadata(self):
-        """Gets the metadata of this GoalRunRequest.  # noqa: E501
-
-        Optional caller-defined metadata attached to the run.  # noqa: E501
-
-        :return: The metadata of this GoalRunRequest.  # noqa: E501
-        :rtype: object
-        """
-        return self._metadata
-
-    @metadata.setter
-    def metadata(self, metadata):
-        """Sets the metadata of this GoalRunRequest.
-
-        Optional caller-defined metadata attached to the run.  # noqa: E501
-
-        :param metadata: The metadata of this GoalRunRequest.  # noqa: E501
-        :type: object
-        """
-
-        self._metadata = metadata
-
-    @property
     def sources(self):
         """Gets the sources of this GoalRunRequest.  # noqa: E501
 
@@ -212,27 +212,27 @@ class GoalRunRequest(object):
         self._sources = sources
 
     @property
-    def references(self):
-        """Gets the references of this GoalRunRequest.  # noqa: E501
+    def worker_profile(self):
+        """Gets the worker_profile of this GoalRunRequest.  # noqa: E501
 
-        Exemplar/calibration material shown to the model but never admitted as evidence.  # noqa: E501
+        Logical worker profile (`default` or `large`).  # noqa: E501
 
-        :return: The references of this GoalRunRequest.  # noqa: E501
+        :return: The worker_profile of this GoalRunRequest.  # noqa: E501
         :rtype: object
         """
-        return self._references
+        return self._worker_profile
 
-    @references.setter
-    def references(self, references):
-        """Sets the references of this GoalRunRequest.
+    @worker_profile.setter
+    def worker_profile(self, worker_profile):
+        """Sets the worker_profile of this GoalRunRequest.
 
-        Exemplar/calibration material shown to the model but never admitted as evidence.  # noqa: E501
+        Logical worker profile (`default` or `large`).  # noqa: E501
 
-        :param references: The references of this GoalRunRequest.  # noqa: E501
+        :param worker_profile: The worker_profile of this GoalRunRequest.  # noqa: E501
         :type: object
         """
 
-        self._references = references
+        self._worker_profile = worker_profile
 
     def to_dict(self):
         """Returns the model properties as a dict"""

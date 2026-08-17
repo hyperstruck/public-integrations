@@ -28,23 +28,46 @@ class ToolSpecModel(object):
                             and the value is json key in definition.
     """
     swagger_types = {
-        'name': 'object',
-        'description': 'object'
+        'description': 'object',
+        'name': 'object'
     }
 
     attribute_map = {
-        'name': 'name',
-        'description': 'description'
+        'description': 'description',
+        'name': 'name'
     }
 
-    def __init__(self, name=None, description=None):  # noqa: E501
+    def __init__(self, description=None, name=None):  # noqa: E501
         """ToolSpecModel - a model defined in Swagger"""  # noqa: E501
-        self._name = None
         self._description = None
+        self._name = None
         self.discriminator = None
-        self.name = name
         if description is not None:
             self.description = description
+        self.name = name
+
+    @property
+    def description(self):
+        """Gets the description of this ToolSpecModel.  # noqa: E501
+
+        Short explanation of what the tool can do.  # noqa: E501
+
+        :return: The description of this ToolSpecModel.  # noqa: E501
+        :rtype: object
+        """
+        return self._description
+
+    @description.setter
+    def description(self, description):
+        """Sets the description of this ToolSpecModel.
+
+        Short explanation of what the tool can do.  # noqa: E501
+
+        :param description: The description of this ToolSpecModel.  # noqa: E501
+        :type: object
+        """
+
+        self._description = description
 
     @property
     def name(self):
@@ -70,29 +93,6 @@ class ToolSpecModel(object):
             raise ValueError("Invalid value for `name`, must not be `None`")  # noqa: E501
 
         self._name = name
-
-    @property
-    def description(self):
-        """Gets the description of this ToolSpecModel.  # noqa: E501
-
-        Short explanation of what the tool can do.  # noqa: E501
-
-        :return: The description of this ToolSpecModel.  # noqa: E501
-        :rtype: object
-        """
-        return self._description
-
-    @description.setter
-    def description(self, description):
-        """Sets the description of this ToolSpecModel.
-
-        Short explanation of what the tool can do.  # noqa: E501
-
-        :param description: The description of this ToolSpecModel.  # noqa: E501
-        :type: object
-        """
-
-        self._description = description
 
     def to_dict(self):
         """Returns the model properties as a dict"""

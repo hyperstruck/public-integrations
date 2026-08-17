@@ -29,26 +29,26 @@ class ObserveRequest(object):
     """
     swagger_types = {
         'agent_name': 'object',
-        'org_id': 'object',
-        'episode': 'EpisodeModel'
+        'episode': 'EpisodeModel',
+        'org_id': 'object'
     }
 
     attribute_map = {
         'agent_name': 'agent_name',
-        'org_id': 'org_id',
-        'episode': 'episode'
+        'episode': 'episode',
+        'org_id': 'org_id'
     }
 
-    def __init__(self, agent_name=None, org_id=None, episode=None):  # noqa: E501
+    def __init__(self, agent_name=None, episode=None, org_id=None):  # noqa: E501
         """ObserveRequest - a model defined in Swagger"""  # noqa: E501
         self._agent_name = None
-        self._org_id = None
         self._episode = None
+        self._org_id = None
         self.discriminator = None
         self.agent_name = agent_name
+        self.episode = episode
         if org_id is not None:
             self.org_id = org_id
-        self.episode = episode
 
     @property
     def agent_name(self):
@@ -76,29 +76,6 @@ class ObserveRequest(object):
         self._agent_name = agent_name
 
     @property
-    def org_id(self):
-        """Gets the org_id of this ObserveRequest.  # noqa: E501
-
-        Optional caller-owned organisation reference.  # noqa: E501
-
-        :return: The org_id of this ObserveRequest.  # noqa: E501
-        :rtype: object
-        """
-        return self._org_id
-
-    @org_id.setter
-    def org_id(self, org_id):
-        """Sets the org_id of this ObserveRequest.
-
-        Optional caller-owned organisation reference.  # noqa: E501
-
-        :param org_id: The org_id of this ObserveRequest.  # noqa: E501
-        :type: object
-        """
-
-        self._org_id = org_id
-
-    @property
     def episode(self):
         """Gets the episode of this ObserveRequest.  # noqa: E501
 
@@ -122,6 +99,29 @@ class ObserveRequest(object):
             raise ValueError("Invalid value for `episode`, must not be `None`")  # noqa: E501
 
         self._episode = episode
+
+    @property
+    def org_id(self):
+        """Gets the org_id of this ObserveRequest.  # noqa: E501
+
+        Optional caller-owned organisation reference.  # noqa: E501
+
+        :return: The org_id of this ObserveRequest.  # noqa: E501
+        :rtype: object
+        """
+        return self._org_id
+
+    @org_id.setter
+    def org_id(self, org_id):
+        """Sets the org_id of this ObserveRequest.
+
+        Optional caller-owned organisation reference.  # noqa: E501
+
+        :param org_id: The org_id of this ObserveRequest.  # noqa: E501
+        :type: object
+        """
+
+        self._org_id = org_id
 
     def to_dict(self):
         """Returns the model properties as a dict"""

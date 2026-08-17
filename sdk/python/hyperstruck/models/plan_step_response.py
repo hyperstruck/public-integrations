@@ -28,92 +28,69 @@ class PlanStepResponse(object):
                             and the value is json key in definition.
     """
     swagger_types = {
-        'step_id': 'object',
-        'description': 'object',
-        'action_type': 'object',
         'action_spec': 'object',
+        'action_type': 'object',
         'depends_on': 'object',
+        'description': 'object',
         'milestone_id': 'object',
-        'status': 'object'
+        'status': 'object',
+        'step_id': 'object'
     }
 
     attribute_map = {
-        'step_id': 'step_id',
-        'description': 'description',
-        'action_type': 'action_type',
         'action_spec': 'action_spec',
+        'action_type': 'action_type',
         'depends_on': 'depends_on',
+        'description': 'description',
         'milestone_id': 'milestone_id',
-        'status': 'status'
+        'status': 'status',
+        'step_id': 'step_id'
     }
 
-    def __init__(self, step_id=None, description=None, action_type=None, action_spec=None, depends_on=None, milestone_id=None, status=None):  # noqa: E501
+    def __init__(self, action_spec=None, action_type=None, depends_on=None, description=None, milestone_id=None, status=None, step_id=None):  # noqa: E501
         """PlanStepResponse - a model defined in Swagger"""  # noqa: E501
-        self._step_id = None
-        self._description = None
-        self._action_type = None
         self._action_spec = None
+        self._action_type = None
         self._depends_on = None
+        self._description = None
         self._milestone_id = None
         self._status = None
+        self._step_id = None
         self.discriminator = None
-        if step_id is not None:
-            self.step_id = step_id
-        self.description = description
-        if action_type is not None:
-            self.action_type = action_type
         if action_spec is not None:
             self.action_spec = action_spec
+        if action_type is not None:
+            self.action_type = action_type
         if depends_on is not None:
             self.depends_on = depends_on
+        self.description = description
         if milestone_id is not None:
             self.milestone_id = milestone_id
         if status is not None:
             self.status = status
+        if step_id is not None:
+            self.step_id = step_id
 
     @property
-    def step_id(self):
-        """Gets the step_id of this PlanStepResponse.  # noqa: E501
+    def action_spec(self):
+        """Gets the action_spec of this PlanStepResponse.  # noqa: E501
 
 
-        :return: The step_id of this PlanStepResponse.  # noqa: E501
+        :return: The action_spec of this PlanStepResponse.  # noqa: E501
         :rtype: object
         """
-        return self._step_id
+        return self._action_spec
 
-    @step_id.setter
-    def step_id(self, step_id):
-        """Sets the step_id of this PlanStepResponse.
+    @action_spec.setter
+    def action_spec(self, action_spec):
+        """Sets the action_spec of this PlanStepResponse.
 
 
-        :param step_id: The step_id of this PlanStepResponse.  # noqa: E501
+        :param action_spec: The action_spec of this PlanStepResponse.  # noqa: E501
         :type: object
         """
 
-        self._step_id = step_id
-
-    @property
-    def description(self):
-        """Gets the description of this PlanStepResponse.  # noqa: E501
-
-
-        :return: The description of this PlanStepResponse.  # noqa: E501
-        :rtype: object
-        """
-        return self._description
-
-    @description.setter
-    def description(self, description):
-        """Sets the description of this PlanStepResponse.
-
-
-        :param description: The description of this PlanStepResponse.  # noqa: E501
-        :type: object
-        """
-        if description is None:
-            raise ValueError("Invalid value for `description`, must not be `None`")  # noqa: E501
-
-        self._description = description
+        self._action_spec = action_spec
 
     @property
     def action_type(self):
@@ -139,27 +116,6 @@ class PlanStepResponse(object):
         self._action_type = action_type
 
     @property
-    def action_spec(self):
-        """Gets the action_spec of this PlanStepResponse.  # noqa: E501
-
-
-        :return: The action_spec of this PlanStepResponse.  # noqa: E501
-        :rtype: object
-        """
-        return self._action_spec
-
-    @action_spec.setter
-    def action_spec(self, action_spec):
-        """Sets the action_spec of this PlanStepResponse.
-
-
-        :param action_spec: The action_spec of this PlanStepResponse.  # noqa: E501
-        :type: object
-        """
-
-        self._action_spec = action_spec
-
-    @property
     def depends_on(self):
         """Gets the depends_on of this PlanStepResponse.  # noqa: E501
 
@@ -179,6 +135,29 @@ class PlanStepResponse(object):
         """
 
         self._depends_on = depends_on
+
+    @property
+    def description(self):
+        """Gets the description of this PlanStepResponse.  # noqa: E501
+
+
+        :return: The description of this PlanStepResponse.  # noqa: E501
+        :rtype: object
+        """
+        return self._description
+
+    @description.setter
+    def description(self, description):
+        """Sets the description of this PlanStepResponse.
+
+
+        :param description: The description of this PlanStepResponse.  # noqa: E501
+        :type: object
+        """
+        if description is None:
+            raise ValueError("Invalid value for `description`, must not be `None`")  # noqa: E501
+
+        self._description = description
 
     @property
     def milestone_id(self):
@@ -223,6 +202,27 @@ class PlanStepResponse(object):
         """
 
         self._status = status
+
+    @property
+    def step_id(self):
+        """Gets the step_id of this PlanStepResponse.  # noqa: E501
+
+
+        :return: The step_id of this PlanStepResponse.  # noqa: E501
+        :rtype: object
+        """
+        return self._step_id
+
+    @step_id.setter
+    def step_id(self, step_id):
+        """Sets the step_id of this PlanStepResponse.
+
+
+        :param step_id: The step_id of this PlanStepResponse.  # noqa: E501
+        :type: object
+        """
+
+        self._step_id = step_id
 
     def to_dict(self):
         """Returns the model properties as a dict"""

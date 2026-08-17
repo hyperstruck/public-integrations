@@ -28,31 +28,75 @@ class MetricCatalogField(object):
                             and the value is json key in definition.
     """
     swagger_types = {
-        'field': 'object',
-        'kind': 'object',
+        'derived': 'object',
         'description': 'object',
-        'derived': 'object'
+        'field': 'object',
+        'kind': 'object'
     }
 
     attribute_map = {
-        'field': 'field',
-        'kind': 'kind',
+        'derived': 'derived',
         'description': 'description',
-        'derived': 'derived'
+        'field': 'field',
+        'kind': 'kind'
     }
 
-    def __init__(self, field=None, kind=None, description=None, derived=None):  # noqa: E501
+    def __init__(self, derived=None, description=None, field=None, kind=None):  # noqa: E501
         """MetricCatalogField - a model defined in Swagger"""  # noqa: E501
+        self._derived = None
+        self._description = None
         self._field = None
         self._kind = None
-        self._description = None
-        self._derived = None
         self.discriminator = None
-        self.field = field
-        self.kind = kind
-        self.description = description
         if derived is not None:
             self.derived = derived
+        self.description = description
+        self.field = field
+        self.kind = kind
+
+    @property
+    def derived(self):
+        """Gets the derived of this MetricCatalogField.  # noqa: E501
+
+
+        :return: The derived of this MetricCatalogField.  # noqa: E501
+        :rtype: object
+        """
+        return self._derived
+
+    @derived.setter
+    def derived(self, derived):
+        """Sets the derived of this MetricCatalogField.
+
+
+        :param derived: The derived of this MetricCatalogField.  # noqa: E501
+        :type: object
+        """
+
+        self._derived = derived
+
+    @property
+    def description(self):
+        """Gets the description of this MetricCatalogField.  # noqa: E501
+
+
+        :return: The description of this MetricCatalogField.  # noqa: E501
+        :rtype: object
+        """
+        return self._description
+
+    @description.setter
+    def description(self, description):
+        """Sets the description of this MetricCatalogField.
+
+
+        :param description: The description of this MetricCatalogField.  # noqa: E501
+        :type: object
+        """
+        if description is None:
+            raise ValueError("Invalid value for `description`, must not be `None`")  # noqa: E501
+
+        self._description = description
 
     @property
     def field(self):
@@ -99,50 +143,6 @@ class MetricCatalogField(object):
             raise ValueError("Invalid value for `kind`, must not be `None`")  # noqa: E501
 
         self._kind = kind
-
-    @property
-    def description(self):
-        """Gets the description of this MetricCatalogField.  # noqa: E501
-
-
-        :return: The description of this MetricCatalogField.  # noqa: E501
-        :rtype: object
-        """
-        return self._description
-
-    @description.setter
-    def description(self, description):
-        """Sets the description of this MetricCatalogField.
-
-
-        :param description: The description of this MetricCatalogField.  # noqa: E501
-        :type: object
-        """
-        if description is None:
-            raise ValueError("Invalid value for `description`, must not be `None`")  # noqa: E501
-
-        self._description = description
-
-    @property
-    def derived(self):
-        """Gets the derived of this MetricCatalogField.  # noqa: E501
-
-
-        :return: The derived of this MetricCatalogField.  # noqa: E501
-        :rtype: object
-        """
-        return self._derived
-
-    @derived.setter
-    def derived(self, derived):
-        """Sets the derived of this MetricCatalogField.
-
-
-        :param derived: The derived of this MetricCatalogField.  # noqa: E501
-        :type: object
-        """
-
-        self._derived = derived
 
     def to_dict(self):
         """Returns the model properties as a dict"""

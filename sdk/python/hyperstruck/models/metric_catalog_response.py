@@ -28,45 +28,22 @@ class MetricCatalogResponse(object):
                             and the value is json key in definition.
     """
     swagger_types = {
-        'fields': 'object',
-        'default_constants': 'ReportingConstants'
+        'default_constants': 'ReportingConstants',
+        'fields': 'object'
     }
 
     attribute_map = {
-        'fields': 'fields',
-        'default_constants': 'default_constants'
+        'default_constants': 'default_constants',
+        'fields': 'fields'
     }
 
-    def __init__(self, fields=None, default_constants=None):  # noqa: E501
+    def __init__(self, default_constants=None, fields=None):  # noqa: E501
         """MetricCatalogResponse - a model defined in Swagger"""  # noqa: E501
-        self._fields = None
         self._default_constants = None
+        self._fields = None
         self.discriminator = None
-        self.fields = fields
         self.default_constants = default_constants
-
-    @property
-    def fields(self):
-        """Gets the fields of this MetricCatalogResponse.  # noqa: E501
-
-
-        :return: The fields of this MetricCatalogResponse.  # noqa: E501
-        :rtype: object
-        """
-        return self._fields
-
-    @fields.setter
-    def fields(self, fields):
-        """Sets the fields of this MetricCatalogResponse.
-
-
-        :param fields: The fields of this MetricCatalogResponse.  # noqa: E501
-        :type: object
-        """
-        if fields is None:
-            raise ValueError("Invalid value for `fields`, must not be `None`")  # noqa: E501
-
-        self._fields = fields
+        self.fields = fields
 
     @property
     def default_constants(self):
@@ -90,6 +67,29 @@ class MetricCatalogResponse(object):
             raise ValueError("Invalid value for `default_constants`, must not be `None`")  # noqa: E501
 
         self._default_constants = default_constants
+
+    @property
+    def fields(self):
+        """Gets the fields of this MetricCatalogResponse.  # noqa: E501
+
+
+        :return: The fields of this MetricCatalogResponse.  # noqa: E501
+        :rtype: object
+        """
+        return self._fields
+
+    @fields.setter
+    def fields(self, fields):
+        """Sets the fields of this MetricCatalogResponse.
+
+
+        :param fields: The fields of this MetricCatalogResponse.  # noqa: E501
+        :type: object
+        """
+        if fields is None:
+            raise ValueError("Invalid value for `fields`, must not be `None`")  # noqa: E501
+
+        self._fields = fields
 
     def to_dict(self):
         """Returns the model properties as a dict"""

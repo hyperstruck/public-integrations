@@ -28,45 +28,24 @@ class RunInputSummary(object):
                             and the value is json key in definition.
     """
     swagger_types = {
-        'goal': 'object',
-        'context': 'object'
+        'context': 'object',
+        'goal': 'object'
     }
 
     attribute_map = {
-        'goal': 'goal',
-        'context': 'context'
+        'context': 'context',
+        'goal': 'goal'
     }
 
-    def __init__(self, goal=None, context=None):  # noqa: E501
+    def __init__(self, context=None, goal=None):  # noqa: E501
         """RunInputSummary - a model defined in Swagger"""  # noqa: E501
-        self._goal = None
         self._context = None
+        self._goal = None
         self.discriminator = None
-        if goal is not None:
-            self.goal = goal
         if context is not None:
             self.context = context
-
-    @property
-    def goal(self):
-        """Gets the goal of this RunInputSummary.  # noqa: E501
-
-
-        :return: The goal of this RunInputSummary.  # noqa: E501
-        :rtype: object
-        """
-        return self._goal
-
-    @goal.setter
-    def goal(self, goal):
-        """Sets the goal of this RunInputSummary.
-
-
-        :param goal: The goal of this RunInputSummary.  # noqa: E501
-        :type: object
-        """
-
-        self._goal = goal
+        if goal is not None:
+            self.goal = goal
 
     @property
     def context(self):
@@ -88,6 +67,27 @@ class RunInputSummary(object):
         """
 
         self._context = context
+
+    @property
+    def goal(self):
+        """Gets the goal of this RunInputSummary.  # noqa: E501
+
+
+        :return: The goal of this RunInputSummary.  # noqa: E501
+        :rtype: object
+        """
+        return self._goal
+
+    @goal.setter
+    def goal(self, goal):
+        """Sets the goal of this RunInputSummary.
+
+
+        :param goal: The goal of this RunInputSummary.  # noqa: E501
+        :type: object
+        """
+
+        self._goal = goal
 
     def to_dict(self):
         """Returns the model properties as a dict"""

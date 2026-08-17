@@ -29,26 +29,26 @@ class MultiAgentPlanSearchRequest(object):
     """
     swagger_types = {
         'agent_ids': 'object',
-        'q': 'object',
-        'limit': 'object'
+        'limit': 'object',
+        'q': 'object'
     }
 
     attribute_map = {
         'agent_ids': 'agent_ids',
-        'q': 'q',
-        'limit': 'limit'
+        'limit': 'limit',
+        'q': 'q'
     }
 
-    def __init__(self, agent_ids=None, q=None, limit=None):  # noqa: E501
+    def __init__(self, agent_ids=None, limit=None, q=None):  # noqa: E501
         """MultiAgentPlanSearchRequest - a model defined in Swagger"""  # noqa: E501
         self._agent_ids = None
-        self._q = None
         self._limit = None
+        self._q = None
         self.discriminator = None
         self.agent_ids = agent_ids
-        self.q = q
         if limit is not None:
             self.limit = limit
+        self.q = q
 
     @property
     def agent_ids(self):
@@ -76,6 +76,29 @@ class MultiAgentPlanSearchRequest(object):
         self._agent_ids = agent_ids
 
     @property
+    def limit(self):
+        """Gets the limit of this MultiAgentPlanSearchRequest.  # noqa: E501
+
+        Requested maximum number of merged results.  # noqa: E501
+
+        :return: The limit of this MultiAgentPlanSearchRequest.  # noqa: E501
+        :rtype: object
+        """
+        return self._limit
+
+    @limit.setter
+    def limit(self, limit):
+        """Sets the limit of this MultiAgentPlanSearchRequest.
+
+        Requested maximum number of merged results.  # noqa: E501
+
+        :param limit: The limit of this MultiAgentPlanSearchRequest.  # noqa: E501
+        :type: object
+        """
+
+        self._limit = limit
+
+    @property
     def q(self):
         """Gets the q of this MultiAgentPlanSearchRequest.  # noqa: E501
 
@@ -99,29 +122,6 @@ class MultiAgentPlanSearchRequest(object):
             raise ValueError("Invalid value for `q`, must not be `None`")  # noqa: E501
 
         self._q = q
-
-    @property
-    def limit(self):
-        """Gets the limit of this MultiAgentPlanSearchRequest.  # noqa: E501
-
-        Requested maximum number of merged results.  # noqa: E501
-
-        :return: The limit of this MultiAgentPlanSearchRequest.  # noqa: E501
-        :rtype: object
-        """
-        return self._limit
-
-    @limit.setter
-    def limit(self, limit):
-        """Sets the limit of this MultiAgentPlanSearchRequest.
-
-        Requested maximum number of merged results.  # noqa: E501
-
-        :param limit: The limit of this MultiAgentPlanSearchRequest.  # noqa: E501
-        :type: object
-        """
-
-        self._limit = limit
 
     def to_dict(self):
         """Returns the model properties as a dict"""

@@ -28,74 +28,51 @@ class SplitProposalQueueItem(object):
                             and the value is json key in definition.
     """
     swagger_types = {
-        'proposal_id': 'object',
         'agent_id': 'object',
-        'entity_id': 'object',
-        'canonical_name': 'object',
         'attribute_key': 'object',
+        'canonical_name': 'object',
         'classification': 'object',
-        'status': 'object',
+        'created_at': 'object',
+        'entity_id': 'object',
+        'proposal_id': 'object',
         'proposed_qualifier': 'object',
-        'created_at': 'object'
+        'status': 'object'
     }
 
     attribute_map = {
-        'proposal_id': 'proposal_id',
         'agent_id': 'agent_id',
-        'entity_id': 'entity_id',
-        'canonical_name': 'canonical_name',
         'attribute_key': 'attribute_key',
+        'canonical_name': 'canonical_name',
         'classification': 'classification',
-        'status': 'status',
+        'created_at': 'created_at',
+        'entity_id': 'entity_id',
+        'proposal_id': 'proposal_id',
         'proposed_qualifier': 'proposed_qualifier',
-        'created_at': 'created_at'
+        'status': 'status'
     }
 
-    def __init__(self, proposal_id=None, agent_id=None, entity_id=None, canonical_name=None, attribute_key=None, classification=None, status=None, proposed_qualifier=None, created_at=None):  # noqa: E501
+    def __init__(self, agent_id=None, attribute_key=None, canonical_name=None, classification=None, created_at=None, entity_id=None, proposal_id=None, proposed_qualifier=None, status=None):  # noqa: E501
         """SplitProposalQueueItem - a model defined in Swagger"""  # noqa: E501
-        self._proposal_id = None
         self._agent_id = None
-        self._entity_id = None
-        self._canonical_name = None
         self._attribute_key = None
+        self._canonical_name = None
         self._classification = None
-        self._status = None
-        self._proposed_qualifier = None
         self._created_at = None
+        self._entity_id = None
+        self._proposal_id = None
+        self._proposed_qualifier = None
+        self._status = None
         self.discriminator = None
-        self.proposal_id = proposal_id
         self.agent_id = agent_id
-        self.entity_id = entity_id
-        self.canonical_name = canonical_name
         self.attribute_key = attribute_key
+        self.canonical_name = canonical_name
         self.classification = classification
-        self.status = status
+        self.created_at = created_at
+        self.entity_id = entity_id
+        self.proposal_id = proposal_id
         if proposed_qualifier is not None:
             self.proposed_qualifier = proposed_qualifier
-        self.created_at = created_at
-
-    @property
-    def proposal_id(self):
-        """Gets the proposal_id of this SplitProposalQueueItem.  # noqa: E501
-
-
-        :return: The proposal_id of this SplitProposalQueueItem.  # noqa: E501
-        :rtype: object
-        """
-        return self._proposal_id
-
-    @proposal_id.setter
-    def proposal_id(self, proposal_id):
-        """Sets the proposal_id of this SplitProposalQueueItem.
-
-
-        :param proposal_id: The proposal_id of this SplitProposalQueueItem.  # noqa: E501
-        :type: object
-        """
-        if proposal_id is None:
-            raise ValueError("Invalid value for `proposal_id`, must not be `None`")  # noqa: E501
-
-        self._proposal_id = proposal_id
+        self.status = status
 
     @property
     def agent_id(self):
@@ -121,27 +98,27 @@ class SplitProposalQueueItem(object):
         self._agent_id = agent_id
 
     @property
-    def entity_id(self):
-        """Gets the entity_id of this SplitProposalQueueItem.  # noqa: E501
+    def attribute_key(self):
+        """Gets the attribute_key of this SplitProposalQueueItem.  # noqa: E501
 
 
-        :return: The entity_id of this SplitProposalQueueItem.  # noqa: E501
+        :return: The attribute_key of this SplitProposalQueueItem.  # noqa: E501
         :rtype: object
         """
-        return self._entity_id
+        return self._attribute_key
 
-    @entity_id.setter
-    def entity_id(self, entity_id):
-        """Sets the entity_id of this SplitProposalQueueItem.
+    @attribute_key.setter
+    def attribute_key(self, attribute_key):
+        """Sets the attribute_key of this SplitProposalQueueItem.
 
 
-        :param entity_id: The entity_id of this SplitProposalQueueItem.  # noqa: E501
+        :param attribute_key: The attribute_key of this SplitProposalQueueItem.  # noqa: E501
         :type: object
         """
-        if entity_id is None:
-            raise ValueError("Invalid value for `entity_id`, must not be `None`")  # noqa: E501
+        if attribute_key is None:
+            raise ValueError("Invalid value for `attribute_key`, must not be `None`")  # noqa: E501
 
-        self._entity_id = entity_id
+        self._attribute_key = attribute_key
 
     @property
     def canonical_name(self):
@@ -167,29 +144,6 @@ class SplitProposalQueueItem(object):
         self._canonical_name = canonical_name
 
     @property
-    def attribute_key(self):
-        """Gets the attribute_key of this SplitProposalQueueItem.  # noqa: E501
-
-
-        :return: The attribute_key of this SplitProposalQueueItem.  # noqa: E501
-        :rtype: object
-        """
-        return self._attribute_key
-
-    @attribute_key.setter
-    def attribute_key(self, attribute_key):
-        """Sets the attribute_key of this SplitProposalQueueItem.
-
-
-        :param attribute_key: The attribute_key of this SplitProposalQueueItem.  # noqa: E501
-        :type: object
-        """
-        if attribute_key is None:
-            raise ValueError("Invalid value for `attribute_key`, must not be `None`")  # noqa: E501
-
-        self._attribute_key = attribute_key
-
-    @property
     def classification(self):
         """Gets the classification of this SplitProposalQueueItem.  # noqa: E501
 
@@ -213,27 +167,73 @@ class SplitProposalQueueItem(object):
         self._classification = classification
 
     @property
-    def status(self):
-        """Gets the status of this SplitProposalQueueItem.  # noqa: E501
+    def created_at(self):
+        """Gets the created_at of this SplitProposalQueueItem.  # noqa: E501
 
 
-        :return: The status of this SplitProposalQueueItem.  # noqa: E501
+        :return: The created_at of this SplitProposalQueueItem.  # noqa: E501
         :rtype: object
         """
-        return self._status
+        return self._created_at
 
-    @status.setter
-    def status(self, status):
-        """Sets the status of this SplitProposalQueueItem.
+    @created_at.setter
+    def created_at(self, created_at):
+        """Sets the created_at of this SplitProposalQueueItem.
 
 
-        :param status: The status of this SplitProposalQueueItem.  # noqa: E501
+        :param created_at: The created_at of this SplitProposalQueueItem.  # noqa: E501
         :type: object
         """
-        if status is None:
-            raise ValueError("Invalid value for `status`, must not be `None`")  # noqa: E501
+        if created_at is None:
+            raise ValueError("Invalid value for `created_at`, must not be `None`")  # noqa: E501
 
-        self._status = status
+        self._created_at = created_at
+
+    @property
+    def entity_id(self):
+        """Gets the entity_id of this SplitProposalQueueItem.  # noqa: E501
+
+
+        :return: The entity_id of this SplitProposalQueueItem.  # noqa: E501
+        :rtype: object
+        """
+        return self._entity_id
+
+    @entity_id.setter
+    def entity_id(self, entity_id):
+        """Sets the entity_id of this SplitProposalQueueItem.
+
+
+        :param entity_id: The entity_id of this SplitProposalQueueItem.  # noqa: E501
+        :type: object
+        """
+        if entity_id is None:
+            raise ValueError("Invalid value for `entity_id`, must not be `None`")  # noqa: E501
+
+        self._entity_id = entity_id
+
+    @property
+    def proposal_id(self):
+        """Gets the proposal_id of this SplitProposalQueueItem.  # noqa: E501
+
+
+        :return: The proposal_id of this SplitProposalQueueItem.  # noqa: E501
+        :rtype: object
+        """
+        return self._proposal_id
+
+    @proposal_id.setter
+    def proposal_id(self, proposal_id):
+        """Sets the proposal_id of this SplitProposalQueueItem.
+
+
+        :param proposal_id: The proposal_id of this SplitProposalQueueItem.  # noqa: E501
+        :type: object
+        """
+        if proposal_id is None:
+            raise ValueError("Invalid value for `proposal_id`, must not be `None`")  # noqa: E501
+
+        self._proposal_id = proposal_id
 
     @property
     def proposed_qualifier(self):
@@ -257,27 +257,27 @@ class SplitProposalQueueItem(object):
         self._proposed_qualifier = proposed_qualifier
 
     @property
-    def created_at(self):
-        """Gets the created_at of this SplitProposalQueueItem.  # noqa: E501
+    def status(self):
+        """Gets the status of this SplitProposalQueueItem.  # noqa: E501
 
 
-        :return: The created_at of this SplitProposalQueueItem.  # noqa: E501
+        :return: The status of this SplitProposalQueueItem.  # noqa: E501
         :rtype: object
         """
-        return self._created_at
+        return self._status
 
-    @created_at.setter
-    def created_at(self, created_at):
-        """Sets the created_at of this SplitProposalQueueItem.
+    @status.setter
+    def status(self, status):
+        """Sets the status of this SplitProposalQueueItem.
 
 
-        :param created_at: The created_at of this SplitProposalQueueItem.  # noqa: E501
+        :param status: The status of this SplitProposalQueueItem.  # noqa: E501
         :type: object
         """
-        if created_at is None:
-            raise ValueError("Invalid value for `created_at`, must not be `None`")  # noqa: E501
+        if status is None:
+            raise ValueError("Invalid value for `status`, must not be `None`")  # noqa: E501
 
-        self._created_at = created_at
+        self._status = status
 
     def to_dict(self):
         """Returns the model properties as a dict"""

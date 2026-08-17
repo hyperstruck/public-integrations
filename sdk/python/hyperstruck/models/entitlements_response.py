@@ -28,50 +28,27 @@ class EntitlementsResponse(object):
                             and the value is json key in definition.
     """
     swagger_types = {
-        'plan_code': 'object',
         'compliance_guardrails_addon': 'object',
+        'plan_code': 'object',
         'scopes': 'object'
     }
 
     attribute_map = {
-        'plan_code': 'plan_code',
         'compliance_guardrails_addon': 'compliance_guardrails_addon',
+        'plan_code': 'plan_code',
         'scopes': 'scopes'
     }
 
-    def __init__(self, plan_code=None, compliance_guardrails_addon=None, scopes=None):  # noqa: E501
+    def __init__(self, compliance_guardrails_addon=None, plan_code=None, scopes=None):  # noqa: E501
         """EntitlementsResponse - a model defined in Swagger"""  # noqa: E501
-        self._plan_code = None
         self._compliance_guardrails_addon = None
+        self._plan_code = None
         self._scopes = None
         self.discriminator = None
-        self.plan_code = plan_code
         self.compliance_guardrails_addon = compliance_guardrails_addon
+        self.plan_code = plan_code
         if scopes is not None:
             self.scopes = scopes
-
-    @property
-    def plan_code(self):
-        """Gets the plan_code of this EntitlementsResponse.  # noqa: E501
-
-
-        :return: The plan_code of this EntitlementsResponse.  # noqa: E501
-        :rtype: object
-        """
-        return self._plan_code
-
-    @plan_code.setter
-    def plan_code(self, plan_code):
-        """Sets the plan_code of this EntitlementsResponse.
-
-
-        :param plan_code: The plan_code of this EntitlementsResponse.  # noqa: E501
-        :type: object
-        """
-        if plan_code is None:
-            raise ValueError("Invalid value for `plan_code`, must not be `None`")  # noqa: E501
-
-        self._plan_code = plan_code
 
     @property
     def compliance_guardrails_addon(self):
@@ -95,6 +72,29 @@ class EntitlementsResponse(object):
             raise ValueError("Invalid value for `compliance_guardrails_addon`, must not be `None`")  # noqa: E501
 
         self._compliance_guardrails_addon = compliance_guardrails_addon
+
+    @property
+    def plan_code(self):
+        """Gets the plan_code of this EntitlementsResponse.  # noqa: E501
+
+
+        :return: The plan_code of this EntitlementsResponse.  # noqa: E501
+        :rtype: object
+        """
+        return self._plan_code
+
+    @plan_code.setter
+    def plan_code(self, plan_code):
+        """Sets the plan_code of this EntitlementsResponse.
+
+
+        :param plan_code: The plan_code of this EntitlementsResponse.  # noqa: E501
+        :type: object
+        """
+        if plan_code is None:
+            raise ValueError("Invalid value for `plan_code`, must not be `None`")  # noqa: E501
+
+        self._plan_code = plan_code
 
     @property
     def scopes(self):

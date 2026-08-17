@@ -28,23 +28,44 @@ class LoopClosureFunnelResponse(object):
                             and the value is json key in definition.
     """
     swagger_types = {
-        'window_hours': 'object',
-        'hosts': 'object'
+        'hosts': 'object',
+        'window_hours': 'object'
     }
 
     attribute_map = {
-        'window_hours': 'window_hours',
-        'hosts': 'hosts'
+        'hosts': 'hosts',
+        'window_hours': 'window_hours'
     }
 
-    def __init__(self, window_hours=None, hosts=None):  # noqa: E501
+    def __init__(self, hosts=None, window_hours=None):  # noqa: E501
         """LoopClosureFunnelResponse - a model defined in Swagger"""  # noqa: E501
-        self._window_hours = None
         self._hosts = None
+        self._window_hours = None
         self.discriminator = None
-        self.window_hours = window_hours
         if hosts is not None:
             self.hosts = hosts
+        self.window_hours = window_hours
+
+    @property
+    def hosts(self):
+        """Gets the hosts of this LoopClosureFunnelResponse.  # noqa: E501
+
+
+        :return: The hosts of this LoopClosureFunnelResponse.  # noqa: E501
+        :rtype: object
+        """
+        return self._hosts
+
+    @hosts.setter
+    def hosts(self, hosts):
+        """Sets the hosts of this LoopClosureFunnelResponse.
+
+
+        :param hosts: The hosts of this LoopClosureFunnelResponse.  # noqa: E501
+        :type: object
+        """
+
+        self._hosts = hosts
 
     @property
     def window_hours(self):
@@ -68,27 +89,6 @@ class LoopClosureFunnelResponse(object):
             raise ValueError("Invalid value for `window_hours`, must not be `None`")  # noqa: E501
 
         self._window_hours = window_hours
-
-    @property
-    def hosts(self):
-        """Gets the hosts of this LoopClosureFunnelResponse.  # noqa: E501
-
-
-        :return: The hosts of this LoopClosureFunnelResponse.  # noqa: E501
-        :rtype: object
-        """
-        return self._hosts
-
-    @hosts.setter
-    def hosts(self, hosts):
-        """Sets the hosts of this LoopClosureFunnelResponse.
-
-
-        :param hosts: The hosts of this LoopClosureFunnelResponse.  # noqa: E501
-        :type: object
-        """
-
-        self._hosts = hosts
 
     def to_dict(self):
         """Returns the model properties as a dict"""

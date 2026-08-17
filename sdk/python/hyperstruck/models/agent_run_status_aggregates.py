@@ -28,70 +28,47 @@ class AgentRunStatusAggregates(object):
                             and the value is json key in definition.
     """
     swagger_types = {
-        'run_count': 'object',
         'completed_run_count': 'object',
         'failed_run_count': 'object',
-        'suspended_run_count': 'object',
+        'last_run_at': 'object',
+        'run_count': 'object',
         'session_count': 'object',
+        'suspended_run_count': 'object',
         'total_compute_seconds': 'object',
-        'total_estimated_cost_usd': 'object',
-        'last_run_at': 'object'
+        'total_estimated_cost_usd': 'object'
     }
 
     attribute_map = {
-        'run_count': 'run_count',
         'completed_run_count': 'completed_run_count',
         'failed_run_count': 'failed_run_count',
-        'suspended_run_count': 'suspended_run_count',
+        'last_run_at': 'last_run_at',
+        'run_count': 'run_count',
         'session_count': 'session_count',
+        'suspended_run_count': 'suspended_run_count',
         'total_compute_seconds': 'total_compute_seconds',
-        'total_estimated_cost_usd': 'total_estimated_cost_usd',
-        'last_run_at': 'last_run_at'
+        'total_estimated_cost_usd': 'total_estimated_cost_usd'
     }
 
-    def __init__(self, run_count=None, completed_run_count=None, failed_run_count=None, suspended_run_count=None, session_count=None, total_compute_seconds=None, total_estimated_cost_usd=None, last_run_at=None):  # noqa: E501
+    def __init__(self, completed_run_count=None, failed_run_count=None, last_run_at=None, run_count=None, session_count=None, suspended_run_count=None, total_compute_seconds=None, total_estimated_cost_usd=None):  # noqa: E501
         """AgentRunStatusAggregates - a model defined in Swagger"""  # noqa: E501
-        self._run_count = None
         self._completed_run_count = None
         self._failed_run_count = None
-        self._suspended_run_count = None
+        self._last_run_at = None
+        self._run_count = None
         self._session_count = None
+        self._suspended_run_count = None
         self._total_compute_seconds = None
         self._total_estimated_cost_usd = None
-        self._last_run_at = None
         self.discriminator = None
-        self.run_count = run_count
         self.completed_run_count = completed_run_count
         self.failed_run_count = failed_run_count
-        self.suspended_run_count = suspended_run_count
-        self.session_count = session_count
-        self.total_compute_seconds = total_compute_seconds
-        self.total_estimated_cost_usd = total_estimated_cost_usd
         if last_run_at is not None:
             self.last_run_at = last_run_at
-
-    @property
-    def run_count(self):
-        """Gets the run_count of this AgentRunStatusAggregates.  # noqa: E501
-
-
-        :return: The run_count of this AgentRunStatusAggregates.  # noqa: E501
-        :rtype: object
-        """
-        return self._run_count
-
-    @run_count.setter
-    def run_count(self, run_count):
-        """Sets the run_count of this AgentRunStatusAggregates.
-
-
-        :param run_count: The run_count of this AgentRunStatusAggregates.  # noqa: E501
-        :type: object
-        """
-        if run_count is None:
-            raise ValueError("Invalid value for `run_count`, must not be `None`")  # noqa: E501
-
-        self._run_count = run_count
+        self.run_count = run_count
+        self.session_count = session_count
+        self.suspended_run_count = suspended_run_count
+        self.total_compute_seconds = total_compute_seconds
+        self.total_estimated_cost_usd = total_estimated_cost_usd
 
     @property
     def completed_run_count(self):
@@ -140,27 +117,48 @@ class AgentRunStatusAggregates(object):
         self._failed_run_count = failed_run_count
 
     @property
-    def suspended_run_count(self):
-        """Gets the suspended_run_count of this AgentRunStatusAggregates.  # noqa: E501
+    def last_run_at(self):
+        """Gets the last_run_at of this AgentRunStatusAggregates.  # noqa: E501
 
 
-        :return: The suspended_run_count of this AgentRunStatusAggregates.  # noqa: E501
+        :return: The last_run_at of this AgentRunStatusAggregates.  # noqa: E501
         :rtype: object
         """
-        return self._suspended_run_count
+        return self._last_run_at
 
-    @suspended_run_count.setter
-    def suspended_run_count(self, suspended_run_count):
-        """Sets the suspended_run_count of this AgentRunStatusAggregates.
+    @last_run_at.setter
+    def last_run_at(self, last_run_at):
+        """Sets the last_run_at of this AgentRunStatusAggregates.
 
 
-        :param suspended_run_count: The suspended_run_count of this AgentRunStatusAggregates.  # noqa: E501
+        :param last_run_at: The last_run_at of this AgentRunStatusAggregates.  # noqa: E501
         :type: object
         """
-        if suspended_run_count is None:
-            raise ValueError("Invalid value for `suspended_run_count`, must not be `None`")  # noqa: E501
 
-        self._suspended_run_count = suspended_run_count
+        self._last_run_at = last_run_at
+
+    @property
+    def run_count(self):
+        """Gets the run_count of this AgentRunStatusAggregates.  # noqa: E501
+
+
+        :return: The run_count of this AgentRunStatusAggregates.  # noqa: E501
+        :rtype: object
+        """
+        return self._run_count
+
+    @run_count.setter
+    def run_count(self, run_count):
+        """Sets the run_count of this AgentRunStatusAggregates.
+
+
+        :param run_count: The run_count of this AgentRunStatusAggregates.  # noqa: E501
+        :type: object
+        """
+        if run_count is None:
+            raise ValueError("Invalid value for `run_count`, must not be `None`")  # noqa: E501
+
+        self._run_count = run_count
 
     @property
     def session_count(self):
@@ -184,6 +182,29 @@ class AgentRunStatusAggregates(object):
             raise ValueError("Invalid value for `session_count`, must not be `None`")  # noqa: E501
 
         self._session_count = session_count
+
+    @property
+    def suspended_run_count(self):
+        """Gets the suspended_run_count of this AgentRunStatusAggregates.  # noqa: E501
+
+
+        :return: The suspended_run_count of this AgentRunStatusAggregates.  # noqa: E501
+        :rtype: object
+        """
+        return self._suspended_run_count
+
+    @suspended_run_count.setter
+    def suspended_run_count(self, suspended_run_count):
+        """Sets the suspended_run_count of this AgentRunStatusAggregates.
+
+
+        :param suspended_run_count: The suspended_run_count of this AgentRunStatusAggregates.  # noqa: E501
+        :type: object
+        """
+        if suspended_run_count is None:
+            raise ValueError("Invalid value for `suspended_run_count`, must not be `None`")  # noqa: E501
+
+        self._suspended_run_count = suspended_run_count
 
     @property
     def total_compute_seconds(self):
@@ -230,27 +251,6 @@ class AgentRunStatusAggregates(object):
             raise ValueError("Invalid value for `total_estimated_cost_usd`, must not be `None`")  # noqa: E501
 
         self._total_estimated_cost_usd = total_estimated_cost_usd
-
-    @property
-    def last_run_at(self):
-        """Gets the last_run_at of this AgentRunStatusAggregates.  # noqa: E501
-
-
-        :return: The last_run_at of this AgentRunStatusAggregates.  # noqa: E501
-        :rtype: object
-        """
-        return self._last_run_at
-
-    @last_run_at.setter
-    def last_run_at(self, last_run_at):
-        """Sets the last_run_at of this AgentRunStatusAggregates.
-
-
-        :param last_run_at: The last_run_at of this AgentRunStatusAggregates.  # noqa: E501
-        :type: object
-        """
-
-        self._last_run_at = last_run_at
 
     def to_dict(self):
         """Returns the model properties as a dict"""

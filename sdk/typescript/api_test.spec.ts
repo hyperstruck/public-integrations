@@ -172,10 +172,18 @@ describe("ClaimsApi", () => {
     const entityId: any = undefined
     return expect(instance.getEntityDossierEndpointAgentsAgentIdClaimsEntitiesEntityIdGet(agentId, entityId, {})).resolves.toBe(null)
   })
+  test("getOrgStabilitySummaryEndpointOrgClaimsStabilityGet", () => {
+    const limit: any = undefined
+    return expect(instance.getOrgStabilitySummaryEndpointOrgClaimsStabilityGet(limit, {})).resolves.toBe(null)
+  })
   test("getReviewContextEndpointAgentsAgentIdClaimsClaimIdReviewContextGet", () => {
     const agentId: any = undefined
     const claimId: any = undefined
     return expect(instance.getReviewContextEndpointAgentsAgentIdClaimsClaimIdReviewContextGet(agentId, claimId, {})).resolves.toBe(null)
+  })
+  test("getStabilitySummaryEndpointAgentsAgentIdClaimsStabilityGet", () => {
+    const agentId: any = undefined
+    return expect(instance.getStabilitySummaryEndpointAgentsAgentIdClaimsStabilityGet(agentId, {})).resolves.toBe(null)
   })
   test("listAbstainedQueueEndpointOrgClaimsAbstainedGet", () => {
     const limit: any = undefined

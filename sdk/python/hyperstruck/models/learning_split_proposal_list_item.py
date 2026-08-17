@@ -28,56 +28,194 @@ class LearningSplitProposalListItem(object):
                             and the value is json key in definition.
     """
     swagger_types = {
+        'agent_id': 'object',
+        'attribute_key': 'object',
+        'canonical_name': 'object',
+        'classification': 'object',
+        'created_at': 'object',
+        'entity_id': 'object',
         'item_kind': 'object',
         'proposal_id': 'object',
-        'agent_id': 'object',
-        'entity_id': 'object',
-        'canonical_name': 'object',
-        'attribute_key': 'object',
-        'classification': 'object',
-        'status': 'object',
         'proposed_qualifier': 'object',
-        'created_at': 'object'
+        'status': 'object'
     }
 
     attribute_map = {
+        'agent_id': 'agent_id',
+        'attribute_key': 'attribute_key',
+        'canonical_name': 'canonical_name',
+        'classification': 'classification',
+        'created_at': 'created_at',
+        'entity_id': 'entity_id',
         'item_kind': 'item_kind',
         'proposal_id': 'proposal_id',
-        'agent_id': 'agent_id',
-        'entity_id': 'entity_id',
-        'canonical_name': 'canonical_name',
-        'attribute_key': 'attribute_key',
-        'classification': 'classification',
-        'status': 'status',
         'proposed_qualifier': 'proposed_qualifier',
-        'created_at': 'created_at'
+        'status': 'status'
     }
 
-    def __init__(self, item_kind=None, proposal_id=None, agent_id=None, entity_id=None, canonical_name=None, attribute_key=None, classification=None, status=None, proposed_qualifier=None, created_at=None):  # noqa: E501
+    def __init__(self, agent_id=None, attribute_key=None, canonical_name=None, classification=None, created_at=None, entity_id=None, item_kind=None, proposal_id=None, proposed_qualifier=None, status=None):  # noqa: E501
         """LearningSplitProposalListItem - a model defined in Swagger"""  # noqa: E501
+        self._agent_id = None
+        self._attribute_key = None
+        self._canonical_name = None
+        self._classification = None
+        self._created_at = None
+        self._entity_id = None
         self._item_kind = None
         self._proposal_id = None
-        self._agent_id = None
-        self._entity_id = None
-        self._canonical_name = None
-        self._attribute_key = None
-        self._classification = None
-        self._status = None
         self._proposed_qualifier = None
-        self._created_at = None
+        self._status = None
         self.discriminator = None
+        self.agent_id = agent_id
+        self.attribute_key = attribute_key
+        self.canonical_name = canonical_name
+        self.classification = classification
+        self.created_at = created_at
+        self.entity_id = entity_id
         if item_kind is not None:
             self.item_kind = item_kind
         self.proposal_id = proposal_id
-        self.agent_id = agent_id
-        self.entity_id = entity_id
-        self.canonical_name = canonical_name
-        self.attribute_key = attribute_key
-        self.classification = classification
-        self.status = status
         if proposed_qualifier is not None:
             self.proposed_qualifier = proposed_qualifier
-        self.created_at = created_at
+        self.status = status
+
+    @property
+    def agent_id(self):
+        """Gets the agent_id of this LearningSplitProposalListItem.  # noqa: E501
+
+
+        :return: The agent_id of this LearningSplitProposalListItem.  # noqa: E501
+        :rtype: object
+        """
+        return self._agent_id
+
+    @agent_id.setter
+    def agent_id(self, agent_id):
+        """Sets the agent_id of this LearningSplitProposalListItem.
+
+
+        :param agent_id: The agent_id of this LearningSplitProposalListItem.  # noqa: E501
+        :type: object
+        """
+        if agent_id is None:
+            raise ValueError("Invalid value for `agent_id`, must not be `None`")  # noqa: E501
+
+        self._agent_id = agent_id
+
+    @property
+    def attribute_key(self):
+        """Gets the attribute_key of this LearningSplitProposalListItem.  # noqa: E501
+
+
+        :return: The attribute_key of this LearningSplitProposalListItem.  # noqa: E501
+        :rtype: object
+        """
+        return self._attribute_key
+
+    @attribute_key.setter
+    def attribute_key(self, attribute_key):
+        """Sets the attribute_key of this LearningSplitProposalListItem.
+
+
+        :param attribute_key: The attribute_key of this LearningSplitProposalListItem.  # noqa: E501
+        :type: object
+        """
+        if attribute_key is None:
+            raise ValueError("Invalid value for `attribute_key`, must not be `None`")  # noqa: E501
+
+        self._attribute_key = attribute_key
+
+    @property
+    def canonical_name(self):
+        """Gets the canonical_name of this LearningSplitProposalListItem.  # noqa: E501
+
+
+        :return: The canonical_name of this LearningSplitProposalListItem.  # noqa: E501
+        :rtype: object
+        """
+        return self._canonical_name
+
+    @canonical_name.setter
+    def canonical_name(self, canonical_name):
+        """Sets the canonical_name of this LearningSplitProposalListItem.
+
+
+        :param canonical_name: The canonical_name of this LearningSplitProposalListItem.  # noqa: E501
+        :type: object
+        """
+        if canonical_name is None:
+            raise ValueError("Invalid value for `canonical_name`, must not be `None`")  # noqa: E501
+
+        self._canonical_name = canonical_name
+
+    @property
+    def classification(self):
+        """Gets the classification of this LearningSplitProposalListItem.  # noqa: E501
+
+
+        :return: The classification of this LearningSplitProposalListItem.  # noqa: E501
+        :rtype: object
+        """
+        return self._classification
+
+    @classification.setter
+    def classification(self, classification):
+        """Sets the classification of this LearningSplitProposalListItem.
+
+
+        :param classification: The classification of this LearningSplitProposalListItem.  # noqa: E501
+        :type: object
+        """
+        if classification is None:
+            raise ValueError("Invalid value for `classification`, must not be `None`")  # noqa: E501
+
+        self._classification = classification
+
+    @property
+    def created_at(self):
+        """Gets the created_at of this LearningSplitProposalListItem.  # noqa: E501
+
+
+        :return: The created_at of this LearningSplitProposalListItem.  # noqa: E501
+        :rtype: object
+        """
+        return self._created_at
+
+    @created_at.setter
+    def created_at(self, created_at):
+        """Sets the created_at of this LearningSplitProposalListItem.
+
+
+        :param created_at: The created_at of this LearningSplitProposalListItem.  # noqa: E501
+        :type: object
+        """
+        if created_at is None:
+            raise ValueError("Invalid value for `created_at`, must not be `None`")  # noqa: E501
+
+        self._created_at = created_at
+
+    @property
+    def entity_id(self):
+        """Gets the entity_id of this LearningSplitProposalListItem.  # noqa: E501
+
+
+        :return: The entity_id of this LearningSplitProposalListItem.  # noqa: E501
+        :rtype: object
+        """
+        return self._entity_id
+
+    @entity_id.setter
+    def entity_id(self, entity_id):
+        """Sets the entity_id of this LearningSplitProposalListItem.
+
+
+        :param entity_id: The entity_id of this LearningSplitProposalListItem.  # noqa: E501
+        :type: object
+        """
+        if entity_id is None:
+            raise ValueError("Invalid value for `entity_id`, must not be `None`")  # noqa: E501
+
+        self._entity_id = entity_id
 
     @property
     def item_kind(self):
@@ -124,119 +262,25 @@ class LearningSplitProposalListItem(object):
         self._proposal_id = proposal_id
 
     @property
-    def agent_id(self):
-        """Gets the agent_id of this LearningSplitProposalListItem.  # noqa: E501
+    def proposed_qualifier(self):
+        """Gets the proposed_qualifier of this LearningSplitProposalListItem.  # noqa: E501
 
 
-        :return: The agent_id of this LearningSplitProposalListItem.  # noqa: E501
+        :return: The proposed_qualifier of this LearningSplitProposalListItem.  # noqa: E501
         :rtype: object
         """
-        return self._agent_id
+        return self._proposed_qualifier
 
-    @agent_id.setter
-    def agent_id(self, agent_id):
-        """Sets the agent_id of this LearningSplitProposalListItem.
+    @proposed_qualifier.setter
+    def proposed_qualifier(self, proposed_qualifier):
+        """Sets the proposed_qualifier of this LearningSplitProposalListItem.
 
 
-        :param agent_id: The agent_id of this LearningSplitProposalListItem.  # noqa: E501
+        :param proposed_qualifier: The proposed_qualifier of this LearningSplitProposalListItem.  # noqa: E501
         :type: object
         """
-        if agent_id is None:
-            raise ValueError("Invalid value for `agent_id`, must not be `None`")  # noqa: E501
 
-        self._agent_id = agent_id
-
-    @property
-    def entity_id(self):
-        """Gets the entity_id of this LearningSplitProposalListItem.  # noqa: E501
-
-
-        :return: The entity_id of this LearningSplitProposalListItem.  # noqa: E501
-        :rtype: object
-        """
-        return self._entity_id
-
-    @entity_id.setter
-    def entity_id(self, entity_id):
-        """Sets the entity_id of this LearningSplitProposalListItem.
-
-
-        :param entity_id: The entity_id of this LearningSplitProposalListItem.  # noqa: E501
-        :type: object
-        """
-        if entity_id is None:
-            raise ValueError("Invalid value for `entity_id`, must not be `None`")  # noqa: E501
-
-        self._entity_id = entity_id
-
-    @property
-    def canonical_name(self):
-        """Gets the canonical_name of this LearningSplitProposalListItem.  # noqa: E501
-
-
-        :return: The canonical_name of this LearningSplitProposalListItem.  # noqa: E501
-        :rtype: object
-        """
-        return self._canonical_name
-
-    @canonical_name.setter
-    def canonical_name(self, canonical_name):
-        """Sets the canonical_name of this LearningSplitProposalListItem.
-
-
-        :param canonical_name: The canonical_name of this LearningSplitProposalListItem.  # noqa: E501
-        :type: object
-        """
-        if canonical_name is None:
-            raise ValueError("Invalid value for `canonical_name`, must not be `None`")  # noqa: E501
-
-        self._canonical_name = canonical_name
-
-    @property
-    def attribute_key(self):
-        """Gets the attribute_key of this LearningSplitProposalListItem.  # noqa: E501
-
-
-        :return: The attribute_key of this LearningSplitProposalListItem.  # noqa: E501
-        :rtype: object
-        """
-        return self._attribute_key
-
-    @attribute_key.setter
-    def attribute_key(self, attribute_key):
-        """Sets the attribute_key of this LearningSplitProposalListItem.
-
-
-        :param attribute_key: The attribute_key of this LearningSplitProposalListItem.  # noqa: E501
-        :type: object
-        """
-        if attribute_key is None:
-            raise ValueError("Invalid value for `attribute_key`, must not be `None`")  # noqa: E501
-
-        self._attribute_key = attribute_key
-
-    @property
-    def classification(self):
-        """Gets the classification of this LearningSplitProposalListItem.  # noqa: E501
-
-
-        :return: The classification of this LearningSplitProposalListItem.  # noqa: E501
-        :rtype: object
-        """
-        return self._classification
-
-    @classification.setter
-    def classification(self, classification):
-        """Sets the classification of this LearningSplitProposalListItem.
-
-
-        :param classification: The classification of this LearningSplitProposalListItem.  # noqa: E501
-        :type: object
-        """
-        if classification is None:
-            raise ValueError("Invalid value for `classification`, must not be `None`")  # noqa: E501
-
-        self._classification = classification
+        self._proposed_qualifier = proposed_qualifier
 
     @property
     def status(self):
@@ -260,50 +304,6 @@ class LearningSplitProposalListItem(object):
             raise ValueError("Invalid value for `status`, must not be `None`")  # noqa: E501
 
         self._status = status
-
-    @property
-    def proposed_qualifier(self):
-        """Gets the proposed_qualifier of this LearningSplitProposalListItem.  # noqa: E501
-
-
-        :return: The proposed_qualifier of this LearningSplitProposalListItem.  # noqa: E501
-        :rtype: object
-        """
-        return self._proposed_qualifier
-
-    @proposed_qualifier.setter
-    def proposed_qualifier(self, proposed_qualifier):
-        """Sets the proposed_qualifier of this LearningSplitProposalListItem.
-
-
-        :param proposed_qualifier: The proposed_qualifier of this LearningSplitProposalListItem.  # noqa: E501
-        :type: object
-        """
-
-        self._proposed_qualifier = proposed_qualifier
-
-    @property
-    def created_at(self):
-        """Gets the created_at of this LearningSplitProposalListItem.  # noqa: E501
-
-
-        :return: The created_at of this LearningSplitProposalListItem.  # noqa: E501
-        :rtype: object
-        """
-        return self._created_at
-
-    @created_at.setter
-    def created_at(self, created_at):
-        """Sets the created_at of this LearningSplitProposalListItem.
-
-
-        :param created_at: The created_at of this LearningSplitProposalListItem.  # noqa: E501
-        :type: object
-        """
-        if created_at is None:
-            raise ValueError("Invalid value for `created_at`, must not be `None`")  # noqa: E501
-
-        self._created_at = created_at
 
     def to_dict(self):
         """Returns the model properties as a dict"""

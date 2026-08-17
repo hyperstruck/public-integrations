@@ -28,196 +28,81 @@ class LearningResponse(object):
                             and the value is json key in definition.
     """
     swagger_types = {
-        'learning_id': 'object',
-        'content': 'object',
-        'standing': 'LearningStanding',
-        'trust_level': 'TrustLevel',
-        'source_goal': 'object',
         'applicable_goals': 'object',
         'applicable_tools': 'object',
+        'content': 'object',
+        'created_at': 'object',
         'domain_dimensions': 'object',
-        'times_applied': 'object',
-        'times_helpful': 'object',
+        'instances': 'object',
         'is_archived': 'object',
+        'learning_id': 'object',
         'privacy': 'PrivacyClassification',
         'scope': 'LearningScope',
-        'instances': 'object',
-        'created_at': 'object',
+        'source_goal': 'object',
+        'standing': 'LearningStanding',
+        'times_applied': 'object',
+        'times_helpful': 'object',
+        'trust_level': 'TrustLevel',
         'updated_at': 'object'
     }
 
     attribute_map = {
-        'learning_id': 'learning_id',
-        'content': 'content',
-        'standing': 'standing',
-        'trust_level': 'trust_level',
-        'source_goal': 'source_goal',
         'applicable_goals': 'applicable_goals',
         'applicable_tools': 'applicable_tools',
+        'content': 'content',
+        'created_at': 'created_at',
         'domain_dimensions': 'domain_dimensions',
-        'times_applied': 'times_applied',
-        'times_helpful': 'times_helpful',
+        'instances': 'instances',
         'is_archived': 'is_archived',
+        'learning_id': 'learning_id',
         'privacy': 'privacy',
         'scope': 'scope',
-        'instances': 'instances',
-        'created_at': 'created_at',
+        'source_goal': 'source_goal',
+        'standing': 'standing',
+        'times_applied': 'times_applied',
+        'times_helpful': 'times_helpful',
+        'trust_level': 'trust_level',
         'updated_at': 'updated_at'
     }
 
-    def __init__(self, learning_id=None, content=None, standing=None, trust_level=None, source_goal=None, applicable_goals=None, applicable_tools=None, domain_dimensions=None, times_applied=None, times_helpful=None, is_archived=None, privacy=None, scope=None, instances=None, created_at=None, updated_at=None):  # noqa: E501
+    def __init__(self, applicable_goals=None, applicable_tools=None, content=None, created_at=None, domain_dimensions=None, instances=None, is_archived=None, learning_id=None, privacy=None, scope=None, source_goal=None, standing=None, times_applied=None, times_helpful=None, trust_level=None, updated_at=None):  # noqa: E501
         """LearningResponse - a model defined in Swagger"""  # noqa: E501
-        self._learning_id = None
-        self._content = None
-        self._standing = None
-        self._trust_level = None
-        self._source_goal = None
         self._applicable_goals = None
         self._applicable_tools = None
+        self._content = None
+        self._created_at = None
         self._domain_dimensions = None
-        self._times_applied = None
-        self._times_helpful = None
+        self._instances = None
         self._is_archived = None
+        self._learning_id = None
         self._privacy = None
         self._scope = None
-        self._instances = None
-        self._created_at = None
+        self._source_goal = None
+        self._standing = None
+        self._times_applied = None
+        self._times_helpful = None
+        self._trust_level = None
         self._updated_at = None
         self.discriminator = None
-        self.learning_id = learning_id
-        self.content = content
-        self.standing = standing
-        self.trust_level = trust_level
-        self.source_goal = source_goal
         self.applicable_goals = applicable_goals
         self.applicable_tools = applicable_tools
+        self.content = content
+        self.created_at = created_at
         if domain_dimensions is not None:
             self.domain_dimensions = domain_dimensions
-        self.times_applied = times_applied
-        self.times_helpful = times_helpful
+        if instances is not None:
+            self.instances = instances
         self.is_archived = is_archived
+        self.learning_id = learning_id
         self.privacy = privacy
         if scope is not None:
             self.scope = scope
-        if instances is not None:
-            self.instances = instances
-        self.created_at = created_at
+        self.source_goal = source_goal
+        self.standing = standing
+        self.times_applied = times_applied
+        self.times_helpful = times_helpful
+        self.trust_level = trust_level
         self.updated_at = updated_at
-
-    @property
-    def learning_id(self):
-        """Gets the learning_id of this LearningResponse.  # noqa: E501
-
-
-        :return: The learning_id of this LearningResponse.  # noqa: E501
-        :rtype: object
-        """
-        return self._learning_id
-
-    @learning_id.setter
-    def learning_id(self, learning_id):
-        """Sets the learning_id of this LearningResponse.
-
-
-        :param learning_id: The learning_id of this LearningResponse.  # noqa: E501
-        :type: object
-        """
-        if learning_id is None:
-            raise ValueError("Invalid value for `learning_id`, must not be `None`")  # noqa: E501
-
-        self._learning_id = learning_id
-
-    @property
-    def content(self):
-        """Gets the content of this LearningResponse.  # noqa: E501
-
-
-        :return: The content of this LearningResponse.  # noqa: E501
-        :rtype: object
-        """
-        return self._content
-
-    @content.setter
-    def content(self, content):
-        """Sets the content of this LearningResponse.
-
-
-        :param content: The content of this LearningResponse.  # noqa: E501
-        :type: object
-        """
-        if content is None:
-            raise ValueError("Invalid value for `content`, must not be `None`")  # noqa: E501
-
-        self._content = content
-
-    @property
-    def standing(self):
-        """Gets the standing of this LearningResponse.  # noqa: E501
-
-
-        :return: The standing of this LearningResponse.  # noqa: E501
-        :rtype: LearningStanding
-        """
-        return self._standing
-
-    @standing.setter
-    def standing(self, standing):
-        """Sets the standing of this LearningResponse.
-
-
-        :param standing: The standing of this LearningResponse.  # noqa: E501
-        :type: LearningStanding
-        """
-        if standing is None:
-            raise ValueError("Invalid value for `standing`, must not be `None`")  # noqa: E501
-
-        self._standing = standing
-
-    @property
-    def trust_level(self):
-        """Gets the trust_level of this LearningResponse.  # noqa: E501
-
-
-        :return: The trust_level of this LearningResponse.  # noqa: E501
-        :rtype: TrustLevel
-        """
-        return self._trust_level
-
-    @trust_level.setter
-    def trust_level(self, trust_level):
-        """Sets the trust_level of this LearningResponse.
-
-
-        :param trust_level: The trust_level of this LearningResponse.  # noqa: E501
-        :type: TrustLevel
-        """
-        if trust_level is None:
-            raise ValueError("Invalid value for `trust_level`, must not be `None`")  # noqa: E501
-
-        self._trust_level = trust_level
-
-    @property
-    def source_goal(self):
-        """Gets the source_goal of this LearningResponse.  # noqa: E501
-
-
-        :return: The source_goal of this LearningResponse.  # noqa: E501
-        :rtype: object
-        """
-        return self._source_goal
-
-    @source_goal.setter
-    def source_goal(self, source_goal):
-        """Sets the source_goal of this LearningResponse.
-
-
-        :param source_goal: The source_goal of this LearningResponse.  # noqa: E501
-        :type: object
-        """
-        if source_goal is None:
-            raise ValueError("Invalid value for `source_goal`, must not be `None`")  # noqa: E501
-
-        self._source_goal = source_goal
 
     @property
     def applicable_goals(self):
@@ -266,6 +151,52 @@ class LearningResponse(object):
         self._applicable_tools = applicable_tools
 
     @property
+    def content(self):
+        """Gets the content of this LearningResponse.  # noqa: E501
+
+
+        :return: The content of this LearningResponse.  # noqa: E501
+        :rtype: object
+        """
+        return self._content
+
+    @content.setter
+    def content(self, content):
+        """Sets the content of this LearningResponse.
+
+
+        :param content: The content of this LearningResponse.  # noqa: E501
+        :type: object
+        """
+        if content is None:
+            raise ValueError("Invalid value for `content`, must not be `None`")  # noqa: E501
+
+        self._content = content
+
+    @property
+    def created_at(self):
+        """Gets the created_at of this LearningResponse.  # noqa: E501
+
+
+        :return: The created_at of this LearningResponse.  # noqa: E501
+        :rtype: object
+        """
+        return self._created_at
+
+    @created_at.setter
+    def created_at(self, created_at):
+        """Sets the created_at of this LearningResponse.
+
+
+        :param created_at: The created_at of this LearningResponse.  # noqa: E501
+        :type: object
+        """
+        if created_at is None:
+            raise ValueError("Invalid value for `created_at`, must not be `None`")  # noqa: E501
+
+        self._created_at = created_at
+
+    @property
     def domain_dimensions(self):
         """Gets the domain_dimensions of this LearningResponse.  # noqa: E501
 
@@ -287,6 +218,163 @@ class LearningResponse(object):
         """
 
         self._domain_dimensions = domain_dimensions
+
+    @property
+    def instances(self):
+        """Gets the instances of this LearningResponse.  # noqa: E501
+
+
+        :return: The instances of this LearningResponse.  # noqa: E501
+        :rtype: object
+        """
+        return self._instances
+
+    @instances.setter
+    def instances(self, instances):
+        """Sets the instances of this LearningResponse.
+
+
+        :param instances: The instances of this LearningResponse.  # noqa: E501
+        :type: object
+        """
+
+        self._instances = instances
+
+    @property
+    def is_archived(self):
+        """Gets the is_archived of this LearningResponse.  # noqa: E501
+
+
+        :return: The is_archived of this LearningResponse.  # noqa: E501
+        :rtype: object
+        """
+        return self._is_archived
+
+    @is_archived.setter
+    def is_archived(self, is_archived):
+        """Sets the is_archived of this LearningResponse.
+
+
+        :param is_archived: The is_archived of this LearningResponse.  # noqa: E501
+        :type: object
+        """
+        if is_archived is None:
+            raise ValueError("Invalid value for `is_archived`, must not be `None`")  # noqa: E501
+
+        self._is_archived = is_archived
+
+    @property
+    def learning_id(self):
+        """Gets the learning_id of this LearningResponse.  # noqa: E501
+
+
+        :return: The learning_id of this LearningResponse.  # noqa: E501
+        :rtype: object
+        """
+        return self._learning_id
+
+    @learning_id.setter
+    def learning_id(self, learning_id):
+        """Sets the learning_id of this LearningResponse.
+
+
+        :param learning_id: The learning_id of this LearningResponse.  # noqa: E501
+        :type: object
+        """
+        if learning_id is None:
+            raise ValueError("Invalid value for `learning_id`, must not be `None`")  # noqa: E501
+
+        self._learning_id = learning_id
+
+    @property
+    def privacy(self):
+        """Gets the privacy of this LearningResponse.  # noqa: E501
+
+
+        :return: The privacy of this LearningResponse.  # noqa: E501
+        :rtype: PrivacyClassification
+        """
+        return self._privacy
+
+    @privacy.setter
+    def privacy(self, privacy):
+        """Sets the privacy of this LearningResponse.
+
+
+        :param privacy: The privacy of this LearningResponse.  # noqa: E501
+        :type: PrivacyClassification
+        """
+        if privacy is None:
+            raise ValueError("Invalid value for `privacy`, must not be `None`")  # noqa: E501
+
+        self._privacy = privacy
+
+    @property
+    def scope(self):
+        """Gets the scope of this LearningResponse.  # noqa: E501
+
+
+        :return: The scope of this LearningResponse.  # noqa: E501
+        :rtype: LearningScope
+        """
+        return self._scope
+
+    @scope.setter
+    def scope(self, scope):
+        """Sets the scope of this LearningResponse.
+
+
+        :param scope: The scope of this LearningResponse.  # noqa: E501
+        :type: LearningScope
+        """
+
+        self._scope = scope
+
+    @property
+    def source_goal(self):
+        """Gets the source_goal of this LearningResponse.  # noqa: E501
+
+
+        :return: The source_goal of this LearningResponse.  # noqa: E501
+        :rtype: object
+        """
+        return self._source_goal
+
+    @source_goal.setter
+    def source_goal(self, source_goal):
+        """Sets the source_goal of this LearningResponse.
+
+
+        :param source_goal: The source_goal of this LearningResponse.  # noqa: E501
+        :type: object
+        """
+        if source_goal is None:
+            raise ValueError("Invalid value for `source_goal`, must not be `None`")  # noqa: E501
+
+        self._source_goal = source_goal
+
+    @property
+    def standing(self):
+        """Gets the standing of this LearningResponse.  # noqa: E501
+
+
+        :return: The standing of this LearningResponse.  # noqa: E501
+        :rtype: LearningStanding
+        """
+        return self._standing
+
+    @standing.setter
+    def standing(self, standing):
+        """Sets the standing of this LearningResponse.
+
+
+        :param standing: The standing of this LearningResponse.  # noqa: E501
+        :type: LearningStanding
+        """
+        if standing is None:
+            raise ValueError("Invalid value for `standing`, must not be `None`")  # noqa: E501
+
+        self._standing = standing
 
     @property
     def times_applied(self):
@@ -335,115 +423,27 @@ class LearningResponse(object):
         self._times_helpful = times_helpful
 
     @property
-    def is_archived(self):
-        """Gets the is_archived of this LearningResponse.  # noqa: E501
+    def trust_level(self):
+        """Gets the trust_level of this LearningResponse.  # noqa: E501
 
 
-        :return: The is_archived of this LearningResponse.  # noqa: E501
-        :rtype: object
+        :return: The trust_level of this LearningResponse.  # noqa: E501
+        :rtype: TrustLevel
         """
-        return self._is_archived
+        return self._trust_level
 
-    @is_archived.setter
-    def is_archived(self, is_archived):
-        """Sets the is_archived of this LearningResponse.
+    @trust_level.setter
+    def trust_level(self, trust_level):
+        """Sets the trust_level of this LearningResponse.
 
 
-        :param is_archived: The is_archived of this LearningResponse.  # noqa: E501
-        :type: object
+        :param trust_level: The trust_level of this LearningResponse.  # noqa: E501
+        :type: TrustLevel
         """
-        if is_archived is None:
-            raise ValueError("Invalid value for `is_archived`, must not be `None`")  # noqa: E501
+        if trust_level is None:
+            raise ValueError("Invalid value for `trust_level`, must not be `None`")  # noqa: E501
 
-        self._is_archived = is_archived
-
-    @property
-    def privacy(self):
-        """Gets the privacy of this LearningResponse.  # noqa: E501
-
-
-        :return: The privacy of this LearningResponse.  # noqa: E501
-        :rtype: PrivacyClassification
-        """
-        return self._privacy
-
-    @privacy.setter
-    def privacy(self, privacy):
-        """Sets the privacy of this LearningResponse.
-
-
-        :param privacy: The privacy of this LearningResponse.  # noqa: E501
-        :type: PrivacyClassification
-        """
-        if privacy is None:
-            raise ValueError("Invalid value for `privacy`, must not be `None`")  # noqa: E501
-
-        self._privacy = privacy
-
-    @property
-    def scope(self):
-        """Gets the scope of this LearningResponse.  # noqa: E501
-
-
-        :return: The scope of this LearningResponse.  # noqa: E501
-        :rtype: LearningScope
-        """
-        return self._scope
-
-    @scope.setter
-    def scope(self, scope):
-        """Sets the scope of this LearningResponse.
-
-
-        :param scope: The scope of this LearningResponse.  # noqa: E501
-        :type: LearningScope
-        """
-
-        self._scope = scope
-
-    @property
-    def instances(self):
-        """Gets the instances of this LearningResponse.  # noqa: E501
-
-
-        :return: The instances of this LearningResponse.  # noqa: E501
-        :rtype: object
-        """
-        return self._instances
-
-    @instances.setter
-    def instances(self, instances):
-        """Sets the instances of this LearningResponse.
-
-
-        :param instances: The instances of this LearningResponse.  # noqa: E501
-        :type: object
-        """
-
-        self._instances = instances
-
-    @property
-    def created_at(self):
-        """Gets the created_at of this LearningResponse.  # noqa: E501
-
-
-        :return: The created_at of this LearningResponse.  # noqa: E501
-        :rtype: object
-        """
-        return self._created_at
-
-    @created_at.setter
-    def created_at(self, created_at):
-        """Sets the created_at of this LearningResponse.
-
-
-        :param created_at: The created_at of this LearningResponse.  # noqa: E501
-        :type: object
-        """
-        if created_at is None:
-            raise ValueError("Invalid value for `created_at`, must not be `None`")  # noqa: E501
-
-        self._created_at = created_at
+        self._trust_level = trust_level
 
     @property
     def updated_at(self):

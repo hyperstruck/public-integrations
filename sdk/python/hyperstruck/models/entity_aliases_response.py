@@ -28,49 +28,26 @@ class EntityAliasesResponse(object):
                             and the value is json key in definition.
     """
     swagger_types = {
-        'entity_id': 'object',
         'agent_id': 'object',
+        'entity_id': 'object',
         'items': 'object'
     }
 
     attribute_map = {
-        'entity_id': 'entity_id',
         'agent_id': 'agent_id',
+        'entity_id': 'entity_id',
         'items': 'items'
     }
 
-    def __init__(self, entity_id=None, agent_id=None, items=None):  # noqa: E501
+    def __init__(self, agent_id=None, entity_id=None, items=None):  # noqa: E501
         """EntityAliasesResponse - a model defined in Swagger"""  # noqa: E501
-        self._entity_id = None
         self._agent_id = None
+        self._entity_id = None
         self._items = None
         self.discriminator = None
-        self.entity_id = entity_id
         self.agent_id = agent_id
+        self.entity_id = entity_id
         self.items = items
-
-    @property
-    def entity_id(self):
-        """Gets the entity_id of this EntityAliasesResponse.  # noqa: E501
-
-
-        :return: The entity_id of this EntityAliasesResponse.  # noqa: E501
-        :rtype: object
-        """
-        return self._entity_id
-
-    @entity_id.setter
-    def entity_id(self, entity_id):
-        """Sets the entity_id of this EntityAliasesResponse.
-
-
-        :param entity_id: The entity_id of this EntityAliasesResponse.  # noqa: E501
-        :type: object
-        """
-        if entity_id is None:
-            raise ValueError("Invalid value for `entity_id`, must not be `None`")  # noqa: E501
-
-        self._entity_id = entity_id
 
     @property
     def agent_id(self):
@@ -94,6 +71,29 @@ class EntityAliasesResponse(object):
             raise ValueError("Invalid value for `agent_id`, must not be `None`")  # noqa: E501
 
         self._agent_id = agent_id
+
+    @property
+    def entity_id(self):
+        """Gets the entity_id of this EntityAliasesResponse.  # noqa: E501
+
+
+        :return: The entity_id of this EntityAliasesResponse.  # noqa: E501
+        :rtype: object
+        """
+        return self._entity_id
+
+    @entity_id.setter
+    def entity_id(self, entity_id):
+        """Sets the entity_id of this EntityAliasesResponse.
+
+
+        :param entity_id: The entity_id of this EntityAliasesResponse.  # noqa: E501
+        :type: object
+        """
+        if entity_id is None:
+            raise ValueError("Invalid value for `entity_id`, must not be `None`")  # noqa: E501
+
+        self._entity_id = entity_id
 
     @property
     def items(self):

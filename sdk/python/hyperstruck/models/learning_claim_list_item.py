@@ -28,148 +28,104 @@ class LearningClaimListItem(object):
                             and the value is json key in definition.
     """
     swagger_types = {
-        'item_kind': 'object',
-        'claim_id': 'object',
         'agent_id': 'object',
-        'entity_id': 'object',
-        'canonical_name': 'object',
-        'status': 'object',
-        'identity_tier': 'object',
-        'provenance_class': 'object',
-        'channel_trust': 'object',
-        'tool_family': 'object',
-        'is_quarantined': 'object',
-        'quarantine_cause': 'object',
-        'is_release_lapsed': 'object',
-        'is_bindable': 'object',
         'attribute_key': 'object',
-        'recorded_at': 'object',
-        'latest_edge_at': 'object',
-        'edge_types': 'object',
+        'canonical_name': 'object',
+        'channel_trust': 'object',
+        'claim_id': 'object',
         'edge_count': 'object',
+        'edge_types': 'object',
+        'entity_id': 'object',
         'has_unrepaired_activation': 'object',
-        'statement': 'RenderedText'
+        'identity_tier': 'object',
+        'is_bindable': 'object',
+        'is_quarantined': 'object',
+        'is_release_lapsed': 'object',
+        'item_kind': 'object',
+        'latest_edge_at': 'object',
+        'provenance_class': 'object',
+        'quarantine_cause': 'object',
+        'recorded_at': 'object',
+        'statement': 'RenderedText',
+        'status': 'object',
+        'tool_family': 'object'
     }
 
     attribute_map = {
-        'item_kind': 'item_kind',
-        'claim_id': 'claim_id',
         'agent_id': 'agent_id',
-        'entity_id': 'entity_id',
-        'canonical_name': 'canonical_name',
-        'status': 'status',
-        'identity_tier': 'identity_tier',
-        'provenance_class': 'provenance_class',
-        'channel_trust': 'channel_trust',
-        'tool_family': 'tool_family',
-        'is_quarantined': 'is_quarantined',
-        'quarantine_cause': 'quarantine_cause',
-        'is_release_lapsed': 'is_release_lapsed',
-        'is_bindable': 'is_bindable',
         'attribute_key': 'attribute_key',
-        'recorded_at': 'recorded_at',
-        'latest_edge_at': 'latest_edge_at',
-        'edge_types': 'edge_types',
+        'canonical_name': 'canonical_name',
+        'channel_trust': 'channel_trust',
+        'claim_id': 'claim_id',
         'edge_count': 'edge_count',
+        'edge_types': 'edge_types',
+        'entity_id': 'entity_id',
         'has_unrepaired_activation': 'has_unrepaired_activation',
-        'statement': 'statement'
+        'identity_tier': 'identity_tier',
+        'is_bindable': 'is_bindable',
+        'is_quarantined': 'is_quarantined',
+        'is_release_lapsed': 'is_release_lapsed',
+        'item_kind': 'item_kind',
+        'latest_edge_at': 'latest_edge_at',
+        'provenance_class': 'provenance_class',
+        'quarantine_cause': 'quarantine_cause',
+        'recorded_at': 'recorded_at',
+        'statement': 'statement',
+        'status': 'status',
+        'tool_family': 'tool_family'
     }
 
-    def __init__(self, item_kind=None, claim_id=None, agent_id=None, entity_id=None, canonical_name=None, status=None, identity_tier=None, provenance_class=None, channel_trust=None, tool_family=None, is_quarantined=None, quarantine_cause=None, is_release_lapsed=None, is_bindable=None, attribute_key=None, recorded_at=None, latest_edge_at=None, edge_types=None, edge_count=None, has_unrepaired_activation=None, statement=None):  # noqa: E501
+    def __init__(self, agent_id=None, attribute_key=None, canonical_name=None, channel_trust=None, claim_id=None, edge_count=None, edge_types=None, entity_id=None, has_unrepaired_activation=None, identity_tier=None, is_bindable=None, is_quarantined=None, is_release_lapsed=None, item_kind=None, latest_edge_at=None, provenance_class=None, quarantine_cause=None, recorded_at=None, statement=None, status=None, tool_family=None):  # noqa: E501
         """LearningClaimListItem - a model defined in Swagger"""  # noqa: E501
-        self._item_kind = None
-        self._claim_id = None
         self._agent_id = None
-        self._entity_id = None
-        self._canonical_name = None
-        self._status = None
-        self._identity_tier = None
-        self._provenance_class = None
-        self._channel_trust = None
-        self._tool_family = None
-        self._is_quarantined = None
-        self._quarantine_cause = None
-        self._is_release_lapsed = None
-        self._is_bindable = None
         self._attribute_key = None
-        self._recorded_at = None
-        self._latest_edge_at = None
-        self._edge_types = None
+        self._canonical_name = None
+        self._channel_trust = None
+        self._claim_id = None
         self._edge_count = None
+        self._edge_types = None
+        self._entity_id = None
         self._has_unrepaired_activation = None
+        self._identity_tier = None
+        self._is_bindable = None
+        self._is_quarantined = None
+        self._is_release_lapsed = None
+        self._item_kind = None
+        self._latest_edge_at = None
+        self._provenance_class = None
+        self._quarantine_cause = None
+        self._recorded_at = None
         self._statement = None
+        self._status = None
+        self._tool_family = None
         self.discriminator = None
-        if item_kind is not None:
-            self.item_kind = item_kind
-        self.claim_id = claim_id
         self.agent_id = agent_id
-        self.entity_id = entity_id
-        self.canonical_name = canonical_name
-        self.status = status
-        if identity_tier is not None:
-            self.identity_tier = identity_tier
-        self.provenance_class = provenance_class
-        self.channel_trust = channel_trust
-        if tool_family is not None:
-            self.tool_family = tool_family
-        self.is_quarantined = is_quarantined
-        if quarantine_cause is not None:
-            self.quarantine_cause = quarantine_cause
-        if is_release_lapsed is not None:
-            self.is_release_lapsed = is_release_lapsed
-        self.is_bindable = is_bindable
         if attribute_key is not None:
             self.attribute_key = attribute_key
-        self.recorded_at = recorded_at
-        self.latest_edge_at = latest_edge_at
-        self.edge_types = edge_types
+        self.canonical_name = canonical_name
+        self.channel_trust = channel_trust
+        self.claim_id = claim_id
         self.edge_count = edge_count
+        self.edge_types = edge_types
+        self.entity_id = entity_id
         self.has_unrepaired_activation = has_unrepaired_activation
+        if identity_tier is not None:
+            self.identity_tier = identity_tier
+        self.is_bindable = is_bindable
+        self.is_quarantined = is_quarantined
+        if is_release_lapsed is not None:
+            self.is_release_lapsed = is_release_lapsed
+        if item_kind is not None:
+            self.item_kind = item_kind
+        self.latest_edge_at = latest_edge_at
+        self.provenance_class = provenance_class
+        if quarantine_cause is not None:
+            self.quarantine_cause = quarantine_cause
+        self.recorded_at = recorded_at
         self.statement = statement
-
-    @property
-    def item_kind(self):
-        """Gets the item_kind of this LearningClaimListItem.  # noqa: E501
-
-
-        :return: The item_kind of this LearningClaimListItem.  # noqa: E501
-        :rtype: object
-        """
-        return self._item_kind
-
-    @item_kind.setter
-    def item_kind(self, item_kind):
-        """Sets the item_kind of this LearningClaimListItem.
-
-
-        :param item_kind: The item_kind of this LearningClaimListItem.  # noqa: E501
-        :type: object
-        """
-
-        self._item_kind = item_kind
-
-    @property
-    def claim_id(self):
-        """Gets the claim_id of this LearningClaimListItem.  # noqa: E501
-
-
-        :return: The claim_id of this LearningClaimListItem.  # noqa: E501
-        :rtype: object
-        """
-        return self._claim_id
-
-    @claim_id.setter
-    def claim_id(self, claim_id):
-        """Sets the claim_id of this LearningClaimListItem.
-
-
-        :param claim_id: The claim_id of this LearningClaimListItem.  # noqa: E501
-        :type: object
-        """
-        if claim_id is None:
-            raise ValueError("Invalid value for `claim_id`, must not be `None`")  # noqa: E501
-
-        self._claim_id = claim_id
+        self.status = status
+        if tool_family is not None:
+            self.tool_family = tool_family
 
     @property
     def agent_id(self):
@@ -195,27 +151,25 @@ class LearningClaimListItem(object):
         self._agent_id = agent_id
 
     @property
-    def entity_id(self):
-        """Gets the entity_id of this LearningClaimListItem.  # noqa: E501
+    def attribute_key(self):
+        """Gets the attribute_key of this LearningClaimListItem.  # noqa: E501
 
 
-        :return: The entity_id of this LearningClaimListItem.  # noqa: E501
+        :return: The attribute_key of this LearningClaimListItem.  # noqa: E501
         :rtype: object
         """
-        return self._entity_id
+        return self._attribute_key
 
-    @entity_id.setter
-    def entity_id(self, entity_id):
-        """Sets the entity_id of this LearningClaimListItem.
+    @attribute_key.setter
+    def attribute_key(self, attribute_key):
+        """Sets the attribute_key of this LearningClaimListItem.
 
 
-        :param entity_id: The entity_id of this LearningClaimListItem.  # noqa: E501
+        :param attribute_key: The attribute_key of this LearningClaimListItem.  # noqa: E501
         :type: object
         """
-        if entity_id is None:
-            raise ValueError("Invalid value for `entity_id`, must not be `None`")  # noqa: E501
 
-        self._entity_id = entity_id
+        self._attribute_key = attribute_key
 
     @property
     def canonical_name(self):
@@ -241,73 +195,6 @@ class LearningClaimListItem(object):
         self._canonical_name = canonical_name
 
     @property
-    def status(self):
-        """Gets the status of this LearningClaimListItem.  # noqa: E501
-
-
-        :return: The status of this LearningClaimListItem.  # noqa: E501
-        :rtype: object
-        """
-        return self._status
-
-    @status.setter
-    def status(self, status):
-        """Sets the status of this LearningClaimListItem.
-
-
-        :param status: The status of this LearningClaimListItem.  # noqa: E501
-        :type: object
-        """
-        if status is None:
-            raise ValueError("Invalid value for `status`, must not be `None`")  # noqa: E501
-
-        self._status = status
-
-    @property
-    def identity_tier(self):
-        """Gets the identity_tier of this LearningClaimListItem.  # noqa: E501
-
-
-        :return: The identity_tier of this LearningClaimListItem.  # noqa: E501
-        :rtype: object
-        """
-        return self._identity_tier
-
-    @identity_tier.setter
-    def identity_tier(self, identity_tier):
-        """Sets the identity_tier of this LearningClaimListItem.
-
-
-        :param identity_tier: The identity_tier of this LearningClaimListItem.  # noqa: E501
-        :type: object
-        """
-
-        self._identity_tier = identity_tier
-
-    @property
-    def provenance_class(self):
-        """Gets the provenance_class of this LearningClaimListItem.  # noqa: E501
-
-
-        :return: The provenance_class of this LearningClaimListItem.  # noqa: E501
-        :rtype: object
-        """
-        return self._provenance_class
-
-    @provenance_class.setter
-    def provenance_class(self, provenance_class):
-        """Sets the provenance_class of this LearningClaimListItem.
-
-
-        :param provenance_class: The provenance_class of this LearningClaimListItem.  # noqa: E501
-        :type: object
-        """
-        if provenance_class is None:
-            raise ValueError("Invalid value for `provenance_class`, must not be `None`")  # noqa: E501
-
-        self._provenance_class = provenance_class
-
-    @property
     def channel_trust(self):
         """Gets the channel_trust of this LearningClaimListItem.  # noqa: E501
 
@@ -331,203 +218,27 @@ class LearningClaimListItem(object):
         self._channel_trust = channel_trust
 
     @property
-    def tool_family(self):
-        """Gets the tool_family of this LearningClaimListItem.  # noqa: E501
+    def claim_id(self):
+        """Gets the claim_id of this LearningClaimListItem.  # noqa: E501
 
 
-        :return: The tool_family of this LearningClaimListItem.  # noqa: E501
+        :return: The claim_id of this LearningClaimListItem.  # noqa: E501
         :rtype: object
         """
-        return self._tool_family
+        return self._claim_id
 
-    @tool_family.setter
-    def tool_family(self, tool_family):
-        """Sets the tool_family of this LearningClaimListItem.
+    @claim_id.setter
+    def claim_id(self, claim_id):
+        """Sets the claim_id of this LearningClaimListItem.
 
 
-        :param tool_family: The tool_family of this LearningClaimListItem.  # noqa: E501
+        :param claim_id: The claim_id of this LearningClaimListItem.  # noqa: E501
         :type: object
         """
+        if claim_id is None:
+            raise ValueError("Invalid value for `claim_id`, must not be `None`")  # noqa: E501
 
-        self._tool_family = tool_family
-
-    @property
-    def is_quarantined(self):
-        """Gets the is_quarantined of this LearningClaimListItem.  # noqa: E501
-
-
-        :return: The is_quarantined of this LearningClaimListItem.  # noqa: E501
-        :rtype: object
-        """
-        return self._is_quarantined
-
-    @is_quarantined.setter
-    def is_quarantined(self, is_quarantined):
-        """Sets the is_quarantined of this LearningClaimListItem.
-
-
-        :param is_quarantined: The is_quarantined of this LearningClaimListItem.  # noqa: E501
-        :type: object
-        """
-        if is_quarantined is None:
-            raise ValueError("Invalid value for `is_quarantined`, must not be `None`")  # noqa: E501
-
-        self._is_quarantined = is_quarantined
-
-    @property
-    def quarantine_cause(self):
-        """Gets the quarantine_cause of this LearningClaimListItem.  # noqa: E501
-
-
-        :return: The quarantine_cause of this LearningClaimListItem.  # noqa: E501
-        :rtype: object
-        """
-        return self._quarantine_cause
-
-    @quarantine_cause.setter
-    def quarantine_cause(self, quarantine_cause):
-        """Sets the quarantine_cause of this LearningClaimListItem.
-
-
-        :param quarantine_cause: The quarantine_cause of this LearningClaimListItem.  # noqa: E501
-        :type: object
-        """
-
-        self._quarantine_cause = quarantine_cause
-
-    @property
-    def is_release_lapsed(self):
-        """Gets the is_release_lapsed of this LearningClaimListItem.  # noqa: E501
-
-
-        :return: The is_release_lapsed of this LearningClaimListItem.  # noqa: E501
-        :rtype: object
-        """
-        return self._is_release_lapsed
-
-    @is_release_lapsed.setter
-    def is_release_lapsed(self, is_release_lapsed):
-        """Sets the is_release_lapsed of this LearningClaimListItem.
-
-
-        :param is_release_lapsed: The is_release_lapsed of this LearningClaimListItem.  # noqa: E501
-        :type: object
-        """
-
-        self._is_release_lapsed = is_release_lapsed
-
-    @property
-    def is_bindable(self):
-        """Gets the is_bindable of this LearningClaimListItem.  # noqa: E501
-
-
-        :return: The is_bindable of this LearningClaimListItem.  # noqa: E501
-        :rtype: object
-        """
-        return self._is_bindable
-
-    @is_bindable.setter
-    def is_bindable(self, is_bindable):
-        """Sets the is_bindable of this LearningClaimListItem.
-
-
-        :param is_bindable: The is_bindable of this LearningClaimListItem.  # noqa: E501
-        :type: object
-        """
-        if is_bindable is None:
-            raise ValueError("Invalid value for `is_bindable`, must not be `None`")  # noqa: E501
-
-        self._is_bindable = is_bindable
-
-    @property
-    def attribute_key(self):
-        """Gets the attribute_key of this LearningClaimListItem.  # noqa: E501
-
-
-        :return: The attribute_key of this LearningClaimListItem.  # noqa: E501
-        :rtype: object
-        """
-        return self._attribute_key
-
-    @attribute_key.setter
-    def attribute_key(self, attribute_key):
-        """Sets the attribute_key of this LearningClaimListItem.
-
-
-        :param attribute_key: The attribute_key of this LearningClaimListItem.  # noqa: E501
-        :type: object
-        """
-
-        self._attribute_key = attribute_key
-
-    @property
-    def recorded_at(self):
-        """Gets the recorded_at of this LearningClaimListItem.  # noqa: E501
-
-
-        :return: The recorded_at of this LearningClaimListItem.  # noqa: E501
-        :rtype: object
-        """
-        return self._recorded_at
-
-    @recorded_at.setter
-    def recorded_at(self, recorded_at):
-        """Sets the recorded_at of this LearningClaimListItem.
-
-
-        :param recorded_at: The recorded_at of this LearningClaimListItem.  # noqa: E501
-        :type: object
-        """
-        if recorded_at is None:
-            raise ValueError("Invalid value for `recorded_at`, must not be `None`")  # noqa: E501
-
-        self._recorded_at = recorded_at
-
-    @property
-    def latest_edge_at(self):
-        """Gets the latest_edge_at of this LearningClaimListItem.  # noqa: E501
-
-
-        :return: The latest_edge_at of this LearningClaimListItem.  # noqa: E501
-        :rtype: object
-        """
-        return self._latest_edge_at
-
-    @latest_edge_at.setter
-    def latest_edge_at(self, latest_edge_at):
-        """Sets the latest_edge_at of this LearningClaimListItem.
-
-
-        :param latest_edge_at: The latest_edge_at of this LearningClaimListItem.  # noqa: E501
-        :type: object
-        """
-        if latest_edge_at is None:
-            raise ValueError("Invalid value for `latest_edge_at`, must not be `None`")  # noqa: E501
-
-        self._latest_edge_at = latest_edge_at
-
-    @property
-    def edge_types(self):
-        """Gets the edge_types of this LearningClaimListItem.  # noqa: E501
-
-
-        :return: The edge_types of this LearningClaimListItem.  # noqa: E501
-        :rtype: object
-        """
-        return self._edge_types
-
-    @edge_types.setter
-    def edge_types(self, edge_types):
-        """Sets the edge_types of this LearningClaimListItem.
-
-
-        :param edge_types: The edge_types of this LearningClaimListItem.  # noqa: E501
-        :type: object
-        """
-        if edge_types is None:
-            raise ValueError("Invalid value for `edge_types`, must not be `None`")  # noqa: E501
-
-        self._edge_types = edge_types
+        self._claim_id = claim_id
 
     @property
     def edge_count(self):
@@ -553,6 +264,52 @@ class LearningClaimListItem(object):
         self._edge_count = edge_count
 
     @property
+    def edge_types(self):
+        """Gets the edge_types of this LearningClaimListItem.  # noqa: E501
+
+
+        :return: The edge_types of this LearningClaimListItem.  # noqa: E501
+        :rtype: object
+        """
+        return self._edge_types
+
+    @edge_types.setter
+    def edge_types(self, edge_types):
+        """Sets the edge_types of this LearningClaimListItem.
+
+
+        :param edge_types: The edge_types of this LearningClaimListItem.  # noqa: E501
+        :type: object
+        """
+        if edge_types is None:
+            raise ValueError("Invalid value for `edge_types`, must not be `None`")  # noqa: E501
+
+        self._edge_types = edge_types
+
+    @property
+    def entity_id(self):
+        """Gets the entity_id of this LearningClaimListItem.  # noqa: E501
+
+
+        :return: The entity_id of this LearningClaimListItem.  # noqa: E501
+        :rtype: object
+        """
+        return self._entity_id
+
+    @entity_id.setter
+    def entity_id(self, entity_id):
+        """Sets the entity_id of this LearningClaimListItem.
+
+
+        :param entity_id: The entity_id of this LearningClaimListItem.  # noqa: E501
+        :type: object
+        """
+        if entity_id is None:
+            raise ValueError("Invalid value for `entity_id`, must not be `None`")  # noqa: E501
+
+        self._entity_id = entity_id
+
+    @property
     def has_unrepaired_activation(self):
         """Gets the has_unrepaired_activation of this LearningClaimListItem.  # noqa: E501
 
@@ -576,6 +333,205 @@ class LearningClaimListItem(object):
         self._has_unrepaired_activation = has_unrepaired_activation
 
     @property
+    def identity_tier(self):
+        """Gets the identity_tier of this LearningClaimListItem.  # noqa: E501
+
+
+        :return: The identity_tier of this LearningClaimListItem.  # noqa: E501
+        :rtype: object
+        """
+        return self._identity_tier
+
+    @identity_tier.setter
+    def identity_tier(self, identity_tier):
+        """Sets the identity_tier of this LearningClaimListItem.
+
+
+        :param identity_tier: The identity_tier of this LearningClaimListItem.  # noqa: E501
+        :type: object
+        """
+
+        self._identity_tier = identity_tier
+
+    @property
+    def is_bindable(self):
+        """Gets the is_bindable of this LearningClaimListItem.  # noqa: E501
+
+
+        :return: The is_bindable of this LearningClaimListItem.  # noqa: E501
+        :rtype: object
+        """
+        return self._is_bindable
+
+    @is_bindable.setter
+    def is_bindable(self, is_bindable):
+        """Sets the is_bindable of this LearningClaimListItem.
+
+
+        :param is_bindable: The is_bindable of this LearningClaimListItem.  # noqa: E501
+        :type: object
+        """
+        if is_bindable is None:
+            raise ValueError("Invalid value for `is_bindable`, must not be `None`")  # noqa: E501
+
+        self._is_bindable = is_bindable
+
+    @property
+    def is_quarantined(self):
+        """Gets the is_quarantined of this LearningClaimListItem.  # noqa: E501
+
+
+        :return: The is_quarantined of this LearningClaimListItem.  # noqa: E501
+        :rtype: object
+        """
+        return self._is_quarantined
+
+    @is_quarantined.setter
+    def is_quarantined(self, is_quarantined):
+        """Sets the is_quarantined of this LearningClaimListItem.
+
+
+        :param is_quarantined: The is_quarantined of this LearningClaimListItem.  # noqa: E501
+        :type: object
+        """
+        if is_quarantined is None:
+            raise ValueError("Invalid value for `is_quarantined`, must not be `None`")  # noqa: E501
+
+        self._is_quarantined = is_quarantined
+
+    @property
+    def is_release_lapsed(self):
+        """Gets the is_release_lapsed of this LearningClaimListItem.  # noqa: E501
+
+
+        :return: The is_release_lapsed of this LearningClaimListItem.  # noqa: E501
+        :rtype: object
+        """
+        return self._is_release_lapsed
+
+    @is_release_lapsed.setter
+    def is_release_lapsed(self, is_release_lapsed):
+        """Sets the is_release_lapsed of this LearningClaimListItem.
+
+
+        :param is_release_lapsed: The is_release_lapsed of this LearningClaimListItem.  # noqa: E501
+        :type: object
+        """
+
+        self._is_release_lapsed = is_release_lapsed
+
+    @property
+    def item_kind(self):
+        """Gets the item_kind of this LearningClaimListItem.  # noqa: E501
+
+
+        :return: The item_kind of this LearningClaimListItem.  # noqa: E501
+        :rtype: object
+        """
+        return self._item_kind
+
+    @item_kind.setter
+    def item_kind(self, item_kind):
+        """Sets the item_kind of this LearningClaimListItem.
+
+
+        :param item_kind: The item_kind of this LearningClaimListItem.  # noqa: E501
+        :type: object
+        """
+
+        self._item_kind = item_kind
+
+    @property
+    def latest_edge_at(self):
+        """Gets the latest_edge_at of this LearningClaimListItem.  # noqa: E501
+
+
+        :return: The latest_edge_at of this LearningClaimListItem.  # noqa: E501
+        :rtype: object
+        """
+        return self._latest_edge_at
+
+    @latest_edge_at.setter
+    def latest_edge_at(self, latest_edge_at):
+        """Sets the latest_edge_at of this LearningClaimListItem.
+
+
+        :param latest_edge_at: The latest_edge_at of this LearningClaimListItem.  # noqa: E501
+        :type: object
+        """
+        if latest_edge_at is None:
+            raise ValueError("Invalid value for `latest_edge_at`, must not be `None`")  # noqa: E501
+
+        self._latest_edge_at = latest_edge_at
+
+    @property
+    def provenance_class(self):
+        """Gets the provenance_class of this LearningClaimListItem.  # noqa: E501
+
+
+        :return: The provenance_class of this LearningClaimListItem.  # noqa: E501
+        :rtype: object
+        """
+        return self._provenance_class
+
+    @provenance_class.setter
+    def provenance_class(self, provenance_class):
+        """Sets the provenance_class of this LearningClaimListItem.
+
+
+        :param provenance_class: The provenance_class of this LearningClaimListItem.  # noqa: E501
+        :type: object
+        """
+        if provenance_class is None:
+            raise ValueError("Invalid value for `provenance_class`, must not be `None`")  # noqa: E501
+
+        self._provenance_class = provenance_class
+
+    @property
+    def quarantine_cause(self):
+        """Gets the quarantine_cause of this LearningClaimListItem.  # noqa: E501
+
+
+        :return: The quarantine_cause of this LearningClaimListItem.  # noqa: E501
+        :rtype: object
+        """
+        return self._quarantine_cause
+
+    @quarantine_cause.setter
+    def quarantine_cause(self, quarantine_cause):
+        """Sets the quarantine_cause of this LearningClaimListItem.
+
+
+        :param quarantine_cause: The quarantine_cause of this LearningClaimListItem.  # noqa: E501
+        :type: object
+        """
+
+        self._quarantine_cause = quarantine_cause
+
+    @property
+    def recorded_at(self):
+        """Gets the recorded_at of this LearningClaimListItem.  # noqa: E501
+
+
+        :return: The recorded_at of this LearningClaimListItem.  # noqa: E501
+        :rtype: object
+        """
+        return self._recorded_at
+
+    @recorded_at.setter
+    def recorded_at(self, recorded_at):
+        """Sets the recorded_at of this LearningClaimListItem.
+
+
+        :param recorded_at: The recorded_at of this LearningClaimListItem.  # noqa: E501
+        :type: object
+        """
+        if recorded_at is None:
+            raise ValueError("Invalid value for `recorded_at`, must not be `None`")  # noqa: E501
+
+        self._recorded_at = recorded_at
+
+    @property
     def statement(self):
         """Gets the statement of this LearningClaimListItem.  # noqa: E501
 
@@ -597,6 +553,50 @@ class LearningClaimListItem(object):
             raise ValueError("Invalid value for `statement`, must not be `None`")  # noqa: E501
 
         self._statement = statement
+
+    @property
+    def status(self):
+        """Gets the status of this LearningClaimListItem.  # noqa: E501
+
+
+        :return: The status of this LearningClaimListItem.  # noqa: E501
+        :rtype: object
+        """
+        return self._status
+
+    @status.setter
+    def status(self, status):
+        """Sets the status of this LearningClaimListItem.
+
+
+        :param status: The status of this LearningClaimListItem.  # noqa: E501
+        :type: object
+        """
+        if status is None:
+            raise ValueError("Invalid value for `status`, must not be `None`")  # noqa: E501
+
+        self._status = status
+
+    @property
+    def tool_family(self):
+        """Gets the tool_family of this LearningClaimListItem.  # noqa: E501
+
+
+        :return: The tool_family of this LearningClaimListItem.  # noqa: E501
+        :rtype: object
+        """
+        return self._tool_family
+
+    @tool_family.setter
+    def tool_family(self, tool_family):
+        """Sets the tool_family of this LearningClaimListItem.
+
+
+        :param tool_family: The tool_family of this LearningClaimListItem.  # noqa: E501
+        :type: object
+        """
+
+        self._tool_family = tool_family
 
     def to_dict(self):
         """Returns the model properties as a dict"""

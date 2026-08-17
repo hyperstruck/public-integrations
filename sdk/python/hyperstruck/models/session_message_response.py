@@ -28,108 +28,39 @@ class SessionMessageResponse(object):
                             and the value is json key in definition.
     """
     swagger_types = {
-        'id': 'object',
-        'session_id': 'object',
-        'role': 'object',
         'content': 'object',
+        'created_at': 'object',
+        'id': 'object',
         'metadata': 'object',
-        'created_at': 'object'
+        'role': 'object',
+        'session_id': 'object'
     }
 
     attribute_map = {
-        'id': 'id',
-        'session_id': 'session_id',
-        'role': 'role',
         'content': 'content',
+        'created_at': 'created_at',
+        'id': 'id',
         'metadata': 'metadata',
-        'created_at': 'created_at'
+        'role': 'role',
+        'session_id': 'session_id'
     }
 
-    def __init__(self, id=None, session_id=None, role=None, content=None, metadata=None, created_at=None):  # noqa: E501
+    def __init__(self, content=None, created_at=None, id=None, metadata=None, role=None, session_id=None):  # noqa: E501
         """SessionMessageResponse - a model defined in Swagger"""  # noqa: E501
-        self._id = None
-        self._session_id = None
-        self._role = None
         self._content = None
-        self._metadata = None
         self._created_at = None
+        self._id = None
+        self._metadata = None
+        self._role = None
+        self._session_id = None
         self.discriminator = None
-        self.id = id
-        self.session_id = session_id
-        self.role = role
         self.content = content
+        self.created_at = created_at
+        self.id = id
         if metadata is not None:
             self.metadata = metadata
-        self.created_at = created_at
-
-    @property
-    def id(self):
-        """Gets the id of this SessionMessageResponse.  # noqa: E501
-
-
-        :return: The id of this SessionMessageResponse.  # noqa: E501
-        :rtype: object
-        """
-        return self._id
-
-    @id.setter
-    def id(self, id):
-        """Sets the id of this SessionMessageResponse.
-
-
-        :param id: The id of this SessionMessageResponse.  # noqa: E501
-        :type: object
-        """
-        if id is None:
-            raise ValueError("Invalid value for `id`, must not be `None`")  # noqa: E501
-
-        self._id = id
-
-    @property
-    def session_id(self):
-        """Gets the session_id of this SessionMessageResponse.  # noqa: E501
-
-
-        :return: The session_id of this SessionMessageResponse.  # noqa: E501
-        :rtype: object
-        """
-        return self._session_id
-
-    @session_id.setter
-    def session_id(self, session_id):
-        """Sets the session_id of this SessionMessageResponse.
-
-
-        :param session_id: The session_id of this SessionMessageResponse.  # noqa: E501
-        :type: object
-        """
-        if session_id is None:
-            raise ValueError("Invalid value for `session_id`, must not be `None`")  # noqa: E501
-
-        self._session_id = session_id
-
-    @property
-    def role(self):
-        """Gets the role of this SessionMessageResponse.  # noqa: E501
-
-
-        :return: The role of this SessionMessageResponse.  # noqa: E501
-        :rtype: object
-        """
-        return self._role
-
-    @role.setter
-    def role(self, role):
-        """Sets the role of this SessionMessageResponse.
-
-
-        :param role: The role of this SessionMessageResponse.  # noqa: E501
-        :type: object
-        """
-        if role is None:
-            raise ValueError("Invalid value for `role`, must not be `None`")  # noqa: E501
-
-        self._role = role
+        self.role = role
+        self.session_id = session_id
 
     @property
     def content(self):
@@ -155,27 +86,6 @@ class SessionMessageResponse(object):
         self._content = content
 
     @property
-    def metadata(self):
-        """Gets the metadata of this SessionMessageResponse.  # noqa: E501
-
-
-        :return: The metadata of this SessionMessageResponse.  # noqa: E501
-        :rtype: object
-        """
-        return self._metadata
-
-    @metadata.setter
-    def metadata(self, metadata):
-        """Sets the metadata of this SessionMessageResponse.
-
-
-        :param metadata: The metadata of this SessionMessageResponse.  # noqa: E501
-        :type: object
-        """
-
-        self._metadata = metadata
-
-    @property
     def created_at(self):
         """Gets the created_at of this SessionMessageResponse.  # noqa: E501
 
@@ -197,6 +107,96 @@ class SessionMessageResponse(object):
             raise ValueError("Invalid value for `created_at`, must not be `None`")  # noqa: E501
 
         self._created_at = created_at
+
+    @property
+    def id(self):
+        """Gets the id of this SessionMessageResponse.  # noqa: E501
+
+
+        :return: The id of this SessionMessageResponse.  # noqa: E501
+        :rtype: object
+        """
+        return self._id
+
+    @id.setter
+    def id(self, id):
+        """Sets the id of this SessionMessageResponse.
+
+
+        :param id: The id of this SessionMessageResponse.  # noqa: E501
+        :type: object
+        """
+        if id is None:
+            raise ValueError("Invalid value for `id`, must not be `None`")  # noqa: E501
+
+        self._id = id
+
+    @property
+    def metadata(self):
+        """Gets the metadata of this SessionMessageResponse.  # noqa: E501
+
+
+        :return: The metadata of this SessionMessageResponse.  # noqa: E501
+        :rtype: object
+        """
+        return self._metadata
+
+    @metadata.setter
+    def metadata(self, metadata):
+        """Sets the metadata of this SessionMessageResponse.
+
+
+        :param metadata: The metadata of this SessionMessageResponse.  # noqa: E501
+        :type: object
+        """
+
+        self._metadata = metadata
+
+    @property
+    def role(self):
+        """Gets the role of this SessionMessageResponse.  # noqa: E501
+
+
+        :return: The role of this SessionMessageResponse.  # noqa: E501
+        :rtype: object
+        """
+        return self._role
+
+    @role.setter
+    def role(self, role):
+        """Sets the role of this SessionMessageResponse.
+
+
+        :param role: The role of this SessionMessageResponse.  # noqa: E501
+        :type: object
+        """
+        if role is None:
+            raise ValueError("Invalid value for `role`, must not be `None`")  # noqa: E501
+
+        self._role = role
+
+    @property
+    def session_id(self):
+        """Gets the session_id of this SessionMessageResponse.  # noqa: E501
+
+
+        :return: The session_id of this SessionMessageResponse.  # noqa: E501
+        :rtype: object
+        """
+        return self._session_id
+
+    @session_id.setter
+    def session_id(self, session_id):
+        """Sets the session_id of this SessionMessageResponse.
+
+
+        :param session_id: The session_id of this SessionMessageResponse.  # noqa: E501
+        :type: object
+        """
+        if session_id is None:
+            raise ValueError("Invalid value for `session_id`, must not be `None`")  # noqa: E501
+
+        self._session_id = session_id
 
     def to_dict(self):
         """Returns the model properties as a dict"""

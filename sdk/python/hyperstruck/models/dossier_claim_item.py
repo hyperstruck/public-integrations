@@ -28,100 +28,121 @@ class DossierClaimItem(object):
                             and the value is json key in definition.
     """
     swagger_types = {
-        'claim_id': 'object',
-        'status': 'object',
-        'provenance_class': 'object',
-        'is_bindable': 'object',
-        'is_quarantined': 'object',
-        'quarantine_cause': 'object',
-        'is_release_lapsed': 'object',
-        'is_operator_asserted': 'object',
         'attribute_key': 'object',
-        'valid_from': 'object',
-        'valid_until': 'object',
-        'recorded_at': 'object',
-        'expired_at': 'object',
+        'claim_id': 'object',
+        'contradiction_count': 'object',
         'corroboration_count': 'object',
         'distinct_source_count': 'object',
-        'contradiction_count': 'object',
-        'human_attested_by': 'object',
+        'expired_at': 'object',
         'human_attested_at': 'object',
-        'statement': 'RenderedText'
+        'human_attested_by': 'object',
+        'is_bindable': 'object',
+        'is_operator_asserted': 'object',
+        'is_quarantined': 'object',
+        'is_release_lapsed': 'object',
+        'provenance_class': 'object',
+        'quarantine_cause': 'object',
+        'recorded_at': 'object',
+        'statement': 'RenderedText',
+        'status': 'object',
+        'valid_from': 'object',
+        'valid_until': 'object'
     }
 
     attribute_map = {
-        'claim_id': 'claim_id',
-        'status': 'status',
-        'provenance_class': 'provenance_class',
-        'is_bindable': 'is_bindable',
-        'is_quarantined': 'is_quarantined',
-        'quarantine_cause': 'quarantine_cause',
-        'is_release_lapsed': 'is_release_lapsed',
-        'is_operator_asserted': 'is_operator_asserted',
         'attribute_key': 'attribute_key',
-        'valid_from': 'valid_from',
-        'valid_until': 'valid_until',
-        'recorded_at': 'recorded_at',
-        'expired_at': 'expired_at',
+        'claim_id': 'claim_id',
+        'contradiction_count': 'contradiction_count',
         'corroboration_count': 'corroboration_count',
         'distinct_source_count': 'distinct_source_count',
-        'contradiction_count': 'contradiction_count',
-        'human_attested_by': 'human_attested_by',
+        'expired_at': 'expired_at',
         'human_attested_at': 'human_attested_at',
-        'statement': 'statement'
+        'human_attested_by': 'human_attested_by',
+        'is_bindable': 'is_bindable',
+        'is_operator_asserted': 'is_operator_asserted',
+        'is_quarantined': 'is_quarantined',
+        'is_release_lapsed': 'is_release_lapsed',
+        'provenance_class': 'provenance_class',
+        'quarantine_cause': 'quarantine_cause',
+        'recorded_at': 'recorded_at',
+        'statement': 'statement',
+        'status': 'status',
+        'valid_from': 'valid_from',
+        'valid_until': 'valid_until'
     }
 
-    def __init__(self, claim_id=None, status=None, provenance_class=None, is_bindable=None, is_quarantined=None, quarantine_cause=None, is_release_lapsed=None, is_operator_asserted=None, attribute_key=None, valid_from=None, valid_until=None, recorded_at=None, expired_at=None, corroboration_count=None, distinct_source_count=None, contradiction_count=None, human_attested_by=None, human_attested_at=None, statement=None):  # noqa: E501
+    def __init__(self, attribute_key=None, claim_id=None, contradiction_count=None, corroboration_count=None, distinct_source_count=None, expired_at=None, human_attested_at=None, human_attested_by=None, is_bindable=None, is_operator_asserted=None, is_quarantined=None, is_release_lapsed=None, provenance_class=None, quarantine_cause=None, recorded_at=None, statement=None, status=None, valid_from=None, valid_until=None):  # noqa: E501
         """DossierClaimItem - a model defined in Swagger"""  # noqa: E501
-        self._claim_id = None
-        self._status = None
-        self._provenance_class = None
-        self._is_bindable = None
-        self._is_quarantined = None
-        self._quarantine_cause = None
-        self._is_release_lapsed = None
-        self._is_operator_asserted = None
         self._attribute_key = None
-        self._valid_from = None
-        self._valid_until = None
-        self._recorded_at = None
-        self._expired_at = None
+        self._claim_id = None
+        self._contradiction_count = None
         self._corroboration_count = None
         self._distinct_source_count = None
-        self._contradiction_count = None
-        self._human_attested_by = None
+        self._expired_at = None
         self._human_attested_at = None
+        self._human_attested_by = None
+        self._is_bindable = None
+        self._is_operator_asserted = None
+        self._is_quarantined = None
+        self._is_release_lapsed = None
+        self._provenance_class = None
+        self._quarantine_cause = None
+        self._recorded_at = None
         self._statement = None
+        self._status = None
+        self._valid_from = None
+        self._valid_until = None
         self.discriminator = None
-        self.claim_id = claim_id
-        self.status = status
-        self.provenance_class = provenance_class
-        self.is_bindable = is_bindable
-        self.is_quarantined = is_quarantined
-        if quarantine_cause is not None:
-            self.quarantine_cause = quarantine_cause
-        if is_release_lapsed is not None:
-            self.is_release_lapsed = is_release_lapsed
-        self.is_operator_asserted = is_operator_asserted
         if attribute_key is not None:
             self.attribute_key = attribute_key
-        self.valid_from = valid_from
-        if valid_until is not None:
-            self.valid_until = valid_until
-        self.recorded_at = recorded_at
-        if expired_at is not None:
-            self.expired_at = expired_at
+        self.claim_id = claim_id
+        if contradiction_count is not None:
+            self.contradiction_count = contradiction_count
         if corroboration_count is not None:
             self.corroboration_count = corroboration_count
         if distinct_source_count is not None:
             self.distinct_source_count = distinct_source_count
-        if contradiction_count is not None:
-            self.contradiction_count = contradiction_count
-        if human_attested_by is not None:
-            self.human_attested_by = human_attested_by
+        if expired_at is not None:
+            self.expired_at = expired_at
         if human_attested_at is not None:
             self.human_attested_at = human_attested_at
+        if human_attested_by is not None:
+            self.human_attested_by = human_attested_by
+        self.is_bindable = is_bindable
+        self.is_operator_asserted = is_operator_asserted
+        self.is_quarantined = is_quarantined
+        if is_release_lapsed is not None:
+            self.is_release_lapsed = is_release_lapsed
+        self.provenance_class = provenance_class
+        if quarantine_cause is not None:
+            self.quarantine_cause = quarantine_cause
+        self.recorded_at = recorded_at
         self.statement = statement
+        self.status = status
+        self.valid_from = valid_from
+        if valid_until is not None:
+            self.valid_until = valid_until
+
+    @property
+    def attribute_key(self):
+        """Gets the attribute_key of this DossierClaimItem.  # noqa: E501
+
+
+        :return: The attribute_key of this DossierClaimItem.  # noqa: E501
+        :rtype: object
+        """
+        return self._attribute_key
+
+    @attribute_key.setter
+    def attribute_key(self, attribute_key):
+        """Sets the attribute_key of this DossierClaimItem.
+
+
+        :param attribute_key: The attribute_key of this DossierClaimItem.  # noqa: E501
+        :type: object
+        """
+
+        self._attribute_key = attribute_key
 
     @property
     def claim_id(self):
@@ -147,270 +168,25 @@ class DossierClaimItem(object):
         self._claim_id = claim_id
 
     @property
-    def status(self):
-        """Gets the status of this DossierClaimItem.  # noqa: E501
+    def contradiction_count(self):
+        """Gets the contradiction_count of this DossierClaimItem.  # noqa: E501
 
 
-        :return: The status of this DossierClaimItem.  # noqa: E501
+        :return: The contradiction_count of this DossierClaimItem.  # noqa: E501
         :rtype: object
         """
-        return self._status
+        return self._contradiction_count
 
-    @status.setter
-    def status(self, status):
-        """Sets the status of this DossierClaimItem.
-
-
-        :param status: The status of this DossierClaimItem.  # noqa: E501
-        :type: object
-        """
-        if status is None:
-            raise ValueError("Invalid value for `status`, must not be `None`")  # noqa: E501
-
-        self._status = status
-
-    @property
-    def provenance_class(self):
-        """Gets the provenance_class of this DossierClaimItem.  # noqa: E501
+    @contradiction_count.setter
+    def contradiction_count(self, contradiction_count):
+        """Sets the contradiction_count of this DossierClaimItem.
 
 
-        :return: The provenance_class of this DossierClaimItem.  # noqa: E501
-        :rtype: object
-        """
-        return self._provenance_class
-
-    @provenance_class.setter
-    def provenance_class(self, provenance_class):
-        """Sets the provenance_class of this DossierClaimItem.
-
-
-        :param provenance_class: The provenance_class of this DossierClaimItem.  # noqa: E501
-        :type: object
-        """
-        if provenance_class is None:
-            raise ValueError("Invalid value for `provenance_class`, must not be `None`")  # noqa: E501
-
-        self._provenance_class = provenance_class
-
-    @property
-    def is_bindable(self):
-        """Gets the is_bindable of this DossierClaimItem.  # noqa: E501
-
-
-        :return: The is_bindable of this DossierClaimItem.  # noqa: E501
-        :rtype: object
-        """
-        return self._is_bindable
-
-    @is_bindable.setter
-    def is_bindable(self, is_bindable):
-        """Sets the is_bindable of this DossierClaimItem.
-
-
-        :param is_bindable: The is_bindable of this DossierClaimItem.  # noqa: E501
-        :type: object
-        """
-        if is_bindable is None:
-            raise ValueError("Invalid value for `is_bindable`, must not be `None`")  # noqa: E501
-
-        self._is_bindable = is_bindable
-
-    @property
-    def is_quarantined(self):
-        """Gets the is_quarantined of this DossierClaimItem.  # noqa: E501
-
-
-        :return: The is_quarantined of this DossierClaimItem.  # noqa: E501
-        :rtype: object
-        """
-        return self._is_quarantined
-
-    @is_quarantined.setter
-    def is_quarantined(self, is_quarantined):
-        """Sets the is_quarantined of this DossierClaimItem.
-
-
-        :param is_quarantined: The is_quarantined of this DossierClaimItem.  # noqa: E501
-        :type: object
-        """
-        if is_quarantined is None:
-            raise ValueError("Invalid value for `is_quarantined`, must not be `None`")  # noqa: E501
-
-        self._is_quarantined = is_quarantined
-
-    @property
-    def quarantine_cause(self):
-        """Gets the quarantine_cause of this DossierClaimItem.  # noqa: E501
-
-
-        :return: The quarantine_cause of this DossierClaimItem.  # noqa: E501
-        :rtype: object
-        """
-        return self._quarantine_cause
-
-    @quarantine_cause.setter
-    def quarantine_cause(self, quarantine_cause):
-        """Sets the quarantine_cause of this DossierClaimItem.
-
-
-        :param quarantine_cause: The quarantine_cause of this DossierClaimItem.  # noqa: E501
+        :param contradiction_count: The contradiction_count of this DossierClaimItem.  # noqa: E501
         :type: object
         """
 
-        self._quarantine_cause = quarantine_cause
-
-    @property
-    def is_release_lapsed(self):
-        """Gets the is_release_lapsed of this DossierClaimItem.  # noqa: E501
-
-
-        :return: The is_release_lapsed of this DossierClaimItem.  # noqa: E501
-        :rtype: object
-        """
-        return self._is_release_lapsed
-
-    @is_release_lapsed.setter
-    def is_release_lapsed(self, is_release_lapsed):
-        """Sets the is_release_lapsed of this DossierClaimItem.
-
-
-        :param is_release_lapsed: The is_release_lapsed of this DossierClaimItem.  # noqa: E501
-        :type: object
-        """
-
-        self._is_release_lapsed = is_release_lapsed
-
-    @property
-    def is_operator_asserted(self):
-        """Gets the is_operator_asserted of this DossierClaimItem.  # noqa: E501
-
-
-        :return: The is_operator_asserted of this DossierClaimItem.  # noqa: E501
-        :rtype: object
-        """
-        return self._is_operator_asserted
-
-    @is_operator_asserted.setter
-    def is_operator_asserted(self, is_operator_asserted):
-        """Sets the is_operator_asserted of this DossierClaimItem.
-
-
-        :param is_operator_asserted: The is_operator_asserted of this DossierClaimItem.  # noqa: E501
-        :type: object
-        """
-        if is_operator_asserted is None:
-            raise ValueError("Invalid value for `is_operator_asserted`, must not be `None`")  # noqa: E501
-
-        self._is_operator_asserted = is_operator_asserted
-
-    @property
-    def attribute_key(self):
-        """Gets the attribute_key of this DossierClaimItem.  # noqa: E501
-
-
-        :return: The attribute_key of this DossierClaimItem.  # noqa: E501
-        :rtype: object
-        """
-        return self._attribute_key
-
-    @attribute_key.setter
-    def attribute_key(self, attribute_key):
-        """Sets the attribute_key of this DossierClaimItem.
-
-
-        :param attribute_key: The attribute_key of this DossierClaimItem.  # noqa: E501
-        :type: object
-        """
-
-        self._attribute_key = attribute_key
-
-    @property
-    def valid_from(self):
-        """Gets the valid_from of this DossierClaimItem.  # noqa: E501
-
-
-        :return: The valid_from of this DossierClaimItem.  # noqa: E501
-        :rtype: object
-        """
-        return self._valid_from
-
-    @valid_from.setter
-    def valid_from(self, valid_from):
-        """Sets the valid_from of this DossierClaimItem.
-
-
-        :param valid_from: The valid_from of this DossierClaimItem.  # noqa: E501
-        :type: object
-        """
-        if valid_from is None:
-            raise ValueError("Invalid value for `valid_from`, must not be `None`")  # noqa: E501
-
-        self._valid_from = valid_from
-
-    @property
-    def valid_until(self):
-        """Gets the valid_until of this DossierClaimItem.  # noqa: E501
-
-
-        :return: The valid_until of this DossierClaimItem.  # noqa: E501
-        :rtype: object
-        """
-        return self._valid_until
-
-    @valid_until.setter
-    def valid_until(self, valid_until):
-        """Sets the valid_until of this DossierClaimItem.
-
-
-        :param valid_until: The valid_until of this DossierClaimItem.  # noqa: E501
-        :type: object
-        """
-
-        self._valid_until = valid_until
-
-    @property
-    def recorded_at(self):
-        """Gets the recorded_at of this DossierClaimItem.  # noqa: E501
-
-
-        :return: The recorded_at of this DossierClaimItem.  # noqa: E501
-        :rtype: object
-        """
-        return self._recorded_at
-
-    @recorded_at.setter
-    def recorded_at(self, recorded_at):
-        """Sets the recorded_at of this DossierClaimItem.
-
-
-        :param recorded_at: The recorded_at of this DossierClaimItem.  # noqa: E501
-        :type: object
-        """
-        if recorded_at is None:
-            raise ValueError("Invalid value for `recorded_at`, must not be `None`")  # noqa: E501
-
-        self._recorded_at = recorded_at
-
-    @property
-    def expired_at(self):
-        """Gets the expired_at of this DossierClaimItem.  # noqa: E501
-
-
-        :return: The expired_at of this DossierClaimItem.  # noqa: E501
-        :rtype: object
-        """
-        return self._expired_at
-
-    @expired_at.setter
-    def expired_at(self, expired_at):
-        """Sets the expired_at of this DossierClaimItem.
-
-
-        :param expired_at: The expired_at of this DossierClaimItem.  # noqa: E501
-        :type: object
-        """
-
-        self._expired_at = expired_at
+        self._contradiction_count = contradiction_count
 
     @property
     def corroboration_count(self):
@@ -455,46 +231,25 @@ class DossierClaimItem(object):
         self._distinct_source_count = distinct_source_count
 
     @property
-    def contradiction_count(self):
-        """Gets the contradiction_count of this DossierClaimItem.  # noqa: E501
+    def expired_at(self):
+        """Gets the expired_at of this DossierClaimItem.  # noqa: E501
 
 
-        :return: The contradiction_count of this DossierClaimItem.  # noqa: E501
+        :return: The expired_at of this DossierClaimItem.  # noqa: E501
         :rtype: object
         """
-        return self._contradiction_count
+        return self._expired_at
 
-    @contradiction_count.setter
-    def contradiction_count(self, contradiction_count):
-        """Sets the contradiction_count of this DossierClaimItem.
+    @expired_at.setter
+    def expired_at(self, expired_at):
+        """Sets the expired_at of this DossierClaimItem.
 
 
-        :param contradiction_count: The contradiction_count of this DossierClaimItem.  # noqa: E501
+        :param expired_at: The expired_at of this DossierClaimItem.  # noqa: E501
         :type: object
         """
 
-        self._contradiction_count = contradiction_count
-
-    @property
-    def human_attested_by(self):
-        """Gets the human_attested_by of this DossierClaimItem.  # noqa: E501
-
-
-        :return: The human_attested_by of this DossierClaimItem.  # noqa: E501
-        :rtype: object
-        """
-        return self._human_attested_by
-
-    @human_attested_by.setter
-    def human_attested_by(self, human_attested_by):
-        """Sets the human_attested_by of this DossierClaimItem.
-
-
-        :param human_attested_by: The human_attested_by of this DossierClaimItem.  # noqa: E501
-        :type: object
-        """
-
-        self._human_attested_by = human_attested_by
+        self._expired_at = expired_at
 
     @property
     def human_attested_at(self):
@@ -518,6 +273,184 @@ class DossierClaimItem(object):
         self._human_attested_at = human_attested_at
 
     @property
+    def human_attested_by(self):
+        """Gets the human_attested_by of this DossierClaimItem.  # noqa: E501
+
+
+        :return: The human_attested_by of this DossierClaimItem.  # noqa: E501
+        :rtype: object
+        """
+        return self._human_attested_by
+
+    @human_attested_by.setter
+    def human_attested_by(self, human_attested_by):
+        """Sets the human_attested_by of this DossierClaimItem.
+
+
+        :param human_attested_by: The human_attested_by of this DossierClaimItem.  # noqa: E501
+        :type: object
+        """
+
+        self._human_attested_by = human_attested_by
+
+    @property
+    def is_bindable(self):
+        """Gets the is_bindable of this DossierClaimItem.  # noqa: E501
+
+
+        :return: The is_bindable of this DossierClaimItem.  # noqa: E501
+        :rtype: object
+        """
+        return self._is_bindable
+
+    @is_bindable.setter
+    def is_bindable(self, is_bindable):
+        """Sets the is_bindable of this DossierClaimItem.
+
+
+        :param is_bindable: The is_bindable of this DossierClaimItem.  # noqa: E501
+        :type: object
+        """
+        if is_bindable is None:
+            raise ValueError("Invalid value for `is_bindable`, must not be `None`")  # noqa: E501
+
+        self._is_bindable = is_bindable
+
+    @property
+    def is_operator_asserted(self):
+        """Gets the is_operator_asserted of this DossierClaimItem.  # noqa: E501
+
+
+        :return: The is_operator_asserted of this DossierClaimItem.  # noqa: E501
+        :rtype: object
+        """
+        return self._is_operator_asserted
+
+    @is_operator_asserted.setter
+    def is_operator_asserted(self, is_operator_asserted):
+        """Sets the is_operator_asserted of this DossierClaimItem.
+
+
+        :param is_operator_asserted: The is_operator_asserted of this DossierClaimItem.  # noqa: E501
+        :type: object
+        """
+        if is_operator_asserted is None:
+            raise ValueError("Invalid value for `is_operator_asserted`, must not be `None`")  # noqa: E501
+
+        self._is_operator_asserted = is_operator_asserted
+
+    @property
+    def is_quarantined(self):
+        """Gets the is_quarantined of this DossierClaimItem.  # noqa: E501
+
+
+        :return: The is_quarantined of this DossierClaimItem.  # noqa: E501
+        :rtype: object
+        """
+        return self._is_quarantined
+
+    @is_quarantined.setter
+    def is_quarantined(self, is_quarantined):
+        """Sets the is_quarantined of this DossierClaimItem.
+
+
+        :param is_quarantined: The is_quarantined of this DossierClaimItem.  # noqa: E501
+        :type: object
+        """
+        if is_quarantined is None:
+            raise ValueError("Invalid value for `is_quarantined`, must not be `None`")  # noqa: E501
+
+        self._is_quarantined = is_quarantined
+
+    @property
+    def is_release_lapsed(self):
+        """Gets the is_release_lapsed of this DossierClaimItem.  # noqa: E501
+
+
+        :return: The is_release_lapsed of this DossierClaimItem.  # noqa: E501
+        :rtype: object
+        """
+        return self._is_release_lapsed
+
+    @is_release_lapsed.setter
+    def is_release_lapsed(self, is_release_lapsed):
+        """Sets the is_release_lapsed of this DossierClaimItem.
+
+
+        :param is_release_lapsed: The is_release_lapsed of this DossierClaimItem.  # noqa: E501
+        :type: object
+        """
+
+        self._is_release_lapsed = is_release_lapsed
+
+    @property
+    def provenance_class(self):
+        """Gets the provenance_class of this DossierClaimItem.  # noqa: E501
+
+
+        :return: The provenance_class of this DossierClaimItem.  # noqa: E501
+        :rtype: object
+        """
+        return self._provenance_class
+
+    @provenance_class.setter
+    def provenance_class(self, provenance_class):
+        """Sets the provenance_class of this DossierClaimItem.
+
+
+        :param provenance_class: The provenance_class of this DossierClaimItem.  # noqa: E501
+        :type: object
+        """
+        if provenance_class is None:
+            raise ValueError("Invalid value for `provenance_class`, must not be `None`")  # noqa: E501
+
+        self._provenance_class = provenance_class
+
+    @property
+    def quarantine_cause(self):
+        """Gets the quarantine_cause of this DossierClaimItem.  # noqa: E501
+
+
+        :return: The quarantine_cause of this DossierClaimItem.  # noqa: E501
+        :rtype: object
+        """
+        return self._quarantine_cause
+
+    @quarantine_cause.setter
+    def quarantine_cause(self, quarantine_cause):
+        """Sets the quarantine_cause of this DossierClaimItem.
+
+
+        :param quarantine_cause: The quarantine_cause of this DossierClaimItem.  # noqa: E501
+        :type: object
+        """
+
+        self._quarantine_cause = quarantine_cause
+
+    @property
+    def recorded_at(self):
+        """Gets the recorded_at of this DossierClaimItem.  # noqa: E501
+
+
+        :return: The recorded_at of this DossierClaimItem.  # noqa: E501
+        :rtype: object
+        """
+        return self._recorded_at
+
+    @recorded_at.setter
+    def recorded_at(self, recorded_at):
+        """Sets the recorded_at of this DossierClaimItem.
+
+
+        :param recorded_at: The recorded_at of this DossierClaimItem.  # noqa: E501
+        :type: object
+        """
+        if recorded_at is None:
+            raise ValueError("Invalid value for `recorded_at`, must not be `None`")  # noqa: E501
+
+        self._recorded_at = recorded_at
+
+    @property
     def statement(self):
         """Gets the statement of this DossierClaimItem.  # noqa: E501
 
@@ -539,6 +472,73 @@ class DossierClaimItem(object):
             raise ValueError("Invalid value for `statement`, must not be `None`")  # noqa: E501
 
         self._statement = statement
+
+    @property
+    def status(self):
+        """Gets the status of this DossierClaimItem.  # noqa: E501
+
+
+        :return: The status of this DossierClaimItem.  # noqa: E501
+        :rtype: object
+        """
+        return self._status
+
+    @status.setter
+    def status(self, status):
+        """Sets the status of this DossierClaimItem.
+
+
+        :param status: The status of this DossierClaimItem.  # noqa: E501
+        :type: object
+        """
+        if status is None:
+            raise ValueError("Invalid value for `status`, must not be `None`")  # noqa: E501
+
+        self._status = status
+
+    @property
+    def valid_from(self):
+        """Gets the valid_from of this DossierClaimItem.  # noqa: E501
+
+
+        :return: The valid_from of this DossierClaimItem.  # noqa: E501
+        :rtype: object
+        """
+        return self._valid_from
+
+    @valid_from.setter
+    def valid_from(self, valid_from):
+        """Sets the valid_from of this DossierClaimItem.
+
+
+        :param valid_from: The valid_from of this DossierClaimItem.  # noqa: E501
+        :type: object
+        """
+        if valid_from is None:
+            raise ValueError("Invalid value for `valid_from`, must not be `None`")  # noqa: E501
+
+        self._valid_from = valid_from
+
+    @property
+    def valid_until(self):
+        """Gets the valid_until of this DossierClaimItem.  # noqa: E501
+
+
+        :return: The valid_until of this DossierClaimItem.  # noqa: E501
+        :rtype: object
+        """
+        return self._valid_until
+
+    @valid_until.setter
+    def valid_until(self, valid_until):
+        """Sets the valid_until of this DossierClaimItem.
+
+
+        :param valid_until: The valid_until of this DossierClaimItem.  # noqa: E501
+        :type: object
+        """
+
+        self._valid_until = valid_until
 
     def to_dict(self):
         """Returns the model properties as a dict"""

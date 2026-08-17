@@ -29,38 +29,38 @@ class DeclineRequest(object):
     """
     swagger_types = {
         'agent_name': 'object',
-        'org_id': 'object',
-        'run_id': 'object',
-        'reason': 'DeclineReason',
         'is_delivered': 'object',
+        'org_id': 'object',
+        'reason': 'DeclineReason',
+        'run_id': 'object',
         'source_framework': 'object'
     }
 
     attribute_map = {
         'agent_name': 'agent_name',
-        'org_id': 'org_id',
-        'run_id': 'run_id',
-        'reason': 'reason',
         'is_delivered': 'is_delivered',
+        'org_id': 'org_id',
+        'reason': 'reason',
+        'run_id': 'run_id',
         'source_framework': 'source_framework'
     }
 
-    def __init__(self, agent_name=None, org_id=None, run_id=None, reason=None, is_delivered=None, source_framework=None):  # noqa: E501
+    def __init__(self, agent_name=None, is_delivered=None, org_id=None, reason=None, run_id=None, source_framework=None):  # noqa: E501
         """DeclineRequest - a model defined in Swagger"""  # noqa: E501
         self._agent_name = None
-        self._org_id = None
-        self._run_id = None
-        self._reason = None
         self._is_delivered = None
+        self._org_id = None
+        self._reason = None
+        self._run_id = None
         self._source_framework = None
         self.discriminator = None
         self.agent_name = agent_name
-        if org_id is not None:
-            self.org_id = org_id
-        self.run_id = run_id
-        self.reason = reason
         if is_delivered is not None:
             self.is_delivered = is_delivered
+        if org_id is not None:
+            self.org_id = org_id
+        self.reason = reason
+        self.run_id = run_id
         if source_framework is not None:
             self.source_framework = source_framework
 
@@ -90,6 +90,29 @@ class DeclineRequest(object):
         self._agent_name = agent_name
 
     @property
+    def is_delivered(self):
+        """Gets the is_delivered of this DeclineRequest.  # noqa: E501
+
+        Whether the recall was actually delivered to the model this turn. A turn can receive the injection and still decline, so this decides whether the resolve is billed or released: the caller is charged for recall it received, never for recall it never saw.  # noqa: E501
+
+        :return: The is_delivered of this DeclineRequest.  # noqa: E501
+        :rtype: object
+        """
+        return self._is_delivered
+
+    @is_delivered.setter
+    def is_delivered(self, is_delivered):
+        """Sets the is_delivered of this DeclineRequest.
+
+        Whether the recall was actually delivered to the model this turn. A turn can receive the injection and still decline, so this decides whether the resolve is billed or released: the caller is charged for recall it received, never for recall it never saw.  # noqa: E501
+
+        :param is_delivered: The is_delivered of this DeclineRequest.  # noqa: E501
+        :type: object
+        """
+
+        self._is_delivered = is_delivered
+
+    @property
     def org_id(self):
         """Gets the org_id of this DeclineRequest.  # noqa: E501
 
@@ -111,31 +134,6 @@ class DeclineRequest(object):
         """
 
         self._org_id = org_id
-
-    @property
-    def run_id(self):
-        """Gets the run_id of this DeclineRequest.  # noqa: E501
-
-        The caller-owned `run_id` supplied to resolve; it must not start with `distill:`, which is reserved for distillation jobs.  # noqa: E501
-
-        :return: The run_id of this DeclineRequest.  # noqa: E501
-        :rtype: object
-        """
-        return self._run_id
-
-    @run_id.setter
-    def run_id(self, run_id):
-        """Sets the run_id of this DeclineRequest.
-
-        The caller-owned `run_id` supplied to resolve; it must not start with `distill:`, which is reserved for distillation jobs.  # noqa: E501
-
-        :param run_id: The run_id of this DeclineRequest.  # noqa: E501
-        :type: object
-        """
-        if run_id is None:
-            raise ValueError("Invalid value for `run_id`, must not be `None`")  # noqa: E501
-
-        self._run_id = run_id
 
     @property
     def reason(self):
@@ -163,27 +161,29 @@ class DeclineRequest(object):
         self._reason = reason
 
     @property
-    def is_delivered(self):
-        """Gets the is_delivered of this DeclineRequest.  # noqa: E501
+    def run_id(self):
+        """Gets the run_id of this DeclineRequest.  # noqa: E501
 
-        Whether the recall was actually delivered to the model this turn. A turn can receive the injection and still decline, so this decides whether the resolve is billed or released: the caller is charged for recall it received, never for recall it never saw.  # noqa: E501
+        The caller-owned `run_id` supplied to resolve; it must not start with `distill:`, which is reserved for distillation jobs.  # noqa: E501
 
-        :return: The is_delivered of this DeclineRequest.  # noqa: E501
+        :return: The run_id of this DeclineRequest.  # noqa: E501
         :rtype: object
         """
-        return self._is_delivered
+        return self._run_id
 
-    @is_delivered.setter
-    def is_delivered(self, is_delivered):
-        """Sets the is_delivered of this DeclineRequest.
+    @run_id.setter
+    def run_id(self, run_id):
+        """Sets the run_id of this DeclineRequest.
 
-        Whether the recall was actually delivered to the model this turn. A turn can receive the injection and still decline, so this decides whether the resolve is billed or released: the caller is charged for recall it received, never for recall it never saw.  # noqa: E501
+        The caller-owned `run_id` supplied to resolve; it must not start with `distill:`, which is reserved for distillation jobs.  # noqa: E501
 
-        :param is_delivered: The is_delivered of this DeclineRequest.  # noqa: E501
+        :param run_id: The run_id of this DeclineRequest.  # noqa: E501
         :type: object
         """
+        if run_id is None:
+            raise ValueError("Invalid value for `run_id`, must not be `None`")  # noqa: E501
 
-        self._is_delivered = is_delivered
+        self._run_id = run_id
 
     @property
     def source_framework(self):

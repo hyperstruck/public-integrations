@@ -28,234 +28,67 @@ class BillingSummaryResponse(object):
                             and the value is json key in definition.
     """
     swagger_types = {
-        'plan_code': 'object',
-        'window_kind': 'BillingWindowKind',
-        'period_start': 'object',
-        'period_end_exclusive': 'object',
-        'hard_limit_usd': 'object',
-        'soft_limit_usd': 'object',
-        'current_spend_usd': 'object',
         'active_reservations_usd': 'object',
-        'committed_usd': 'object',
         'available_usd': 'object',
+        'committed_usd': 'object',
+        'current_spend_usd': 'object',
+        'hard_limit_usd': 'object',
         'percent_used': 'object',
-        'status': 'BillingSummaryStatus'
+        'period_end_exclusive': 'object',
+        'period_start': 'object',
+        'plan_code': 'object',
+        'soft_limit_usd': 'object',
+        'status': 'BillingSummaryStatus',
+        'window_kind': 'BillingWindowKind'
     }
 
     attribute_map = {
-        'plan_code': 'plan_code',
-        'window_kind': 'window_kind',
-        'period_start': 'period_start',
-        'period_end_exclusive': 'period_end_exclusive',
-        'hard_limit_usd': 'hard_limit_usd',
-        'soft_limit_usd': 'soft_limit_usd',
-        'current_spend_usd': 'current_spend_usd',
         'active_reservations_usd': 'active_reservations_usd',
-        'committed_usd': 'committed_usd',
         'available_usd': 'available_usd',
+        'committed_usd': 'committed_usd',
+        'current_spend_usd': 'current_spend_usd',
+        'hard_limit_usd': 'hard_limit_usd',
         'percent_used': 'percent_used',
-        'status': 'status'
+        'period_end_exclusive': 'period_end_exclusive',
+        'period_start': 'period_start',
+        'plan_code': 'plan_code',
+        'soft_limit_usd': 'soft_limit_usd',
+        'status': 'status',
+        'window_kind': 'window_kind'
     }
 
-    def __init__(self, plan_code=None, window_kind=None, period_start=None, period_end_exclusive=None, hard_limit_usd=None, soft_limit_usd=None, current_spend_usd=None, active_reservations_usd=None, committed_usd=None, available_usd=None, percent_used=None, status=None):  # noqa: E501
+    def __init__(self, active_reservations_usd=None, available_usd=None, committed_usd=None, current_spend_usd=None, hard_limit_usd=None, percent_used=None, period_end_exclusive=None, period_start=None, plan_code=None, soft_limit_usd=None, status=None, window_kind=None):  # noqa: E501
         """BillingSummaryResponse - a model defined in Swagger"""  # noqa: E501
-        self._plan_code = None
-        self._window_kind = None
-        self._period_start = None
-        self._period_end_exclusive = None
-        self._hard_limit_usd = None
-        self._soft_limit_usd = None
-        self._current_spend_usd = None
         self._active_reservations_usd = None
-        self._committed_usd = None
         self._available_usd = None
+        self._committed_usd = None
+        self._current_spend_usd = None
+        self._hard_limit_usd = None
         self._percent_used = None
+        self._period_end_exclusive = None
+        self._period_start = None
+        self._plan_code = None
+        self._soft_limit_usd = None
         self._status = None
+        self._window_kind = None
         self.discriminator = None
-        if plan_code is not None:
-            self.plan_code = plan_code
-        self.window_kind = window_kind
-        self.period_start = period_start
-        self.period_end_exclusive = period_end_exclusive
-        if hard_limit_usd is not None:
-            self.hard_limit_usd = hard_limit_usd
-        if soft_limit_usd is not None:
-            self.soft_limit_usd = soft_limit_usd
-        self.current_spend_usd = current_spend_usd
         self.active_reservations_usd = active_reservations_usd
-        self.committed_usd = committed_usd
         if available_usd is not None:
             self.available_usd = available_usd
+        self.committed_usd = committed_usd
+        self.current_spend_usd = current_spend_usd
+        if hard_limit_usd is not None:
+            self.hard_limit_usd = hard_limit_usd
         if percent_used is not None:
             self.percent_used = percent_used
+        self.period_end_exclusive = period_end_exclusive
+        self.period_start = period_start
+        if plan_code is not None:
+            self.plan_code = plan_code
+        if soft_limit_usd is not None:
+            self.soft_limit_usd = soft_limit_usd
         self.status = status
-
-    @property
-    def plan_code(self):
-        """Gets the plan_code of this BillingSummaryResponse.  # noqa: E501
-
-        Tenant plan code from the authenticated principal.  # noqa: E501
-
-        :return: The plan_code of this BillingSummaryResponse.  # noqa: E501
-        :rtype: object
-        """
-        return self._plan_code
-
-    @plan_code.setter
-    def plan_code(self, plan_code):
-        """Sets the plan_code of this BillingSummaryResponse.
-
-        Tenant plan code from the authenticated principal.  # noqa: E501
-
-        :param plan_code: The plan_code of this BillingSummaryResponse.  # noqa: E501
-        :type: object
-        """
-
-        self._plan_code = plan_code
-
-    @property
-    def window_kind(self):
-        """Gets the window_kind of this BillingSummaryResponse.  # noqa: E501
-
-
-        :return: The window_kind of this BillingSummaryResponse.  # noqa: E501
-        :rtype: BillingWindowKind
-        """
-        return self._window_kind
-
-    @window_kind.setter
-    def window_kind(self, window_kind):
-        """Sets the window_kind of this BillingSummaryResponse.
-
-
-        :param window_kind: The window_kind of this BillingSummaryResponse.  # noqa: E501
-        :type: BillingWindowKind
-        """
-        if window_kind is None:
-            raise ValueError("Invalid value for `window_kind`, must not be `None`")  # noqa: E501
-
-        self._window_kind = window_kind
-
-    @property
-    def period_start(self):
-        """Gets the period_start of this BillingSummaryResponse.  # noqa: E501
-
-        Inclusive UTC billing window start.  # noqa: E501
-
-        :return: The period_start of this BillingSummaryResponse.  # noqa: E501
-        :rtype: object
-        """
-        return self._period_start
-
-    @period_start.setter
-    def period_start(self, period_start):
-        """Sets the period_start of this BillingSummaryResponse.
-
-        Inclusive UTC billing window start.  # noqa: E501
-
-        :param period_start: The period_start of this BillingSummaryResponse.  # noqa: E501
-        :type: object
-        """
-        if period_start is None:
-            raise ValueError("Invalid value for `period_start`, must not be `None`")  # noqa: E501
-
-        self._period_start = period_start
-
-    @property
-    def period_end_exclusive(self):
-        """Gets the period_end_exclusive of this BillingSummaryResponse.  # noqa: E501
-
-        Exclusive UTC billing window end.  # noqa: E501
-
-        :return: The period_end_exclusive of this BillingSummaryResponse.  # noqa: E501
-        :rtype: object
-        """
-        return self._period_end_exclusive
-
-    @period_end_exclusive.setter
-    def period_end_exclusive(self, period_end_exclusive):
-        """Sets the period_end_exclusive of this BillingSummaryResponse.
-
-        Exclusive UTC billing window end.  # noqa: E501
-
-        :param period_end_exclusive: The period_end_exclusive of this BillingSummaryResponse.  # noqa: E501
-        :type: object
-        """
-        if period_end_exclusive is None:
-            raise ValueError("Invalid value for `period_end_exclusive`, must not be `None`")  # noqa: E501
-
-        self._period_end_exclusive = period_end_exclusive
-
-    @property
-    def hard_limit_usd(self):
-        """Gets the hard_limit_usd of this BillingSummaryResponse.  # noqa: E501
-
-        Configured hard spend cap; null when unlimited.  # noqa: E501
-
-        :return: The hard_limit_usd of this BillingSummaryResponse.  # noqa: E501
-        :rtype: object
-        """
-        return self._hard_limit_usd
-
-    @hard_limit_usd.setter
-    def hard_limit_usd(self, hard_limit_usd):
-        """Sets the hard_limit_usd of this BillingSummaryResponse.
-
-        Configured hard spend cap; null when unlimited.  # noqa: E501
-
-        :param hard_limit_usd: The hard_limit_usd of this BillingSummaryResponse.  # noqa: E501
-        :type: object
-        """
-
-        self._hard_limit_usd = hard_limit_usd
-
-    @property
-    def soft_limit_usd(self):
-        """Gets the soft_limit_usd of this BillingSummaryResponse.  # noqa: E501
-
-        Configured soft spend cap; null when unset or unlimited.  # noqa: E501
-
-        :return: The soft_limit_usd of this BillingSummaryResponse.  # noqa: E501
-        :rtype: object
-        """
-        return self._soft_limit_usd
-
-    @soft_limit_usd.setter
-    def soft_limit_usd(self, soft_limit_usd):
-        """Sets the soft_limit_usd of this BillingSummaryResponse.
-
-        Configured soft spend cap; null when unset or unlimited.  # noqa: E501
-
-        :param soft_limit_usd: The soft_limit_usd of this BillingSummaryResponse.  # noqa: E501
-        :type: object
-        """
-
-        self._soft_limit_usd = soft_limit_usd
-
-    @property
-    def current_spend_usd(self):
-        """Gets the current_spend_usd of this BillingSummaryResponse.  # noqa: E501
-
-        Terminal billed spend in the window (runs + used learning holds).  # noqa: E501
-
-        :return: The current_spend_usd of this BillingSummaryResponse.  # noqa: E501
-        :rtype: object
-        """
-        return self._current_spend_usd
-
-    @current_spend_usd.setter
-    def current_spend_usd(self, current_spend_usd):
-        """Sets the current_spend_usd of this BillingSummaryResponse.
-
-        Terminal billed spend in the window (runs + used learning holds).  # noqa: E501
-
-        :param current_spend_usd: The current_spend_usd of this BillingSummaryResponse.  # noqa: E501
-        :type: object
-        """
-        if current_spend_usd is None:
-            raise ValueError("Invalid value for `current_spend_usd`, must not be `None`")  # noqa: E501
-
-        self._current_spend_usd = current_spend_usd
+        self.window_kind = window_kind
 
     @property
     def active_reservations_usd(self):
@@ -283,6 +116,29 @@ class BillingSummaryResponse(object):
         self._active_reservations_usd = active_reservations_usd
 
     @property
+    def available_usd(self):
+        """Gets the available_usd of this BillingSummaryResponse.  # noqa: E501
+
+        hard_limit_usd - committed_usd; null when unlimited.  # noqa: E501
+
+        :return: The available_usd of this BillingSummaryResponse.  # noqa: E501
+        :rtype: object
+        """
+        return self._available_usd
+
+    @available_usd.setter
+    def available_usd(self, available_usd):
+        """Sets the available_usd of this BillingSummaryResponse.
+
+        hard_limit_usd - committed_usd; null when unlimited.  # noqa: E501
+
+        :param available_usd: The available_usd of this BillingSummaryResponse.  # noqa: E501
+        :type: object
+        """
+
+        self._available_usd = available_usd
+
+    @property
     def committed_usd(self):
         """Gets the committed_usd of this BillingSummaryResponse.  # noqa: E501
 
@@ -308,27 +164,52 @@ class BillingSummaryResponse(object):
         self._committed_usd = committed_usd
 
     @property
-    def available_usd(self):
-        """Gets the available_usd of this BillingSummaryResponse.  # noqa: E501
+    def current_spend_usd(self):
+        """Gets the current_spend_usd of this BillingSummaryResponse.  # noqa: E501
 
-        hard_limit_usd - committed_usd; null when unlimited.  # noqa: E501
+        Terminal billed spend in the window (runs + used learning holds).  # noqa: E501
 
-        :return: The available_usd of this BillingSummaryResponse.  # noqa: E501
+        :return: The current_spend_usd of this BillingSummaryResponse.  # noqa: E501
         :rtype: object
         """
-        return self._available_usd
+        return self._current_spend_usd
 
-    @available_usd.setter
-    def available_usd(self, available_usd):
-        """Sets the available_usd of this BillingSummaryResponse.
+    @current_spend_usd.setter
+    def current_spend_usd(self, current_spend_usd):
+        """Sets the current_spend_usd of this BillingSummaryResponse.
 
-        hard_limit_usd - committed_usd; null when unlimited.  # noqa: E501
+        Terminal billed spend in the window (runs + used learning holds).  # noqa: E501
 
-        :param available_usd: The available_usd of this BillingSummaryResponse.  # noqa: E501
+        :param current_spend_usd: The current_spend_usd of this BillingSummaryResponse.  # noqa: E501
+        :type: object
+        """
+        if current_spend_usd is None:
+            raise ValueError("Invalid value for `current_spend_usd`, must not be `None`")  # noqa: E501
+
+        self._current_spend_usd = current_spend_usd
+
+    @property
+    def hard_limit_usd(self):
+        """Gets the hard_limit_usd of this BillingSummaryResponse.  # noqa: E501
+
+        Configured hard spend cap; null when unlimited.  # noqa: E501
+
+        :return: The hard_limit_usd of this BillingSummaryResponse.  # noqa: E501
+        :rtype: object
+        """
+        return self._hard_limit_usd
+
+    @hard_limit_usd.setter
+    def hard_limit_usd(self, hard_limit_usd):
+        """Sets the hard_limit_usd of this BillingSummaryResponse.
+
+        Configured hard spend cap; null when unlimited.  # noqa: E501
+
+        :param hard_limit_usd: The hard_limit_usd of this BillingSummaryResponse.  # noqa: E501
         :type: object
         """
 
-        self._available_usd = available_usd
+        self._hard_limit_usd = hard_limit_usd
 
     @property
     def percent_used(self):
@@ -354,6 +235,102 @@ class BillingSummaryResponse(object):
         self._percent_used = percent_used
 
     @property
+    def period_end_exclusive(self):
+        """Gets the period_end_exclusive of this BillingSummaryResponse.  # noqa: E501
+
+        Exclusive UTC billing window end.  # noqa: E501
+
+        :return: The period_end_exclusive of this BillingSummaryResponse.  # noqa: E501
+        :rtype: object
+        """
+        return self._period_end_exclusive
+
+    @period_end_exclusive.setter
+    def period_end_exclusive(self, period_end_exclusive):
+        """Sets the period_end_exclusive of this BillingSummaryResponse.
+
+        Exclusive UTC billing window end.  # noqa: E501
+
+        :param period_end_exclusive: The period_end_exclusive of this BillingSummaryResponse.  # noqa: E501
+        :type: object
+        """
+        if period_end_exclusive is None:
+            raise ValueError("Invalid value for `period_end_exclusive`, must not be `None`")  # noqa: E501
+
+        self._period_end_exclusive = period_end_exclusive
+
+    @property
+    def period_start(self):
+        """Gets the period_start of this BillingSummaryResponse.  # noqa: E501
+
+        Inclusive UTC billing window start.  # noqa: E501
+
+        :return: The period_start of this BillingSummaryResponse.  # noqa: E501
+        :rtype: object
+        """
+        return self._period_start
+
+    @period_start.setter
+    def period_start(self, period_start):
+        """Sets the period_start of this BillingSummaryResponse.
+
+        Inclusive UTC billing window start.  # noqa: E501
+
+        :param period_start: The period_start of this BillingSummaryResponse.  # noqa: E501
+        :type: object
+        """
+        if period_start is None:
+            raise ValueError("Invalid value for `period_start`, must not be `None`")  # noqa: E501
+
+        self._period_start = period_start
+
+    @property
+    def plan_code(self):
+        """Gets the plan_code of this BillingSummaryResponse.  # noqa: E501
+
+        Tenant plan code from the authenticated principal.  # noqa: E501
+
+        :return: The plan_code of this BillingSummaryResponse.  # noqa: E501
+        :rtype: object
+        """
+        return self._plan_code
+
+    @plan_code.setter
+    def plan_code(self, plan_code):
+        """Sets the plan_code of this BillingSummaryResponse.
+
+        Tenant plan code from the authenticated principal.  # noqa: E501
+
+        :param plan_code: The plan_code of this BillingSummaryResponse.  # noqa: E501
+        :type: object
+        """
+
+        self._plan_code = plan_code
+
+    @property
+    def soft_limit_usd(self):
+        """Gets the soft_limit_usd of this BillingSummaryResponse.  # noqa: E501
+
+        Configured soft spend cap; null when unset or unlimited.  # noqa: E501
+
+        :return: The soft_limit_usd of this BillingSummaryResponse.  # noqa: E501
+        :rtype: object
+        """
+        return self._soft_limit_usd
+
+    @soft_limit_usd.setter
+    def soft_limit_usd(self, soft_limit_usd):
+        """Sets the soft_limit_usd of this BillingSummaryResponse.
+
+        Configured soft spend cap; null when unset or unlimited.  # noqa: E501
+
+        :param soft_limit_usd: The soft_limit_usd of this BillingSummaryResponse.  # noqa: E501
+        :type: object
+        """
+
+        self._soft_limit_usd = soft_limit_usd
+
+    @property
     def status(self):
         """Gets the status of this BillingSummaryResponse.  # noqa: E501
 
@@ -375,6 +352,29 @@ class BillingSummaryResponse(object):
             raise ValueError("Invalid value for `status`, must not be `None`")  # noqa: E501
 
         self._status = status
+
+    @property
+    def window_kind(self):
+        """Gets the window_kind of this BillingSummaryResponse.  # noqa: E501
+
+
+        :return: The window_kind of this BillingSummaryResponse.  # noqa: E501
+        :rtype: BillingWindowKind
+        """
+        return self._window_kind
+
+    @window_kind.setter
+    def window_kind(self, window_kind):
+        """Sets the window_kind of this BillingSummaryResponse.
+
+
+        :param window_kind: The window_kind of this BillingSummaryResponse.  # noqa: E501
+        :type: BillingWindowKind
+        """
+        if window_kind is None:
+            raise ValueError("Invalid value for `window_kind`, must not be `None`")  # noqa: E501
+
+        self._window_kind = window_kind
 
     def to_dict(self):
         """Returns the model properties as a dict"""

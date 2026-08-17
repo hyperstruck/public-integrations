@@ -28,36 +28,78 @@ class ValidationError(object):
                             and the value is json key in definition.
     """
     swagger_types = {
+        'ctx': 'object',
+        'input': 'object',
         'loc': 'object',
         'msg': 'object',
-        'type': 'object',
-        'input': 'object',
-        'ctx': 'object'
+        'type': 'object'
     }
 
     attribute_map = {
+        'ctx': 'ctx',
+        'input': 'input',
         'loc': 'loc',
         'msg': 'msg',
-        'type': 'type',
-        'input': 'input',
-        'ctx': 'ctx'
+        'type': 'type'
     }
 
-    def __init__(self, loc=None, msg=None, type=None, input=None, ctx=None):  # noqa: E501
+    def __init__(self, ctx=None, input=None, loc=None, msg=None, type=None):  # noqa: E501
         """ValidationError - a model defined in Swagger"""  # noqa: E501
+        self._ctx = None
+        self._input = None
         self._loc = None
         self._msg = None
         self._type = None
-        self._input = None
-        self._ctx = None
         self.discriminator = None
+        if ctx is not None:
+            self.ctx = ctx
+        if input is not None:
+            self.input = input
         self.loc = loc
         self.msg = msg
         self.type = type
-        if input is not None:
-            self.input = input
-        if ctx is not None:
-            self.ctx = ctx
+
+    @property
+    def ctx(self):
+        """Gets the ctx of this ValidationError.  # noqa: E501
+
+
+        :return: The ctx of this ValidationError.  # noqa: E501
+        :rtype: object
+        """
+        return self._ctx
+
+    @ctx.setter
+    def ctx(self, ctx):
+        """Sets the ctx of this ValidationError.
+
+
+        :param ctx: The ctx of this ValidationError.  # noqa: E501
+        :type: object
+        """
+
+        self._ctx = ctx
+
+    @property
+    def input(self):
+        """Gets the input of this ValidationError.  # noqa: E501
+
+
+        :return: The input of this ValidationError.  # noqa: E501
+        :rtype: object
+        """
+        return self._input
+
+    @input.setter
+    def input(self, input):
+        """Sets the input of this ValidationError.
+
+
+        :param input: The input of this ValidationError.  # noqa: E501
+        :type: object
+        """
+
+        self._input = input
 
     @property
     def loc(self):
@@ -127,48 +169,6 @@ class ValidationError(object):
             raise ValueError("Invalid value for `type`, must not be `None`")  # noqa: E501
 
         self._type = type
-
-    @property
-    def input(self):
-        """Gets the input of this ValidationError.  # noqa: E501
-
-
-        :return: The input of this ValidationError.  # noqa: E501
-        :rtype: object
-        """
-        return self._input
-
-    @input.setter
-    def input(self, input):
-        """Sets the input of this ValidationError.
-
-
-        :param input: The input of this ValidationError.  # noqa: E501
-        :type: object
-        """
-
-        self._input = input
-
-    @property
-    def ctx(self):
-        """Gets the ctx of this ValidationError.  # noqa: E501
-
-
-        :return: The ctx of this ValidationError.  # noqa: E501
-        :rtype: object
-        """
-        return self._ctx
-
-    @ctx.setter
-    def ctx(self, ctx):
-        """Sets the ctx of this ValidationError.
-
-
-        :param ctx: The ctx of this ValidationError.  # noqa: E501
-        :type: object
-        """
-
-        self._ctx = ctx
 
     def to_dict(self):
         """Returns the model properties as a dict"""

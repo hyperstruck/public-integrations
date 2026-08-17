@@ -28,65 +28,155 @@ class DashboardResponse(object):
                             and the value is json key in definition.
     """
     swagger_types = {
+        'columns': 'object',
+        'created_at': 'object',
+        'created_by': 'object',
+        'description': 'object',
         'id': 'object',
+        'items': 'object',
+        'schema_version': 'object',
         'space_id': 'object',
         'title': 'object',
-        'description': 'object',
-        'columns': 'object',
-        'window_preset': 'UsageTimeWindow',
-        'schema_version': 'object',
-        'created_by': 'object',
-        'updated_by': 'object',
-        'created_at': 'object',
         'updated_at': 'object',
-        'items': 'object'
+        'updated_by': 'object',
+        'window_preset': 'UsageTimeWindow'
     }
 
     attribute_map = {
+        'columns': 'columns',
+        'created_at': 'created_at',
+        'created_by': 'created_by',
+        'description': 'description',
         'id': 'id',
+        'items': 'items',
+        'schema_version': 'schema_version',
         'space_id': 'space_id',
         'title': 'title',
-        'description': 'description',
-        'columns': 'columns',
-        'window_preset': 'window_preset',
-        'schema_version': 'schema_version',
-        'created_by': 'created_by',
-        'updated_by': 'updated_by',
-        'created_at': 'created_at',
         'updated_at': 'updated_at',
-        'items': 'items'
+        'updated_by': 'updated_by',
+        'window_preset': 'window_preset'
     }
 
-    def __init__(self, id=None, space_id=None, title=None, description=None, columns=None, window_preset=None, schema_version=None, created_by=None, updated_by=None, created_at=None, updated_at=None, items=None):  # noqa: E501
+    def __init__(self, columns=None, created_at=None, created_by=None, description=None, id=None, items=None, schema_version=None, space_id=None, title=None, updated_at=None, updated_by=None, window_preset=None):  # noqa: E501
         """DashboardResponse - a model defined in Swagger"""  # noqa: E501
+        self._columns = None
+        self._created_at = None
+        self._created_by = None
+        self._description = None
         self._id = None
+        self._items = None
+        self._schema_version = None
         self._space_id = None
         self._title = None
-        self._description = None
-        self._columns = None
-        self._window_preset = None
-        self._schema_version = None
-        self._created_by = None
-        self._updated_by = None
-        self._created_at = None
         self._updated_at = None
-        self._items = None
+        self._updated_by = None
+        self._window_preset = None
         self.discriminator = None
-        self.id = id
-        self.space_id = space_id
-        self.title = title
-        self.description = description
         self.columns = columns
-        self.window_preset = window_preset
-        self.schema_version = schema_version
+        self.created_at = created_at
         if created_by is not None:
             self.created_by = created_by
-        if updated_by is not None:
-            self.updated_by = updated_by
-        self.created_at = created_at
-        self.updated_at = updated_at
+        self.description = description
+        self.id = id
         if items is not None:
             self.items = items
+        self.schema_version = schema_version
+        self.space_id = space_id
+        self.title = title
+        self.updated_at = updated_at
+        if updated_by is not None:
+            self.updated_by = updated_by
+        self.window_preset = window_preset
+
+    @property
+    def columns(self):
+        """Gets the columns of this DashboardResponse.  # noqa: E501
+
+
+        :return: The columns of this DashboardResponse.  # noqa: E501
+        :rtype: object
+        """
+        return self._columns
+
+    @columns.setter
+    def columns(self, columns):
+        """Sets the columns of this DashboardResponse.
+
+
+        :param columns: The columns of this DashboardResponse.  # noqa: E501
+        :type: object
+        """
+        if columns is None:
+            raise ValueError("Invalid value for `columns`, must not be `None`")  # noqa: E501
+
+        self._columns = columns
+
+    @property
+    def created_at(self):
+        """Gets the created_at of this DashboardResponse.  # noqa: E501
+
+
+        :return: The created_at of this DashboardResponse.  # noqa: E501
+        :rtype: object
+        """
+        return self._created_at
+
+    @created_at.setter
+    def created_at(self, created_at):
+        """Sets the created_at of this DashboardResponse.
+
+
+        :param created_at: The created_at of this DashboardResponse.  # noqa: E501
+        :type: object
+        """
+        if created_at is None:
+            raise ValueError("Invalid value for `created_at`, must not be `None`")  # noqa: E501
+
+        self._created_at = created_at
+
+    @property
+    def created_by(self):
+        """Gets the created_by of this DashboardResponse.  # noqa: E501
+
+
+        :return: The created_by of this DashboardResponse.  # noqa: E501
+        :rtype: object
+        """
+        return self._created_by
+
+    @created_by.setter
+    def created_by(self, created_by):
+        """Sets the created_by of this DashboardResponse.
+
+
+        :param created_by: The created_by of this DashboardResponse.  # noqa: E501
+        :type: object
+        """
+
+        self._created_by = created_by
+
+    @property
+    def description(self):
+        """Gets the description of this DashboardResponse.  # noqa: E501
+
+
+        :return: The description of this DashboardResponse.  # noqa: E501
+        :rtype: object
+        """
+        return self._description
+
+    @description.setter
+    def description(self, description):
+        """Sets the description of this DashboardResponse.
+
+
+        :param description: The description of this DashboardResponse.  # noqa: E501
+        :type: object
+        """
+        if description is None:
+            raise ValueError("Invalid value for `description`, must not be `None`")  # noqa: E501
+
+        self._description = description
 
     @property
     def id(self):
@@ -110,6 +200,50 @@ class DashboardResponse(object):
             raise ValueError("Invalid value for `id`, must not be `None`")  # noqa: E501
 
         self._id = id
+
+    @property
+    def items(self):
+        """Gets the items of this DashboardResponse.  # noqa: E501
+
+
+        :return: The items of this DashboardResponse.  # noqa: E501
+        :rtype: object
+        """
+        return self._items
+
+    @items.setter
+    def items(self, items):
+        """Sets the items of this DashboardResponse.
+
+
+        :param items: The items of this DashboardResponse.  # noqa: E501
+        :type: object
+        """
+
+        self._items = items
+
+    @property
+    def schema_version(self):
+        """Gets the schema_version of this DashboardResponse.  # noqa: E501
+
+
+        :return: The schema_version of this DashboardResponse.  # noqa: E501
+        :rtype: object
+        """
+        return self._schema_version
+
+    @schema_version.setter
+    def schema_version(self, schema_version):
+        """Sets the schema_version of this DashboardResponse.
+
+
+        :param schema_version: The schema_version of this DashboardResponse.  # noqa: E501
+        :type: object
+        """
+        if schema_version is None:
+            raise ValueError("Invalid value for `schema_version`, must not be `None`")  # noqa: E501
+
+        self._schema_version = schema_version
 
     @property
     def space_id(self):
@@ -158,163 +292,6 @@ class DashboardResponse(object):
         self._title = title
 
     @property
-    def description(self):
-        """Gets the description of this DashboardResponse.  # noqa: E501
-
-
-        :return: The description of this DashboardResponse.  # noqa: E501
-        :rtype: object
-        """
-        return self._description
-
-    @description.setter
-    def description(self, description):
-        """Sets the description of this DashboardResponse.
-
-
-        :param description: The description of this DashboardResponse.  # noqa: E501
-        :type: object
-        """
-        if description is None:
-            raise ValueError("Invalid value for `description`, must not be `None`")  # noqa: E501
-
-        self._description = description
-
-    @property
-    def columns(self):
-        """Gets the columns of this DashboardResponse.  # noqa: E501
-
-
-        :return: The columns of this DashboardResponse.  # noqa: E501
-        :rtype: object
-        """
-        return self._columns
-
-    @columns.setter
-    def columns(self, columns):
-        """Sets the columns of this DashboardResponse.
-
-
-        :param columns: The columns of this DashboardResponse.  # noqa: E501
-        :type: object
-        """
-        if columns is None:
-            raise ValueError("Invalid value for `columns`, must not be `None`")  # noqa: E501
-
-        self._columns = columns
-
-    @property
-    def window_preset(self):
-        """Gets the window_preset of this DashboardResponse.  # noqa: E501
-
-
-        :return: The window_preset of this DashboardResponse.  # noqa: E501
-        :rtype: UsageTimeWindow
-        """
-        return self._window_preset
-
-    @window_preset.setter
-    def window_preset(self, window_preset):
-        """Sets the window_preset of this DashboardResponse.
-
-
-        :param window_preset: The window_preset of this DashboardResponse.  # noqa: E501
-        :type: UsageTimeWindow
-        """
-        if window_preset is None:
-            raise ValueError("Invalid value for `window_preset`, must not be `None`")  # noqa: E501
-
-        self._window_preset = window_preset
-
-    @property
-    def schema_version(self):
-        """Gets the schema_version of this DashboardResponse.  # noqa: E501
-
-
-        :return: The schema_version of this DashboardResponse.  # noqa: E501
-        :rtype: object
-        """
-        return self._schema_version
-
-    @schema_version.setter
-    def schema_version(self, schema_version):
-        """Sets the schema_version of this DashboardResponse.
-
-
-        :param schema_version: The schema_version of this DashboardResponse.  # noqa: E501
-        :type: object
-        """
-        if schema_version is None:
-            raise ValueError("Invalid value for `schema_version`, must not be `None`")  # noqa: E501
-
-        self._schema_version = schema_version
-
-    @property
-    def created_by(self):
-        """Gets the created_by of this DashboardResponse.  # noqa: E501
-
-
-        :return: The created_by of this DashboardResponse.  # noqa: E501
-        :rtype: object
-        """
-        return self._created_by
-
-    @created_by.setter
-    def created_by(self, created_by):
-        """Sets the created_by of this DashboardResponse.
-
-
-        :param created_by: The created_by of this DashboardResponse.  # noqa: E501
-        :type: object
-        """
-
-        self._created_by = created_by
-
-    @property
-    def updated_by(self):
-        """Gets the updated_by of this DashboardResponse.  # noqa: E501
-
-
-        :return: The updated_by of this DashboardResponse.  # noqa: E501
-        :rtype: object
-        """
-        return self._updated_by
-
-    @updated_by.setter
-    def updated_by(self, updated_by):
-        """Sets the updated_by of this DashboardResponse.
-
-
-        :param updated_by: The updated_by of this DashboardResponse.  # noqa: E501
-        :type: object
-        """
-
-        self._updated_by = updated_by
-
-    @property
-    def created_at(self):
-        """Gets the created_at of this DashboardResponse.  # noqa: E501
-
-
-        :return: The created_at of this DashboardResponse.  # noqa: E501
-        :rtype: object
-        """
-        return self._created_at
-
-    @created_at.setter
-    def created_at(self, created_at):
-        """Sets the created_at of this DashboardResponse.
-
-
-        :param created_at: The created_at of this DashboardResponse.  # noqa: E501
-        :type: object
-        """
-        if created_at is None:
-            raise ValueError("Invalid value for `created_at`, must not be `None`")  # noqa: E501
-
-        self._created_at = created_at
-
-    @property
     def updated_at(self):
         """Gets the updated_at of this DashboardResponse.  # noqa: E501
 
@@ -338,25 +315,48 @@ class DashboardResponse(object):
         self._updated_at = updated_at
 
     @property
-    def items(self):
-        """Gets the items of this DashboardResponse.  # noqa: E501
+    def updated_by(self):
+        """Gets the updated_by of this DashboardResponse.  # noqa: E501
 
 
-        :return: The items of this DashboardResponse.  # noqa: E501
+        :return: The updated_by of this DashboardResponse.  # noqa: E501
         :rtype: object
         """
-        return self._items
+        return self._updated_by
 
-    @items.setter
-    def items(self, items):
-        """Sets the items of this DashboardResponse.
+    @updated_by.setter
+    def updated_by(self, updated_by):
+        """Sets the updated_by of this DashboardResponse.
 
 
-        :param items: The items of this DashboardResponse.  # noqa: E501
+        :param updated_by: The updated_by of this DashboardResponse.  # noqa: E501
         :type: object
         """
 
-        self._items = items
+        self._updated_by = updated_by
+
+    @property
+    def window_preset(self):
+        """Gets the window_preset of this DashboardResponse.  # noqa: E501
+
+
+        :return: The window_preset of this DashboardResponse.  # noqa: E501
+        :rtype: UsageTimeWindow
+        """
+        return self._window_preset
+
+    @window_preset.setter
+    def window_preset(self, window_preset):
+        """Sets the window_preset of this DashboardResponse.
+
+
+        :param window_preset: The window_preset of this DashboardResponse.  # noqa: E501
+        :type: UsageTimeWindow
+        """
+        if window_preset is None:
+            raise ValueError("Invalid value for `window_preset`, must not be `None`")  # noqa: E501
+
+        self._window_preset = window_preset
 
     def to_dict(self):
         """Returns the model properties as a dict"""

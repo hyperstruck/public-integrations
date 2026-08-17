@@ -29,39 +29,39 @@ class RenderedText(object):
     """
     swagger_types = {
         'display_text': 'object',
-        'raw_text': 'object',
-        'visible_char_count': 'object',
-        'raw_char_count': 'object',
         'findings': 'object',
-        'is_collapsed_by_default': 'object'
+        'is_collapsed_by_default': 'object',
+        'raw_char_count': 'object',
+        'raw_text': 'object',
+        'visible_char_count': 'object'
     }
 
     attribute_map = {
         'display_text': 'display_text',
-        'raw_text': 'raw_text',
-        'visible_char_count': 'visible_char_count',
-        'raw_char_count': 'raw_char_count',
         'findings': 'findings',
-        'is_collapsed_by_default': 'is_collapsed_by_default'
+        'is_collapsed_by_default': 'is_collapsed_by_default',
+        'raw_char_count': 'raw_char_count',
+        'raw_text': 'raw_text',
+        'visible_char_count': 'visible_char_count'
     }
 
-    def __init__(self, display_text=None, raw_text=None, visible_char_count=None, raw_char_count=None, findings=None, is_collapsed_by_default=None):  # noqa: E501
+    def __init__(self, display_text=None, findings=None, is_collapsed_by_default=None, raw_char_count=None, raw_text=None, visible_char_count=None):  # noqa: E501
         """RenderedText - a model defined in Swagger"""  # noqa: E501
         self._display_text = None
-        self._raw_text = None
-        self._visible_char_count = None
-        self._raw_char_count = None
         self._findings = None
         self._is_collapsed_by_default = None
+        self._raw_char_count = None
+        self._raw_text = None
+        self._visible_char_count = None
         self.discriminator = None
         self.display_text = display_text
-        self.raw_text = raw_text
-        self.visible_char_count = visible_char_count
-        self.raw_char_count = raw_char_count
         if findings is not None:
             self.findings = findings
         if is_collapsed_by_default is not None:
             self.is_collapsed_by_default = is_collapsed_by_default
+        self.raw_char_count = raw_char_count
+        self.raw_text = raw_text
+        self.visible_char_count = visible_char_count
 
     @property
     def display_text(self):
@@ -85,6 +85,75 @@ class RenderedText(object):
             raise ValueError("Invalid value for `display_text`, must not be `None`")  # noqa: E501
 
         self._display_text = display_text
+
+    @property
+    def findings(self):
+        """Gets the findings of this RenderedText.  # noqa: E501
+
+
+        :return: The findings of this RenderedText.  # noqa: E501
+        :rtype: object
+        """
+        return self._findings
+
+    @findings.setter
+    def findings(self, findings):
+        """Sets the findings of this RenderedText.
+
+
+        :param findings: The findings of this RenderedText.  # noqa: E501
+        :type: object
+        """
+
+        self._findings = findings
+
+    @property
+    def is_collapsed_by_default(self):
+        """Gets the is_collapsed_by_default of this RenderedText.  # noqa: E501
+
+        Hint to the console to collapse long text until the reviewer expands it.  # noqa: E501
+
+        :return: The is_collapsed_by_default of this RenderedText.  # noqa: E501
+        :rtype: object
+        """
+        return self._is_collapsed_by_default
+
+    @is_collapsed_by_default.setter
+    def is_collapsed_by_default(self, is_collapsed_by_default):
+        """Sets the is_collapsed_by_default of this RenderedText.
+
+        Hint to the console to collapse long text until the reviewer expands it.  # noqa: E501
+
+        :param is_collapsed_by_default: The is_collapsed_by_default of this RenderedText.  # noqa: E501
+        :type: object
+        """
+
+        self._is_collapsed_by_default = is_collapsed_by_default
+
+    @property
+    def raw_char_count(self):
+        """Gets the raw_char_count of this RenderedText.  # noqa: E501
+
+        Total code points in the raw text, including hidden ones.  # noqa: E501
+
+        :return: The raw_char_count of this RenderedText.  # noqa: E501
+        :rtype: object
+        """
+        return self._raw_char_count
+
+    @raw_char_count.setter
+    def raw_char_count(self, raw_char_count):
+        """Sets the raw_char_count of this RenderedText.
+
+        Total code points in the raw text, including hidden ones.  # noqa: E501
+
+        :param raw_char_count: The raw_char_count of this RenderedText.  # noqa: E501
+        :type: object
+        """
+        if raw_char_count is None:
+            raise ValueError("Invalid value for `raw_char_count`, must not be `None`")  # noqa: E501
+
+        self._raw_char_count = raw_char_count
 
     @property
     def raw_text(self):
@@ -133,75 +202,6 @@ class RenderedText(object):
             raise ValueError("Invalid value for `visible_char_count`, must not be `None`")  # noqa: E501
 
         self._visible_char_count = visible_char_count
-
-    @property
-    def raw_char_count(self):
-        """Gets the raw_char_count of this RenderedText.  # noqa: E501
-
-        Total code points in the raw text, including hidden ones.  # noqa: E501
-
-        :return: The raw_char_count of this RenderedText.  # noqa: E501
-        :rtype: object
-        """
-        return self._raw_char_count
-
-    @raw_char_count.setter
-    def raw_char_count(self, raw_char_count):
-        """Sets the raw_char_count of this RenderedText.
-
-        Total code points in the raw text, including hidden ones.  # noqa: E501
-
-        :param raw_char_count: The raw_char_count of this RenderedText.  # noqa: E501
-        :type: object
-        """
-        if raw_char_count is None:
-            raise ValueError("Invalid value for `raw_char_count`, must not be `None`")  # noqa: E501
-
-        self._raw_char_count = raw_char_count
-
-    @property
-    def findings(self):
-        """Gets the findings of this RenderedText.  # noqa: E501
-
-
-        :return: The findings of this RenderedText.  # noqa: E501
-        :rtype: object
-        """
-        return self._findings
-
-    @findings.setter
-    def findings(self, findings):
-        """Sets the findings of this RenderedText.
-
-
-        :param findings: The findings of this RenderedText.  # noqa: E501
-        :type: object
-        """
-
-        self._findings = findings
-
-    @property
-    def is_collapsed_by_default(self):
-        """Gets the is_collapsed_by_default of this RenderedText.  # noqa: E501
-
-        Hint to the console to collapse long text until the reviewer expands it.  # noqa: E501
-
-        :return: The is_collapsed_by_default of this RenderedText.  # noqa: E501
-        :rtype: object
-        """
-        return self._is_collapsed_by_default
-
-    @is_collapsed_by_default.setter
-    def is_collapsed_by_default(self, is_collapsed_by_default):
-        """Sets the is_collapsed_by_default of this RenderedText.
-
-        Hint to the console to collapse long text until the reviewer expands it.  # noqa: E501
-
-        :param is_collapsed_by_default: The is_collapsed_by_default of this RenderedText.  # noqa: E501
-        :type: object
-        """
-
-        self._is_collapsed_by_default = is_collapsed_by_default
 
     def to_dict(self):
         """Returns the model properties as a dict"""

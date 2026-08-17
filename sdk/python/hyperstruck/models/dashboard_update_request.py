@@ -28,55 +28,55 @@ class DashboardUpdateRequest(object):
                             and the value is json key in definition.
     """
     swagger_types = {
-        'title': 'object',
-        'description': 'object',
         'columns': 'object',
+        'description': 'object',
+        'title': 'object',
         'window_preset': 'object'
     }
 
     attribute_map = {
-        'title': 'title',
-        'description': 'description',
         'columns': 'columns',
+        'description': 'description',
+        'title': 'title',
         'window_preset': 'window_preset'
     }
 
-    def __init__(self, title=None, description=None, columns=None, window_preset=None):  # noqa: E501
+    def __init__(self, columns=None, description=None, title=None, window_preset=None):  # noqa: E501
         """DashboardUpdateRequest - a model defined in Swagger"""  # noqa: E501
-        self._title = None
-        self._description = None
         self._columns = None
+        self._description = None
+        self._title = None
         self._window_preset = None
         self.discriminator = None
-        if title is not None:
-            self.title = title
-        if description is not None:
-            self.description = description
         if columns is not None:
             self.columns = columns
+        if description is not None:
+            self.description = description
+        if title is not None:
+            self.title = title
         if window_preset is not None:
             self.window_preset = window_preset
 
     @property
-    def title(self):
-        """Gets the title of this DashboardUpdateRequest.  # noqa: E501
+    def columns(self):
+        """Gets the columns of this DashboardUpdateRequest.  # noqa: E501
 
 
-        :return: The title of this DashboardUpdateRequest.  # noqa: E501
+        :return: The columns of this DashboardUpdateRequest.  # noqa: E501
         :rtype: object
         """
-        return self._title
+        return self._columns
 
-    @title.setter
-    def title(self, title):
-        """Sets the title of this DashboardUpdateRequest.
+    @columns.setter
+    def columns(self, columns):
+        """Sets the columns of this DashboardUpdateRequest.
 
 
-        :param title: The title of this DashboardUpdateRequest.  # noqa: E501
+        :param columns: The columns of this DashboardUpdateRequest.  # noqa: E501
         :type: object
         """
 
-        self._title = title
+        self._columns = columns
 
     @property
     def description(self):
@@ -100,25 +100,25 @@ class DashboardUpdateRequest(object):
         self._description = description
 
     @property
-    def columns(self):
-        """Gets the columns of this DashboardUpdateRequest.  # noqa: E501
+    def title(self):
+        """Gets the title of this DashboardUpdateRequest.  # noqa: E501
 
 
-        :return: The columns of this DashboardUpdateRequest.  # noqa: E501
+        :return: The title of this DashboardUpdateRequest.  # noqa: E501
         :rtype: object
         """
-        return self._columns
+        return self._title
 
-    @columns.setter
-    def columns(self, columns):
-        """Sets the columns of this DashboardUpdateRequest.
+    @title.setter
+    def title(self, title):
+        """Sets the title of this DashboardUpdateRequest.
 
 
-        :param columns: The columns of this DashboardUpdateRequest.  # noqa: E501
+        :param title: The title of this DashboardUpdateRequest.  # noqa: E501
         :type: object
         """
 
-        self._columns = columns
+        self._title = title
 
     @property
     def window_preset(self):

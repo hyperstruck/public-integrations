@@ -28,209 +28,163 @@ class LearningAuditItem(object):
                             and the value is json key in definition.
     """
     swagger_types = {
-        'learning_id': 'object',
-        'content': 'object',
-        'summary': 'object',
-        'scope': 'LearningScope',
-        'category': 'object',
-        'legacy_learning_type': 'object',
-        'utility': 'object',
-        'reliability': 'object',
-        'corroboration_count': 'object',
-        'trust_level': 'TrustLevel',
-        'privacy': 'PrivacyClassification',
-        'review_state': 'ReviewState',
-        'review_reasons': 'object',
-        'times_applied': 'object',
-        'times_helpful': 'object',
-        'reuse_count': 'object',
-        'tags': 'object',
         'applicable_goals': 'object',
         'applicable_tools': 'object',
-        'instances': 'object',
-        'evidence_summary': 'object',
-        'evidence_availability': 'EvidenceAvailability',
+        'category': 'object',
+        'content': 'object',
+        'corroboration_count': 'object',
         'created_at': 'object',
-        'updated_at': 'object'
+        'evidence_availability': 'EvidenceAvailability',
+        'evidence_summary': 'object',
+        'instances': 'object',
+        'learning_id': 'object',
+        'legacy_learning_type': 'object',
+        'privacy': 'PrivacyClassification',
+        'reliability': 'object',
+        'reuse_count': 'object',
+        'review_reasons': 'object',
+        'review_state': 'ReviewState',
+        'scope': 'LearningScope',
+        'summary': 'object',
+        'tags': 'object',
+        'times_applied': 'object',
+        'times_helpful': 'object',
+        'trust_level': 'TrustLevel',
+        'updated_at': 'object',
+        'utility': 'object'
     }
 
     attribute_map = {
-        'learning_id': 'learning_id',
-        'content': 'content',
-        'summary': 'summary',
-        'scope': 'scope',
-        'category': 'category',
-        'legacy_learning_type': 'legacy_learning_type',
-        'utility': 'utility',
-        'reliability': 'reliability',
-        'corroboration_count': 'corroboration_count',
-        'trust_level': 'trust_level',
-        'privacy': 'privacy',
-        'review_state': 'review_state',
-        'review_reasons': 'review_reasons',
-        'times_applied': 'times_applied',
-        'times_helpful': 'times_helpful',
-        'reuse_count': 'reuse_count',
-        'tags': 'tags',
         'applicable_goals': 'applicable_goals',
         'applicable_tools': 'applicable_tools',
-        'instances': 'instances',
-        'evidence_summary': 'evidence_summary',
-        'evidence_availability': 'evidence_availability',
+        'category': 'category',
+        'content': 'content',
+        'corroboration_count': 'corroboration_count',
         'created_at': 'created_at',
-        'updated_at': 'updated_at'
+        'evidence_availability': 'evidence_availability',
+        'evidence_summary': 'evidence_summary',
+        'instances': 'instances',
+        'learning_id': 'learning_id',
+        'legacy_learning_type': 'legacy_learning_type',
+        'privacy': 'privacy',
+        'reliability': 'reliability',
+        'reuse_count': 'reuse_count',
+        'review_reasons': 'review_reasons',
+        'review_state': 'review_state',
+        'scope': 'scope',
+        'summary': 'summary',
+        'tags': 'tags',
+        'times_applied': 'times_applied',
+        'times_helpful': 'times_helpful',
+        'trust_level': 'trust_level',
+        'updated_at': 'updated_at',
+        'utility': 'utility'
     }
 
-    def __init__(self, learning_id=None, content=None, summary=None, scope=None, category=None, legacy_learning_type=None, utility=None, reliability=None, corroboration_count=None, trust_level=None, privacy=None, review_state=None, review_reasons=None, times_applied=None, times_helpful=None, reuse_count=None, tags=None, applicable_goals=None, applicable_tools=None, instances=None, evidence_summary=None, evidence_availability=None, created_at=None, updated_at=None):  # noqa: E501
+    def __init__(self, applicable_goals=None, applicable_tools=None, category=None, content=None, corroboration_count=None, created_at=None, evidence_availability=None, evidence_summary=None, instances=None, learning_id=None, legacy_learning_type=None, privacy=None, reliability=None, reuse_count=None, review_reasons=None, review_state=None, scope=None, summary=None, tags=None, times_applied=None, times_helpful=None, trust_level=None, updated_at=None, utility=None):  # noqa: E501
         """LearningAuditItem - a model defined in Swagger"""  # noqa: E501
-        self._learning_id = None
-        self._content = None
-        self._summary = None
-        self._scope = None
-        self._category = None
-        self._legacy_learning_type = None
-        self._utility = None
-        self._reliability = None
-        self._corroboration_count = None
-        self._trust_level = None
-        self._privacy = None
-        self._review_state = None
-        self._review_reasons = None
-        self._times_applied = None
-        self._times_helpful = None
-        self._reuse_count = None
-        self._tags = None
         self._applicable_goals = None
         self._applicable_tools = None
-        self._instances = None
-        self._evidence_summary = None
-        self._evidence_availability = None
+        self._category = None
+        self._content = None
+        self._corroboration_count = None
         self._created_at = None
+        self._evidence_availability = None
+        self._evidence_summary = None
+        self._instances = None
+        self._learning_id = None
+        self._legacy_learning_type = None
+        self._privacy = None
+        self._reliability = None
+        self._reuse_count = None
+        self._review_reasons = None
+        self._review_state = None
+        self._scope = None
+        self._summary = None
+        self._tags = None
+        self._times_applied = None
+        self._times_helpful = None
+        self._trust_level = None
         self._updated_at = None
+        self._utility = None
         self.discriminator = None
-        self.learning_id = learning_id
-        self.content = content
-        if summary is not None:
-            self.summary = summary
-        if scope is not None:
-            self.scope = scope
-        if category is not None:
-            self.category = category
-        if legacy_learning_type is not None:
-            self.legacy_learning_type = legacy_learning_type
-        self.utility = utility
-        self.reliability = reliability
-        self.corroboration_count = corroboration_count
-        self.trust_level = trust_level
-        self.privacy = privacy
-        self.review_state = review_state
-        if review_reasons is not None:
-            self.review_reasons = review_reasons
-        self.times_applied = times_applied
-        self.times_helpful = times_helpful
-        self.reuse_count = reuse_count
-        if tags is not None:
-            self.tags = tags
         if applicable_goals is not None:
             self.applicable_goals = applicable_goals
         if applicable_tools is not None:
             self.applicable_tools = applicable_tools
-        if instances is not None:
-            self.instances = instances
-        if evidence_summary is not None:
-            self.evidence_summary = evidence_summary
+        if category is not None:
+            self.category = category
+        self.content = content
+        self.corroboration_count = corroboration_count
+        self.created_at = created_at
         if evidence_availability is not None:
             self.evidence_availability = evidence_availability
-        self.created_at = created_at
+        if evidence_summary is not None:
+            self.evidence_summary = evidence_summary
+        if instances is not None:
+            self.instances = instances
+        self.learning_id = learning_id
+        if legacy_learning_type is not None:
+            self.legacy_learning_type = legacy_learning_type
+        self.privacy = privacy
+        self.reliability = reliability
+        self.reuse_count = reuse_count
+        if review_reasons is not None:
+            self.review_reasons = review_reasons
+        self.review_state = review_state
+        if scope is not None:
+            self.scope = scope
+        if summary is not None:
+            self.summary = summary
+        if tags is not None:
+            self.tags = tags
+        self.times_applied = times_applied
+        self.times_helpful = times_helpful
+        self.trust_level = trust_level
         self.updated_at = updated_at
+        self.utility = utility
 
     @property
-    def learning_id(self):
-        """Gets the learning_id of this LearningAuditItem.  # noqa: E501
+    def applicable_goals(self):
+        """Gets the applicable_goals of this LearningAuditItem.  # noqa: E501
 
 
-        :return: The learning_id of this LearningAuditItem.  # noqa: E501
+        :return: The applicable_goals of this LearningAuditItem.  # noqa: E501
         :rtype: object
         """
-        return self._learning_id
+        return self._applicable_goals
 
-    @learning_id.setter
-    def learning_id(self, learning_id):
-        """Sets the learning_id of this LearningAuditItem.
-
-
-        :param learning_id: The learning_id of this LearningAuditItem.  # noqa: E501
-        :type: object
-        """
-        if learning_id is None:
-            raise ValueError("Invalid value for `learning_id`, must not be `None`")  # noqa: E501
-
-        self._learning_id = learning_id
-
-    @property
-    def content(self):
-        """Gets the content of this LearningAuditItem.  # noqa: E501
+    @applicable_goals.setter
+    def applicable_goals(self, applicable_goals):
+        """Sets the applicable_goals of this LearningAuditItem.
 
 
-        :return: The content of this LearningAuditItem.  # noqa: E501
-        :rtype: object
-        """
-        return self._content
-
-    @content.setter
-    def content(self, content):
-        """Sets the content of this LearningAuditItem.
-
-
-        :param content: The content of this LearningAuditItem.  # noqa: E501
-        :type: object
-        """
-        if content is None:
-            raise ValueError("Invalid value for `content`, must not be `None`")  # noqa: E501
-
-        self._content = content
-
-    @property
-    def summary(self):
-        """Gets the summary of this LearningAuditItem.  # noqa: E501
-
-
-        :return: The summary of this LearningAuditItem.  # noqa: E501
-        :rtype: object
-        """
-        return self._summary
-
-    @summary.setter
-    def summary(self, summary):
-        """Sets the summary of this LearningAuditItem.
-
-
-        :param summary: The summary of this LearningAuditItem.  # noqa: E501
+        :param applicable_goals: The applicable_goals of this LearningAuditItem.  # noqa: E501
         :type: object
         """
 
-        self._summary = summary
+        self._applicable_goals = applicable_goals
 
     @property
-    def scope(self):
-        """Gets the scope of this LearningAuditItem.  # noqa: E501
+    def applicable_tools(self):
+        """Gets the applicable_tools of this LearningAuditItem.  # noqa: E501
 
 
-        :return: The scope of this LearningAuditItem.  # noqa: E501
-        :rtype: LearningScope
+        :return: The applicable_tools of this LearningAuditItem.  # noqa: E501
+        :rtype: object
         """
-        return self._scope
+        return self._applicable_tools
 
-    @scope.setter
-    def scope(self, scope):
-        """Sets the scope of this LearningAuditItem.
+    @applicable_tools.setter
+    def applicable_tools(self, applicable_tools):
+        """Sets the applicable_tools of this LearningAuditItem.
 
 
-        :param scope: The scope of this LearningAuditItem.  # noqa: E501
-        :type: LearningScope
+        :param applicable_tools: The applicable_tools of this LearningAuditItem.  # noqa: E501
+        :type: object
         """
 
-        self._scope = scope
+        self._applicable_tools = applicable_tools
 
     @property
     def category(self):
@@ -254,77 +208,27 @@ class LearningAuditItem(object):
         self._category = category
 
     @property
-    def legacy_learning_type(self):
-        """Gets the legacy_learning_type of this LearningAuditItem.  # noqa: E501
+    def content(self):
+        """Gets the content of this LearningAuditItem.  # noqa: E501
 
-        Deprecated compatibility passthrough; null for new records.  # noqa: E501
 
-        :return: The legacy_learning_type of this LearningAuditItem.  # noqa: E501
+        :return: The content of this LearningAuditItem.  # noqa: E501
         :rtype: object
         """
-        return self._legacy_learning_type
+        return self._content
 
-    @legacy_learning_type.setter
-    def legacy_learning_type(self, legacy_learning_type):
-        """Sets the legacy_learning_type of this LearningAuditItem.
+    @content.setter
+    def content(self, content):
+        """Sets the content of this LearningAuditItem.
 
-        Deprecated compatibility passthrough; null for new records.  # noqa: E501
 
-        :param legacy_learning_type: The legacy_learning_type of this LearningAuditItem.  # noqa: E501
+        :param content: The content of this LearningAuditItem.  # noqa: E501
         :type: object
         """
+        if content is None:
+            raise ValueError("Invalid value for `content`, must not be `None`")  # noqa: E501
 
-        self._legacy_learning_type = legacy_learning_type
-
-    @property
-    def utility(self):
-        """Gets the utility of this LearningAuditItem.  # noqa: E501
-
-        Value when applied, 0.0-1.0 (Core's recency-discounted application-outcome score).  # noqa: E501
-
-        :return: The utility of this LearningAuditItem.  # noqa: E501
-        :rtype: object
-        """
-        return self._utility
-
-    @utility.setter
-    def utility(self, utility):
-        """Sets the utility of this LearningAuditItem.
-
-        Value when applied, 0.0-1.0 (Core's recency-discounted application-outcome score).  # noqa: E501
-
-        :param utility: The utility of this LearningAuditItem.  # noqa: E501
-        :type: object
-        """
-        if utility is None:
-            raise ValueError("Invalid value for `utility`, must not be `None`")  # noqa: E501
-
-        self._utility = utility
-
-    @property
-    def reliability(self):
-        """Gets the reliability of this LearningAuditItem.  # noqa: E501
-
-        How established, 0.0-1.0 (Wilson lower bound over corroborations, lowered by contradictions).  # noqa: E501
-
-        :return: The reliability of this LearningAuditItem.  # noqa: E501
-        :rtype: object
-        """
-        return self._reliability
-
-    @reliability.setter
-    def reliability(self, reliability):
-        """Sets the reliability of this LearningAuditItem.
-
-        How established, 0.0-1.0 (Wilson lower bound over corroborations, lowered by contradictions).  # noqa: E501
-
-        :param reliability: The reliability of this LearningAuditItem.  # noqa: E501
-        :type: object
-        """
-        if reliability is None:
-            raise ValueError("Invalid value for `reliability`, must not be `None`")  # noqa: E501
-
-        self._reliability = reliability
+        self._content = content
 
     @property
     def corroboration_count(self):
@@ -352,29 +256,136 @@ class LearningAuditItem(object):
         self._corroboration_count = corroboration_count
 
     @property
-    def trust_level(self):
-        """Gets the trust_level of this LearningAuditItem.  # noqa: E501
+    def created_at(self):
+        """Gets the created_at of this LearningAuditItem.  # noqa: E501
 
-        Verification tier; UNKNOWN for an unmappable stored value.  # noqa: E501
 
-        :return: The trust_level of this LearningAuditItem.  # noqa: E501
-        :rtype: TrustLevel
+        :return: The created_at of this LearningAuditItem.  # noqa: E501
+        :rtype: object
         """
-        return self._trust_level
+        return self._created_at
 
-    @trust_level.setter
-    def trust_level(self, trust_level):
-        """Sets the trust_level of this LearningAuditItem.
+    @created_at.setter
+    def created_at(self, created_at):
+        """Sets the created_at of this LearningAuditItem.
 
-        Verification tier; UNKNOWN for an unmappable stored value.  # noqa: E501
 
-        :param trust_level: The trust_level of this LearningAuditItem.  # noqa: E501
-        :type: TrustLevel
+        :param created_at: The created_at of this LearningAuditItem.  # noqa: E501
+        :type: object
         """
-        if trust_level is None:
-            raise ValueError("Invalid value for `trust_level`, must not be `None`")  # noqa: E501
+        if created_at is None:
+            raise ValueError("Invalid value for `created_at`, must not be `None`")  # noqa: E501
 
-        self._trust_level = trust_level
+        self._created_at = created_at
+
+    @property
+    def evidence_availability(self):
+        """Gets the evidence_availability of this LearningAuditItem.  # noqa: E501
+
+
+        :return: The evidence_availability of this LearningAuditItem.  # noqa: E501
+        :rtype: EvidenceAvailability
+        """
+        return self._evidence_availability
+
+    @evidence_availability.setter
+    def evidence_availability(self, evidence_availability):
+        """Sets the evidence_availability of this LearningAuditItem.
+
+
+        :param evidence_availability: The evidence_availability of this LearningAuditItem.  # noqa: E501
+        :type: EvidenceAvailability
+        """
+
+        self._evidence_availability = evidence_availability
+
+    @property
+    def evidence_summary(self):
+        """Gets the evidence_summary of this LearningAuditItem.  # noqa: E501
+
+
+        :return: The evidence_summary of this LearningAuditItem.  # noqa: E501
+        :rtype: object
+        """
+        return self._evidence_summary
+
+    @evidence_summary.setter
+    def evidence_summary(self, evidence_summary):
+        """Sets the evidence_summary of this LearningAuditItem.
+
+
+        :param evidence_summary: The evidence_summary of this LearningAuditItem.  # noqa: E501
+        :type: object
+        """
+
+        self._evidence_summary = evidence_summary
+
+    @property
+    def instances(self):
+        """Gets the instances of this LearningAuditItem.  # noqa: E501
+
+
+        :return: The instances of this LearningAuditItem.  # noqa: E501
+        :rtype: object
+        """
+        return self._instances
+
+    @instances.setter
+    def instances(self, instances):
+        """Sets the instances of this LearningAuditItem.
+
+
+        :param instances: The instances of this LearningAuditItem.  # noqa: E501
+        :type: object
+        """
+
+        self._instances = instances
+
+    @property
+    def learning_id(self):
+        """Gets the learning_id of this LearningAuditItem.  # noqa: E501
+
+
+        :return: The learning_id of this LearningAuditItem.  # noqa: E501
+        :rtype: object
+        """
+        return self._learning_id
+
+    @learning_id.setter
+    def learning_id(self, learning_id):
+        """Sets the learning_id of this LearningAuditItem.
+
+
+        :param learning_id: The learning_id of this LearningAuditItem.  # noqa: E501
+        :type: object
+        """
+        if learning_id is None:
+            raise ValueError("Invalid value for `learning_id`, must not be `None`")  # noqa: E501
+
+        self._learning_id = learning_id
+
+    @property
+    def legacy_learning_type(self):
+        """Gets the legacy_learning_type of this LearningAuditItem.  # noqa: E501
+
+        Deprecated compatibility passthrough; null for new records.  # noqa: E501
+
+        :return: The legacy_learning_type of this LearningAuditItem.  # noqa: E501
+        :rtype: object
+        """
+        return self._legacy_learning_type
+
+    @legacy_learning_type.setter
+    def legacy_learning_type(self, legacy_learning_type):
+        """Sets the legacy_learning_type of this LearningAuditItem.
+
+        Deprecated compatibility passthrough; null for new records.  # noqa: E501
+
+        :param legacy_learning_type: The legacy_learning_type of this LearningAuditItem.  # noqa: E501
+        :type: object
+        """
+
+        self._legacy_learning_type = legacy_learning_type
 
     @property
     def privacy(self):
@@ -400,6 +411,77 @@ class LearningAuditItem(object):
         self._privacy = privacy
 
     @property
+    def reliability(self):
+        """Gets the reliability of this LearningAuditItem.  # noqa: E501
+
+        How established, 0.0-1.0 (Wilson lower bound over corroborations, lowered by contradictions).  # noqa: E501
+
+        :return: The reliability of this LearningAuditItem.  # noqa: E501
+        :rtype: object
+        """
+        return self._reliability
+
+    @reliability.setter
+    def reliability(self, reliability):
+        """Sets the reliability of this LearningAuditItem.
+
+        How established, 0.0-1.0 (Wilson lower bound over corroborations, lowered by contradictions).  # noqa: E501
+
+        :param reliability: The reliability of this LearningAuditItem.  # noqa: E501
+        :type: object
+        """
+        if reliability is None:
+            raise ValueError("Invalid value for `reliability`, must not be `None`")  # noqa: E501
+
+        self._reliability = reliability
+
+    @property
+    def reuse_count(self):
+        """Gets the reuse_count of this LearningAuditItem.  # noqa: E501
+
+        UI alias of times_applied (same value, kept for the curation column heading); not an independent counter.  # noqa: E501
+
+        :return: The reuse_count of this LearningAuditItem.  # noqa: E501
+        :rtype: object
+        """
+        return self._reuse_count
+
+    @reuse_count.setter
+    def reuse_count(self, reuse_count):
+        """Sets the reuse_count of this LearningAuditItem.
+
+        UI alias of times_applied (same value, kept for the curation column heading); not an independent counter.  # noqa: E501
+
+        :param reuse_count: The reuse_count of this LearningAuditItem.  # noqa: E501
+        :type: object
+        """
+        if reuse_count is None:
+            raise ValueError("Invalid value for `reuse_count`, must not be `None`")  # noqa: E501
+
+        self._reuse_count = reuse_count
+
+    @property
+    def review_reasons(self):
+        """Gets the review_reasons of this LearningAuditItem.  # noqa: E501
+
+
+        :return: The review_reasons of this LearningAuditItem.  # noqa: E501
+        :rtype: object
+        """
+        return self._review_reasons
+
+    @review_reasons.setter
+    def review_reasons(self, review_reasons):
+        """Sets the review_reasons of this LearningAuditItem.
+
+
+        :param review_reasons: The review_reasons of this LearningAuditItem.  # noqa: E501
+        :type: object
+        """
+
+        self._review_reasons = review_reasons
+
+    @property
     def review_state(self):
         """Gets the review_state of this LearningAuditItem.  # noqa: E501
 
@@ -423,25 +505,69 @@ class LearningAuditItem(object):
         self._review_state = review_state
 
     @property
-    def review_reasons(self):
-        """Gets the review_reasons of this LearningAuditItem.  # noqa: E501
+    def scope(self):
+        """Gets the scope of this LearningAuditItem.  # noqa: E501
 
 
-        :return: The review_reasons of this LearningAuditItem.  # noqa: E501
+        :return: The scope of this LearningAuditItem.  # noqa: E501
+        :rtype: LearningScope
+        """
+        return self._scope
+
+    @scope.setter
+    def scope(self, scope):
+        """Sets the scope of this LearningAuditItem.
+
+
+        :param scope: The scope of this LearningAuditItem.  # noqa: E501
+        :type: LearningScope
+        """
+
+        self._scope = scope
+
+    @property
+    def summary(self):
+        """Gets the summary of this LearningAuditItem.  # noqa: E501
+
+
+        :return: The summary of this LearningAuditItem.  # noqa: E501
         :rtype: object
         """
-        return self._review_reasons
+        return self._summary
 
-    @review_reasons.setter
-    def review_reasons(self, review_reasons):
-        """Sets the review_reasons of this LearningAuditItem.
+    @summary.setter
+    def summary(self, summary):
+        """Sets the summary of this LearningAuditItem.
 
 
-        :param review_reasons: The review_reasons of this LearningAuditItem.  # noqa: E501
+        :param summary: The summary of this LearningAuditItem.  # noqa: E501
         :type: object
         """
 
-        self._review_reasons = review_reasons
+        self._summary = summary
+
+    @property
+    def tags(self):
+        """Gets the tags of this LearningAuditItem.  # noqa: E501
+
+        Display tags (applicable tools and goals merged).  # noqa: E501
+
+        :return: The tags of this LearningAuditItem.  # noqa: E501
+        :rtype: object
+        """
+        return self._tags
+
+    @tags.setter
+    def tags(self, tags):
+        """Sets the tags of this LearningAuditItem.
+
+        Display tags (applicable tools and goals merged).  # noqa: E501
+
+        :param tags: The tags of this LearningAuditItem.  # noqa: E501
+        :type: object
+        """
+
+        self._tags = tags
 
     @property
     def times_applied(self):
@@ -490,180 +616,29 @@ class LearningAuditItem(object):
         self._times_helpful = times_helpful
 
     @property
-    def reuse_count(self):
-        """Gets the reuse_count of this LearningAuditItem.  # noqa: E501
+    def trust_level(self):
+        """Gets the trust_level of this LearningAuditItem.  # noqa: E501
 
-        UI alias of times_applied (same value, kept for the curation column heading); not an independent counter.  # noqa: E501
+        Verification tier; UNKNOWN for an unmappable stored value.  # noqa: E501
 
-        :return: The reuse_count of this LearningAuditItem.  # noqa: E501
-        :rtype: object
+        :return: The trust_level of this LearningAuditItem.  # noqa: E501
+        :rtype: TrustLevel
         """
-        return self._reuse_count
+        return self._trust_level
 
-    @reuse_count.setter
-    def reuse_count(self, reuse_count):
-        """Sets the reuse_count of this LearningAuditItem.
+    @trust_level.setter
+    def trust_level(self, trust_level):
+        """Sets the trust_level of this LearningAuditItem.
 
-        UI alias of times_applied (same value, kept for the curation column heading); not an independent counter.  # noqa: E501
+        Verification tier; UNKNOWN for an unmappable stored value.  # noqa: E501
 
-        :param reuse_count: The reuse_count of this LearningAuditItem.  # noqa: E501
-        :type: object
+        :param trust_level: The trust_level of this LearningAuditItem.  # noqa: E501
+        :type: TrustLevel
         """
-        if reuse_count is None:
-            raise ValueError("Invalid value for `reuse_count`, must not be `None`")  # noqa: E501
+        if trust_level is None:
+            raise ValueError("Invalid value for `trust_level`, must not be `None`")  # noqa: E501
 
-        self._reuse_count = reuse_count
-
-    @property
-    def tags(self):
-        """Gets the tags of this LearningAuditItem.  # noqa: E501
-
-        Display tags (applicable tools and goals merged).  # noqa: E501
-
-        :return: The tags of this LearningAuditItem.  # noqa: E501
-        :rtype: object
-        """
-        return self._tags
-
-    @tags.setter
-    def tags(self, tags):
-        """Sets the tags of this LearningAuditItem.
-
-        Display tags (applicable tools and goals merged).  # noqa: E501
-
-        :param tags: The tags of this LearningAuditItem.  # noqa: E501
-        :type: object
-        """
-
-        self._tags = tags
-
-    @property
-    def applicable_goals(self):
-        """Gets the applicable_goals of this LearningAuditItem.  # noqa: E501
-
-
-        :return: The applicable_goals of this LearningAuditItem.  # noqa: E501
-        :rtype: object
-        """
-        return self._applicable_goals
-
-    @applicable_goals.setter
-    def applicable_goals(self, applicable_goals):
-        """Sets the applicable_goals of this LearningAuditItem.
-
-
-        :param applicable_goals: The applicable_goals of this LearningAuditItem.  # noqa: E501
-        :type: object
-        """
-
-        self._applicable_goals = applicable_goals
-
-    @property
-    def applicable_tools(self):
-        """Gets the applicable_tools of this LearningAuditItem.  # noqa: E501
-
-
-        :return: The applicable_tools of this LearningAuditItem.  # noqa: E501
-        :rtype: object
-        """
-        return self._applicable_tools
-
-    @applicable_tools.setter
-    def applicable_tools(self, applicable_tools):
-        """Sets the applicable_tools of this LearningAuditItem.
-
-
-        :param applicable_tools: The applicable_tools of this LearningAuditItem.  # noqa: E501
-        :type: object
-        """
-
-        self._applicable_tools = applicable_tools
-
-    @property
-    def instances(self):
-        """Gets the instances of this LearningAuditItem.  # noqa: E501
-
-
-        :return: The instances of this LearningAuditItem.  # noqa: E501
-        :rtype: object
-        """
-        return self._instances
-
-    @instances.setter
-    def instances(self, instances):
-        """Sets the instances of this LearningAuditItem.
-
-
-        :param instances: The instances of this LearningAuditItem.  # noqa: E501
-        :type: object
-        """
-
-        self._instances = instances
-
-    @property
-    def evidence_summary(self):
-        """Gets the evidence_summary of this LearningAuditItem.  # noqa: E501
-
-
-        :return: The evidence_summary of this LearningAuditItem.  # noqa: E501
-        :rtype: object
-        """
-        return self._evidence_summary
-
-    @evidence_summary.setter
-    def evidence_summary(self, evidence_summary):
-        """Sets the evidence_summary of this LearningAuditItem.
-
-
-        :param evidence_summary: The evidence_summary of this LearningAuditItem.  # noqa: E501
-        :type: object
-        """
-
-        self._evidence_summary = evidence_summary
-
-    @property
-    def evidence_availability(self):
-        """Gets the evidence_availability of this LearningAuditItem.  # noqa: E501
-
-
-        :return: The evidence_availability of this LearningAuditItem.  # noqa: E501
-        :rtype: EvidenceAvailability
-        """
-        return self._evidence_availability
-
-    @evidence_availability.setter
-    def evidence_availability(self, evidence_availability):
-        """Sets the evidence_availability of this LearningAuditItem.
-
-
-        :param evidence_availability: The evidence_availability of this LearningAuditItem.  # noqa: E501
-        :type: EvidenceAvailability
-        """
-
-        self._evidence_availability = evidence_availability
-
-    @property
-    def created_at(self):
-        """Gets the created_at of this LearningAuditItem.  # noqa: E501
-
-
-        :return: The created_at of this LearningAuditItem.  # noqa: E501
-        :rtype: object
-        """
-        return self._created_at
-
-    @created_at.setter
-    def created_at(self, created_at):
-        """Sets the created_at of this LearningAuditItem.
-
-
-        :param created_at: The created_at of this LearningAuditItem.  # noqa: E501
-        :type: object
-        """
-        if created_at is None:
-            raise ValueError("Invalid value for `created_at`, must not be `None`")  # noqa: E501
-
-        self._created_at = created_at
+        self._trust_level = trust_level
 
     @property
     def updated_at(self):
@@ -687,6 +662,31 @@ class LearningAuditItem(object):
             raise ValueError("Invalid value for `updated_at`, must not be `None`")  # noqa: E501
 
         self._updated_at = updated_at
+
+    @property
+    def utility(self):
+        """Gets the utility of this LearningAuditItem.  # noqa: E501
+
+        Value when applied, 0.0-1.0 (Core's recency-discounted application-outcome score).  # noqa: E501
+
+        :return: The utility of this LearningAuditItem.  # noqa: E501
+        :rtype: object
+        """
+        return self._utility
+
+    @utility.setter
+    def utility(self, utility):
+        """Sets the utility of this LearningAuditItem.
+
+        Value when applied, 0.0-1.0 (Core's recency-discounted application-outcome score).  # noqa: E501
+
+        :param utility: The utility of this LearningAuditItem.  # noqa: E501
+        :type: object
+        """
+        if utility is None:
+            raise ValueError("Invalid value for `utility`, must not be `None`")  # noqa: E501
+
+        self._utility = utility
 
     def to_dict(self):
         """Returns the model properties as a dict"""

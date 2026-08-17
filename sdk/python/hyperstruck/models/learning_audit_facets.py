@@ -28,57 +28,34 @@ class LearningAuditFacets(object):
                             and the value is json key in definition.
     """
     swagger_types = {
-        'total': 'object',
         'active': 'object',
-        'needs_review': 'object',
         'archived': 'object',
-        'superseded': 'object'
+        'needs_review': 'object',
+        'superseded': 'object',
+        'total': 'object'
     }
 
     attribute_map = {
-        'total': 'total',
         'active': 'active',
-        'needs_review': 'needs_review',
         'archived': 'archived',
-        'superseded': 'superseded'
+        'needs_review': 'needs_review',
+        'superseded': 'superseded',
+        'total': 'total'
     }
 
-    def __init__(self, total=None, active=None, needs_review=None, archived=None, superseded=None):  # noqa: E501
+    def __init__(self, active=None, archived=None, needs_review=None, superseded=None, total=None):  # noqa: E501
         """LearningAuditFacets - a model defined in Swagger"""  # noqa: E501
-        self._total = None
         self._active = None
-        self._needs_review = None
         self._archived = None
+        self._needs_review = None
         self._superseded = None
+        self._total = None
         self.discriminator = None
-        self.total = total
         self.active = active
-        self.needs_review = needs_review
         self.archived = archived
+        self.needs_review = needs_review
         self.superseded = superseded
-
-    @property
-    def total(self):
-        """Gets the total of this LearningAuditFacets.  # noqa: E501
-
-
-        :return: The total of this LearningAuditFacets.  # noqa: E501
-        :rtype: object
-        """
-        return self._total
-
-    @total.setter
-    def total(self, total):
-        """Sets the total of this LearningAuditFacets.
-
-
-        :param total: The total of this LearningAuditFacets.  # noqa: E501
-        :type: object
-        """
-        if total is None:
-            raise ValueError("Invalid value for `total`, must not be `None`")  # noqa: E501
-
-        self._total = total
+        self.total = total
 
     @property
     def active(self):
@@ -106,6 +83,29 @@ class LearningAuditFacets(object):
         self._active = active
 
     @property
+    def archived(self):
+        """Gets the archived of this LearningAuditFacets.  # noqa: E501
+
+
+        :return: The archived of this LearningAuditFacets.  # noqa: E501
+        :rtype: object
+        """
+        return self._archived
+
+    @archived.setter
+    def archived(self, archived):
+        """Sets the archived of this LearningAuditFacets.
+
+
+        :param archived: The archived of this LearningAuditFacets.  # noqa: E501
+        :type: object
+        """
+        if archived is None:
+            raise ValueError("Invalid value for `archived`, must not be `None`")  # noqa: E501
+
+        self._archived = archived
+
+    @property
     def needs_review(self):
         """Gets the needs_review of this LearningAuditFacets.  # noqa: E501
 
@@ -131,29 +131,6 @@ class LearningAuditFacets(object):
         self._needs_review = needs_review
 
     @property
-    def archived(self):
-        """Gets the archived of this LearningAuditFacets.  # noqa: E501
-
-
-        :return: The archived of this LearningAuditFacets.  # noqa: E501
-        :rtype: object
-        """
-        return self._archived
-
-    @archived.setter
-    def archived(self, archived):
-        """Sets the archived of this LearningAuditFacets.
-
-
-        :param archived: The archived of this LearningAuditFacets.  # noqa: E501
-        :type: object
-        """
-        if archived is None:
-            raise ValueError("Invalid value for `archived`, must not be `None`")  # noqa: E501
-
-        self._archived = archived
-
-    @property
     def superseded(self):
         """Gets the superseded of this LearningAuditFacets.  # noqa: E501
 
@@ -175,6 +152,29 @@ class LearningAuditFacets(object):
             raise ValueError("Invalid value for `superseded`, must not be `None`")  # noqa: E501
 
         self._superseded = superseded
+
+    @property
+    def total(self):
+        """Gets the total of this LearningAuditFacets.  # noqa: E501
+
+
+        :return: The total of this LearningAuditFacets.  # noqa: E501
+        :rtype: object
+        """
+        return self._total
+
+    @total.setter
+    def total(self, total):
+        """Sets the total of this LearningAuditFacets.
+
+
+        :param total: The total of this LearningAuditFacets.  # noqa: E501
+        :type: object
+        """
+        if total is None:
+            raise ValueError("Invalid value for `total`, must not be `None`")  # noqa: E501
+
+        self._total = total
 
     def to_dict(self):
         """Returns the model properties as a dict"""

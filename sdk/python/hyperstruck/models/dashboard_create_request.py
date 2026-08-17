@@ -28,37 +28,79 @@ class DashboardCreateRequest(object):
                             and the value is json key in definition.
     """
     swagger_types = {
+        'columns': 'object',
+        'description': 'object',
         'space_id': 'object',
         'title': 'object',
-        'description': 'object',
-        'columns': 'object',
         'window_preset': 'UsageTimeWindow'
     }
 
     attribute_map = {
+        'columns': 'columns',
+        'description': 'description',
         'space_id': 'space_id',
         'title': 'title',
-        'description': 'description',
-        'columns': 'columns',
         'window_preset': 'window_preset'
     }
 
-    def __init__(self, space_id=None, title=None, description=None, columns=None, window_preset=None):  # noqa: E501
+    def __init__(self, columns=None, description=None, space_id=None, title=None, window_preset=None):  # noqa: E501
         """DashboardCreateRequest - a model defined in Swagger"""  # noqa: E501
+        self._columns = None
+        self._description = None
         self._space_id = None
         self._title = None
-        self._description = None
-        self._columns = None
         self._window_preset = None
         self.discriminator = None
-        self.space_id = space_id
-        self.title = title
-        if description is not None:
-            self.description = description
         if columns is not None:
             self.columns = columns
+        if description is not None:
+            self.description = description
+        self.space_id = space_id
+        self.title = title
         if window_preset is not None:
             self.window_preset = window_preset
+
+    @property
+    def columns(self):
+        """Gets the columns of this DashboardCreateRequest.  # noqa: E501
+
+
+        :return: The columns of this DashboardCreateRequest.  # noqa: E501
+        :rtype: object
+        """
+        return self._columns
+
+    @columns.setter
+    def columns(self, columns):
+        """Sets the columns of this DashboardCreateRequest.
+
+
+        :param columns: The columns of this DashboardCreateRequest.  # noqa: E501
+        :type: object
+        """
+
+        self._columns = columns
+
+    @property
+    def description(self):
+        """Gets the description of this DashboardCreateRequest.  # noqa: E501
+
+
+        :return: The description of this DashboardCreateRequest.  # noqa: E501
+        :rtype: object
+        """
+        return self._description
+
+    @description.setter
+    def description(self, description):
+        """Sets the description of this DashboardCreateRequest.
+
+
+        :param description: The description of this DashboardCreateRequest.  # noqa: E501
+        :type: object
+        """
+
+        self._description = description
 
     @property
     def space_id(self):
@@ -105,48 +147,6 @@ class DashboardCreateRequest(object):
             raise ValueError("Invalid value for `title`, must not be `None`")  # noqa: E501
 
         self._title = title
-
-    @property
-    def description(self):
-        """Gets the description of this DashboardCreateRequest.  # noqa: E501
-
-
-        :return: The description of this DashboardCreateRequest.  # noqa: E501
-        :rtype: object
-        """
-        return self._description
-
-    @description.setter
-    def description(self, description):
-        """Sets the description of this DashboardCreateRequest.
-
-
-        :param description: The description of this DashboardCreateRequest.  # noqa: E501
-        :type: object
-        """
-
-        self._description = description
-
-    @property
-    def columns(self):
-        """Gets the columns of this DashboardCreateRequest.  # noqa: E501
-
-
-        :return: The columns of this DashboardCreateRequest.  # noqa: E501
-        :rtype: object
-        """
-        return self._columns
-
-    @columns.setter
-    def columns(self, columns):
-        """Sets the columns of this DashboardCreateRequest.
-
-
-        :param columns: The columns of this DashboardCreateRequest.  # noqa: E501
-        :type: object
-        """
-
-        self._columns = columns
 
     @property
     def window_preset(self):

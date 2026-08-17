@@ -28,89 +28,66 @@ class QuarantineQueueItem(object):
                             and the value is json key in definition.
     """
     swagger_types = {
-        'claim_id': 'object',
         'agent_id': 'object',
-        'entity_id': 'object',
         'canonical_name': 'object',
-        'provenance_class': 'object',
         'channel_trust': 'object',
-        'tool_family': 'object',
-        'quarantine_cause': 'object',
-        'is_release_lapsed': 'object',
+        'claim_id': 'object',
         'corroboration_count': 'object',
+        'entity_id': 'object',
+        'is_release_lapsed': 'object',
+        'provenance_class': 'object',
+        'quarantine_cause': 'object',
         'recorded_at': 'object',
-        'statement': 'RenderedText'
+        'statement': 'RenderedText',
+        'tool_family': 'object'
     }
 
     attribute_map = {
-        'claim_id': 'claim_id',
         'agent_id': 'agent_id',
-        'entity_id': 'entity_id',
         'canonical_name': 'canonical_name',
-        'provenance_class': 'provenance_class',
         'channel_trust': 'channel_trust',
-        'tool_family': 'tool_family',
-        'quarantine_cause': 'quarantine_cause',
-        'is_release_lapsed': 'is_release_lapsed',
+        'claim_id': 'claim_id',
         'corroboration_count': 'corroboration_count',
+        'entity_id': 'entity_id',
+        'is_release_lapsed': 'is_release_lapsed',
+        'provenance_class': 'provenance_class',
+        'quarantine_cause': 'quarantine_cause',
         'recorded_at': 'recorded_at',
-        'statement': 'statement'
+        'statement': 'statement',
+        'tool_family': 'tool_family'
     }
 
-    def __init__(self, claim_id=None, agent_id=None, entity_id=None, canonical_name=None, provenance_class=None, channel_trust=None, tool_family=None, quarantine_cause=None, is_release_lapsed=None, corroboration_count=None, recorded_at=None, statement=None):  # noqa: E501
+    def __init__(self, agent_id=None, canonical_name=None, channel_trust=None, claim_id=None, corroboration_count=None, entity_id=None, is_release_lapsed=None, provenance_class=None, quarantine_cause=None, recorded_at=None, statement=None, tool_family=None):  # noqa: E501
         """QuarantineQueueItem - a model defined in Swagger"""  # noqa: E501
-        self._claim_id = None
         self._agent_id = None
-        self._entity_id = None
         self._canonical_name = None
-        self._provenance_class = None
         self._channel_trust = None
-        self._tool_family = None
-        self._quarantine_cause = None
-        self._is_release_lapsed = None
+        self._claim_id = None
         self._corroboration_count = None
+        self._entity_id = None
+        self._is_release_lapsed = None
+        self._provenance_class = None
+        self._quarantine_cause = None
         self._recorded_at = None
         self._statement = None
+        self._tool_family = None
         self.discriminator = None
-        self.claim_id = claim_id
         self.agent_id = agent_id
-        self.entity_id = entity_id
         self.canonical_name = canonical_name
-        self.provenance_class = provenance_class
         self.channel_trust = channel_trust
-        if tool_family is not None:
-            self.tool_family = tool_family
-        if quarantine_cause is not None:
-            self.quarantine_cause = quarantine_cause
-        if is_release_lapsed is not None:
-            self.is_release_lapsed = is_release_lapsed
+        self.claim_id = claim_id
         if corroboration_count is not None:
             self.corroboration_count = corroboration_count
+        self.entity_id = entity_id
+        if is_release_lapsed is not None:
+            self.is_release_lapsed = is_release_lapsed
+        self.provenance_class = provenance_class
+        if quarantine_cause is not None:
+            self.quarantine_cause = quarantine_cause
         self.recorded_at = recorded_at
         self.statement = statement
-
-    @property
-    def claim_id(self):
-        """Gets the claim_id of this QuarantineQueueItem.  # noqa: E501
-
-
-        :return: The claim_id of this QuarantineQueueItem.  # noqa: E501
-        :rtype: object
-        """
-        return self._claim_id
-
-    @claim_id.setter
-    def claim_id(self, claim_id):
-        """Sets the claim_id of this QuarantineQueueItem.
-
-
-        :param claim_id: The claim_id of this QuarantineQueueItem.  # noqa: E501
-        :type: object
-        """
-        if claim_id is None:
-            raise ValueError("Invalid value for `claim_id`, must not be `None`")  # noqa: E501
-
-        self._claim_id = claim_id
+        if tool_family is not None:
+            self.tool_family = tool_family
 
     @property
     def agent_id(self):
@@ -136,29 +113,6 @@ class QuarantineQueueItem(object):
         self._agent_id = agent_id
 
     @property
-    def entity_id(self):
-        """Gets the entity_id of this QuarantineQueueItem.  # noqa: E501
-
-
-        :return: The entity_id of this QuarantineQueueItem.  # noqa: E501
-        :rtype: object
-        """
-        return self._entity_id
-
-    @entity_id.setter
-    def entity_id(self, entity_id):
-        """Sets the entity_id of this QuarantineQueueItem.
-
-
-        :param entity_id: The entity_id of this QuarantineQueueItem.  # noqa: E501
-        :type: object
-        """
-        if entity_id is None:
-            raise ValueError("Invalid value for `entity_id`, must not be `None`")  # noqa: E501
-
-        self._entity_id = entity_id
-
-    @property
     def canonical_name(self):
         """Gets the canonical_name of this QuarantineQueueItem.  # noqa: E501
 
@@ -180,29 +134,6 @@ class QuarantineQueueItem(object):
             raise ValueError("Invalid value for `canonical_name`, must not be `None`")  # noqa: E501
 
         self._canonical_name = canonical_name
-
-    @property
-    def provenance_class(self):
-        """Gets the provenance_class of this QuarantineQueueItem.  # noqa: E501
-
-
-        :return: The provenance_class of this QuarantineQueueItem.  # noqa: E501
-        :rtype: object
-        """
-        return self._provenance_class
-
-    @provenance_class.setter
-    def provenance_class(self, provenance_class):
-        """Sets the provenance_class of this QuarantineQueueItem.
-
-
-        :param provenance_class: The provenance_class of this QuarantineQueueItem.  # noqa: E501
-        :type: object
-        """
-        if provenance_class is None:
-            raise ValueError("Invalid value for `provenance_class`, must not be `None`")  # noqa: E501
-
-        self._provenance_class = provenance_class
 
     @property
     def channel_trust(self):
@@ -228,46 +159,71 @@ class QuarantineQueueItem(object):
         self._channel_trust = channel_trust
 
     @property
-    def tool_family(self):
-        """Gets the tool_family of this QuarantineQueueItem.  # noqa: E501
+    def claim_id(self):
+        """Gets the claim_id of this QuarantineQueueItem.  # noqa: E501
 
 
-        :return: The tool_family of this QuarantineQueueItem.  # noqa: E501
+        :return: The claim_id of this QuarantineQueueItem.  # noqa: E501
         :rtype: object
         """
-        return self._tool_family
+        return self._claim_id
 
-    @tool_family.setter
-    def tool_family(self, tool_family):
-        """Sets the tool_family of this QuarantineQueueItem.
+    @claim_id.setter
+    def claim_id(self, claim_id):
+        """Sets the claim_id of this QuarantineQueueItem.
 
 
-        :param tool_family: The tool_family of this QuarantineQueueItem.  # noqa: E501
+        :param claim_id: The claim_id of this QuarantineQueueItem.  # noqa: E501
         :type: object
         """
+        if claim_id is None:
+            raise ValueError("Invalid value for `claim_id`, must not be `None`")  # noqa: E501
 
-        self._tool_family = tool_family
+        self._claim_id = claim_id
 
     @property
-    def quarantine_cause(self):
-        """Gets the quarantine_cause of this QuarantineQueueItem.  # noqa: E501
+    def corroboration_count(self):
+        """Gets the corroboration_count of this QuarantineQueueItem.  # noqa: E501
 
 
-        :return: The quarantine_cause of this QuarantineQueueItem.  # noqa: E501
+        :return: The corroboration_count of this QuarantineQueueItem.  # noqa: E501
         :rtype: object
         """
-        return self._quarantine_cause
+        return self._corroboration_count
 
-    @quarantine_cause.setter
-    def quarantine_cause(self, quarantine_cause):
-        """Sets the quarantine_cause of this QuarantineQueueItem.
+    @corroboration_count.setter
+    def corroboration_count(self, corroboration_count):
+        """Sets the corroboration_count of this QuarantineQueueItem.
 
 
-        :param quarantine_cause: The quarantine_cause of this QuarantineQueueItem.  # noqa: E501
+        :param corroboration_count: The corroboration_count of this QuarantineQueueItem.  # noqa: E501
         :type: object
         """
 
-        self._quarantine_cause = quarantine_cause
+        self._corroboration_count = corroboration_count
+
+    @property
+    def entity_id(self):
+        """Gets the entity_id of this QuarantineQueueItem.  # noqa: E501
+
+
+        :return: The entity_id of this QuarantineQueueItem.  # noqa: E501
+        :rtype: object
+        """
+        return self._entity_id
+
+    @entity_id.setter
+    def entity_id(self, entity_id):
+        """Sets the entity_id of this QuarantineQueueItem.
+
+
+        :param entity_id: The entity_id of this QuarantineQueueItem.  # noqa: E501
+        :type: object
+        """
+        if entity_id is None:
+            raise ValueError("Invalid value for `entity_id`, must not be `None`")  # noqa: E501
+
+        self._entity_id = entity_id
 
     @property
     def is_release_lapsed(self):
@@ -291,25 +247,48 @@ class QuarantineQueueItem(object):
         self._is_release_lapsed = is_release_lapsed
 
     @property
-    def corroboration_count(self):
-        """Gets the corroboration_count of this QuarantineQueueItem.  # noqa: E501
+    def provenance_class(self):
+        """Gets the provenance_class of this QuarantineQueueItem.  # noqa: E501
 
 
-        :return: The corroboration_count of this QuarantineQueueItem.  # noqa: E501
+        :return: The provenance_class of this QuarantineQueueItem.  # noqa: E501
         :rtype: object
         """
-        return self._corroboration_count
+        return self._provenance_class
 
-    @corroboration_count.setter
-    def corroboration_count(self, corroboration_count):
-        """Sets the corroboration_count of this QuarantineQueueItem.
+    @provenance_class.setter
+    def provenance_class(self, provenance_class):
+        """Sets the provenance_class of this QuarantineQueueItem.
 
 
-        :param corroboration_count: The corroboration_count of this QuarantineQueueItem.  # noqa: E501
+        :param provenance_class: The provenance_class of this QuarantineQueueItem.  # noqa: E501
+        :type: object
+        """
+        if provenance_class is None:
+            raise ValueError("Invalid value for `provenance_class`, must not be `None`")  # noqa: E501
+
+        self._provenance_class = provenance_class
+
+    @property
+    def quarantine_cause(self):
+        """Gets the quarantine_cause of this QuarantineQueueItem.  # noqa: E501
+
+
+        :return: The quarantine_cause of this QuarantineQueueItem.  # noqa: E501
+        :rtype: object
+        """
+        return self._quarantine_cause
+
+    @quarantine_cause.setter
+    def quarantine_cause(self, quarantine_cause):
+        """Sets the quarantine_cause of this QuarantineQueueItem.
+
+
+        :param quarantine_cause: The quarantine_cause of this QuarantineQueueItem.  # noqa: E501
         :type: object
         """
 
-        self._corroboration_count = corroboration_count
+        self._quarantine_cause = quarantine_cause
 
     @property
     def recorded_at(self):
@@ -356,6 +335,27 @@ class QuarantineQueueItem(object):
             raise ValueError("Invalid value for `statement`, must not be `None`")  # noqa: E501
 
         self._statement = statement
+
+    @property
+    def tool_family(self):
+        """Gets the tool_family of this QuarantineQueueItem.  # noqa: E501
+
+
+        :return: The tool_family of this QuarantineQueueItem.  # noqa: E501
+        :rtype: object
+        """
+        return self._tool_family
+
+    @tool_family.setter
+    def tool_family(self, tool_family):
+        """Sets the tool_family of this QuarantineQueueItem.
+
+
+        :param tool_family: The tool_family of this QuarantineQueueItem.  # noqa: E501
+        :type: object
+        """
+
+        self._tool_family = tool_family
 
     def to_dict(self):
         """Returns the model properties as a dict"""

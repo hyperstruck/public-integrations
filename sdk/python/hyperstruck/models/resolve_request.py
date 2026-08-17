@@ -29,60 +29,60 @@ class ResolveRequest(object):
     """
     swagger_types = {
         'agent_name': 'object',
-        'org_id': 'object',
-        'run_id': 'object',
-        'goal': 'object',
-        'source_framework': 'object',
         'available_tools': 'object',
+        'goal': 'object',
         'max_learnings': 'object',
         'model_context_window': 'object',
+        'org_id': 'object',
+        'resolve_idempotency_key': 'object',
         'retrieval': 'object',
-        'resolve_idempotency_key': 'object'
+        'run_id': 'object',
+        'source_framework': 'object'
     }
 
     attribute_map = {
         'agent_name': 'agent_name',
-        'org_id': 'org_id',
-        'run_id': 'run_id',
-        'goal': 'goal',
-        'source_framework': 'source_framework',
         'available_tools': 'available_tools',
+        'goal': 'goal',
         'max_learnings': 'max_learnings',
         'model_context_window': 'model_context_window',
+        'org_id': 'org_id',
+        'resolve_idempotency_key': 'resolve_idempotency_key',
         'retrieval': 'retrieval',
-        'resolve_idempotency_key': 'resolve_idempotency_key'
+        'run_id': 'run_id',
+        'source_framework': 'source_framework'
     }
 
-    def __init__(self, agent_name=None, org_id=None, run_id=None, goal=None, source_framework=None, available_tools=None, max_learnings=None, model_context_window=None, retrieval=None, resolve_idempotency_key=None):  # noqa: E501
+    def __init__(self, agent_name=None, available_tools=None, goal=None, max_learnings=None, model_context_window=None, org_id=None, resolve_idempotency_key=None, retrieval=None, run_id=None, source_framework=None):  # noqa: E501
         """ResolveRequest - a model defined in Swagger"""  # noqa: E501
         self._agent_name = None
-        self._org_id = None
-        self._run_id = None
-        self._goal = None
-        self._source_framework = None
         self._available_tools = None
+        self._goal = None
         self._max_learnings = None
         self._model_context_window = None
-        self._retrieval = None
+        self._org_id = None
         self._resolve_idempotency_key = None
+        self._retrieval = None
+        self._run_id = None
+        self._source_framework = None
         self.discriminator = None
         self.agent_name = agent_name
-        if org_id is not None:
-            self.org_id = org_id
-        self.run_id = run_id
-        self.goal = goal
-        if source_framework is not None:
-            self.source_framework = source_framework
         if available_tools is not None:
             self.available_tools = available_tools
+        self.goal = goal
         if max_learnings is not None:
             self.max_learnings = max_learnings
         if model_context_window is not None:
             self.model_context_window = model_context_window
-        if retrieval is not None:
-            self.retrieval = retrieval
+        if org_id is not None:
+            self.org_id = org_id
         if resolve_idempotency_key is not None:
             self.resolve_idempotency_key = resolve_idempotency_key
+        if retrieval is not None:
+            self.retrieval = retrieval
+        self.run_id = run_id
+        if source_framework is not None:
+            self.source_framework = source_framework
 
     @property
     def agent_name(self):
@@ -110,52 +110,25 @@ class ResolveRequest(object):
         self._agent_name = agent_name
 
     @property
-    def org_id(self):
-        """Gets the org_id of this ResolveRequest.  # noqa: E501
+    def available_tools(self):
+        """Gets the available_tools of this ResolveRequest.  # noqa: E501
 
-        Optional caller-owned organisation reference.  # noqa: E501
 
-        :return: The org_id of this ResolveRequest.  # noqa: E501
+        :return: The available_tools of this ResolveRequest.  # noqa: E501
         :rtype: object
         """
-        return self._org_id
+        return self._available_tools
 
-    @org_id.setter
-    def org_id(self, org_id):
-        """Sets the org_id of this ResolveRequest.
+    @available_tools.setter
+    def available_tools(self, available_tools):
+        """Sets the available_tools of this ResolveRequest.
 
-        Optional caller-owned organisation reference.  # noqa: E501
 
-        :param org_id: The org_id of this ResolveRequest.  # noqa: E501
+        :param available_tools: The available_tools of this ResolveRequest.  # noqa: E501
         :type: object
         """
 
-        self._org_id = org_id
-
-    @property
-    def run_id(self):
-        """Gets the run_id of this ResolveRequest.  # noqa: E501
-
-        Caller-created correlation key. Reuse it with observe and reinforce; it does not reference a hosted `/runs/{run_id}` resource, and must not start with `distill:`, which is reserved for distillation jobs.  # noqa: E501
-
-        :return: The run_id of this ResolveRequest.  # noqa: E501
-        :rtype: object
-        """
-        return self._run_id
-
-    @run_id.setter
-    def run_id(self, run_id):
-        """Sets the run_id of this ResolveRequest.
-
-        Caller-created correlation key. Reuse it with observe and reinforce; it does not reference a hosted `/runs/{run_id}` resource, and must not start with `distill:`, which is reserved for distillation jobs.  # noqa: E501
-
-        :param run_id: The run_id of this ResolveRequest.  # noqa: E501
-        :type: object
-        """
-        if run_id is None:
-            raise ValueError("Invalid value for `run_id`, must not be `None`")  # noqa: E501
-
-        self._run_id = run_id
+        self._available_tools = available_tools
 
     @property
     def goal(self):
@@ -181,50 +154,6 @@ class ResolveRequest(object):
             raise ValueError("Invalid value for `goal`, must not be `None`")  # noqa: E501
 
         self._goal = goal
-
-    @property
-    def source_framework(self):
-        """Gets the source_framework of this ResolveRequest.  # noqa: E501
-
-        Producing host/framework (e.g. 'mcp:cursor'), used to attribute the per-host funnel. Optional; backfilled from the episode at write-back. `unknown` is reserved: the loop-closure funnel groups runs with no attribution under that label and excludes them from alerting, so a value equal to it is normalised to unset rather than stored as a host.  # noqa: E501
-
-        :return: The source_framework of this ResolveRequest.  # noqa: E501
-        :rtype: object
-        """
-        return self._source_framework
-
-    @source_framework.setter
-    def source_framework(self, source_framework):
-        """Sets the source_framework of this ResolveRequest.
-
-        Producing host/framework (e.g. 'mcp:cursor'), used to attribute the per-host funnel. Optional; backfilled from the episode at write-back. `unknown` is reserved: the loop-closure funnel groups runs with no attribution under that label and excludes them from alerting, so a value equal to it is normalised to unset rather than stored as a host.  # noqa: E501
-
-        :param source_framework: The source_framework of this ResolveRequest.  # noqa: E501
-        :type: object
-        """
-
-        self._source_framework = source_framework
-
-    @property
-    def available_tools(self):
-        """Gets the available_tools of this ResolveRequest.  # noqa: E501
-
-
-        :return: The available_tools of this ResolveRequest.  # noqa: E501
-        :rtype: object
-        """
-        return self._available_tools
-
-    @available_tools.setter
-    def available_tools(self, available_tools):
-        """Sets the available_tools of this ResolveRequest.
-
-
-        :param available_tools: The available_tools of this ResolveRequest.  # noqa: E501
-        :type: object
-        """
-
-        self._available_tools = available_tools
 
     @property
     def max_learnings(self):
@@ -269,27 +198,27 @@ class ResolveRequest(object):
         self._model_context_window = model_context_window
 
     @property
-    def retrieval(self):
-        """Gets the retrieval of this ResolveRequest.  # noqa: E501
+    def org_id(self):
+        """Gets the org_id of this ResolveRequest.  # noqa: E501
 
-        Retrieval depth. `fast` prioritises response time; `full` may return richer contextual relationships at higher latency.  # noqa: E501
+        Optional caller-owned organisation reference.  # noqa: E501
 
-        :return: The retrieval of this ResolveRequest.  # noqa: E501
+        :return: The org_id of this ResolveRequest.  # noqa: E501
         :rtype: object
         """
-        return self._retrieval
+        return self._org_id
 
-    @retrieval.setter
-    def retrieval(self, retrieval):
-        """Sets the retrieval of this ResolveRequest.
+    @org_id.setter
+    def org_id(self, org_id):
+        """Sets the org_id of this ResolveRequest.
 
-        Retrieval depth. `fast` prioritises response time; `full` may return richer contextual relationships at higher latency.  # noqa: E501
+        Optional caller-owned organisation reference.  # noqa: E501
 
-        :param retrieval: The retrieval of this ResolveRequest.  # noqa: E501
+        :param org_id: The org_id of this ResolveRequest.  # noqa: E501
         :type: object
         """
 
-        self._retrieval = retrieval
+        self._org_id = org_id
 
     @property
     def resolve_idempotency_key(self):
@@ -313,6 +242,77 @@ class ResolveRequest(object):
         """
 
         self._resolve_idempotency_key = resolve_idempotency_key
+
+    @property
+    def retrieval(self):
+        """Gets the retrieval of this ResolveRequest.  # noqa: E501
+
+        Retrieval depth. `fast` prioritises response time; `full` may return richer contextual relationships at higher latency.  # noqa: E501
+
+        :return: The retrieval of this ResolveRequest.  # noqa: E501
+        :rtype: object
+        """
+        return self._retrieval
+
+    @retrieval.setter
+    def retrieval(self, retrieval):
+        """Sets the retrieval of this ResolveRequest.
+
+        Retrieval depth. `fast` prioritises response time; `full` may return richer contextual relationships at higher latency.  # noqa: E501
+
+        :param retrieval: The retrieval of this ResolveRequest.  # noqa: E501
+        :type: object
+        """
+
+        self._retrieval = retrieval
+
+    @property
+    def run_id(self):
+        """Gets the run_id of this ResolveRequest.  # noqa: E501
+
+        Caller-created correlation key. Reuse it with observe and reinforce; it does not reference a hosted `/runs/{run_id}` resource, and must not start with `distill:`, which is reserved for distillation jobs.  # noqa: E501
+
+        :return: The run_id of this ResolveRequest.  # noqa: E501
+        :rtype: object
+        """
+        return self._run_id
+
+    @run_id.setter
+    def run_id(self, run_id):
+        """Sets the run_id of this ResolveRequest.
+
+        Caller-created correlation key. Reuse it with observe and reinforce; it does not reference a hosted `/runs/{run_id}` resource, and must not start with `distill:`, which is reserved for distillation jobs.  # noqa: E501
+
+        :param run_id: The run_id of this ResolveRequest.  # noqa: E501
+        :type: object
+        """
+        if run_id is None:
+            raise ValueError("Invalid value for `run_id`, must not be `None`")  # noqa: E501
+
+        self._run_id = run_id
+
+    @property
+    def source_framework(self):
+        """Gets the source_framework of this ResolveRequest.  # noqa: E501
+
+        Producing host/framework (e.g. 'mcp:cursor'), used to attribute the per-host funnel. Optional; backfilled from the episode at write-back. `unknown` is reserved: the loop-closure funnel groups runs with no attribution under that label and excludes them from alerting, so a value equal to it is normalised to unset rather than stored as a host.  # noqa: E501
+
+        :return: The source_framework of this ResolveRequest.  # noqa: E501
+        :rtype: object
+        """
+        return self._source_framework
+
+    @source_framework.setter
+    def source_framework(self, source_framework):
+        """Sets the source_framework of this ResolveRequest.
+
+        Producing host/framework (e.g. 'mcp:cursor'), used to attribute the per-host funnel. Optional; backfilled from the episode at write-back. `unknown` is reserved: the loop-closure funnel groups runs with no attribution under that label and excludes them from alerting, so a value equal to it is normalised to unset rather than stored as a host.  # noqa: E501
+
+        :param source_framework: The source_framework of this ResolveRequest.  # noqa: E501
+        :type: object
+        """
+
+        self._source_framework = source_framework
 
     def to_dict(self):
         """Returns the model properties as a dict"""

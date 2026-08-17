@@ -28,67 +28,88 @@ class OrgMemberItem(object):
                             and the value is json key in definition.
     """
     swagger_types = {
-        'identity_user_id': 'object',
-        'email': 'object',
+        'created_at': 'object',
         'display_name': 'object',
+        'email': 'object',
+        'identity_user_id': 'object',
         'role': 'object',
-        'status': 'object',
         'space_memberships': 'object',
-        'created_at': 'object'
+        'status': 'object'
     }
 
     attribute_map = {
-        'identity_user_id': 'identity_user_id',
-        'email': 'email',
+        'created_at': 'created_at',
         'display_name': 'display_name',
+        'email': 'email',
+        'identity_user_id': 'identity_user_id',
         'role': 'role',
-        'status': 'status',
         'space_memberships': 'space_memberships',
-        'created_at': 'created_at'
+        'status': 'status'
     }
 
-    def __init__(self, identity_user_id=None, email=None, display_name=None, role=None, status=None, space_memberships=None, created_at=None):  # noqa: E501
+    def __init__(self, created_at=None, display_name=None, email=None, identity_user_id=None, role=None, space_memberships=None, status=None):  # noqa: E501
         """OrgMemberItem - a model defined in Swagger"""  # noqa: E501
-        self._identity_user_id = None
-        self._email = None
-        self._display_name = None
-        self._role = None
-        self._status = None
-        self._space_memberships = None
         self._created_at = None
+        self._display_name = None
+        self._email = None
+        self._identity_user_id = None
+        self._role = None
+        self._space_memberships = None
+        self._status = None
         self.discriminator = None
-        self.identity_user_id = identity_user_id
-        self.email = email
+        self.created_at = created_at
         if display_name is not None:
             self.display_name = display_name
+        self.email = email
+        self.identity_user_id = identity_user_id
         self.role = role
-        self.status = status
         if space_memberships is not None:
             self.space_memberships = space_memberships
-        self.created_at = created_at
+        self.status = status
 
     @property
-    def identity_user_id(self):
-        """Gets the identity_user_id of this OrgMemberItem.  # noqa: E501
+    def created_at(self):
+        """Gets the created_at of this OrgMemberItem.  # noqa: E501
 
 
-        :return: The identity_user_id of this OrgMemberItem.  # noqa: E501
+        :return: The created_at of this OrgMemberItem.  # noqa: E501
         :rtype: object
         """
-        return self._identity_user_id
+        return self._created_at
 
-    @identity_user_id.setter
-    def identity_user_id(self, identity_user_id):
-        """Sets the identity_user_id of this OrgMemberItem.
+    @created_at.setter
+    def created_at(self, created_at):
+        """Sets the created_at of this OrgMemberItem.
 
 
-        :param identity_user_id: The identity_user_id of this OrgMemberItem.  # noqa: E501
+        :param created_at: The created_at of this OrgMemberItem.  # noqa: E501
         :type: object
         """
-        if identity_user_id is None:
-            raise ValueError("Invalid value for `identity_user_id`, must not be `None`")  # noqa: E501
+        if created_at is None:
+            raise ValueError("Invalid value for `created_at`, must not be `None`")  # noqa: E501
 
-        self._identity_user_id = identity_user_id
+        self._created_at = created_at
+
+    @property
+    def display_name(self):
+        """Gets the display_name of this OrgMemberItem.  # noqa: E501
+
+
+        :return: The display_name of this OrgMemberItem.  # noqa: E501
+        :rtype: object
+        """
+        return self._display_name
+
+    @display_name.setter
+    def display_name(self, display_name):
+        """Sets the display_name of this OrgMemberItem.
+
+
+        :param display_name: The display_name of this OrgMemberItem.  # noqa: E501
+        :type: object
+        """
+
+        self._display_name = display_name
 
     @property
     def email(self):
@@ -114,25 +135,27 @@ class OrgMemberItem(object):
         self._email = email
 
     @property
-    def display_name(self):
-        """Gets the display_name of this OrgMemberItem.  # noqa: E501
+    def identity_user_id(self):
+        """Gets the identity_user_id of this OrgMemberItem.  # noqa: E501
 
 
-        :return: The display_name of this OrgMemberItem.  # noqa: E501
+        :return: The identity_user_id of this OrgMemberItem.  # noqa: E501
         :rtype: object
         """
-        return self._display_name
+        return self._identity_user_id
 
-    @display_name.setter
-    def display_name(self, display_name):
-        """Sets the display_name of this OrgMemberItem.
+    @identity_user_id.setter
+    def identity_user_id(self, identity_user_id):
+        """Sets the identity_user_id of this OrgMemberItem.
 
 
-        :param display_name: The display_name of this OrgMemberItem.  # noqa: E501
+        :param identity_user_id: The identity_user_id of this OrgMemberItem.  # noqa: E501
         :type: object
         """
+        if identity_user_id is None:
+            raise ValueError("Invalid value for `identity_user_id`, must not be `None`")  # noqa: E501
 
-        self._display_name = display_name
+        self._identity_user_id = identity_user_id
 
     @property
     def role(self):
@@ -158,29 +181,6 @@ class OrgMemberItem(object):
         self._role = role
 
     @property
-    def status(self):
-        """Gets the status of this OrgMemberItem.  # noqa: E501
-
-
-        :return: The status of this OrgMemberItem.  # noqa: E501
-        :rtype: object
-        """
-        return self._status
-
-    @status.setter
-    def status(self, status):
-        """Sets the status of this OrgMemberItem.
-
-
-        :param status: The status of this OrgMemberItem.  # noqa: E501
-        :type: object
-        """
-        if status is None:
-            raise ValueError("Invalid value for `status`, must not be `None`")  # noqa: E501
-
-        self._status = status
-
-    @property
     def space_memberships(self):
         """Gets the space_memberships of this OrgMemberItem.  # noqa: E501
 
@@ -202,27 +202,27 @@ class OrgMemberItem(object):
         self._space_memberships = space_memberships
 
     @property
-    def created_at(self):
-        """Gets the created_at of this OrgMemberItem.  # noqa: E501
+    def status(self):
+        """Gets the status of this OrgMemberItem.  # noqa: E501
 
 
-        :return: The created_at of this OrgMemberItem.  # noqa: E501
+        :return: The status of this OrgMemberItem.  # noqa: E501
         :rtype: object
         """
-        return self._created_at
+        return self._status
 
-    @created_at.setter
-    def created_at(self, created_at):
-        """Sets the created_at of this OrgMemberItem.
+    @status.setter
+    def status(self, status):
+        """Sets the status of this OrgMemberItem.
 
 
-        :param created_at: The created_at of this OrgMemberItem.  # noqa: E501
+        :param status: The status of this OrgMemberItem.  # noqa: E501
         :type: object
         """
-        if created_at is None:
-            raise ValueError("Invalid value for `created_at`, must not be `None`")  # noqa: E501
+        if status is None:
+            raise ValueError("Invalid value for `status`, must not be `None`")  # noqa: E501
 
-        self._created_at = created_at
+        self._status = status
 
     def to_dict(self):
         """Returns the model properties as a dict"""

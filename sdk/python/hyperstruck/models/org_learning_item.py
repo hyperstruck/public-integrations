@@ -28,96 +28,94 @@ class OrgLearningItem(object):
                             and the value is json key in definition.
     """
     swagger_types = {
-        'org_learning_id': 'object',
-        'content': 'object',
-        'summary': 'object',
-        'utility': 'object',
-        'trust_level': 'TrustLevel',
-        'originating_agent_id': 'object',
-        'validating_agent_count': 'object',
-        'cross_agent_applied_count': 'object',
         'applicable_tools': 'object',
-        'evidence_summary': 'object',
-        'evidence_availability': 'EvidenceAvailability',
+        'content': 'object',
         'created_at': 'object',
-        'updated_at': 'object'
+        'cross_agent_applied_count': 'object',
+        'evidence_availability': 'EvidenceAvailability',
+        'evidence_summary': 'object',
+        'org_learning_id': 'object',
+        'originating_agent_id': 'object',
+        'summary': 'object',
+        'trust_level': 'TrustLevel',
+        'updated_at': 'object',
+        'utility': 'object',
+        'validating_agent_count': 'object'
     }
 
     attribute_map = {
-        'org_learning_id': 'org_learning_id',
-        'content': 'content',
-        'summary': 'summary',
-        'utility': 'utility',
-        'trust_level': 'trust_level',
-        'originating_agent_id': 'originating_agent_id',
-        'validating_agent_count': 'validating_agent_count',
-        'cross_agent_applied_count': 'cross_agent_applied_count',
         'applicable_tools': 'applicable_tools',
-        'evidence_summary': 'evidence_summary',
-        'evidence_availability': 'evidence_availability',
+        'content': 'content',
         'created_at': 'created_at',
-        'updated_at': 'updated_at'
+        'cross_agent_applied_count': 'cross_agent_applied_count',
+        'evidence_availability': 'evidence_availability',
+        'evidence_summary': 'evidence_summary',
+        'org_learning_id': 'org_learning_id',
+        'originating_agent_id': 'originating_agent_id',
+        'summary': 'summary',
+        'trust_level': 'trust_level',
+        'updated_at': 'updated_at',
+        'utility': 'utility',
+        'validating_agent_count': 'validating_agent_count'
     }
 
-    def __init__(self, org_learning_id=None, content=None, summary=None, utility=None, trust_level=None, originating_agent_id=None, validating_agent_count=None, cross_agent_applied_count=None, applicable_tools=None, evidence_summary=None, evidence_availability=None, created_at=None, updated_at=None):  # noqa: E501
+    def __init__(self, applicable_tools=None, content=None, created_at=None, cross_agent_applied_count=None, evidence_availability=None, evidence_summary=None, org_learning_id=None, originating_agent_id=None, summary=None, trust_level=None, updated_at=None, utility=None, validating_agent_count=None):  # noqa: E501
         """OrgLearningItem - a model defined in Swagger"""  # noqa: E501
-        self._org_learning_id = None
-        self._content = None
-        self._summary = None
-        self._utility = None
-        self._trust_level = None
-        self._originating_agent_id = None
-        self._validating_agent_count = None
-        self._cross_agent_applied_count = None
         self._applicable_tools = None
-        self._evidence_summary = None
-        self._evidence_availability = None
+        self._content = None
         self._created_at = None
+        self._cross_agent_applied_count = None
+        self._evidence_availability = None
+        self._evidence_summary = None
+        self._org_learning_id = None
+        self._originating_agent_id = None
+        self._summary = None
+        self._trust_level = None
         self._updated_at = None
+        self._utility = None
+        self._validating_agent_count = None
         self.discriminator = None
-        self.org_learning_id = org_learning_id
-        self.content = content
-        if summary is not None:
-            self.summary = summary
-        self.utility = utility
-        self.trust_level = trust_level
-        if originating_agent_id is not None:
-            self.originating_agent_id = originating_agent_id
-        if validating_agent_count is not None:
-            self.validating_agent_count = validating_agent_count
-        if cross_agent_applied_count is not None:
-            self.cross_agent_applied_count = cross_agent_applied_count
         if applicable_tools is not None:
             self.applicable_tools = applicable_tools
-        if evidence_summary is not None:
-            self.evidence_summary = evidence_summary
+        self.content = content
+        self.created_at = created_at
+        if cross_agent_applied_count is not None:
+            self.cross_agent_applied_count = cross_agent_applied_count
         if evidence_availability is not None:
             self.evidence_availability = evidence_availability
-        self.created_at = created_at
+        if evidence_summary is not None:
+            self.evidence_summary = evidence_summary
+        self.org_learning_id = org_learning_id
+        if originating_agent_id is not None:
+            self.originating_agent_id = originating_agent_id
+        if summary is not None:
+            self.summary = summary
+        self.trust_level = trust_level
         self.updated_at = updated_at
+        self.utility = utility
+        if validating_agent_count is not None:
+            self.validating_agent_count = validating_agent_count
 
     @property
-    def org_learning_id(self):
-        """Gets the org_learning_id of this OrgLearningItem.  # noqa: E501
+    def applicable_tools(self):
+        """Gets the applicable_tools of this OrgLearningItem.  # noqa: E501
 
 
-        :return: The org_learning_id of this OrgLearningItem.  # noqa: E501
+        :return: The applicable_tools of this OrgLearningItem.  # noqa: E501
         :rtype: object
         """
-        return self._org_learning_id
+        return self._applicable_tools
 
-    @org_learning_id.setter
-    def org_learning_id(self, org_learning_id):
-        """Sets the org_learning_id of this OrgLearningItem.
+    @applicable_tools.setter
+    def applicable_tools(self, applicable_tools):
+        """Sets the applicable_tools of this OrgLearningItem.
 
 
-        :param org_learning_id: The org_learning_id of this OrgLearningItem.  # noqa: E501
+        :param applicable_tools: The applicable_tools of this OrgLearningItem.  # noqa: E501
         :type: object
         """
-        if org_learning_id is None:
-            raise ValueError("Invalid value for `org_learning_id`, must not be `None`")  # noqa: E501
 
-        self._org_learning_id = org_learning_id
+        self._applicable_tools = applicable_tools
 
     @property
     def content(self):
@@ -143,6 +141,136 @@ class OrgLearningItem(object):
         self._content = content
 
     @property
+    def created_at(self):
+        """Gets the created_at of this OrgLearningItem.  # noqa: E501
+
+
+        :return: The created_at of this OrgLearningItem.  # noqa: E501
+        :rtype: object
+        """
+        return self._created_at
+
+    @created_at.setter
+    def created_at(self, created_at):
+        """Sets the created_at of this OrgLearningItem.
+
+
+        :param created_at: The created_at of this OrgLearningItem.  # noqa: E501
+        :type: object
+        """
+        if created_at is None:
+            raise ValueError("Invalid value for `created_at`, must not be `None`")  # noqa: E501
+
+        self._created_at = created_at
+
+    @property
+    def cross_agent_applied_count(self):
+        """Gets the cross_agent_applied_count of this OrgLearningItem.  # noqa: E501
+
+
+        :return: The cross_agent_applied_count of this OrgLearningItem.  # noqa: E501
+        :rtype: object
+        """
+        return self._cross_agent_applied_count
+
+    @cross_agent_applied_count.setter
+    def cross_agent_applied_count(self, cross_agent_applied_count):
+        """Sets the cross_agent_applied_count of this OrgLearningItem.
+
+
+        :param cross_agent_applied_count: The cross_agent_applied_count of this OrgLearningItem.  # noqa: E501
+        :type: object
+        """
+
+        self._cross_agent_applied_count = cross_agent_applied_count
+
+    @property
+    def evidence_availability(self):
+        """Gets the evidence_availability of this OrgLearningItem.  # noqa: E501
+
+
+        :return: The evidence_availability of this OrgLearningItem.  # noqa: E501
+        :rtype: EvidenceAvailability
+        """
+        return self._evidence_availability
+
+    @evidence_availability.setter
+    def evidence_availability(self, evidence_availability):
+        """Sets the evidence_availability of this OrgLearningItem.
+
+
+        :param evidence_availability: The evidence_availability of this OrgLearningItem.  # noqa: E501
+        :type: EvidenceAvailability
+        """
+
+        self._evidence_availability = evidence_availability
+
+    @property
+    def evidence_summary(self):
+        """Gets the evidence_summary of this OrgLearningItem.  # noqa: E501
+
+
+        :return: The evidence_summary of this OrgLearningItem.  # noqa: E501
+        :rtype: object
+        """
+        return self._evidence_summary
+
+    @evidence_summary.setter
+    def evidence_summary(self, evidence_summary):
+        """Sets the evidence_summary of this OrgLearningItem.
+
+
+        :param evidence_summary: The evidence_summary of this OrgLearningItem.  # noqa: E501
+        :type: object
+        """
+
+        self._evidence_summary = evidence_summary
+
+    @property
+    def org_learning_id(self):
+        """Gets the org_learning_id of this OrgLearningItem.  # noqa: E501
+
+
+        :return: The org_learning_id of this OrgLearningItem.  # noqa: E501
+        :rtype: object
+        """
+        return self._org_learning_id
+
+    @org_learning_id.setter
+    def org_learning_id(self, org_learning_id):
+        """Sets the org_learning_id of this OrgLearningItem.
+
+
+        :param org_learning_id: The org_learning_id of this OrgLearningItem.  # noqa: E501
+        :type: object
+        """
+        if org_learning_id is None:
+            raise ValueError("Invalid value for `org_learning_id`, must not be `None`")  # noqa: E501
+
+        self._org_learning_id = org_learning_id
+
+    @property
+    def originating_agent_id(self):
+        """Gets the originating_agent_id of this OrgLearningItem.  # noqa: E501
+
+
+        :return: The originating_agent_id of this OrgLearningItem.  # noqa: E501
+        :rtype: object
+        """
+        return self._originating_agent_id
+
+    @originating_agent_id.setter
+    def originating_agent_id(self, originating_agent_id):
+        """Sets the originating_agent_id of this OrgLearningItem.
+
+
+        :param originating_agent_id: The originating_agent_id of this OrgLearningItem.  # noqa: E501
+        :type: object
+        """
+
+        self._originating_agent_id = originating_agent_id
+
+    @property
     def summary(self):
         """Gets the summary of this OrgLearningItem.  # noqa: E501
 
@@ -162,29 +290,6 @@ class OrgLearningItem(object):
         """
 
         self._summary = summary
-
-    @property
-    def utility(self):
-        """Gets the utility of this OrgLearningItem.  # noqa: E501
-
-
-        :return: The utility of this OrgLearningItem.  # noqa: E501
-        :rtype: object
-        """
-        return self._utility
-
-    @utility.setter
-    def utility(self, utility):
-        """Sets the utility of this OrgLearningItem.
-
-
-        :param utility: The utility of this OrgLearningItem.  # noqa: E501
-        :type: object
-        """
-        if utility is None:
-            raise ValueError("Invalid value for `utility`, must not be `None`")  # noqa: E501
-
-        self._utility = utility
 
     @property
     def trust_level(self):
@@ -210,155 +315,6 @@ class OrgLearningItem(object):
         self._trust_level = trust_level
 
     @property
-    def originating_agent_id(self):
-        """Gets the originating_agent_id of this OrgLearningItem.  # noqa: E501
-
-
-        :return: The originating_agent_id of this OrgLearningItem.  # noqa: E501
-        :rtype: object
-        """
-        return self._originating_agent_id
-
-    @originating_agent_id.setter
-    def originating_agent_id(self, originating_agent_id):
-        """Sets the originating_agent_id of this OrgLearningItem.
-
-
-        :param originating_agent_id: The originating_agent_id of this OrgLearningItem.  # noqa: E501
-        :type: object
-        """
-
-        self._originating_agent_id = originating_agent_id
-
-    @property
-    def validating_agent_count(self):
-        """Gets the validating_agent_count of this OrgLearningItem.  # noqa: E501
-
-
-        :return: The validating_agent_count of this OrgLearningItem.  # noqa: E501
-        :rtype: object
-        """
-        return self._validating_agent_count
-
-    @validating_agent_count.setter
-    def validating_agent_count(self, validating_agent_count):
-        """Sets the validating_agent_count of this OrgLearningItem.
-
-
-        :param validating_agent_count: The validating_agent_count of this OrgLearningItem.  # noqa: E501
-        :type: object
-        """
-
-        self._validating_agent_count = validating_agent_count
-
-    @property
-    def cross_agent_applied_count(self):
-        """Gets the cross_agent_applied_count of this OrgLearningItem.  # noqa: E501
-
-
-        :return: The cross_agent_applied_count of this OrgLearningItem.  # noqa: E501
-        :rtype: object
-        """
-        return self._cross_agent_applied_count
-
-    @cross_agent_applied_count.setter
-    def cross_agent_applied_count(self, cross_agent_applied_count):
-        """Sets the cross_agent_applied_count of this OrgLearningItem.
-
-
-        :param cross_agent_applied_count: The cross_agent_applied_count of this OrgLearningItem.  # noqa: E501
-        :type: object
-        """
-
-        self._cross_agent_applied_count = cross_agent_applied_count
-
-    @property
-    def applicable_tools(self):
-        """Gets the applicable_tools of this OrgLearningItem.  # noqa: E501
-
-
-        :return: The applicable_tools of this OrgLearningItem.  # noqa: E501
-        :rtype: object
-        """
-        return self._applicable_tools
-
-    @applicable_tools.setter
-    def applicable_tools(self, applicable_tools):
-        """Sets the applicable_tools of this OrgLearningItem.
-
-
-        :param applicable_tools: The applicable_tools of this OrgLearningItem.  # noqa: E501
-        :type: object
-        """
-
-        self._applicable_tools = applicable_tools
-
-    @property
-    def evidence_summary(self):
-        """Gets the evidence_summary of this OrgLearningItem.  # noqa: E501
-
-
-        :return: The evidence_summary of this OrgLearningItem.  # noqa: E501
-        :rtype: object
-        """
-        return self._evidence_summary
-
-    @evidence_summary.setter
-    def evidence_summary(self, evidence_summary):
-        """Sets the evidence_summary of this OrgLearningItem.
-
-
-        :param evidence_summary: The evidence_summary of this OrgLearningItem.  # noqa: E501
-        :type: object
-        """
-
-        self._evidence_summary = evidence_summary
-
-    @property
-    def evidence_availability(self):
-        """Gets the evidence_availability of this OrgLearningItem.  # noqa: E501
-
-
-        :return: The evidence_availability of this OrgLearningItem.  # noqa: E501
-        :rtype: EvidenceAvailability
-        """
-        return self._evidence_availability
-
-    @evidence_availability.setter
-    def evidence_availability(self, evidence_availability):
-        """Sets the evidence_availability of this OrgLearningItem.
-
-
-        :param evidence_availability: The evidence_availability of this OrgLearningItem.  # noqa: E501
-        :type: EvidenceAvailability
-        """
-
-        self._evidence_availability = evidence_availability
-
-    @property
-    def created_at(self):
-        """Gets the created_at of this OrgLearningItem.  # noqa: E501
-
-
-        :return: The created_at of this OrgLearningItem.  # noqa: E501
-        :rtype: object
-        """
-        return self._created_at
-
-    @created_at.setter
-    def created_at(self, created_at):
-        """Sets the created_at of this OrgLearningItem.
-
-
-        :param created_at: The created_at of this OrgLearningItem.  # noqa: E501
-        :type: object
-        """
-        if created_at is None:
-            raise ValueError("Invalid value for `created_at`, must not be `None`")  # noqa: E501
-
-        self._created_at = created_at
-
-    @property
     def updated_at(self):
         """Gets the updated_at of this OrgLearningItem.  # noqa: E501
 
@@ -380,6 +336,50 @@ class OrgLearningItem(object):
             raise ValueError("Invalid value for `updated_at`, must not be `None`")  # noqa: E501
 
         self._updated_at = updated_at
+
+    @property
+    def utility(self):
+        """Gets the utility of this OrgLearningItem.  # noqa: E501
+
+
+        :return: The utility of this OrgLearningItem.  # noqa: E501
+        :rtype: object
+        """
+        return self._utility
+
+    @utility.setter
+    def utility(self, utility):
+        """Sets the utility of this OrgLearningItem.
+
+
+        :param utility: The utility of this OrgLearningItem.  # noqa: E501
+        :type: object
+        """
+        if utility is None:
+            raise ValueError("Invalid value for `utility`, must not be `None`")  # noqa: E501
+
+        self._utility = utility
+
+    @property
+    def validating_agent_count(self):
+        """Gets the validating_agent_count of this OrgLearningItem.  # noqa: E501
+
+
+        :return: The validating_agent_count of this OrgLearningItem.  # noqa: E501
+        :rtype: object
+        """
+        return self._validating_agent_count
+
+    @validating_agent_count.setter
+    def validating_agent_count(self, validating_agent_count):
+        """Sets the validating_agent_count of this OrgLearningItem.
+
+
+        :param validating_agent_count: The validating_agent_count of this OrgLearningItem.  # noqa: E501
+        :type: object
+        """
+
+        self._validating_agent_count = validating_agent_count
 
     def to_dict(self):
         """Returns the model properties as a dict"""

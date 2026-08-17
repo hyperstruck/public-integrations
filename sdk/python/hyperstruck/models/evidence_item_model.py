@@ -28,67 +28,42 @@ class EvidenceItemModel(object):
                             and the value is json key in definition.
     """
     swagger_types = {
-        'id': 'object',
         'content': 'object',
+        'id': 'object',
         'label': 'object',
         'role': 'object',
-        'status': 'object',
-        'source_ref': 'object'
+        'source_ref': 'object',
+        'status': 'object'
     }
 
     attribute_map = {
-        'id': 'id',
         'content': 'content',
+        'id': 'id',
         'label': 'label',
         'role': 'role',
-        'status': 'status',
-        'source_ref': 'source_ref'
+        'source_ref': 'source_ref',
+        'status': 'status'
     }
 
-    def __init__(self, id=None, content=None, label=None, role=None, status=None, source_ref=None):  # noqa: E501
+    def __init__(self, content=None, id=None, label=None, role=None, source_ref=None, status=None):  # noqa: E501
         """EvidenceItemModel - a model defined in Swagger"""  # noqa: E501
-        self._id = None
         self._content = None
+        self._id = None
         self._label = None
         self._role = None
-        self._status = None
         self._source_ref = None
+        self._status = None
         self.discriminator = None
-        self.id = id
         self.content = content
+        self.id = id
         if label is not None:
             self.label = label
         if role is not None:
             self.role = role
-        if status is not None:
-            self.status = status
         if source_ref is not None:
             self.source_ref = source_ref
-
-    @property
-    def id(self):
-        """Gets the id of this EvidenceItemModel.  # noqa: E501
-
-        Stable within the run.  # noqa: E501
-
-        :return: The id of this EvidenceItemModel.  # noqa: E501
-        :rtype: object
-        """
-        return self._id
-
-    @id.setter
-    def id(self, id):
-        """Sets the id of this EvidenceItemModel.
-
-        Stable within the run.  # noqa: E501
-
-        :param id: The id of this EvidenceItemModel.  # noqa: E501
-        :type: object
-        """
-        if id is None:
-            raise ValueError("Invalid value for `id`, must not be `None`")  # noqa: E501
-
-        self._id = id
+        if status is not None:
+            self.status = status
 
     @property
     def content(self):
@@ -114,6 +89,31 @@ class EvidenceItemModel(object):
             raise ValueError("Invalid value for `content`, must not be `None`")  # noqa: E501
 
         self._content = content
+
+    @property
+    def id(self):
+        """Gets the id of this EvidenceItemModel.  # noqa: E501
+
+        Stable within the run.  # noqa: E501
+
+        :return: The id of this EvidenceItemModel.  # noqa: E501
+        :rtype: object
+        """
+        return self._id
+
+    @id.setter
+    def id(self, id):
+        """Sets the id of this EvidenceItemModel.
+
+        Stable within the run.  # noqa: E501
+
+        :param id: The id of this EvidenceItemModel.  # noqa: E501
+        :type: object
+        """
+        if id is None:
+            raise ValueError("Invalid value for `id`, must not be `None`")  # noqa: E501
+
+        self._id = id
 
     @property
     def label(self):
@@ -160,27 +160,6 @@ class EvidenceItemModel(object):
         self._role = role
 
     @property
-    def status(self):
-        """Gets the status of this EvidenceItemModel.  # noqa: E501
-
-
-        :return: The status of this EvidenceItemModel.  # noqa: E501
-        :rtype: object
-        """
-        return self._status
-
-    @status.setter
-    def status(self, status):
-        """Sets the status of this EvidenceItemModel.
-
-
-        :param status: The status of this EvidenceItemModel.  # noqa: E501
-        :type: object
-        """
-
-        self._status = status
-
-    @property
     def source_ref(self):
         """Gets the source_ref of this EvidenceItemModel.  # noqa: E501
 
@@ -202,6 +181,27 @@ class EvidenceItemModel(object):
         """
 
         self._source_ref = source_ref
+
+    @property
+    def status(self):
+        """Gets the status of this EvidenceItemModel.  # noqa: E501
+
+
+        :return: The status of this EvidenceItemModel.  # noqa: E501
+        :rtype: object
+        """
+        return self._status
+
+    @status.setter
+    def status(self, status):
+        """Sets the status of this EvidenceItemModel.
+
+
+        :param status: The status of this EvidenceItemModel.  # noqa: E501
+        :type: object
+        """
+
+        self._status = status
 
     def to_dict(self):
         """Returns the model properties as a dict"""

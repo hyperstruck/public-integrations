@@ -28,63 +28,40 @@ class ReportingDefaultsResponse(object):
                             and the value is json key in definition.
     """
     swagger_types = {
-        'space_id': 'object',
         'constants': 'ReportingConstants',
         'is_illustrative': 'object',
         'schema_version': 'object',
+        'space_id': 'object',
         'updated_at': 'object',
         'updated_by': 'object'
     }
 
     attribute_map = {
-        'space_id': 'space_id',
         'constants': 'constants',
         'is_illustrative': 'is_illustrative',
         'schema_version': 'schema_version',
+        'space_id': 'space_id',
         'updated_at': 'updated_at',
         'updated_by': 'updated_by'
     }
 
-    def __init__(self, space_id=None, constants=None, is_illustrative=None, schema_version=None, updated_at=None, updated_by=None):  # noqa: E501
+    def __init__(self, constants=None, is_illustrative=None, schema_version=None, space_id=None, updated_at=None, updated_by=None):  # noqa: E501
         """ReportingDefaultsResponse - a model defined in Swagger"""  # noqa: E501
-        self._space_id = None
         self._constants = None
         self._is_illustrative = None
         self._schema_version = None
+        self._space_id = None
         self._updated_at = None
         self._updated_by = None
         self.discriminator = None
-        self.space_id = space_id
         self.constants = constants
         self.is_illustrative = is_illustrative
         self.schema_version = schema_version
+        self.space_id = space_id
         if updated_at is not None:
             self.updated_at = updated_at
         if updated_by is not None:
             self.updated_by = updated_by
-
-    @property
-    def space_id(self):
-        """Gets the space_id of this ReportingDefaultsResponse.  # noqa: E501
-
-
-        :return: The space_id of this ReportingDefaultsResponse.  # noqa: E501
-        :rtype: object
-        """
-        return self._space_id
-
-    @space_id.setter
-    def space_id(self, space_id):
-        """Sets the space_id of this ReportingDefaultsResponse.
-
-
-        :param space_id: The space_id of this ReportingDefaultsResponse.  # noqa: E501
-        :type: object
-        """
-        if space_id is None:
-            raise ValueError("Invalid value for `space_id`, must not be `None`")  # noqa: E501
-
-        self._space_id = space_id
 
     @property
     def constants(self):
@@ -154,6 +131,29 @@ class ReportingDefaultsResponse(object):
             raise ValueError("Invalid value for `schema_version`, must not be `None`")  # noqa: E501
 
         self._schema_version = schema_version
+
+    @property
+    def space_id(self):
+        """Gets the space_id of this ReportingDefaultsResponse.  # noqa: E501
+
+
+        :return: The space_id of this ReportingDefaultsResponse.  # noqa: E501
+        :rtype: object
+        """
+        return self._space_id
+
+    @space_id.setter
+    def space_id(self, space_id):
+        """Sets the space_id of this ReportingDefaultsResponse.
+
+
+        :param space_id: The space_id of this ReportingDefaultsResponse.  # noqa: E501
+        :type: object
+        """
+        if space_id is None:
+            raise ValueError("Invalid value for `space_id`, must not be `None`")  # noqa: E501
+
+        self._space_id = space_id
 
     @property
     def updated_at(self):

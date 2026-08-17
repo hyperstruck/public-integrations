@@ -28,42 +28,88 @@ class DashboardListItem(object):
                             and the value is json key in definition.
     """
     swagger_types = {
+        'columns': 'object',
+        'description': 'object',
         'id': 'object',
         'space_id': 'object',
         'title': 'object',
-        'description': 'object',
-        'columns': 'object',
-        'window_preset': 'UsageTimeWindow',
-        'updated_at': 'object'
+        'updated_at': 'object',
+        'window_preset': 'UsageTimeWindow'
     }
 
     attribute_map = {
+        'columns': 'columns',
+        'description': 'description',
         'id': 'id',
         'space_id': 'space_id',
         'title': 'title',
-        'description': 'description',
-        'columns': 'columns',
-        'window_preset': 'window_preset',
-        'updated_at': 'updated_at'
+        'updated_at': 'updated_at',
+        'window_preset': 'window_preset'
     }
 
-    def __init__(self, id=None, space_id=None, title=None, description=None, columns=None, window_preset=None, updated_at=None):  # noqa: E501
+    def __init__(self, columns=None, description=None, id=None, space_id=None, title=None, updated_at=None, window_preset=None):  # noqa: E501
         """DashboardListItem - a model defined in Swagger"""  # noqa: E501
+        self._columns = None
+        self._description = None
         self._id = None
         self._space_id = None
         self._title = None
-        self._description = None
-        self._columns = None
-        self._window_preset = None
         self._updated_at = None
+        self._window_preset = None
         self.discriminator = None
+        self.columns = columns
+        self.description = description
         self.id = id
         self.space_id = space_id
         self.title = title
-        self.description = description
-        self.columns = columns
-        self.window_preset = window_preset
         self.updated_at = updated_at
+        self.window_preset = window_preset
+
+    @property
+    def columns(self):
+        """Gets the columns of this DashboardListItem.  # noqa: E501
+
+
+        :return: The columns of this DashboardListItem.  # noqa: E501
+        :rtype: object
+        """
+        return self._columns
+
+    @columns.setter
+    def columns(self, columns):
+        """Sets the columns of this DashboardListItem.
+
+
+        :param columns: The columns of this DashboardListItem.  # noqa: E501
+        :type: object
+        """
+        if columns is None:
+            raise ValueError("Invalid value for `columns`, must not be `None`")  # noqa: E501
+
+        self._columns = columns
+
+    @property
+    def description(self):
+        """Gets the description of this DashboardListItem.  # noqa: E501
+
+
+        :return: The description of this DashboardListItem.  # noqa: E501
+        :rtype: object
+        """
+        return self._description
+
+    @description.setter
+    def description(self, description):
+        """Sets the description of this DashboardListItem.
+
+
+        :param description: The description of this DashboardListItem.  # noqa: E501
+        :type: object
+        """
+        if description is None:
+            raise ValueError("Invalid value for `description`, must not be `None`")  # noqa: E501
+
+        self._description = description
 
     @property
     def id(self):
@@ -135,50 +181,27 @@ class DashboardListItem(object):
         self._title = title
 
     @property
-    def description(self):
-        """Gets the description of this DashboardListItem.  # noqa: E501
+    def updated_at(self):
+        """Gets the updated_at of this DashboardListItem.  # noqa: E501
 
 
-        :return: The description of this DashboardListItem.  # noqa: E501
+        :return: The updated_at of this DashboardListItem.  # noqa: E501
         :rtype: object
         """
-        return self._description
+        return self._updated_at
 
-    @description.setter
-    def description(self, description):
-        """Sets the description of this DashboardListItem.
+    @updated_at.setter
+    def updated_at(self, updated_at):
+        """Sets the updated_at of this DashboardListItem.
 
 
-        :param description: The description of this DashboardListItem.  # noqa: E501
+        :param updated_at: The updated_at of this DashboardListItem.  # noqa: E501
         :type: object
         """
-        if description is None:
-            raise ValueError("Invalid value for `description`, must not be `None`")  # noqa: E501
+        if updated_at is None:
+            raise ValueError("Invalid value for `updated_at`, must not be `None`")  # noqa: E501
 
-        self._description = description
-
-    @property
-    def columns(self):
-        """Gets the columns of this DashboardListItem.  # noqa: E501
-
-
-        :return: The columns of this DashboardListItem.  # noqa: E501
-        :rtype: object
-        """
-        return self._columns
-
-    @columns.setter
-    def columns(self, columns):
-        """Sets the columns of this DashboardListItem.
-
-
-        :param columns: The columns of this DashboardListItem.  # noqa: E501
-        :type: object
-        """
-        if columns is None:
-            raise ValueError("Invalid value for `columns`, must not be `None`")  # noqa: E501
-
-        self._columns = columns
+        self._updated_at = updated_at
 
     @property
     def window_preset(self):
@@ -202,29 +225,6 @@ class DashboardListItem(object):
             raise ValueError("Invalid value for `window_preset`, must not be `None`")  # noqa: E501
 
         self._window_preset = window_preset
-
-    @property
-    def updated_at(self):
-        """Gets the updated_at of this DashboardListItem.  # noqa: E501
-
-
-        :return: The updated_at of this DashboardListItem.  # noqa: E501
-        :rtype: object
-        """
-        return self._updated_at
-
-    @updated_at.setter
-    def updated_at(self, updated_at):
-        """Sets the updated_at of this DashboardListItem.
-
-
-        :param updated_at: The updated_at of this DashboardListItem.  # noqa: E501
-        :type: object
-        """
-        if updated_at is None:
-            raise ValueError("Invalid value for `updated_at`, must not be `None`")  # noqa: E501
-
-        self._updated_at = updated_at
 
     def to_dict(self):
         """Returns the model properties as a dict"""

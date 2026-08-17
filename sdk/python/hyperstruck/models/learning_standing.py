@@ -28,51 +28,51 @@ class LearningStanding(object):
                             and the value is json key in definition.
     """
     swagger_types = {
-        'utility': 'object',
+        'corroboration_count': 'object',
         'reliability': 'object',
-        'corroboration_count': 'object'
+        'utility': 'object'
     }
 
     attribute_map = {
-        'utility': 'utility',
+        'corroboration_count': 'corroboration_count',
         'reliability': 'reliability',
-        'corroboration_count': 'corroboration_count'
+        'utility': 'utility'
     }
 
-    def __init__(self, utility=None, reliability=None, corroboration_count=None):  # noqa: E501
+    def __init__(self, corroboration_count=None, reliability=None, utility=None):  # noqa: E501
         """LearningStanding - a model defined in Swagger"""  # noqa: E501
-        self._utility = None
-        self._reliability = None
         self._corroboration_count = None
+        self._reliability = None
+        self._utility = None
         self.discriminator = None
-        self.utility = utility
-        self.reliability = reliability
         self.corroboration_count = corroboration_count
+        self.reliability = reliability
+        self.utility = utility
 
     @property
-    def utility(self):
-        """Gets the utility of this LearningStanding.  # noqa: E501
+    def corroboration_count(self):
+        """Gets the corroboration_count of this LearningStanding.  # noqa: E501
 
-        Value when applied, 0.0-1.0 (recency-discounted application-outcome score).  # noqa: E501
+        Number of independent sources that corroborated this learning.  # noqa: E501
 
-        :return: The utility of this LearningStanding.  # noqa: E501
+        :return: The corroboration_count of this LearningStanding.  # noqa: E501
         :rtype: object
         """
-        return self._utility
+        return self._corroboration_count
 
-    @utility.setter
-    def utility(self, utility):
-        """Sets the utility of this LearningStanding.
+    @corroboration_count.setter
+    def corroboration_count(self, corroboration_count):
+        """Sets the corroboration_count of this LearningStanding.
 
-        Value when applied, 0.0-1.0 (recency-discounted application-outcome score).  # noqa: E501
+        Number of independent sources that corroborated this learning.  # noqa: E501
 
-        :param utility: The utility of this LearningStanding.  # noqa: E501
+        :param corroboration_count: The corroboration_count of this LearningStanding.  # noqa: E501
         :type: object
         """
-        if utility is None:
-            raise ValueError("Invalid value for `utility`, must not be `None`")  # noqa: E501
+        if corroboration_count is None:
+            raise ValueError("Invalid value for `corroboration_count`, must not be `None`")  # noqa: E501
 
-        self._utility = utility
+        self._corroboration_count = corroboration_count
 
     @property
     def reliability(self):
@@ -100,29 +100,29 @@ class LearningStanding(object):
         self._reliability = reliability
 
     @property
-    def corroboration_count(self):
-        """Gets the corroboration_count of this LearningStanding.  # noqa: E501
+    def utility(self):
+        """Gets the utility of this LearningStanding.  # noqa: E501
 
-        Number of independent sources that corroborated this learning.  # noqa: E501
+        Value when applied, 0.0-1.0 (recency-discounted application-outcome score).  # noqa: E501
 
-        :return: The corroboration_count of this LearningStanding.  # noqa: E501
+        :return: The utility of this LearningStanding.  # noqa: E501
         :rtype: object
         """
-        return self._corroboration_count
+        return self._utility
 
-    @corroboration_count.setter
-    def corroboration_count(self, corroboration_count):
-        """Sets the corroboration_count of this LearningStanding.
+    @utility.setter
+    def utility(self, utility):
+        """Sets the utility of this LearningStanding.
 
-        Number of independent sources that corroborated this learning.  # noqa: E501
+        Value when applied, 0.0-1.0 (recency-discounted application-outcome score).  # noqa: E501
 
-        :param corroboration_count: The corroboration_count of this LearningStanding.  # noqa: E501
+        :param utility: The utility of this LearningStanding.  # noqa: E501
         :type: object
         """
-        if corroboration_count is None:
-            raise ValueError("Invalid value for `corroboration_count`, must not be `None`")  # noqa: E501
+        if utility is None:
+            raise ValueError("Invalid value for `utility`, must not be `None`")  # noqa: E501
 
-        self._corroboration_count = corroboration_count
+        self._utility = utility
 
     def to_dict(self):
         """Returns the model properties as a dict"""

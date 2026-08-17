@@ -28,142 +28,50 @@ class ReportingQueryResponse(object):
                             and the value is json key in definition.
     """
     swagger_types = {
-        'rows': 'object',
-        'row_count': 'object',
-        'truncated': 'object',
-        'query_binding': 'QueryBinding',
         'constants': 'ReportingConstants',
         'is_illustrative': 'object',
-        'window': 'UsageTimeWindow',
+        'period_end_exclusive': 'object',
         'period_start': 'object',
-        'period_end_exclusive': 'object'
+        'query_binding': 'QueryBinding',
+        'row_count': 'object',
+        'rows': 'object',
+        'truncated': 'object',
+        'window': 'UsageTimeWindow'
     }
 
     attribute_map = {
-        'rows': 'rows',
-        'row_count': 'row_count',
-        'truncated': 'truncated',
-        'query_binding': 'query_binding',
         'constants': 'constants',
         'is_illustrative': 'is_illustrative',
-        'window': 'window',
+        'period_end_exclusive': 'period_end_exclusive',
         'period_start': 'period_start',
-        'period_end_exclusive': 'period_end_exclusive'
+        'query_binding': 'query_binding',
+        'row_count': 'row_count',
+        'rows': 'rows',
+        'truncated': 'truncated',
+        'window': 'window'
     }
 
-    def __init__(self, rows=None, row_count=None, truncated=None, query_binding=None, constants=None, is_illustrative=None, window=None, period_start=None, period_end_exclusive=None):  # noqa: E501
+    def __init__(self, constants=None, is_illustrative=None, period_end_exclusive=None, period_start=None, query_binding=None, row_count=None, rows=None, truncated=None, window=None):  # noqa: E501
         """ReportingQueryResponse - a model defined in Swagger"""  # noqa: E501
-        self._rows = None
-        self._row_count = None
-        self._truncated = None
-        self._query_binding = None
         self._constants = None
         self._is_illustrative = None
-        self._window = None
-        self._period_start = None
         self._period_end_exclusive = None
+        self._period_start = None
+        self._query_binding = None
+        self._row_count = None
+        self._rows = None
+        self._truncated = None
+        self._window = None
         self.discriminator = None
-        self.rows = rows
-        self.row_count = row_count
-        self.truncated = truncated
-        self.query_binding = query_binding
         self.constants = constants
         self.is_illustrative = is_illustrative
-        self.window = window
-        self.period_start = period_start
         self.period_end_exclusive = period_end_exclusive
-
-    @property
-    def rows(self):
-        """Gets the rows of this ReportingQueryResponse.  # noqa: E501
-
-
-        :return: The rows of this ReportingQueryResponse.  # noqa: E501
-        :rtype: object
-        """
-        return self._rows
-
-    @rows.setter
-    def rows(self, rows):
-        """Sets the rows of this ReportingQueryResponse.
-
-
-        :param rows: The rows of this ReportingQueryResponse.  # noqa: E501
-        :type: object
-        """
-        if rows is None:
-            raise ValueError("Invalid value for `rows`, must not be `None`")  # noqa: E501
-
-        self._rows = rows
-
-    @property
-    def row_count(self):
-        """Gets the row_count of this ReportingQueryResponse.  # noqa: E501
-
-
-        :return: The row_count of this ReportingQueryResponse.  # noqa: E501
-        :rtype: object
-        """
-        return self._row_count
-
-    @row_count.setter
-    def row_count(self, row_count):
-        """Sets the row_count of this ReportingQueryResponse.
-
-
-        :param row_count: The row_count of this ReportingQueryResponse.  # noqa: E501
-        :type: object
-        """
-        if row_count is None:
-            raise ValueError("Invalid value for `row_count`, must not be `None`")  # noqa: E501
-
-        self._row_count = row_count
-
-    @property
-    def truncated(self):
-        """Gets the truncated of this ReportingQueryResponse.  # noqa: E501
-
-
-        :return: The truncated of this ReportingQueryResponse.  # noqa: E501
-        :rtype: object
-        """
-        return self._truncated
-
-    @truncated.setter
-    def truncated(self, truncated):
-        """Sets the truncated of this ReportingQueryResponse.
-
-
-        :param truncated: The truncated of this ReportingQueryResponse.  # noqa: E501
-        :type: object
-        """
-        if truncated is None:
-            raise ValueError("Invalid value for `truncated`, must not be `None`")  # noqa: E501
-
-        self._truncated = truncated
-
-    @property
-    def query_binding(self):
-        """Gets the query_binding of this ReportingQueryResponse.  # noqa: E501
-
-
-        :return: The query_binding of this ReportingQueryResponse.  # noqa: E501
-        :rtype: QueryBinding
-        """
-        return self._query_binding
-
-    @query_binding.setter
-    def query_binding(self, query_binding):
-        """Sets the query_binding of this ReportingQueryResponse.
-
-
-        :param query_binding: The query_binding of this ReportingQueryResponse.  # noqa: E501
-        :type: QueryBinding
-        """
-        if query_binding is None:
-            raise ValueError("Invalid value for `query_binding`, must not be `None`")  # noqa: E501
-
-        self._query_binding = query_binding
+        self.period_start = period_start
+        self.query_binding = query_binding
+        self.row_count = row_count
+        self.rows = rows
+        self.truncated = truncated
+        self.window = window
 
     @property
     def constants(self):
@@ -212,27 +120,27 @@ class ReportingQueryResponse(object):
         self._is_illustrative = is_illustrative
 
     @property
-    def window(self):
-        """Gets the window of this ReportingQueryResponse.  # noqa: E501
+    def period_end_exclusive(self):
+        """Gets the period_end_exclusive of this ReportingQueryResponse.  # noqa: E501
 
 
-        :return: The window of this ReportingQueryResponse.  # noqa: E501
-        :rtype: UsageTimeWindow
+        :return: The period_end_exclusive of this ReportingQueryResponse.  # noqa: E501
+        :rtype: object
         """
-        return self._window
+        return self._period_end_exclusive
 
-    @window.setter
-    def window(self, window):
-        """Sets the window of this ReportingQueryResponse.
+    @period_end_exclusive.setter
+    def period_end_exclusive(self, period_end_exclusive):
+        """Sets the period_end_exclusive of this ReportingQueryResponse.
 
 
-        :param window: The window of this ReportingQueryResponse.  # noqa: E501
-        :type: UsageTimeWindow
+        :param period_end_exclusive: The period_end_exclusive of this ReportingQueryResponse.  # noqa: E501
+        :type: object
         """
-        if window is None:
-            raise ValueError("Invalid value for `window`, must not be `None`")  # noqa: E501
+        if period_end_exclusive is None:
+            raise ValueError("Invalid value for `period_end_exclusive`, must not be `None`")  # noqa: E501
 
-        self._window = window
+        self._period_end_exclusive = period_end_exclusive
 
     @property
     def period_start(self):
@@ -258,27 +166,119 @@ class ReportingQueryResponse(object):
         self._period_start = period_start
 
     @property
-    def period_end_exclusive(self):
-        """Gets the period_end_exclusive of this ReportingQueryResponse.  # noqa: E501
+    def query_binding(self):
+        """Gets the query_binding of this ReportingQueryResponse.  # noqa: E501
 
 
-        :return: The period_end_exclusive of this ReportingQueryResponse.  # noqa: E501
+        :return: The query_binding of this ReportingQueryResponse.  # noqa: E501
+        :rtype: QueryBinding
+        """
+        return self._query_binding
+
+    @query_binding.setter
+    def query_binding(self, query_binding):
+        """Sets the query_binding of this ReportingQueryResponse.
+
+
+        :param query_binding: The query_binding of this ReportingQueryResponse.  # noqa: E501
+        :type: QueryBinding
+        """
+        if query_binding is None:
+            raise ValueError("Invalid value for `query_binding`, must not be `None`")  # noqa: E501
+
+        self._query_binding = query_binding
+
+    @property
+    def row_count(self):
+        """Gets the row_count of this ReportingQueryResponse.  # noqa: E501
+
+
+        :return: The row_count of this ReportingQueryResponse.  # noqa: E501
         :rtype: object
         """
-        return self._period_end_exclusive
+        return self._row_count
 
-    @period_end_exclusive.setter
-    def period_end_exclusive(self, period_end_exclusive):
-        """Sets the period_end_exclusive of this ReportingQueryResponse.
+    @row_count.setter
+    def row_count(self, row_count):
+        """Sets the row_count of this ReportingQueryResponse.
 
 
-        :param period_end_exclusive: The period_end_exclusive of this ReportingQueryResponse.  # noqa: E501
+        :param row_count: The row_count of this ReportingQueryResponse.  # noqa: E501
         :type: object
         """
-        if period_end_exclusive is None:
-            raise ValueError("Invalid value for `period_end_exclusive`, must not be `None`")  # noqa: E501
+        if row_count is None:
+            raise ValueError("Invalid value for `row_count`, must not be `None`")  # noqa: E501
 
-        self._period_end_exclusive = period_end_exclusive
+        self._row_count = row_count
+
+    @property
+    def rows(self):
+        """Gets the rows of this ReportingQueryResponse.  # noqa: E501
+
+
+        :return: The rows of this ReportingQueryResponse.  # noqa: E501
+        :rtype: object
+        """
+        return self._rows
+
+    @rows.setter
+    def rows(self, rows):
+        """Sets the rows of this ReportingQueryResponse.
+
+
+        :param rows: The rows of this ReportingQueryResponse.  # noqa: E501
+        :type: object
+        """
+        if rows is None:
+            raise ValueError("Invalid value for `rows`, must not be `None`")  # noqa: E501
+
+        self._rows = rows
+
+    @property
+    def truncated(self):
+        """Gets the truncated of this ReportingQueryResponse.  # noqa: E501
+
+
+        :return: The truncated of this ReportingQueryResponse.  # noqa: E501
+        :rtype: object
+        """
+        return self._truncated
+
+    @truncated.setter
+    def truncated(self, truncated):
+        """Sets the truncated of this ReportingQueryResponse.
+
+
+        :param truncated: The truncated of this ReportingQueryResponse.  # noqa: E501
+        :type: object
+        """
+        if truncated is None:
+            raise ValueError("Invalid value for `truncated`, must not be `None`")  # noqa: E501
+
+        self._truncated = truncated
+
+    @property
+    def window(self):
+        """Gets the window of this ReportingQueryResponse.  # noqa: E501
+
+
+        :return: The window of this ReportingQueryResponse.  # noqa: E501
+        :rtype: UsageTimeWindow
+        """
+        return self._window
+
+    @window.setter
+    def window(self, window):
+        """Sets the window of this ReportingQueryResponse.
+
+
+        :param window: The window of this ReportingQueryResponse.  # noqa: E501
+        :type: UsageTimeWindow
+        """
+        if window is None:
+            raise ValueError("Invalid value for `window`, must not be `None`")  # noqa: E501
+
+        self._window = window
 
     def to_dict(self):
         """Returns the model properties as a dict"""

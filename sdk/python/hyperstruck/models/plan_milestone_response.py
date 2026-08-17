@@ -28,43 +28,106 @@ class PlanMilestoneResponse(object):
                             and the value is json key in definition.
     """
     swagger_types = {
+        'description': 'object',
+        'is_completed': 'object',
+        'is_degraded': 'object',
         'milestone_id': 'object',
         'name': 'object',
-        'description': 'object',
-        'step_ids': 'object',
-        'is_completed': 'object',
-        'is_degraded': 'object'
+        'step_ids': 'object'
     }
 
     attribute_map = {
+        'description': 'description',
+        'is_completed': 'is_completed',
+        'is_degraded': 'is_degraded',
         'milestone_id': 'milestone_id',
         'name': 'name',
-        'description': 'description',
-        'step_ids': 'step_ids',
-        'is_completed': 'is_completed',
-        'is_degraded': 'is_degraded'
+        'step_ids': 'step_ids'
     }
 
-    def __init__(self, milestone_id=None, name=None, description=None, step_ids=None, is_completed=None, is_degraded=None):  # noqa: E501
+    def __init__(self, description=None, is_completed=None, is_degraded=None, milestone_id=None, name=None, step_ids=None):  # noqa: E501
         """PlanMilestoneResponse - a model defined in Swagger"""  # noqa: E501
-        self._milestone_id = None
-        self._name = None
         self._description = None
-        self._step_ids = None
         self._is_completed = None
         self._is_degraded = None
+        self._milestone_id = None
+        self._name = None
+        self._step_ids = None
         self.discriminator = None
-        if milestone_id is not None:
-            self.milestone_id = milestone_id
-        self.name = name
         if description is not None:
             self.description = description
-        if step_ids is not None:
-            self.step_ids = step_ids
         if is_completed is not None:
             self.is_completed = is_completed
         if is_degraded is not None:
             self.is_degraded = is_degraded
+        if milestone_id is not None:
+            self.milestone_id = milestone_id
+        self.name = name
+        if step_ids is not None:
+            self.step_ids = step_ids
+
+    @property
+    def description(self):
+        """Gets the description of this PlanMilestoneResponse.  # noqa: E501
+
+
+        :return: The description of this PlanMilestoneResponse.  # noqa: E501
+        :rtype: object
+        """
+        return self._description
+
+    @description.setter
+    def description(self, description):
+        """Sets the description of this PlanMilestoneResponse.
+
+
+        :param description: The description of this PlanMilestoneResponse.  # noqa: E501
+        :type: object
+        """
+
+        self._description = description
+
+    @property
+    def is_completed(self):
+        """Gets the is_completed of this PlanMilestoneResponse.  # noqa: E501
+
+
+        :return: The is_completed of this PlanMilestoneResponse.  # noqa: E501
+        :rtype: object
+        """
+        return self._is_completed
+
+    @is_completed.setter
+    def is_completed(self, is_completed):
+        """Sets the is_completed of this PlanMilestoneResponse.
+
+
+        :param is_completed: The is_completed of this PlanMilestoneResponse.  # noqa: E501
+        :type: object
+        """
+
+        self._is_completed = is_completed
+
+    @property
+    def is_degraded(self):
+        """Gets the is_degraded of this PlanMilestoneResponse.  # noqa: E501
+
+
+        :return: The is_degraded of this PlanMilestoneResponse.  # noqa: E501
+        :rtype: object
+        """
+        return self._is_degraded
+
+    @is_degraded.setter
+    def is_degraded(self, is_degraded):
+        """Sets the is_degraded of this PlanMilestoneResponse.
+
+
+        :param is_degraded: The is_degraded of this PlanMilestoneResponse.  # noqa: E501
+        :type: object
+        """
+
+        self._is_degraded = is_degraded
 
     @property
     def milestone_id(self):
@@ -111,27 +174,6 @@ class PlanMilestoneResponse(object):
         self._name = name
 
     @property
-    def description(self):
-        """Gets the description of this PlanMilestoneResponse.  # noqa: E501
-
-
-        :return: The description of this PlanMilestoneResponse.  # noqa: E501
-        :rtype: object
-        """
-        return self._description
-
-    @description.setter
-    def description(self, description):
-        """Sets the description of this PlanMilestoneResponse.
-
-
-        :param description: The description of this PlanMilestoneResponse.  # noqa: E501
-        :type: object
-        """
-
-        self._description = description
-
-    @property
     def step_ids(self):
         """Gets the step_ids of this PlanMilestoneResponse.  # noqa: E501
 
@@ -151,48 +193,6 @@ class PlanMilestoneResponse(object):
         """
 
         self._step_ids = step_ids
-
-    @property
-    def is_completed(self):
-        """Gets the is_completed of this PlanMilestoneResponse.  # noqa: E501
-
-
-        :return: The is_completed of this PlanMilestoneResponse.  # noqa: E501
-        :rtype: object
-        """
-        return self._is_completed
-
-    @is_completed.setter
-    def is_completed(self, is_completed):
-        """Sets the is_completed of this PlanMilestoneResponse.
-
-
-        :param is_completed: The is_completed of this PlanMilestoneResponse.  # noqa: E501
-        :type: object
-        """
-
-        self._is_completed = is_completed
-
-    @property
-    def is_degraded(self):
-        """Gets the is_degraded of this PlanMilestoneResponse.  # noqa: E501
-
-
-        :return: The is_degraded of this PlanMilestoneResponse.  # noqa: E501
-        :rtype: object
-        """
-        return self._is_degraded
-
-    @is_degraded.setter
-    def is_degraded(self, is_degraded):
-        """Sets the is_degraded of this PlanMilestoneResponse.
-
-
-        :param is_degraded: The is_degraded of this PlanMilestoneResponse.  # noqa: E501
-        :type: object
-        """
-
-        self._is_degraded = is_degraded
 
     def to_dict(self):
         """Returns the model properties as a dict"""

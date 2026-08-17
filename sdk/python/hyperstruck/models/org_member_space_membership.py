@@ -28,30 +28,53 @@ class OrgMemberSpaceMembership(object):
                             and the value is json key in definition.
     """
     swagger_types = {
+        'relation': 'object',
         'space_id': 'object',
-        'space_name': 'object',
         'space_kind': 'SpaceKind',
-        'relation': 'object'
+        'space_name': 'object'
     }
 
     attribute_map = {
+        'relation': 'relation',
         'space_id': 'space_id',
-        'space_name': 'space_name',
         'space_kind': 'space_kind',
-        'relation': 'relation'
+        'space_name': 'space_name'
     }
 
-    def __init__(self, space_id=None, space_name=None, space_kind=None, relation=None):  # noqa: E501
+    def __init__(self, relation=None, space_id=None, space_kind=None, space_name=None):  # noqa: E501
         """OrgMemberSpaceMembership - a model defined in Swagger"""  # noqa: E501
-        self._space_id = None
-        self._space_name = None
-        self._space_kind = None
         self._relation = None
+        self._space_id = None
+        self._space_kind = None
+        self._space_name = None
         self.discriminator = None
-        self.space_id = space_id
-        self.space_name = space_name
-        self.space_kind = space_kind
         self.relation = relation
+        self.space_id = space_id
+        self.space_kind = space_kind
+        self.space_name = space_name
+
+    @property
+    def relation(self):
+        """Gets the relation of this OrgMemberSpaceMembership.  # noqa: E501
+
+
+        :return: The relation of this OrgMemberSpaceMembership.  # noqa: E501
+        :rtype: object
+        """
+        return self._relation
+
+    @relation.setter
+    def relation(self, relation):
+        """Sets the relation of this OrgMemberSpaceMembership.
+
+
+        :param relation: The relation of this OrgMemberSpaceMembership.  # noqa: E501
+        :type: object
+        """
+        if relation is None:
+            raise ValueError("Invalid value for `relation`, must not be `None`")  # noqa: E501
+
+        self._relation = relation
 
     @property
     def space_id(self):
@@ -77,29 +100,6 @@ class OrgMemberSpaceMembership(object):
         self._space_id = space_id
 
     @property
-    def space_name(self):
-        """Gets the space_name of this OrgMemberSpaceMembership.  # noqa: E501
-
-
-        :return: The space_name of this OrgMemberSpaceMembership.  # noqa: E501
-        :rtype: object
-        """
-        return self._space_name
-
-    @space_name.setter
-    def space_name(self, space_name):
-        """Sets the space_name of this OrgMemberSpaceMembership.
-
-
-        :param space_name: The space_name of this OrgMemberSpaceMembership.  # noqa: E501
-        :type: object
-        """
-        if space_name is None:
-            raise ValueError("Invalid value for `space_name`, must not be `None`")  # noqa: E501
-
-        self._space_name = space_name
-
-    @property
     def space_kind(self):
         """Gets the space_kind of this OrgMemberSpaceMembership.  # noqa: E501
 
@@ -123,27 +123,27 @@ class OrgMemberSpaceMembership(object):
         self._space_kind = space_kind
 
     @property
-    def relation(self):
-        """Gets the relation of this OrgMemberSpaceMembership.  # noqa: E501
+    def space_name(self):
+        """Gets the space_name of this OrgMemberSpaceMembership.  # noqa: E501
 
 
-        :return: The relation of this OrgMemberSpaceMembership.  # noqa: E501
+        :return: The space_name of this OrgMemberSpaceMembership.  # noqa: E501
         :rtype: object
         """
-        return self._relation
+        return self._space_name
 
-    @relation.setter
-    def relation(self, relation):
-        """Sets the relation of this OrgMemberSpaceMembership.
+    @space_name.setter
+    def space_name(self, space_name):
+        """Sets the space_name of this OrgMemberSpaceMembership.
 
 
-        :param relation: The relation of this OrgMemberSpaceMembership.  # noqa: E501
+        :param space_name: The space_name of this OrgMemberSpaceMembership.  # noqa: E501
         :type: object
         """
-        if relation is None:
-            raise ValueError("Invalid value for `relation`, must not be `None`")  # noqa: E501
+        if space_name is None:
+            raise ValueError("Invalid value for `space_name`, must not be `None`")  # noqa: E501
 
-        self._relation = relation
+        self._space_name = space_name
 
     def to_dict(self):
         """Returns the model properties as a dict"""

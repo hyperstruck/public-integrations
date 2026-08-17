@@ -28,128 +28,44 @@ class QueryBinding(object):
                             and the value is json key in definition.
     """
     swagger_types = {
-        'grain': 'object',
-        'dimensions': 'object',
-        'measures': 'object',
-        'filters': 'object',
         'constants_profile_id': 'object',
-        'limit': 'object'
+        'dimensions': 'object',
+        'filters': 'object',
+        'grain': 'object',
+        'limit': 'object',
+        'measures': 'object'
     }
 
     attribute_map = {
-        'grain': 'grain',
-        'dimensions': 'dimensions',
-        'measures': 'measures',
-        'filters': 'filters',
         'constants_profile_id': 'constants_profile_id',
-        'limit': 'limit'
+        'dimensions': 'dimensions',
+        'filters': 'filters',
+        'grain': 'grain',
+        'limit': 'limit',
+        'measures': 'measures'
     }
 
-    def __init__(self, grain=None, dimensions=None, measures=None, filters=None, constants_profile_id=None, limit=None):  # noqa: E501
+    def __init__(self, constants_profile_id=None, dimensions=None, filters=None, grain=None, limit=None, measures=None):  # noqa: E501
         """QueryBinding - a model defined in Swagger"""  # noqa: E501
-        self._grain = None
-        self._dimensions = None
-        self._measures = None
-        self._filters = None
         self._constants_profile_id = None
+        self._dimensions = None
+        self._filters = None
+        self._grain = None
         self._limit = None
+        self._measures = None
         self.discriminator = None
-        if grain is not None:
-            self.grain = grain
-        if dimensions is not None:
-            self.dimensions = dimensions
-        if measures is not None:
-            self.measures = measures
-        if filters is not None:
-            self.filters = filters
         if constants_profile_id is not None:
             self.constants_profile_id = constants_profile_id
+        if dimensions is not None:
+            self.dimensions = dimensions
+        if filters is not None:
+            self.filters = filters
+        if grain is not None:
+            self.grain = grain
         if limit is not None:
             self.limit = limit
-
-    @property
-    def grain(self):
-        """Gets the grain of this QueryBinding.  # noqa: E501
-
-
-        :return: The grain of this QueryBinding.  # noqa: E501
-        :rtype: object
-        """
-        return self._grain
-
-    @grain.setter
-    def grain(self, grain):
-        """Sets the grain of this QueryBinding.
-
-
-        :param grain: The grain of this QueryBinding.  # noqa: E501
-        :type: object
-        """
-
-        self._grain = grain
-
-    @property
-    def dimensions(self):
-        """Gets the dimensions of this QueryBinding.  # noqa: E501
-
-
-        :return: The dimensions of this QueryBinding.  # noqa: E501
-        :rtype: object
-        """
-        return self._dimensions
-
-    @dimensions.setter
-    def dimensions(self, dimensions):
-        """Sets the dimensions of this QueryBinding.
-
-
-        :param dimensions: The dimensions of this QueryBinding.  # noqa: E501
-        :type: object
-        """
-
-        self._dimensions = dimensions
-
-    @property
-    def measures(self):
-        """Gets the measures of this QueryBinding.  # noqa: E501
-
-
-        :return: The measures of this QueryBinding.  # noqa: E501
-        :rtype: object
-        """
-        return self._measures
-
-    @measures.setter
-    def measures(self, measures):
-        """Sets the measures of this QueryBinding.
-
-
-        :param measures: The measures of this QueryBinding.  # noqa: E501
-        :type: object
-        """
-
-        self._measures = measures
-
-    @property
-    def filters(self):
-        """Gets the filters of this QueryBinding.  # noqa: E501
-
-
-        :return: The filters of this QueryBinding.  # noqa: E501
-        :rtype: object
-        """
-        return self._filters
-
-    @filters.setter
-    def filters(self, filters):
-        """Sets the filters of this QueryBinding.
-
-
-        :param filters: The filters of this QueryBinding.  # noqa: E501
-        :type: object
-        """
-
-        self._filters = filters
+        if measures is not None:
+            self.measures = measures
 
     @property
     def constants_profile_id(self):
@@ -173,6 +89,69 @@ class QueryBinding(object):
         self._constants_profile_id = constants_profile_id
 
     @property
+    def dimensions(self):
+        """Gets the dimensions of this QueryBinding.  # noqa: E501
+
+
+        :return: The dimensions of this QueryBinding.  # noqa: E501
+        :rtype: object
+        """
+        return self._dimensions
+
+    @dimensions.setter
+    def dimensions(self, dimensions):
+        """Sets the dimensions of this QueryBinding.
+
+
+        :param dimensions: The dimensions of this QueryBinding.  # noqa: E501
+        :type: object
+        """
+
+        self._dimensions = dimensions
+
+    @property
+    def filters(self):
+        """Gets the filters of this QueryBinding.  # noqa: E501
+
+
+        :return: The filters of this QueryBinding.  # noqa: E501
+        :rtype: object
+        """
+        return self._filters
+
+    @filters.setter
+    def filters(self, filters):
+        """Sets the filters of this QueryBinding.
+
+
+        :param filters: The filters of this QueryBinding.  # noqa: E501
+        :type: object
+        """
+
+        self._filters = filters
+
+    @property
+    def grain(self):
+        """Gets the grain of this QueryBinding.  # noqa: E501
+
+
+        :return: The grain of this QueryBinding.  # noqa: E501
+        :rtype: object
+        """
+        return self._grain
+
+    @grain.setter
+    def grain(self, grain):
+        """Sets the grain of this QueryBinding.
+
+
+        :param grain: The grain of this QueryBinding.  # noqa: E501
+        :type: object
+        """
+
+        self._grain = grain
+
+    @property
     def limit(self):
         """Gets the limit of this QueryBinding.  # noqa: E501
 
@@ -192,6 +171,27 @@ class QueryBinding(object):
         """
 
         self._limit = limit
+
+    @property
+    def measures(self):
+        """Gets the measures of this QueryBinding.  # noqa: E501
+
+
+        :return: The measures of this QueryBinding.  # noqa: E501
+        :rtype: object
+        """
+        return self._measures
+
+    @measures.setter
+    def measures(self, measures):
+        """Sets the measures of this QueryBinding.
+
+
+        :param measures: The measures of this QueryBinding.  # noqa: E501
+        :type: object
+        """
+
+        self._measures = measures
 
     def to_dict(self):
         """Returns the model properties as a dict"""

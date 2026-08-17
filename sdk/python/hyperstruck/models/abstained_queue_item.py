@@ -28,74 +28,51 @@ class AbstainedQueueItem(object):
                             and the value is json key in definition.
     """
     swagger_types = {
-        'claim_id': 'object',
         'agent_id': 'object',
-        'entity_id': 'object',
         'canonical_name': 'object',
-        'provenance_class': 'object',
         'channel_trust': 'object',
-        'tool_family': 'object',
+        'claim_id': 'object',
+        'entity_id': 'object',
+        'provenance_class': 'object',
         'recorded_at': 'object',
-        'statement': 'RenderedText'
+        'statement': 'RenderedText',
+        'tool_family': 'object'
     }
 
     attribute_map = {
-        'claim_id': 'claim_id',
         'agent_id': 'agent_id',
-        'entity_id': 'entity_id',
         'canonical_name': 'canonical_name',
-        'provenance_class': 'provenance_class',
         'channel_trust': 'channel_trust',
-        'tool_family': 'tool_family',
+        'claim_id': 'claim_id',
+        'entity_id': 'entity_id',
+        'provenance_class': 'provenance_class',
         'recorded_at': 'recorded_at',
-        'statement': 'statement'
+        'statement': 'statement',
+        'tool_family': 'tool_family'
     }
 
-    def __init__(self, claim_id=None, agent_id=None, entity_id=None, canonical_name=None, provenance_class=None, channel_trust=None, tool_family=None, recorded_at=None, statement=None):  # noqa: E501
+    def __init__(self, agent_id=None, canonical_name=None, channel_trust=None, claim_id=None, entity_id=None, provenance_class=None, recorded_at=None, statement=None, tool_family=None):  # noqa: E501
         """AbstainedQueueItem - a model defined in Swagger"""  # noqa: E501
-        self._claim_id = None
         self._agent_id = None
-        self._entity_id = None
         self._canonical_name = None
-        self._provenance_class = None
         self._channel_trust = None
-        self._tool_family = None
+        self._claim_id = None
+        self._entity_id = None
+        self._provenance_class = None
         self._recorded_at = None
         self._statement = None
+        self._tool_family = None
         self.discriminator = None
-        self.claim_id = claim_id
         self.agent_id = agent_id
-        self.entity_id = entity_id
         self.canonical_name = canonical_name
-        self.provenance_class = provenance_class
         self.channel_trust = channel_trust
-        if tool_family is not None:
-            self.tool_family = tool_family
+        self.claim_id = claim_id
+        self.entity_id = entity_id
+        self.provenance_class = provenance_class
         self.recorded_at = recorded_at
         self.statement = statement
-
-    @property
-    def claim_id(self):
-        """Gets the claim_id of this AbstainedQueueItem.  # noqa: E501
-
-
-        :return: The claim_id of this AbstainedQueueItem.  # noqa: E501
-        :rtype: object
-        """
-        return self._claim_id
-
-    @claim_id.setter
-    def claim_id(self, claim_id):
-        """Sets the claim_id of this AbstainedQueueItem.
-
-
-        :param claim_id: The claim_id of this AbstainedQueueItem.  # noqa: E501
-        :type: object
-        """
-        if claim_id is None:
-            raise ValueError("Invalid value for `claim_id`, must not be `None`")  # noqa: E501
-
-        self._claim_id = claim_id
+        if tool_family is not None:
+            self.tool_family = tool_family
 
     @property
     def agent_id(self):
@@ -121,29 +98,6 @@ class AbstainedQueueItem(object):
         self._agent_id = agent_id
 
     @property
-    def entity_id(self):
-        """Gets the entity_id of this AbstainedQueueItem.  # noqa: E501
-
-
-        :return: The entity_id of this AbstainedQueueItem.  # noqa: E501
-        :rtype: object
-        """
-        return self._entity_id
-
-    @entity_id.setter
-    def entity_id(self, entity_id):
-        """Sets the entity_id of this AbstainedQueueItem.
-
-
-        :param entity_id: The entity_id of this AbstainedQueueItem.  # noqa: E501
-        :type: object
-        """
-        if entity_id is None:
-            raise ValueError("Invalid value for `entity_id`, must not be `None`")  # noqa: E501
-
-        self._entity_id = entity_id
-
-    @property
     def canonical_name(self):
         """Gets the canonical_name of this AbstainedQueueItem.  # noqa: E501
 
@@ -165,29 +119,6 @@ class AbstainedQueueItem(object):
             raise ValueError("Invalid value for `canonical_name`, must not be `None`")  # noqa: E501
 
         self._canonical_name = canonical_name
-
-    @property
-    def provenance_class(self):
-        """Gets the provenance_class of this AbstainedQueueItem.  # noqa: E501
-
-
-        :return: The provenance_class of this AbstainedQueueItem.  # noqa: E501
-        :rtype: object
-        """
-        return self._provenance_class
-
-    @provenance_class.setter
-    def provenance_class(self, provenance_class):
-        """Sets the provenance_class of this AbstainedQueueItem.
-
-
-        :param provenance_class: The provenance_class of this AbstainedQueueItem.  # noqa: E501
-        :type: object
-        """
-        if provenance_class is None:
-            raise ValueError("Invalid value for `provenance_class`, must not be `None`")  # noqa: E501
-
-        self._provenance_class = provenance_class
 
     @property
     def channel_trust(self):
@@ -213,25 +144,73 @@ class AbstainedQueueItem(object):
         self._channel_trust = channel_trust
 
     @property
-    def tool_family(self):
-        """Gets the tool_family of this AbstainedQueueItem.  # noqa: E501
+    def claim_id(self):
+        """Gets the claim_id of this AbstainedQueueItem.  # noqa: E501
 
 
-        :return: The tool_family of this AbstainedQueueItem.  # noqa: E501
+        :return: The claim_id of this AbstainedQueueItem.  # noqa: E501
         :rtype: object
         """
-        return self._tool_family
+        return self._claim_id
 
-    @tool_family.setter
-    def tool_family(self, tool_family):
-        """Sets the tool_family of this AbstainedQueueItem.
+    @claim_id.setter
+    def claim_id(self, claim_id):
+        """Sets the claim_id of this AbstainedQueueItem.
 
 
-        :param tool_family: The tool_family of this AbstainedQueueItem.  # noqa: E501
+        :param claim_id: The claim_id of this AbstainedQueueItem.  # noqa: E501
         :type: object
         """
+        if claim_id is None:
+            raise ValueError("Invalid value for `claim_id`, must not be `None`")  # noqa: E501
 
-        self._tool_family = tool_family
+        self._claim_id = claim_id
+
+    @property
+    def entity_id(self):
+        """Gets the entity_id of this AbstainedQueueItem.  # noqa: E501
+
+
+        :return: The entity_id of this AbstainedQueueItem.  # noqa: E501
+        :rtype: object
+        """
+        return self._entity_id
+
+    @entity_id.setter
+    def entity_id(self, entity_id):
+        """Sets the entity_id of this AbstainedQueueItem.
+
+
+        :param entity_id: The entity_id of this AbstainedQueueItem.  # noqa: E501
+        :type: object
+        """
+        if entity_id is None:
+            raise ValueError("Invalid value for `entity_id`, must not be `None`")  # noqa: E501
+
+        self._entity_id = entity_id
+
+    @property
+    def provenance_class(self):
+        """Gets the provenance_class of this AbstainedQueueItem.  # noqa: E501
+
+
+        :return: The provenance_class of this AbstainedQueueItem.  # noqa: E501
+        :rtype: object
+        """
+        return self._provenance_class
+
+    @provenance_class.setter
+    def provenance_class(self, provenance_class):
+        """Sets the provenance_class of this AbstainedQueueItem.
+
+
+        :param provenance_class: The provenance_class of this AbstainedQueueItem.  # noqa: E501
+        :type: object
+        """
+        if provenance_class is None:
+            raise ValueError("Invalid value for `provenance_class`, must not be `None`")  # noqa: E501
+
+        self._provenance_class = provenance_class
 
     @property
     def recorded_at(self):
@@ -278,6 +257,27 @@ class AbstainedQueueItem(object):
             raise ValueError("Invalid value for `statement`, must not be `None`")  # noqa: E501
 
         self._statement = statement
+
+    @property
+    def tool_family(self):
+        """Gets the tool_family of this AbstainedQueueItem.  # noqa: E501
+
+
+        :return: The tool_family of this AbstainedQueueItem.  # noqa: E501
+        :rtype: object
+        """
+        return self._tool_family
+
+    @tool_family.setter
+    def tool_family(self, tool_family):
+        """Sets the tool_family of this AbstainedQueueItem.
+
+
+        :param tool_family: The tool_family of this AbstainedQueueItem.  # noqa: E501
+        :type: object
+        """
+
+        self._tool_family = tool_family
 
     def to_dict(self):
         """Returns the model properties as a dict"""

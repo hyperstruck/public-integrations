@@ -28,55 +28,34 @@ class ChartUpdateRequest(object):
                             and the value is json key in definition.
     """
     swagger_types = {
-        'title': 'object',
         'description': 'object',
-        'viz_spec': 'object',
-        'query_binding': 'object'
+        'query_binding': 'object',
+        'title': 'object',
+        'viz_spec': 'object'
     }
 
     attribute_map = {
-        'title': 'title',
         'description': 'description',
-        'viz_spec': 'viz_spec',
-        'query_binding': 'query_binding'
+        'query_binding': 'query_binding',
+        'title': 'title',
+        'viz_spec': 'viz_spec'
     }
 
-    def __init__(self, title=None, description=None, viz_spec=None, query_binding=None):  # noqa: E501
+    def __init__(self, description=None, query_binding=None, title=None, viz_spec=None):  # noqa: E501
         """ChartUpdateRequest - a model defined in Swagger"""  # noqa: E501
-        self._title = None
         self._description = None
-        self._viz_spec = None
         self._query_binding = None
+        self._title = None
+        self._viz_spec = None
         self.discriminator = None
-        if title is not None:
-            self.title = title
         if description is not None:
             self.description = description
-        if viz_spec is not None:
-            self.viz_spec = viz_spec
         if query_binding is not None:
             self.query_binding = query_binding
-
-    @property
-    def title(self):
-        """Gets the title of this ChartUpdateRequest.  # noqa: E501
-
-
-        :return: The title of this ChartUpdateRequest.  # noqa: E501
-        :rtype: object
-        """
-        return self._title
-
-    @title.setter
-    def title(self, title):
-        """Sets the title of this ChartUpdateRequest.
-
-
-        :param title: The title of this ChartUpdateRequest.  # noqa: E501
-        :type: object
-        """
-
-        self._title = title
+        if title is not None:
+            self.title = title
+        if viz_spec is not None:
+            self.viz_spec = viz_spec
 
     @property
     def description(self):
@@ -100,27 +79,6 @@ class ChartUpdateRequest(object):
         self._description = description
 
     @property
-    def viz_spec(self):
-        """Gets the viz_spec of this ChartUpdateRequest.  # noqa: E501
-
-
-        :return: The viz_spec of this ChartUpdateRequest.  # noqa: E501
-        :rtype: object
-        """
-        return self._viz_spec
-
-    @viz_spec.setter
-    def viz_spec(self, viz_spec):
-        """Sets the viz_spec of this ChartUpdateRequest.
-
-
-        :param viz_spec: The viz_spec of this ChartUpdateRequest.  # noqa: E501
-        :type: object
-        """
-
-        self._viz_spec = viz_spec
-
-    @property
     def query_binding(self):
         """Gets the query_binding of this ChartUpdateRequest.  # noqa: E501
 
@@ -140,6 +98,48 @@ class ChartUpdateRequest(object):
         """
 
         self._query_binding = query_binding
+
+    @property
+    def title(self):
+        """Gets the title of this ChartUpdateRequest.  # noqa: E501
+
+
+        :return: The title of this ChartUpdateRequest.  # noqa: E501
+        :rtype: object
+        """
+        return self._title
+
+    @title.setter
+    def title(self, title):
+        """Sets the title of this ChartUpdateRequest.
+
+
+        :param title: The title of this ChartUpdateRequest.  # noqa: E501
+        :type: object
+        """
+
+        self._title = title
+
+    @property
+    def viz_spec(self):
+        """Gets the viz_spec of this ChartUpdateRequest.  # noqa: E501
+
+
+        :return: The viz_spec of this ChartUpdateRequest.  # noqa: E501
+        :rtype: object
+        """
+        return self._viz_spec
+
+    @viz_spec.setter
+    def viz_spec(self, viz_spec):
+        """Sets the viz_spec of this ChartUpdateRequest.
+
+
+        :param viz_spec: The viz_spec of this ChartUpdateRequest.  # noqa: E501
+        :type: object
+        """
+
+        self._viz_spec = viz_spec
 
     def to_dict(self):
         """Returns the model properties as a dict"""

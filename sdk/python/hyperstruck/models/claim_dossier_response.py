@@ -28,53 +28,30 @@ class ClaimDossierResponse(object):
                             and the value is json key in definition.
     """
     swagger_types = {
-        'entity_id': 'object',
         'agent_id': 'object',
         'canonical_name': 'object',
-        'claims': 'object'
+        'claims': 'object',
+        'entity_id': 'object'
     }
 
     attribute_map = {
-        'entity_id': 'entity_id',
         'agent_id': 'agent_id',
         'canonical_name': 'canonical_name',
-        'claims': 'claims'
+        'claims': 'claims',
+        'entity_id': 'entity_id'
     }
 
-    def __init__(self, entity_id=None, agent_id=None, canonical_name=None, claims=None):  # noqa: E501
+    def __init__(self, agent_id=None, canonical_name=None, claims=None, entity_id=None):  # noqa: E501
         """ClaimDossierResponse - a model defined in Swagger"""  # noqa: E501
-        self._entity_id = None
         self._agent_id = None
         self._canonical_name = None
         self._claims = None
+        self._entity_id = None
         self.discriminator = None
-        self.entity_id = entity_id
         self.agent_id = agent_id
         self.canonical_name = canonical_name
         self.claims = claims
-
-    @property
-    def entity_id(self):
-        """Gets the entity_id of this ClaimDossierResponse.  # noqa: E501
-
-
-        :return: The entity_id of this ClaimDossierResponse.  # noqa: E501
-        :rtype: object
-        """
-        return self._entity_id
-
-    @entity_id.setter
-    def entity_id(self, entity_id):
-        """Sets the entity_id of this ClaimDossierResponse.
-
-
-        :param entity_id: The entity_id of this ClaimDossierResponse.  # noqa: E501
-        :type: object
-        """
-        if entity_id is None:
-            raise ValueError("Invalid value for `entity_id`, must not be `None`")  # noqa: E501
-
-        self._entity_id = entity_id
+        self.entity_id = entity_id
 
     @property
     def agent_id(self):
@@ -144,6 +121,29 @@ class ClaimDossierResponse(object):
             raise ValueError("Invalid value for `claims`, must not be `None`")  # noqa: E501
 
         self._claims = claims
+
+    @property
+    def entity_id(self):
+        """Gets the entity_id of this ClaimDossierResponse.  # noqa: E501
+
+
+        :return: The entity_id of this ClaimDossierResponse.  # noqa: E501
+        :rtype: object
+        """
+        return self._entity_id
+
+    @entity_id.setter
+    def entity_id(self, entity_id):
+        """Sets the entity_id of this ClaimDossierResponse.
+
+
+        :param entity_id: The entity_id of this ClaimDossierResponse.  # noqa: E501
+        :type: object
+        """
+        if entity_id is None:
+            raise ValueError("Invalid value for `entity_id`, must not be `None`")  # noqa: E501
+
+        self._entity_id = entity_id
 
     def to_dict(self):
         """Returns the model properties as a dict"""

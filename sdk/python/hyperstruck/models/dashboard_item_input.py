@@ -29,33 +29,33 @@ class DashboardItemInput(object):
     """
     swagger_types = {
         'chart_id': 'object',
-        'row_index': 'object',
         'col_index': 'object',
         'col_span': 'object',
+        'row_index': 'object',
         'sort_key': 'object'
     }
 
     attribute_map = {
         'chart_id': 'chart_id',
-        'row_index': 'row_index',
         'col_index': 'col_index',
         'col_span': 'col_span',
+        'row_index': 'row_index',
         'sort_key': 'sort_key'
     }
 
-    def __init__(self, chart_id=None, row_index=None, col_index=None, col_span=None, sort_key=None):  # noqa: E501
+    def __init__(self, chart_id=None, col_index=None, col_span=None, row_index=None, sort_key=None):  # noqa: E501
         """DashboardItemInput - a model defined in Swagger"""  # noqa: E501
         self._chart_id = None
-        self._row_index = None
         self._col_index = None
         self._col_span = None
+        self._row_index = None
         self._sort_key = None
         self.discriminator = None
         self.chart_id = chart_id
-        self.row_index = row_index
         self.col_index = col_index
         if col_span is not None:
             self.col_span = col_span
+        self.row_index = row_index
         if sort_key is not None:
             self.sort_key = sort_key
 
@@ -81,29 +81,6 @@ class DashboardItemInput(object):
             raise ValueError("Invalid value for `chart_id`, must not be `None`")  # noqa: E501
 
         self._chart_id = chart_id
-
-    @property
-    def row_index(self):
-        """Gets the row_index of this DashboardItemInput.  # noqa: E501
-
-
-        :return: The row_index of this DashboardItemInput.  # noqa: E501
-        :rtype: object
-        """
-        return self._row_index
-
-    @row_index.setter
-    def row_index(self, row_index):
-        """Sets the row_index of this DashboardItemInput.
-
-
-        :param row_index: The row_index of this DashboardItemInput.  # noqa: E501
-        :type: object
-        """
-        if row_index is None:
-            raise ValueError("Invalid value for `row_index`, must not be `None`")  # noqa: E501
-
-        self._row_index = row_index
 
     @property
     def col_index(self):
@@ -148,6 +125,29 @@ class DashboardItemInput(object):
         """
 
         self._col_span = col_span
+
+    @property
+    def row_index(self):
+        """Gets the row_index of this DashboardItemInput.  # noqa: E501
+
+
+        :return: The row_index of this DashboardItemInput.  # noqa: E501
+        :rtype: object
+        """
+        return self._row_index
+
+    @row_index.setter
+    def row_index(self, row_index):
+        """Sets the row_index of this DashboardItemInput.
+
+
+        :param row_index: The row_index of this DashboardItemInput.  # noqa: E501
+        :type: object
+        """
+        if row_index is None:
+            raise ValueError("Invalid value for `row_index`, must not be `None`")  # noqa: E501
+
+        self._row_index = row_index
 
     @property
     def sort_key(self):

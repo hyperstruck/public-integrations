@@ -28,86 +28,63 @@ class SessionResponse(object):
                             and the value is json key in definition.
     """
     swagger_types = {
-        'id': 'object',
         'agent_id': 'object',
-        'status': 'object',
-        'title': 'object',
+        'created_at': 'object',
+        'id': 'object',
         'latest_run_id': 'object',
         'latest_run_status': 'object',
         'message_count': 'object',
-        'run_count': 'object',
         'metadata': 'object',
-        'created_at': 'object',
+        'run_count': 'object',
+        'status': 'object',
+        'title': 'object',
         'updated_at': 'object'
     }
 
     attribute_map = {
-        'id': 'id',
         'agent_id': 'agent_id',
-        'status': 'status',
-        'title': 'title',
+        'created_at': 'created_at',
+        'id': 'id',
         'latest_run_id': 'latest_run_id',
         'latest_run_status': 'latest_run_status',
         'message_count': 'message_count',
-        'run_count': 'run_count',
         'metadata': 'metadata',
-        'created_at': 'created_at',
+        'run_count': 'run_count',
+        'status': 'status',
+        'title': 'title',
         'updated_at': 'updated_at'
     }
 
-    def __init__(self, id=None, agent_id=None, status=None, title=None, latest_run_id=None, latest_run_status=None, message_count=None, run_count=None, metadata=None, created_at=None, updated_at=None):  # noqa: E501
+    def __init__(self, agent_id=None, created_at=None, id=None, latest_run_id=None, latest_run_status=None, message_count=None, metadata=None, run_count=None, status=None, title=None, updated_at=None):  # noqa: E501
         """SessionResponse - a model defined in Swagger"""  # noqa: E501
-        self._id = None
         self._agent_id = None
-        self._status = None
-        self._title = None
+        self._created_at = None
+        self._id = None
         self._latest_run_id = None
         self._latest_run_status = None
         self._message_count = None
-        self._run_count = None
         self._metadata = None
-        self._created_at = None
+        self._run_count = None
+        self._status = None
+        self._title = None
         self._updated_at = None
         self.discriminator = None
-        self.id = id
         self.agent_id = agent_id
-        self.status = status
-        self.title = title
+        self.created_at = created_at
+        self.id = id
         if latest_run_id is not None:
             self.latest_run_id = latest_run_id
         if latest_run_status is not None:
             self.latest_run_status = latest_run_status
         if message_count is not None:
             self.message_count = message_count
-        if run_count is not None:
-            self.run_count = run_count
         if metadata is not None:
             self.metadata = metadata
-        self.created_at = created_at
+        if run_count is not None:
+            self.run_count = run_count
+        self.status = status
+        self.title = title
         self.updated_at = updated_at
-
-    @property
-    def id(self):
-        """Gets the id of this SessionResponse.  # noqa: E501
-
-
-        :return: The id of this SessionResponse.  # noqa: E501
-        :rtype: object
-        """
-        return self._id
-
-    @id.setter
-    def id(self, id):
-        """Sets the id of this SessionResponse.
-
-
-        :param id: The id of this SessionResponse.  # noqa: E501
-        :type: object
-        """
-        if id is None:
-            raise ValueError("Invalid value for `id`, must not be `None`")  # noqa: E501
-
-        self._id = id
 
     @property
     def agent_id(self):
@@ -133,50 +110,50 @@ class SessionResponse(object):
         self._agent_id = agent_id
 
     @property
-    def status(self):
-        """Gets the status of this SessionResponse.  # noqa: E501
+    def created_at(self):
+        """Gets the created_at of this SessionResponse.  # noqa: E501
 
 
-        :return: The status of this SessionResponse.  # noqa: E501
+        :return: The created_at of this SessionResponse.  # noqa: E501
         :rtype: object
         """
-        return self._status
+        return self._created_at
 
-    @status.setter
-    def status(self, status):
-        """Sets the status of this SessionResponse.
+    @created_at.setter
+    def created_at(self, created_at):
+        """Sets the created_at of this SessionResponse.
 
 
-        :param status: The status of this SessionResponse.  # noqa: E501
+        :param created_at: The created_at of this SessionResponse.  # noqa: E501
         :type: object
         """
-        if status is None:
-            raise ValueError("Invalid value for `status`, must not be `None`")  # noqa: E501
+        if created_at is None:
+            raise ValueError("Invalid value for `created_at`, must not be `None`")  # noqa: E501
 
-        self._status = status
+        self._created_at = created_at
 
     @property
-    def title(self):
-        """Gets the title of this SessionResponse.  # noqa: E501
+    def id(self):
+        """Gets the id of this SessionResponse.  # noqa: E501
 
 
-        :return: The title of this SessionResponse.  # noqa: E501
+        :return: The id of this SessionResponse.  # noqa: E501
         :rtype: object
         """
-        return self._title
+        return self._id
 
-    @title.setter
-    def title(self, title):
-        """Sets the title of this SessionResponse.
+    @id.setter
+    def id(self, id):
+        """Sets the id of this SessionResponse.
 
 
-        :param title: The title of this SessionResponse.  # noqa: E501
+        :param id: The id of this SessionResponse.  # noqa: E501
         :type: object
         """
-        if title is None:
-            raise ValueError("Invalid value for `title`, must not be `None`")  # noqa: E501
+        if id is None:
+            raise ValueError("Invalid value for `id`, must not be `None`")  # noqa: E501
 
-        self._title = title
+        self._id = id
 
     @property
     def latest_run_id(self):
@@ -246,6 +223,27 @@ class SessionResponse(object):
         self._message_count = message_count
 
     @property
+    def metadata(self):
+        """Gets the metadata of this SessionResponse.  # noqa: E501
+
+
+        :return: The metadata of this SessionResponse.  # noqa: E501
+        :rtype: object
+        """
+        return self._metadata
+
+    @metadata.setter
+    def metadata(self, metadata):
+        """Sets the metadata of this SessionResponse.
+
+
+        :param metadata: The metadata of this SessionResponse.  # noqa: E501
+        :type: object
+        """
+
+        self._metadata = metadata
+
+    @property
     def run_count(self):
         """Gets the run_count of this SessionResponse.  # noqa: E501
 
@@ -269,48 +267,50 @@ class SessionResponse(object):
         self._run_count = run_count
 
     @property
-    def metadata(self):
-        """Gets the metadata of this SessionResponse.  # noqa: E501
+    def status(self):
+        """Gets the status of this SessionResponse.  # noqa: E501
 
 
-        :return: The metadata of this SessionResponse.  # noqa: E501
+        :return: The status of this SessionResponse.  # noqa: E501
         :rtype: object
         """
-        return self._metadata
+        return self._status
 
-    @metadata.setter
-    def metadata(self, metadata):
-        """Sets the metadata of this SessionResponse.
+    @status.setter
+    def status(self, status):
+        """Sets the status of this SessionResponse.
 
 
-        :param metadata: The metadata of this SessionResponse.  # noqa: E501
+        :param status: The status of this SessionResponse.  # noqa: E501
         :type: object
         """
+        if status is None:
+            raise ValueError("Invalid value for `status`, must not be `None`")  # noqa: E501
 
-        self._metadata = metadata
+        self._status = status
 
     @property
-    def created_at(self):
-        """Gets the created_at of this SessionResponse.  # noqa: E501
+    def title(self):
+        """Gets the title of this SessionResponse.  # noqa: E501
 
 
-        :return: The created_at of this SessionResponse.  # noqa: E501
+        :return: The title of this SessionResponse.  # noqa: E501
         :rtype: object
         """
-        return self._created_at
+        return self._title
 
-    @created_at.setter
-    def created_at(self, created_at):
-        """Sets the created_at of this SessionResponse.
+    @title.setter
+    def title(self, title):
+        """Sets the title of this SessionResponse.
 
 
-        :param created_at: The created_at of this SessionResponse.  # noqa: E501
+        :param title: The title of this SessionResponse.  # noqa: E501
         :type: object
         """
-        if created_at is None:
-            raise ValueError("Invalid value for `created_at`, must not be `None`")  # noqa: E501
+        if title is None:
+            raise ValueError("Invalid value for `title`, must not be `None`")  # noqa: E501
 
-        self._created_at = created_at
+        self._title = title
 
     @property
     def updated_at(self):

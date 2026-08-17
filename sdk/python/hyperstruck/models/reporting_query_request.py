@@ -28,32 +28,76 @@ class ReportingQueryRequest(object):
                             and the value is json key in definition.
     """
     swagger_types = {
-        'space_id': 'object',
-        'window': 'UsageTimeWindow',
+        'as_of': 'object',
         'binding': 'QueryBinding',
-        'as_of': 'object'
+        'space_id': 'object',
+        'window': 'UsageTimeWindow'
     }
 
     attribute_map = {
-        'space_id': 'space_id',
-        'window': 'window',
+        'as_of': 'as_of',
         'binding': 'binding',
-        'as_of': 'as_of'
+        'space_id': 'space_id',
+        'window': 'window'
     }
 
-    def __init__(self, space_id=None, window=None, binding=None, as_of=None):  # noqa: E501
+    def __init__(self, as_of=None, binding=None, space_id=None, window=None):  # noqa: E501
         """ReportingQueryRequest - a model defined in Swagger"""  # noqa: E501
+        self._as_of = None
+        self._binding = None
         self._space_id = None
         self._window = None
-        self._binding = None
-        self._as_of = None
         self.discriminator = None
+        if as_of is not None:
+            self.as_of = as_of
+        self.binding = binding
         self.space_id = space_id
         if window is not None:
             self.window = window
-        self.binding = binding
-        if as_of is not None:
-            self.as_of = as_of
+
+    @property
+    def as_of(self):
+        """Gets the as_of of this ReportingQueryRequest.  # noqa: E501
+
+
+        :return: The as_of of this ReportingQueryRequest.  # noqa: E501
+        :rtype: object
+        """
+        return self._as_of
+
+    @as_of.setter
+    def as_of(self, as_of):
+        """Sets the as_of of this ReportingQueryRequest.
+
+
+        :param as_of: The as_of of this ReportingQueryRequest.  # noqa: E501
+        :type: object
+        """
+
+        self._as_of = as_of
+
+    @property
+    def binding(self):
+        """Gets the binding of this ReportingQueryRequest.  # noqa: E501
+
+
+        :return: The binding of this ReportingQueryRequest.  # noqa: E501
+        :rtype: QueryBinding
+        """
+        return self._binding
+
+    @binding.setter
+    def binding(self, binding):
+        """Sets the binding of this ReportingQueryRequest.
+
+
+        :param binding: The binding of this ReportingQueryRequest.  # noqa: E501
+        :type: QueryBinding
+        """
+        if binding is None:
+            raise ValueError("Invalid value for `binding`, must not be `None`")  # noqa: E501
+
+        self._binding = binding
 
     @property
     def space_id(self):
@@ -98,50 +142,6 @@ class ReportingQueryRequest(object):
         """
 
         self._window = window
-
-    @property
-    def binding(self):
-        """Gets the binding of this ReportingQueryRequest.  # noqa: E501
-
-
-        :return: The binding of this ReportingQueryRequest.  # noqa: E501
-        :rtype: QueryBinding
-        """
-        return self._binding
-
-    @binding.setter
-    def binding(self, binding):
-        """Sets the binding of this ReportingQueryRequest.
-
-
-        :param binding: The binding of this ReportingQueryRequest.  # noqa: E501
-        :type: QueryBinding
-        """
-        if binding is None:
-            raise ValueError("Invalid value for `binding`, must not be `None`")  # noqa: E501
-
-        self._binding = binding
-
-    @property
-    def as_of(self):
-        """Gets the as_of of this ReportingQueryRequest.  # noqa: E501
-
-
-        :return: The as_of of this ReportingQueryRequest.  # noqa: E501
-        :rtype: object
-        """
-        return self._as_of
-
-    @as_of.setter
-    def as_of(self, as_of):
-        """Sets the as_of of this ReportingQueryRequest.
-
-
-        :param as_of: The as_of of this ReportingQueryRequest.  # noqa: E501
-        :type: object
-        """
-
-        self._as_of = as_of
 
     def to_dict(self):
         """Returns the model properties as a dict"""

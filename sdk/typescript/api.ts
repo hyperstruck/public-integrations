@@ -88,19 +88,7 @@ export interface AbstainedQueueItem {
      * @type {any}
      * @memberof AbstainedQueueItem
      */
-    claimId: any;
-    /**
-     * 
-     * @type {any}
-     * @memberof AbstainedQueueItem
-     */
     agentId: any;
-    /**
-     * 
-     * @type {any}
-     * @memberof AbstainedQueueItem
-     */
-    entityId: any;
     /**
      * 
      * @type {any}
@@ -112,19 +100,25 @@ export interface AbstainedQueueItem {
      * @type {any}
      * @memberof AbstainedQueueItem
      */
-    provenanceClass: any;
-    /**
-     * 
-     * @type {any}
-     * @memberof AbstainedQueueItem
-     */
     channelTrust: any;
     /**
      * 
      * @type {any}
      * @memberof AbstainedQueueItem
      */
-    toolFamily?: any;
+    claimId: any;
+    /**
+     * 
+     * @type {any}
+     * @memberof AbstainedQueueItem
+     */
+    entityId: any;
+    /**
+     * 
+     * @type {any}
+     * @memberof AbstainedQueueItem
+     */
+    provenanceClass: any;
     /**
      * 
      * @type {any}
@@ -137,6 +131,12 @@ export interface AbstainedQueueItem {
      * @memberof AbstainedQueueItem
      */
     statement: RenderedText;
+    /**
+     * 
+     * @type {any}
+     * @memberof AbstainedQueueItem
+     */
+    toolFamily?: any;
 }
 /**
  * 
@@ -151,12 +151,6 @@ export interface AbstainedQueueResponse {
      */
     filtered?: any;
     /**
-     * Best-effort count of rows this page omitted because the caller's space filter excluded them.
-     * @type {any}
-     * @memberof AbstainedQueueResponse
-     */
-    withheldCount?: any;
-    /**
      * 
      * @type {any}
      * @memberof AbstainedQueueResponse
@@ -168,6 +162,12 @@ export interface AbstainedQueueResponse {
      * @memberof AbstainedQueueResponse
      */
     nextCursor?: any;
+    /**
+     * Best-effort count of rows this page omitted because the caller's space filter excluded them.
+     * @type {any}
+     * @memberof AbstainedQueueResponse
+     */
+    withheldCount?: any;
 }
 /**
  * 
@@ -189,23 +189,17 @@ export interface AdoptClaimRequest {
  */
 export interface AgentCoreConfig {
     /**
-     * System prompt / instructions for `AgentConfig.instructions`. Create requests must provide a non-empty value; empty strings may appear for legacy rows until backfilled.
-     * @type {any}
-     * @memberof AgentCoreConfig
-     */
-    instructions?: any;
-    /**
      * Optional short description (`AgentConfig.description`).
      * @type {any}
      * @memberof AgentCoreConfig
      */
     description?: any;
     /**
-     * MCP tool servers (`AgentConfig.mcp_servers`). Use `auth_type` + `auth_token_env` for hosted-safe references to secrets, or explicit `auth` objects when injecting credentials out-of-band.
+     * Domain dimensions this agent focuses on when extracting and keeping learnings. Each entry has a name, description, and optional example values. Learnings store the matching names in ``domain_dimensions`` (list of strings). Omit or null when unguided; on PATCH, pass null or [] to clear.
      * @type {any}
      * @memberof AgentCoreConfig
      */
-    mcpServers?: any;
+    domainDimensions?: any;
     /**
      * PII and prompt-injection guardrails (`AgentConfig.guardrails_config`).
      * @type {any}
@@ -213,17 +207,17 @@ export interface AgentCoreConfig {
      */
     guardrailsConfig?: any;
     /**
-     * Enable Human-in-the-Loop suspensions for this agent runtime.
-     * @type {any}
-     * @memberof AgentCoreConfig
-     */
-    hitlEnabled?: any;
-    /**
      * HITL autonomy level (1=most supervised, 5=least supervised). Used when ``hitl_policy_preset`` is ``autonomy``.
      * @type {any}
      * @memberof AgentCoreConfig
      */
     hitlAutonomyLevel?: any;
+    /**
+     * Enable Human-in-the-Loop suspensions for this agent runtime.
+     * @type {any}
+     * @memberof AgentCoreConfig
+     */
+    hitlEnabled?: any;
     /**
      * How hosted runs build HITL policies: ``autonomy`` uses ``hitl_autonomy_level``; ``milestone_only`` gates only at milestone boundaries (simpler resume/checkpoints).
      * @type {HitlPolicyPreset}
@@ -237,17 +231,23 @@ export interface AgentCoreConfig {
      */
     hitlRequiredApprovals?: any;
     /**
+     * System prompt / instructions for `AgentConfig.instructions`. Create requests must provide a non-empty value; empty strings may appear for legacy rows until backfilled.
+     * @type {any}
+     * @memberof AgentCoreConfig
+     */
+    instructions?: any;
+    /**
+     * MCP tool servers (`AgentConfig.mcp_servers`). Use `auth_type` + `auth_token_env` for hosted-safe references to secrets, or explicit `auth` objects when injecting credentials out-of-band.
+     * @type {any}
+     * @memberof AgentCoreConfig
+     */
+    mcpServers?: any;
+    /**
      * Arbitrary extension metadata (`AgentConfig.metadata`).
      * @type {any}
      * @memberof AgentCoreConfig
      */
     metadata?: any;
-    /**
-     * Domain dimensions this agent focuses on when extracting and keeping learnings. Each entry has a name, description, and optional example values. Learnings store the matching names in ``domain_dimensions`` (list of strings). Omit or null when unguided; on PATCH, pass null or [] to clear.
-     * @type {any}
-     * @memberof AgentCoreConfig
-     */
-    domainDimensions?: any;
 }
 /**
  * Partial update for `config_jsonb`; omitted keys are left unchanged.
@@ -256,23 +256,17 @@ export interface AgentCoreConfig {
  */
 export interface AgentCoreConfigPatch {
     /**
-     * Replace stored instructions when set.
-     * @type {any}
-     * @memberof AgentCoreConfigPatch
-     */
-    instructions?: any;
-    /**
      * 
      * @type {any}
      * @memberof AgentCoreConfigPatch
      */
     description?: any;
     /**
-     * 
+     * Replace the agent's domain_dimensions when set. Pass null or [] to clear; omit to leave unchanged.
      * @type {any}
      * @memberof AgentCoreConfigPatch
      */
-    mcpServers?: any;
+    domainDimensions?: any;
     /**
      * 
      * @type {any}
@@ -284,13 +278,13 @@ export interface AgentCoreConfigPatch {
      * @type {any}
      * @memberof AgentCoreConfigPatch
      */
-    hitlEnabled?: any;
+    hitlAutonomyLevel?: any;
     /**
      * 
      * @type {any}
      * @memberof AgentCoreConfigPatch
      */
-    hitlAutonomyLevel?: any;
+    hitlEnabled?: any;
     /**
      * 
      * @type {any}
@@ -304,17 +298,23 @@ export interface AgentCoreConfigPatch {
      */
     hitlRequiredApprovals?: any;
     /**
+     * Replace stored instructions when set.
+     * @type {any}
+     * @memberof AgentCoreConfigPatch
+     */
+    instructions?: any;
+    /**
+     * 
+     * @type {any}
+     * @memberof AgentCoreConfigPatch
+     */
+    mcpServers?: any;
+    /**
      * 
      * @type {any}
      * @memberof AgentCoreConfigPatch
      */
     metadata?: any;
-    /**
-     * Replace the agent's domain_dimensions when set. Pass null or [] to clear; omit to leave unchanged.
-     * @type {any}
-     * @memberof AgentCoreConfigPatch
-     */
-    domainDimensions?: any;
 }
 /**
  * 
@@ -323,11 +323,11 @@ export interface AgentCoreConfigPatch {
  */
 export interface AgentCreateRequest {
     /**
-     * Human-readable agent name, unique within the tenant.
-     * @type {any}
+     * Runtime instructions and optional execution settings.
+     * @type {AgentCoreConfig}
      * @memberof AgentCreateRequest
      */
-    name: any;
+    coreConfig: AgentCoreConfig;
     /**
      * Optional short agent description.
      * @type {any}
@@ -335,11 +335,17 @@ export interface AgentCreateRequest {
      */
     description?: any;
     /**
-     * Hosted lifecycle state (active, paused, archived).
-     * @type {AgentStatus}
+     * Optional UUID of the accessible space that owns this agent.
+     * @type {any}
      * @memberof AgentCreateRequest
      */
-    status?: AgentStatus;
+    homeSpaceId?: any;
+    /**
+     * Human-readable agent name, unique within the tenant.
+     * @type {any}
+     * @memberof AgentCreateRequest
+     */
+    name: any;
     /**
      * Hosted reasoning tier applied to runs dispatched for this agent.
      * @type {ReasoningTier}
@@ -347,17 +353,11 @@ export interface AgentCreateRequest {
      */
     reasoningProfile?: ReasoningTier;
     /**
-     * Optional UUID of the accessible space that owns this agent.
-     * @type {any}
+     * Hosted lifecycle state (active, paused, archived).
+     * @type {AgentStatus}
      * @memberof AgentCreateRequest
      */
-    homeSpaceId?: any;
-    /**
-     * Runtime instructions and optional execution settings.
-     * @type {AgentCoreConfig}
-     * @memberof AgentCreateRequest
-     */
-    coreConfig: AgentCoreConfig;
+    status?: AgentStatus;
 }
 /**
  * One curated suggestion (template / profile / example) for the create wizard.
@@ -365,6 +365,12 @@ export interface AgentCreateRequest {
  * @interface AgentDefinitionSuggestion
  */
 export interface AgentDefinitionSuggestion {
+    /**
+     * 
+     * @type {any}
+     * @memberof AgentDefinitionSuggestion
+     */
+    description?: any;
     /**
      * 
      * @type {any}
@@ -383,12 +389,6 @@ export interface AgentDefinitionSuggestion {
      * @memberof AgentDefinitionSuggestion
      */
     label: any;
-    /**
-     * 
-     * @type {any}
-     * @memberof AgentDefinitionSuggestion
-     */
-    description?: any;
     /**
      * 
      * @type {any}
@@ -435,42 +435,6 @@ export interface AgentDefinitionSuggestionListResponse {
 export interface AgentDetailResponse {
     /**
      * 
-     * @type {any}
-     * @memberof AgentDetailResponse
-     */
-    id: any;
-    /**
-     * 
-     * @type {any}
-     * @memberof AgentDetailResponse
-     */
-    name: any;
-    /**
-     * 
-     * @type {any}
-     * @memberof AgentDetailResponse
-     */
-    description: any;
-    /**
-     * 
-     * @type {any}
-     * @memberof AgentDetailResponse
-     */
-    status: any;
-    /**
-     * 
-     * @type {ReasoningTier}
-     * @memberof AgentDetailResponse
-     */
-    reasoningProfile: ReasoningTier;
-    /**
-     * Home space UUID for this agent, if any.
-     * @type {any}
-     * @memberof AgentDetailResponse
-     */
-    homeSpaceId?: any;
-    /**
-     * 
      * @type {AgentCoreConfig}
      * @memberof AgentDetailResponse
      */
@@ -486,13 +450,49 @@ export interface AgentDetailResponse {
      * @type {any}
      * @memberof AgentDetailResponse
      */
-    updatedAt: any;
+    description: any;
+    /**
+     * Home space UUID for this agent, if any.
+     * @type {any}
+     * @memberof AgentDetailResponse
+     */
+    homeSpaceId?: any;
+    /**
+     * 
+     * @type {any}
+     * @memberof AgentDetailResponse
+     */
+    id: any;
+    /**
+     * 
+     * @type {any}
+     * @memberof AgentDetailResponse
+     */
+    name: any;
+    /**
+     * 
+     * @type {ReasoningTier}
+     * @memberof AgentDetailResponse
+     */
+    reasoningProfile: ReasoningTier;
+    /**
+     * 
+     * @type {any}
+     * @memberof AgentDetailResponse
+     */
+    status: any;
     /**
      * 
      * @type {any}
      * @memberof AgentDetailResponse
      */
     summary?: any;
+    /**
+     * 
+     * @type {any}
+     * @memberof AgentDetailResponse
+     */
+    updatedAt: any;
 }
 /**
  * Searchable, sortable agent inventory with an optional per-row summary.
@@ -500,6 +500,12 @@ export interface AgentDetailResponse {
  * @interface AgentInventoryResponse
  */
 export interface AgentInventoryResponse {
+    /**
+     * Fixed window anchor used for metric sorts/summaries.
+     * @type {any}
+     * @memberof AgentInventoryResponse
+     */
+    asOf?: any;
     /**
      * 
      * @type {any}
@@ -512,12 +518,6 @@ export interface AgentInventoryResponse {
      * @memberof AgentInventoryResponse
      */
     nextCursor?: any;
-    /**
-     * Fixed window anchor used for metric sorts/summaries.
-     * @type {any}
-     * @memberof AgentInventoryResponse
-     */
-    asOf?: any;
     /**
      * 
      * @type {UsageTimeWindow}
@@ -533,42 +533,6 @@ export interface AgentInventoryResponse {
 export interface AgentListItem {
     /**
      * 
-     * @type {any}
-     * @memberof AgentListItem
-     */
-    id: any;
-    /**
-     * 
-     * @type {any}
-     * @memberof AgentListItem
-     */
-    name: any;
-    /**
-     * 
-     * @type {any}
-     * @memberof AgentListItem
-     */
-    description: any;
-    /**
-     * 
-     * @type {any}
-     * @memberof AgentListItem
-     */
-    status: any;
-    /**
-     * 
-     * @type {ReasoningTier}
-     * @memberof AgentListItem
-     */
-    reasoningProfile: ReasoningTier;
-    /**
-     * Home space UUID for this agent, if any.
-     * @type {any}
-     * @memberof AgentListItem
-     */
-    homeSpaceId?: any;
-    /**
-     * 
      * @type {AgentCoreConfig}
      * @memberof AgentListItem
      */
@@ -584,13 +548,49 @@ export interface AgentListItem {
      * @type {any}
      * @memberof AgentListItem
      */
-    updatedAt: any;
+    description: any;
+    /**
+     * Home space UUID for this agent, if any.
+     * @type {any}
+     * @memberof AgentListItem
+     */
+    homeSpaceId?: any;
+    /**
+     * 
+     * @type {any}
+     * @memberof AgentListItem
+     */
+    id: any;
+    /**
+     * 
+     * @type {any}
+     * @memberof AgentListItem
+     */
+    name: any;
+    /**
+     * 
+     * @type {ReasoningTier}
+     * @memberof AgentListItem
+     */
+    reasoningProfile: ReasoningTier;
+    /**
+     * 
+     * @type {any}
+     * @memberof AgentListItem
+     */
+    status: any;
     /**
      * 
      * @type {any}
      * @memberof AgentListItem
      */
     summary?: any;
+    /**
+     * 
+     * @type {any}
+     * @memberof AgentListItem
+     */
+    updatedAt: any;
 }
 /**
  * 
@@ -600,6 +600,30 @@ export interface AgentListItem {
 export interface AgentResponse {
     /**
      * 
+     * @type {AgentCoreConfig}
+     * @memberof AgentResponse
+     */
+    coreConfig: AgentCoreConfig;
+    /**
+     * 
+     * @type {any}
+     * @memberof AgentResponse
+     */
+    createdAt: any;
+    /**
+     * 
+     * @type {any}
+     * @memberof AgentResponse
+     */
+    description: any;
+    /**
+     * Home space UUID for this agent, if any.
+     * @type {any}
+     * @memberof AgentResponse
+     */
+    homeSpaceId?: any;
+    /**
+     * 
      * @type {any}
      * @memberof AgentResponse
      */
@@ -612,40 +636,16 @@ export interface AgentResponse {
     name: any;
     /**
      * 
-     * @type {any}
+     * @type {ReasoningTier}
      * @memberof AgentResponse
      */
-    description: any;
+    reasoningProfile: ReasoningTier;
     /**
      * 
      * @type {any}
      * @memberof AgentResponse
      */
     status: any;
-    /**
-     * 
-     * @type {ReasoningTier}
-     * @memberof AgentResponse
-     */
-    reasoningProfile: ReasoningTier;
-    /**
-     * Home space UUID for this agent, if any.
-     * @type {any}
-     * @memberof AgentResponse
-     */
-    homeSpaceId?: any;
-    /**
-     * 
-     * @type {AgentCoreConfig}
-     * @memberof AgentResponse
-     */
-    coreConfig: AgentCoreConfig;
-    /**
-     * 
-     * @type {any}
-     * @memberof AgentResponse
-     */
-    createdAt: any;
     /**
      * 
      * @type {any}
@@ -666,24 +666,6 @@ export interface AgentRunListResponse {
      */
     agentId: any;
     /**
-     * Echo of the usage window applied to the page.
-     * @type {any}
-     * @memberof AgentRunListResponse
-     */
-    window: any;
-    /**
-     * Inclusive UTC boundary.
-     * @type {any}
-     * @memberof AgentRunListResponse
-     */
-    periodStart: any;
-    /**
-     * Exclusive UTC boundary.
-     * @type {any}
-     * @memberof AgentRunListResponse
-     */
-    periodEndExclusive: any;
-    /**
      * 
      * @type {any}
      * @memberof AgentRunListResponse
@@ -695,6 +677,24 @@ export interface AgentRunListResponse {
      * @memberof AgentRunListResponse
      */
     nextCursor?: any;
+    /**
+     * Exclusive UTC boundary.
+     * @type {any}
+     * @memberof AgentRunListResponse
+     */
+    periodEndExclusive: any;
+    /**
+     * Inclusive UTC boundary.
+     * @type {any}
+     * @memberof AgentRunListResponse
+     */
+    periodStart: any;
+    /**
+     * Echo of the usage window applied to the page.
+     * @type {any}
+     * @memberof AgentRunListResponse
+     */
+    window: any;
 }
 /**
  * Per-agent run aggregates with a status breakdown for the usage panel.
@@ -702,12 +702,6 @@ export interface AgentRunListResponse {
  * @interface AgentRunStatusAggregates
  */
 export interface AgentRunStatusAggregates {
-    /**
-     * 
-     * @type {any}
-     * @memberof AgentRunStatusAggregates
-     */
-    runCount: any;
     /**
      * 
      * @type {any}
@@ -725,13 +719,25 @@ export interface AgentRunStatusAggregates {
      * @type {any}
      * @memberof AgentRunStatusAggregates
      */
-    suspendedRunCount: any;
+    lastRunAt?: any;
+    /**
+     * 
+     * @type {any}
+     * @memberof AgentRunStatusAggregates
+     */
+    runCount: any;
     /**
      * 
      * @type {any}
      * @memberof AgentRunStatusAggregates
      */
     sessionCount: any;
+    /**
+     * 
+     * @type {any}
+     * @memberof AgentRunStatusAggregates
+     */
+    suspendedRunCount: any;
     /**
      * 
      * @type {any}
@@ -744,12 +750,6 @@ export interface AgentRunStatusAggregates {
      * @memberof AgentRunStatusAggregates
      */
     totalEstimatedCostUsd: any;
-    /**
-     * 
-     * @type {any}
-     * @memberof AgentRunStatusAggregates
-     */
-    lastRunAt?: any;
 }
 /**
  * Hosted agent lifecycle state.  ``paused`` rejects new goal dispatch while in-flight and suspended runs may still complete; ``archived`` also blocks further mutation until unarchived.
@@ -769,22 +769,46 @@ export enum AgentStatus {
 export interface AgentSummaryMetrics {
     /**
      * 
-     * @type {UsageTimeWindow}
+     * @type {any}
      * @memberof AgentSummaryMetrics
      */
-    window: UsageTimeWindow;
+    completedRunCount: any;
     /**
      * 
      * @type {any}
      * @memberof AgentSummaryMetrics
      */
-    periodStart: any;
+    failedRunCount: any;
+    /**
+     * 
+     * @type {any}
+     * @memberof AgentSummaryMetrics
+     */
+    lastRunAt?: any;
+    /**
+     * 
+     * @type {any}
+     * @memberof AgentSummaryMetrics
+     */
+    learningCount?: any;
+    /**
+     * 
+     * @type {any}
+     * @memberof AgentSummaryMetrics
+     */
+    needsReviewLearningCount?: any;
     /**
      * 
      * @type {any}
      * @memberof AgentSummaryMetrics
      */
     periodEndExclusive: any;
+    /**
+     * 
+     * @type {any}
+     * @memberof AgentSummaryMetrics
+     */
+    periodStart: any;
     /**
      * 
      * @type {any}
@@ -797,18 +821,6 @@ export interface AgentSummaryMetrics {
      * @memberof AgentSummaryMetrics
      */
     sessionCount: any;
-    /**
-     * 
-     * @type {any}
-     * @memberof AgentSummaryMetrics
-     */
-    completedRunCount: any;
-    /**
-     * 
-     * @type {any}
-     * @memberof AgentSummaryMetrics
-     */
-    failedRunCount: any;
     /**
      * 
      * @type {any}
@@ -829,22 +841,10 @@ export interface AgentSummaryMetrics {
     totalEstimatedCostUsd: any;
     /**
      * 
-     * @type {any}
+     * @type {UsageTimeWindow}
      * @memberof AgentSummaryMetrics
      */
-    lastRunAt?: any;
-    /**
-     * 
-     * @type {any}
-     * @memberof AgentSummaryMetrics
-     */
-    learningCount?: any;
-    /**
-     * 
-     * @type {any}
-     * @memberof AgentSummaryMetrics
-     */
-    needsReviewLearningCount?: any;
+    window: UsageTimeWindow;
 }
 /**
  * 
@@ -857,25 +857,13 @@ export interface AgentUpdateRequest {
      * @type {any}
      * @memberof AgentUpdateRequest
      */
-    name?: any;
+    coreConfig?: any;
     /**
      * 
      * @type {any}
      * @memberof AgentUpdateRequest
      */
     description?: any;
-    /**
-     * 
-     * @type {any}
-     * @memberof AgentUpdateRequest
-     */
-    status?: any;
-    /**
-     * 
-     * @type {any}
-     * @memberof AgentUpdateRequest
-     */
-    reasoningProfile?: any;
     /**
      * Move the agent's home space; null leaves it unchanged.
      * @type {any}
@@ -887,7 +875,19 @@ export interface AgentUpdateRequest {
      * @type {any}
      * @memberof AgentUpdateRequest
      */
-    coreConfig?: any;
+    name?: any;
+    /**
+     * 
+     * @type {any}
+     * @memberof AgentUpdateRequest
+     */
+    reasoningProfile?: any;
+    /**
+     * 
+     * @type {any}
+     * @memberof AgentUpdateRequest
+     */
+    status?: any;
 }
 /**
  * Per-agent usage summary for a preset window.
@@ -903,16 +903,10 @@ export interface AgentUsageSummaryResponse {
     agentId: any;
     /**
      * 
-     * @type {UsageTimeWindow}
+     * @type {AgentRunStatusAggregates}
      * @memberof AgentUsageSummaryResponse
      */
-    window: UsageTimeWindow;
-    /**
-     * 
-     * @type {any}
-     * @memberof AgentUsageSummaryResponse
-     */
-    periodStart: any;
+    agentRuns: AgentRunStatusAggregates;
     /**
      * 
      * @type {any}
@@ -921,10 +915,16 @@ export interface AgentUsageSummaryResponse {
     periodEndExclusive: any;
     /**
      * 
-     * @type {AgentRunStatusAggregates}
+     * @type {any}
      * @memberof AgentUsageSummaryResponse
      */
-    agentRuns: AgentRunStatusAggregates;
+    periodStart: any;
+    /**
+     * 
+     * @type {UsageTimeWindow}
+     * @memberof AgentUsageSummaryResponse
+     */
+    window: UsageTimeWindow;
 }
 /**
  * 
@@ -943,19 +943,19 @@ export interface AliasResponse {
      * @type {any}
      * @memberof AliasResponse
      */
-    entityId: any;
-    /**
-     * 
-     * @type {any}
-     * @memberof AliasResponse
-     */
     aliasText: any;
     /**
      * 
      * @type {any}
      * @memberof AliasResponse
      */
-    provenance?: any;
+    createdAt: any;
+    /**
+     * 
+     * @type {any}
+     * @memberof AliasResponse
+     */
+    entityId: any;
     /**
      * 
      * @type {any}
@@ -967,7 +967,7 @@ export interface AliasResponse {
      * @type {any}
      * @memberof AliasResponse
      */
-    createdAt: any;
+    provenance?: any;
 }
 /**
  * 
@@ -975,6 +975,12 @@ export interface AliasResponse {
  * @interface ApiKeyCreateRequest
  */
 export interface ApiKeyCreateRequest {
+    /**
+     * 
+     * @type {any}
+     * @memberof ApiKeyCreateRequest
+     */
+    allSpaces?: any;
     /**
      * Human-readable label describing where the key is used.
      * @type {any}
@@ -987,12 +993,6 @@ export interface ApiKeyCreateRequest {
      * @memberof ApiKeyCreateRequest
      */
     scopes?: any;
-    /**
-     * 
-     * @type {any}
-     * @memberof ApiKeyCreateRequest
-     */
-    allSpaces?: any;
     /**
      * 
      * @type {any}
@@ -1011,13 +1011,25 @@ export interface ApiKeyCreateResponse {
      * @type {any}
      * @memberof ApiKeyCreateResponse
      */
-    id: any;
+    allSpaces: any;
     /**
      * 
      * @type {any}
      * @memberof ApiKeyCreateResponse
      */
-    name?: any;
+    createdAt: any;
+    /**
+     * Full secret key; returned exactly once at creation.
+     * @type {any}
+     * @memberof ApiKeyCreateResponse
+     */
+    fullKey: any;
+    /**
+     * 
+     * @type {any}
+     * @memberof ApiKeyCreateResponse
+     */
+    id: any;
     /**
      * 
      * @type {any}
@@ -1029,19 +1041,25 @@ export interface ApiKeyCreateResponse {
      * @type {any}
      * @memberof ApiKeyCreateResponse
      */
+    lastUsedAt?: any;
+    /**
+     * 
+     * @type {any}
+     * @memberof ApiKeyCreateResponse
+     */
+    name?: any;
+    /**
+     * 
+     * @type {any}
+     * @memberof ApiKeyCreateResponse
+     */
+    revokedAt?: any;
+    /**
+     * 
+     * @type {any}
+     * @memberof ApiKeyCreateResponse
+     */
     scopes?: any;
-    /**
-     * 
-     * @type {any}
-     * @memberof ApiKeyCreateResponse
-     */
-    tier?: any;
-    /**
-     * 
-     * @type {any}
-     * @memberof ApiKeyCreateResponse
-     */
-    allSpaces: any;
     /**
      * 
      * @type {any}
@@ -1053,25 +1071,7 @@ export interface ApiKeyCreateResponse {
      * @type {any}
      * @memberof ApiKeyCreateResponse
      */
-    createdAt: any;
-    /**
-     * 
-     * @type {any}
-     * @memberof ApiKeyCreateResponse
-     */
-    lastUsedAt?: any;
-    /**
-     * 
-     * @type {any}
-     * @memberof ApiKeyCreateResponse
-     */
-    revokedAt?: any;
-    /**
-     * Full secret key; returned exactly once at creation.
-     * @type {any}
-     * @memberof ApiKeyCreateResponse
-     */
-    fullKey: any;
+    tier?: any;
 }
 /**
  * 
@@ -1084,43 +1084,7 @@ export interface ApiKeyListItem {
      * @type {any}
      * @memberof ApiKeyListItem
      */
-    id: any;
-    /**
-     * 
-     * @type {any}
-     * @memberof ApiKeyListItem
-     */
-    name?: any;
-    /**
-     * 
-     * @type {any}
-     * @memberof ApiKeyListItem
-     */
-    keyPrefix: any;
-    /**
-     * 
-     * @type {any}
-     * @memberof ApiKeyListItem
-     */
-    scopes?: any;
-    /**
-     * 
-     * @type {any}
-     * @memberof ApiKeyListItem
-     */
-    tier?: any;
-    /**
-     * 
-     * @type {any}
-     * @memberof ApiKeyListItem
-     */
     allSpaces: any;
-    /**
-     * 
-     * @type {any}
-     * @memberof ApiKeyListItem
-     */
-    spaceIds?: any;
     /**
      * 
      * @type {any}
@@ -1132,13 +1096,49 @@ export interface ApiKeyListItem {
      * @type {any}
      * @memberof ApiKeyListItem
      */
+    id: any;
+    /**
+     * 
+     * @type {any}
+     * @memberof ApiKeyListItem
+     */
+    keyPrefix: any;
+    /**
+     * 
+     * @type {any}
+     * @memberof ApiKeyListItem
+     */
     lastUsedAt?: any;
     /**
      * 
      * @type {any}
      * @memberof ApiKeyListItem
      */
+    name?: any;
+    /**
+     * 
+     * @type {any}
+     * @memberof ApiKeyListItem
+     */
     revokedAt?: any;
+    /**
+     * 
+     * @type {any}
+     * @memberof ApiKeyListItem
+     */
+    scopes?: any;
+    /**
+     * 
+     * @type {any}
+     * @memberof ApiKeyListItem
+     */
+    spaceIds?: any;
+    /**
+     * 
+     * @type {any}
+     * @memberof ApiKeyListItem
+     */
+    tier?: any;
 }
 /**
  * 
@@ -1183,12 +1183,6 @@ export interface AttributeMergeResponse {
      * @type {any}
      * @memberof AttributeMergeResponse
      */
-    mergeId: any;
-    /**
-     * 
-     * @type {any}
-     * @memberof AttributeMergeResponse
-     */
     attributeIdA: any;
     /**
      * 
@@ -1213,7 +1207,13 @@ export interface AttributeMergeResponse {
      * @type {any}
      * @memberof AttributeMergeResponse
      */
-    proposedByRun?: any;
+    createdAt: any;
+    /**
+     * 
+     * @type {any}
+     * @memberof AttributeMergeResponse
+     */
+    deactivatedAt?: any;
     /**
      * 
      * @type {any}
@@ -1225,13 +1225,13 @@ export interface AttributeMergeResponse {
      * @type {any}
      * @memberof AttributeMergeResponse
      */
-    createdAt: any;
+    mergeId: any;
     /**
      * 
      * @type {any}
      * @memberof AttributeMergeResponse
      */
-    deactivatedAt?: any;
+    proposedByRun?: any;
 }
 /**
  * What withdrawing a merge actually did.  ``claims_reopened`` counts the versions the merge had closed and this reversal put back. ``corroboration_unwound`` counts the survivors whose folded-in evidence was taken back, which matters because that evidence feeds the bar a quarantine release is measured against.
@@ -1244,12 +1244,6 @@ export interface AttributeMergeReversalResponse {
      * @type {any}
      * @memberof AttributeMergeReversalResponse
      */
-    mergeId: any;
-    /**
-     * 
-     * @type {any}
-     * @memberof AttributeMergeReversalResponse
-     */
     claimsReopened: any;
     /**
      * 
@@ -1257,6 +1251,12 @@ export interface AttributeMergeReversalResponse {
      * @memberof AttributeMergeReversalResponse
      */
     corroborationUnwound: any;
+    /**
+     * 
+     * @type {any}
+     * @memberof AttributeMergeReversalResponse
+     */
+    mergeId: any;
 }
 /**
  * The merge edges recorded for one agent, newest first.
@@ -1288,13 +1288,13 @@ export interface AttributeRef {
      * @type {any}
      * @memberof AttributeRef
      */
-    attributeId: any;
+    agentId: any;
     /**
      * 
      * @type {any}
      * @memberof AttributeRef
      */
-    agentId: any;
+    attributeId: any;
     /**
      * 
      * @type {any}
@@ -1309,59 +1309,11 @@ export interface AttributeRef {
  */
 export interface BillingSummaryResponse {
     /**
-     * Tenant plan code from the authenticated principal.
-     * @type {any}
-     * @memberof BillingSummaryResponse
-     */
-    planCode?: any;
-    /**
-     * 
-     * @type {BillingWindowKind}
-     * @memberof BillingSummaryResponse
-     */
-    windowKind: BillingWindowKind;
-    /**
-     * Inclusive UTC billing window start.
-     * @type {any}
-     * @memberof BillingSummaryResponse
-     */
-    periodStart: any;
-    /**
-     * Exclusive UTC billing window end.
-     * @type {any}
-     * @memberof BillingSummaryResponse
-     */
-    periodEndExclusive: any;
-    /**
-     * Configured hard spend cap; null when unlimited.
-     * @type {any}
-     * @memberof BillingSummaryResponse
-     */
-    hardLimitUsd?: any;
-    /**
-     * Configured soft spend cap; null when unset or unlimited.
-     * @type {any}
-     * @memberof BillingSummaryResponse
-     */
-    softLimitUsd?: any;
-    /**
-     * Terminal billed spend in the window (runs + used learning holds).
-     * @type {any}
-     * @memberof BillingSummaryResponse
-     */
-    currentSpendUsd: any;
-    /**
      * In-flight spend reservations for the current billing window.
      * @type {any}
      * @memberof BillingSummaryResponse
      */
     activeReservationsUsd: any;
-    /**
-     * current_spend_usd + active_reservations_usd.
-     * @type {any}
-     * @memberof BillingSummaryResponse
-     */
-    committedUsd: any;
     /**
      * hard_limit_usd - committed_usd; null when unlimited.
      * @type {any}
@@ -1369,17 +1321,65 @@ export interface BillingSummaryResponse {
      */
     availableUsd?: any;
     /**
+     * current_spend_usd + active_reservations_usd.
+     * @type {any}
+     * @memberof BillingSummaryResponse
+     */
+    committedUsd: any;
+    /**
+     * Terminal billed spend in the window (runs + used learning holds).
+     * @type {any}
+     * @memberof BillingSummaryResponse
+     */
+    currentSpendUsd: any;
+    /**
+     * Configured hard spend cap; null when unlimited.
+     * @type {any}
+     * @memberof BillingSummaryResponse
+     */
+    hardLimitUsd?: any;
+    /**
      * committed_usd / hard_limit_usd as a percentage; null when unlimited.
      * @type {any}
      * @memberof BillingSummaryResponse
      */
     percentUsed?: any;
     /**
+     * Exclusive UTC billing window end.
+     * @type {any}
+     * @memberof BillingSummaryResponse
+     */
+    periodEndExclusive: any;
+    /**
+     * Inclusive UTC billing window start.
+     * @type {any}
+     * @memberof BillingSummaryResponse
+     */
+    periodStart: any;
+    /**
+     * Tenant plan code from the authenticated principal.
+     * @type {any}
+     * @memberof BillingSummaryResponse
+     */
+    planCode?: any;
+    /**
+     * Configured soft spend cap; null when unset or unlimited.
+     * @type {any}
+     * @memberof BillingSummaryResponse
+     */
+    softLimitUsd?: any;
+    /**
      * 
      * @type {BillingSummaryStatus}
      * @memberof BillingSummaryResponse
      */
     status: BillingSummaryStatus;
+    /**
+     * 
+     * @type {BillingWindowKind}
+     * @memberof BillingSummaryResponse
+     */
+    windowKind: BillingWindowKind;
 }
 /**
  * 
@@ -1408,11 +1408,11 @@ export enum BillingWindowKind {
  */
 export interface BoundaryAcceptedResponse {
     /**
-     * 
+     * True when this run was already done or already in flight, so nothing was dispatched. The request is still accepted, because at-least-once delivery makes a repeat legitimate, but no work follows. Callers that report success to a human must distinguish the two: reporting a no-op as delivered is what let a whole class of silently discarded distils go unnoticed. Absent on older servers, where it reads False.
      * @type {any}
      * @memberof BoundaryAcceptedResponse
      */
-    status?: any;
+    isDuplicate?: any;
     /**
      * Echo of the caller-owned idempotency and correlation identifier; not a hosted run UUID.
      * @type {any}
@@ -1420,11 +1420,11 @@ export interface BoundaryAcceptedResponse {
      */
     runId: any;
     /**
-     * True when this run was already done or already in flight, so nothing was dispatched. The request is still accepted, because at-least-once delivery makes a repeat legitimate, but no work follows. Callers that report success to a human must distinguish the two: reporting a no-op as delivered is what let a whole class of silently discarded distils go unnoticed. Absent on older servers, where it reads False.
+     * 
      * @type {any}
      * @memberof BoundaryAcceptedResponse
      */
-    isDuplicate?: any;
+    status?: any;
     /**
      * Compatibility version returned with the acceptance receipt.
      * @type {any}
@@ -1443,13 +1443,13 @@ export interface CandidateLearningResponse {
      * @type {any}
      * @memberof CandidateLearningResponse
      */
-    learningId: any;
+    content: any;
     /**
      * 
      * @type {any}
      * @memberof CandidateLearningResponse
      */
-    content: any;
+    learningId: any;
     /**
      * Relevance/utility score when supplied by the memory layer.
      * @type {any}
@@ -1474,6 +1474,18 @@ export interface ChartCreateRequest {
      * @type {any}
      * @memberof ChartCreateRequest
      */
+    description?: any;
+    /**
+     * 
+     * @type {QueryBinding}
+     * @memberof ChartCreateRequest
+     */
+    queryBinding: QueryBinding;
+    /**
+     * 
+     * @type {any}
+     * @memberof ChartCreateRequest
+     */
     spaceId: any;
     /**
      * 
@@ -1486,19 +1498,7 @@ export interface ChartCreateRequest {
      * @type {any}
      * @memberof ChartCreateRequest
      */
-    description?: any;
-    /**
-     * 
-     * @type {any}
-     * @memberof ChartCreateRequest
-     */
     vizSpec: any;
-    /**
-     * 
-     * @type {QueryBinding}
-     * @memberof ChartCreateRequest
-     */
-    queryBinding: QueryBinding;
 }
 /**
  * Optional overrides when running a stored chart binding.
@@ -1511,13 +1511,13 @@ export interface ChartDataRequest {
      * @type {any}
      * @memberof ChartDataRequest
      */
-    window?: any;
+    asOf?: any;
     /**
      * 
      * @type {any}
      * @memberof ChartDataRequest
      */
-    asOf?: any;
+    window?: any;
 }
 /**
  * 
@@ -1530,7 +1530,19 @@ export interface ChartListItem {
      * @type {any}
      * @memberof ChartListItem
      */
+    description: any;
+    /**
+     * 
+     * @type {any}
+     * @memberof ChartListItem
+     */
     id: any;
+    /**
+     * 
+     * @type {QueryBinding}
+     * @memberof ChartListItem
+     */
+    queryBinding: QueryBinding;
     /**
      * 
      * @type {any}
@@ -1543,18 +1555,6 @@ export interface ChartListItem {
      * @memberof ChartListItem
      */
     title: any;
-    /**
-     * 
-     * @type {any}
-     * @memberof ChartListItem
-     */
-    description: any;
-    /**
-     * 
-     * @type {QueryBinding}
-     * @memberof ChartListItem
-     */
-    queryBinding: QueryBinding;
     /**
      * 
      * @type {any}
@@ -1586,19 +1586,13 @@ export interface ChartResponse {
      * @type {any}
      * @memberof ChartResponse
      */
-    id: any;
+    createdAt: any;
     /**
      * 
      * @type {any}
      * @memberof ChartResponse
      */
-    spaceId: any;
-    /**
-     * 
-     * @type {any}
-     * @memberof ChartResponse
-     */
-    title: any;
+    createdBy?: any;
     /**
      * 
      * @type {any}
@@ -1610,7 +1604,7 @@ export interface ChartResponse {
      * @type {any}
      * @memberof ChartResponse
      */
-    vizSpec: any;
+    id: any;
     /**
      * 
      * @type {QueryBinding}
@@ -1628,7 +1622,19 @@ export interface ChartResponse {
      * @type {any}
      * @memberof ChartResponse
      */
-    createdBy?: any;
+    spaceId: any;
+    /**
+     * 
+     * @type {any}
+     * @memberof ChartResponse
+     */
+    title: any;
+    /**
+     * 
+     * @type {any}
+     * @memberof ChartResponse
+     */
+    updatedAt: any;
     /**
      * 
      * @type {any}
@@ -1640,13 +1646,7 @@ export interface ChartResponse {
      * @type {any}
      * @memberof ChartResponse
      */
-    createdAt: any;
-    /**
-     * 
-     * @type {any}
-     * @memberof ChartResponse
-     */
-    updatedAt: any;
+    vizSpec: any;
 }
 /**
  * 
@@ -1659,25 +1659,25 @@ export interface ChartUpdateRequest {
      * @type {any}
      * @memberof ChartUpdateRequest
      */
-    title?: any;
-    /**
-     * 
-     * @type {any}
-     * @memberof ChartUpdateRequest
-     */
     description?: any;
     /**
      * 
      * @type {any}
      * @memberof ChartUpdateRequest
      */
-    vizSpec?: any;
+    queryBinding?: any;
     /**
      * 
      * @type {any}
      * @memberof ChartUpdateRequest
      */
-    queryBinding?: any;
+    title?: any;
+    /**
+     * 
+     * @type {any}
+     * @memberof ChartUpdateRequest
+     */
+    vizSpec?: any;
 }
 /**
  * How often the claim corpus assisted a tenant's runs over a recent window.  Aggregated from the usage outbox's assist events (a bound claim proven right or wrong at execution). These never bill; they surface the corpus's realised value.
@@ -1686,29 +1686,11 @@ export interface ChartUpdateRequest {
  */
 export interface ClaimAssistsResponse {
     /**
-     * 
-     * @type {any}
-     * @memberof ClaimAssistsResponse
-     */
-    tenantId: any;
-    /**
-     * The recent window aggregated over.
-     * @type {any}
-     * @memberof ClaimAssistsResponse
-     */
-    windowHours: any;
-    /**
      * Bound claims proven correct at execution.
      * @type {any}
      * @memberof ClaimAssistsResponse
      */
     applied: any;
-    /**
-     * Bound claims proven wrong at execution.
-     * @type {any}
-     * @memberof ClaimAssistsResponse
-     */
-    misled: any;
     /**
      * Distinct runs the corpus assisted at least once (the N of 'assisted N of M').
      * @type {any}
@@ -1716,11 +1698,29 @@ export interface ClaimAssistsResponse {
      */
     assistedRuns: any;
     /**
+     * Bound claims proven wrong at execution.
+     * @type {any}
+     * @memberof ClaimAssistsResponse
+     */
+    misled: any;
+    /**
+     * 
+     * @type {any}
+     * @memberof ClaimAssistsResponse
+     */
+    tenantId: any;
+    /**
      * All runs in the window (the M of 'assisted N of M').
      * @type {any}
      * @memberof ClaimAssistsResponse
      */
     totalRuns: any;
+    /**
+     * The recent window aggregated over.
+     * @type {any}
+     * @memberof ClaimAssistsResponse
+     */
+    windowHours: any;
 }
 /**
  * 
@@ -1728,12 +1728,6 @@ export interface ClaimAssistsResponse {
  * @interface ClaimDossierResponse
  */
 export interface ClaimDossierResponse {
-    /**
-     * 
-     * @type {any}
-     * @memberof ClaimDossierResponse
-     */
-    entityId: any;
     /**
      * 
      * @type {any}
@@ -1752,6 +1746,12 @@ export interface ClaimDossierResponse {
      * @memberof ClaimDossierResponse
      */
     claims: any;
+    /**
+     * 
+     * @type {any}
+     * @memberof ClaimDossierResponse
+     */
+    entityId: any;
 }
 /**
  * The durable record of a claim-layer erasure.  ``reached`` counts what the cascade actually removed from the claim layer; ``not_reached`` names the stores this erasure deliberately does not touch (learnings, graph nodes, raw traces, usage aggregates), so the receipt never overstates what was erased.
@@ -1764,37 +1764,7 @@ export interface ClaimErasureReceipt {
      * @type {any}
      * @memberof ClaimErasureReceipt
      */
-    requestId: any;
-    /**
-     * 
-     * @type {any}
-     * @memberof ClaimErasureReceipt
-     */
     agentId: any;
-    /**
-     * 
-     * @type {any}
-     * @memberof ClaimErasureReceipt
-     */
-    entityId: any;
-    /**
-     * 
-     * @type {any}
-     * @memberof ClaimErasureReceipt
-     */
-    operatorPrincipal: any;
-    /**
-     * 
-     * @type {any}
-     * @memberof ClaimErasureReceipt
-     */
-    status: any;
-    /**
-     * 
-     * @type {any}
-     * @memberof ClaimErasureReceipt
-     */
-    requestedAt: any;
     /**
      * 
      * @type {any}
@@ -1806,13 +1776,43 @@ export interface ClaimErasureReceipt {
      * @type {any}
      * @memberof ClaimErasureReceipt
      */
-    reached: any;
+    entityId: any;
     /**
      * 
      * @type {any}
      * @memberof ClaimErasureReceipt
      */
     notReached: any;
+    /**
+     * 
+     * @type {any}
+     * @memberof ClaimErasureReceipt
+     */
+    operatorPrincipal: any;
+    /**
+     * 
+     * @type {any}
+     * @memberof ClaimErasureReceipt
+     */
+    reached: any;
+    /**
+     * 
+     * @type {any}
+     * @memberof ClaimErasureReceipt
+     */
+    requestId: any;
+    /**
+     * 
+     * @type {any}
+     * @memberof ClaimErasureReceipt
+     */
+    requestedAt: any;
+    /**
+     * 
+     * @type {any}
+     * @memberof ClaimErasureReceipt
+     */
+    status: any;
 }
 /**
  * The explanation a reviewer must fetch before releasing a claim.  ``etag`` is a content hash over the fields a release decision depends on; the release, promote and adopt mutations require it back as ``If-Match``, so a caller cannot mutate a claim it never inspected, and any change to the claim silently invalidates a stale consent token.
@@ -1825,19 +1825,7 @@ export interface ClaimReviewContext {
      * @type {any}
      * @memberof ClaimReviewContext
      */
-    claimId: any;
-    /**
-     * 
-     * @type {any}
-     * @memberof ClaimReviewContext
-     */
     agentId: any;
-    /**
-     * 
-     * @type {any}
-     * @memberof ClaimReviewContext
-     */
-    entityId: any;
     /**
      * 
      * @type {any}
@@ -1849,37 +1837,19 @@ export interface ClaimReviewContext {
      * @type {any}
      * @memberof ClaimReviewContext
      */
-    isQuarantined: any;
-    /**
-     * 
-     * @type {any}
-     * @memberof ClaimReviewContext
-     */
-    quarantineCause?: any;
-    /**
-     * 
-     * @type {any}
-     * @memberof ClaimReviewContext
-     */
-    isReleaseLapsed?: any;
-    /**
-     * 
-     * @type {any}
-     * @memberof ClaimReviewContext
-     */
-    provenanceClass: any;
-    /**
-     * 
-     * @type {any}
-     * @memberof ClaimReviewContext
-     */
     channelTrust: any;
     /**
      * 
      * @type {any}
      * @memberof ClaimReviewContext
      */
-    toolFamily?: any;
+    claimId: any;
+    /**
+     * 
+     * @type {any}
+     * @memberof ClaimReviewContext
+     */
+    corroborationCount: any;
     /**
      * 
      * @type {any}
@@ -1891,13 +1861,43 @@ export interface ClaimReviewContext {
      * @type {any}
      * @memberof ClaimReviewContext
      */
+    entityId: any;
+    /**
+     * 
+     * @type {any}
+     * @memberof ClaimReviewContext
+     */
+    etag: any;
+    /**
+     * 
+     * @type {any}
+     * @memberof ClaimReviewContext
+     */
+    isQuarantined: any;
+    /**
+     * 
+     * @type {any}
+     * @memberof ClaimReviewContext
+     */
+    isReleaseLapsed?: any;
+    /**
+     * 
+     * @type {any}
+     * @memberof ClaimReviewContext
+     */
     kRequired: any;
     /**
      * 
      * @type {any}
      * @memberof ClaimReviewContext
      */
-    corroborationCount: any;
+    provenanceClass: any;
+    /**
+     * 
+     * @type {any}
+     * @memberof ClaimReviewContext
+     */
+    quarantineCause?: any;
     /**
      * 
      * @type {any}
@@ -1915,7 +1915,147 @@ export interface ClaimReviewContext {
      * @type {any}
      * @memberof ClaimReviewContext
      */
-    etag: any;
+    toolFamily?: any;
+}
+/**
+ * How warm a claim corpus is, for the decision to enable the plan-rewrite pass.  How to read these numbers, and why a near-empty ``admitted_slots`` is the designed state rather than a fault, is in ``docs/claim_curation_api.md``.
+ * @export
+ * @interface ClaimStabilityPopulations
+ */
+export interface ClaimStabilityPopulations {
+    /**
+     * What the axis would admit right now. An upper bound on read elimination, not a count of it: the bind gate independently refuses a currency-decayed claim and a high-stakes attribute key, neither of which this axis judges.
+     * @type {any}
+     * @memberof ClaimStabilityPopulations
+     */
+    admittedSlots: any;
+    /**
+     * Keyed, open, non-quarantined slots: the population the axis judges at all.
+     * @type {any}
+     * @memberof ClaimStabilityPopulations
+     */
+    bindableSlots: any;
+    /**
+     * The deployment's stability confidence this count was evaluated at.
+     * @type {any}
+     * @memberof ClaimStabilityPopulations
+     */
+    confidence: any;
+    /**
+     * Slots with demonstrated survival whose licence no longer covers the gap since.
+     * @type {any}
+     * @memberof ClaimStabilityPopulations
+     */
+    lapsedSlots: any;
+    /**
+     * total_survived_days divided by re_observed_slots, not by bindable_slots, so the numerator and denominator cover the same population. Zero when nothing was re-observed.
+     * @type {any}
+     * @memberof ClaimStabilityPopulations
+     */
+    meanSurvivedDays: any;
+    /**
+     * Slots never seen to hold for any elapsed time. A cold corpus is nearly all of these.
+     * @type {any}
+     * @memberof ClaimStabilityPopulations
+     */
+    neverReObservedSlots: any;
+    /**
+     * The deployment's stability prior-changes this count was evaluated at.
+     * @type {any}
+     * @memberof ClaimStabilityPopulations
+     */
+    priorChanges: any;
+    /**
+     * Slots with any demonstrated survival, which is the population that can qualify.
+     * @type {any}
+     * @memberof ClaimStabilityPopulations
+     */
+    reObservedSlots: any;
+    /**
+     * Slots observed to have moved to a different value at least once.
+     * @type {any}
+     * @memberof ClaimStabilityPopulations
+     */
+    slotsWithARecordedChange: any;
+    /**
+     * Demonstrated survival summed over the re-observed slots only.
+     * @type {any}
+     * @memberof ClaimStabilityPopulations
+     */
+    totalSurvivedDays: any;
+}
+/**
+ * One agent's populations, labelled with the agent they belong to.
+ * @export
+ * @interface ClaimStabilitySummary
+ */
+export interface ClaimStabilitySummary {
+    /**
+     * What the axis would admit right now. An upper bound on read elimination, not a count of it: the bind gate independently refuses a currency-decayed claim and a high-stakes attribute key, neither of which this axis judges.
+     * @type {any}
+     * @memberof ClaimStabilitySummary
+     */
+    admittedSlots: any;
+    /**
+     * 
+     * @type {any}
+     * @memberof ClaimStabilitySummary
+     */
+    agentId: any;
+    /**
+     * Keyed, open, non-quarantined slots: the population the axis judges at all.
+     * @type {any}
+     * @memberof ClaimStabilitySummary
+     */
+    bindableSlots: any;
+    /**
+     * The deployment's stability confidence this count was evaluated at.
+     * @type {any}
+     * @memberof ClaimStabilitySummary
+     */
+    confidence: any;
+    /**
+     * Slots with demonstrated survival whose licence no longer covers the gap since.
+     * @type {any}
+     * @memberof ClaimStabilitySummary
+     */
+    lapsedSlots: any;
+    /**
+     * total_survived_days divided by re_observed_slots, not by bindable_slots, so the numerator and denominator cover the same population. Zero when nothing was re-observed.
+     * @type {any}
+     * @memberof ClaimStabilitySummary
+     */
+    meanSurvivedDays: any;
+    /**
+     * Slots never seen to hold for any elapsed time. A cold corpus is nearly all of these.
+     * @type {any}
+     * @memberof ClaimStabilitySummary
+     */
+    neverReObservedSlots: any;
+    /**
+     * The deployment's stability prior-changes this count was evaluated at.
+     * @type {any}
+     * @memberof ClaimStabilitySummary
+     */
+    priorChanges: any;
+    /**
+     * Slots with any demonstrated survival, which is the population that can qualify.
+     * @type {any}
+     * @memberof ClaimStabilitySummary
+     */
+    reObservedSlots: any;
+    /**
+     * Slots observed to have moved to a different value at least once.
+     * @type {any}
+     * @memberof ClaimStabilitySummary
+     */
+    slotsWithARecordedChange: any;
+    /**
+     * Demonstrated survival summed over the re-observed slots only.
+     * @type {any}
+     * @memberof ClaimStabilitySummary
+     */
+    totalSurvivedDays: any;
 }
 /**
  * 
@@ -1960,13 +2100,13 @@ export interface CuratedClaim {
      * @type {any}
      * @memberof CuratedClaim
      */
-    claimId: any;
+    agentId: any;
     /**
      * 
      * @type {any}
      * @memberof CuratedClaim
      */
-    agentId: any;
+    claimId: any;
     /**
      * 
      * @type {any}
@@ -1978,43 +2118,7 @@ export interface CuratedClaim {
      * @type {any}
      * @memberof CuratedClaim
      */
-    status: any;
-    /**
-     * 
-     * @type {any}
-     * @memberof CuratedClaim
-     */
-    provenanceClass: any;
-    /**
-     * 
-     * @type {any}
-     * @memberof CuratedClaim
-     */
-    isQuarantined: any;
-    /**
-     * 
-     * @type {any}
-     * @memberof CuratedClaim
-     */
-    quarantineCause?: any;
-    /**
-     * 
-     * @type {any}
-     * @memberof CuratedClaim
-     */
-    isReleaseLapsed?: any;
-    /**
-     * 
-     * @type {any}
-     * @memberof CuratedClaim
-     */
-    isOperatorAsserted: any;
-    /**
-     * 
-     * @type {any}
-     * @memberof CuratedClaim
-     */
-    isBindable: any;
+    humanAttestedAt?: any;
     /**
      * 
      * @type {any}
@@ -2026,13 +2130,49 @@ export interface CuratedClaim {
      * @type {any}
      * @memberof CuratedClaim
      */
-    humanAttestedAt?: any;
+    isBindable: any;
+    /**
+     * 
+     * @type {any}
+     * @memberof CuratedClaim
+     */
+    isOperatorAsserted: any;
+    /**
+     * 
+     * @type {any}
+     * @memberof CuratedClaim
+     */
+    isQuarantined: any;
+    /**
+     * 
+     * @type {any}
+     * @memberof CuratedClaim
+     */
+    isReleaseLapsed?: any;
+    /**
+     * 
+     * @type {any}
+     * @memberof CuratedClaim
+     */
+    provenanceClass: any;
+    /**
+     * 
+     * @type {any}
+     * @memberof CuratedClaim
+     */
+    quarantineCause?: any;
     /**
      * 
      * @type {RenderedText}
      * @memberof CuratedClaim
      */
     statement: RenderedText;
+    /**
+     * 
+     * @type {any}
+     * @memberof CuratedClaim
+     */
+    status: any;
 }
 /**
  * 
@@ -2045,13 +2185,7 @@ export interface DashboardCreateRequest {
      * @type {any}
      * @memberof DashboardCreateRequest
      */
-    spaceId: any;
-    /**
-     * 
-     * @type {any}
-     * @memberof DashboardCreateRequest
-     */
-    title: any;
+    columns?: any;
     /**
      * 
      * @type {any}
@@ -2063,7 +2197,13 @@ export interface DashboardCreateRequest {
      * @type {any}
      * @memberof DashboardCreateRequest
      */
-    columns?: any;
+    spaceId: any;
+    /**
+     * 
+     * @type {any}
+     * @memberof DashboardCreateRequest
+     */
+    title: any;
     /**
      * 
      * @type {UsageTimeWindow}
@@ -2088,12 +2228,6 @@ export interface DashboardItemInput {
      * @type {any}
      * @memberof DashboardItemInput
      */
-    rowIndex: any;
-    /**
-     * 
-     * @type {any}
-     * @memberof DashboardItemInput
-     */
     colIndex: any;
     /**
      * 
@@ -2101,6 +2235,12 @@ export interface DashboardItemInput {
      * @memberof DashboardItemInput
      */
     colSpan?: any;
+    /**
+     * 
+     * @type {any}
+     * @memberof DashboardItemInput
+     */
+    rowIndex: any;
     /**
      * 
      * @type {any}
@@ -2119,19 +2259,7 @@ export interface DashboardItemResponse {
      * @type {any}
      * @memberof DashboardItemResponse
      */
-    id: any;
-    /**
-     * 
-     * @type {any}
-     * @memberof DashboardItemResponse
-     */
     chartId: any;
-    /**
-     * 
-     * @type {any}
-     * @memberof DashboardItemResponse
-     */
-    rowIndex: any;
     /**
      * 
      * @type {any}
@@ -2149,13 +2277,25 @@ export interface DashboardItemResponse {
      * @type {any}
      * @memberof DashboardItemResponse
      */
-    sortKey: any;
+    createdAt: any;
     /**
      * 
      * @type {any}
      * @memberof DashboardItemResponse
      */
-    createdAt: any;
+    id: any;
+    /**
+     * 
+     * @type {any}
+     * @memberof DashboardItemResponse
+     */
+    rowIndex: any;
+    /**
+     * 
+     * @type {any}
+     * @memberof DashboardItemResponse
+     */
+    sortKey: any;
 }
 /**
  * 
@@ -2181,6 +2321,18 @@ export interface DashboardListItem {
      * @type {any}
      * @memberof DashboardListItem
      */
+    columns: any;
+    /**
+     * 
+     * @type {any}
+     * @memberof DashboardListItem
+     */
+    description: any;
+    /**
+     * 
+     * @type {any}
+     * @memberof DashboardListItem
+     */
     id: any;
     /**
      * 
@@ -2199,25 +2351,13 @@ export interface DashboardListItem {
      * @type {any}
      * @memberof DashboardListItem
      */
-    description: any;
-    /**
-     * 
-     * @type {any}
-     * @memberof DashboardListItem
-     */
-    columns: any;
+    updatedAt: any;
     /**
      * 
      * @type {UsageTimeWindow}
      * @memberof DashboardListItem
      */
     windowPreset: UsageTimeWindow;
-    /**
-     * 
-     * @type {any}
-     * @memberof DashboardListItem
-     */
-    updatedAt: any;
 }
 /**
  * 
@@ -2243,7 +2383,43 @@ export interface DashboardResponse {
      * @type {any}
      * @memberof DashboardResponse
      */
+    columns: any;
+    /**
+     * 
+     * @type {any}
+     * @memberof DashboardResponse
+     */
+    createdAt: any;
+    /**
+     * 
+     * @type {any}
+     * @memberof DashboardResponse
+     */
+    createdBy?: any;
+    /**
+     * 
+     * @type {any}
+     * @memberof DashboardResponse
+     */
+    description: any;
+    /**
+     * 
+     * @type {any}
+     * @memberof DashboardResponse
+     */
     id: any;
+    /**
+     * 
+     * @type {any}
+     * @memberof DashboardResponse
+     */
+    items?: any;
+    /**
+     * 
+     * @type {any}
+     * @memberof DashboardResponse
+     */
+    schemaVersion: any;
     /**
      * 
      * @type {any}
@@ -2261,31 +2437,7 @@ export interface DashboardResponse {
      * @type {any}
      * @memberof DashboardResponse
      */
-    description: any;
-    /**
-     * 
-     * @type {any}
-     * @memberof DashboardResponse
-     */
-    columns: any;
-    /**
-     * 
-     * @type {UsageTimeWindow}
-     * @memberof DashboardResponse
-     */
-    windowPreset: UsageTimeWindow;
-    /**
-     * 
-     * @type {any}
-     * @memberof DashboardResponse
-     */
-    schemaVersion: any;
-    /**
-     * 
-     * @type {any}
-     * @memberof DashboardResponse
-     */
-    createdBy?: any;
+    updatedAt: any;
     /**
      * 
      * @type {any}
@@ -2294,22 +2446,10 @@ export interface DashboardResponse {
     updatedBy?: any;
     /**
      * 
-     * @type {any}
+     * @type {UsageTimeWindow}
      * @memberof DashboardResponse
      */
-    createdAt: any;
-    /**
-     * 
-     * @type {any}
-     * @memberof DashboardResponse
-     */
-    updatedAt: any;
-    /**
-     * 
-     * @type {any}
-     * @memberof DashboardResponse
-     */
-    items?: any;
+    windowPreset: UsageTimeWindow;
 }
 /**
  * 
@@ -2322,7 +2462,7 @@ export interface DashboardUpdateRequest {
      * @type {any}
      * @memberof DashboardUpdateRequest
      */
-    title?: any;
+    columns?: any;
     /**
      * 
      * @type {any}
@@ -2334,7 +2474,7 @@ export interface DashboardUpdateRequest {
      * @type {any}
      * @memberof DashboardUpdateRequest
      */
-    columns?: any;
+    title?: any;
     /**
      * 
      * @type {any}
@@ -2378,17 +2518,17 @@ export interface DeclineRequest {
      */
     agent_name: any;
     /**
+     * Whether the recall was actually delivered to the model this turn. A turn can receive the injection and still decline, so this decides whether the resolve is billed or released: the caller is charged for recall it received, never for recall it never saw.
+     * @type {any}
+     * @memberof DeclineRequest
+     */
+    is_delivered?: any;
+    /**
      * Optional caller-owned organisation reference.
      * @type {any}
      * @memberof DeclineRequest
      */
     org_id?: any;
-    /**
-     * The caller-owned `run_id` supplied to resolve; it must not start with `distill:`, which is reserved for distillation jobs.
-     * @type {any}
-     * @memberof DeclineRequest
-     */
-    run_id: any;
     /**
      * Why the turn had nothing worth learning from.
      * @type {DeclineReason}
@@ -2396,11 +2536,11 @@ export interface DeclineRequest {
      */
     reason: DeclineReason;
     /**
-     * Whether the recall was actually delivered to the model this turn. A turn can receive the injection and still decline, so this decides whether the resolve is billed or released: the caller is charged for recall it received, never for recall it never saw.
+     * The caller-owned `run_id` supplied to resolve; it must not start with `distill:`, which is reserved for distillation jobs.
      * @type {any}
      * @memberof DeclineRequest
      */
-    is_delivered?: any;
+    run_id: any;
     /**
      * Producing host/framework, used to attribute the per-host funnel. Optional; the server derives one when it is absent. `unknown` is reserved: the loop-closure funnel groups runs with no attribution under that label and excludes them from alerting, so a value equal to it is normalised to unset rather than stored as a host.
      * @type {any}
@@ -2453,36 +2593,6 @@ export interface DistillRequest {
      */
     agent_name: any;
     /**
-     * Optional caller-owned organisation reference.
-     * @type {any}
-     * @memberof DistillRequest
-     */
-    org_id?: any;
-    /**
-     * Caller-created idempotency and tracing identifier. It must start with `distill:` and does not reference a hosted run.
-     * @type {any}
-     * @memberof DistillRequest
-     */
-    run_id: any;
-    /**
-     * The extraction intent.
-     * @type {any}
-     * @memberof DistillRequest
-     */
-    goal: any;
-    /**
-     * 
-     * @type {any}
-     * @memberof DistillRequest
-     */
-    evidence?: any;
-    /**
-     * 
-     * @type {DistillOutcomeModel}
-     * @memberof DistillRequest
-     */
-    outcome: DistillOutcomeModel;
-    /**
      * Reviewer verdict or contrast aid; folded into the grounding corpus.
      * @type {any}
      * @memberof DistillRequest
@@ -2493,7 +2603,43 @@ export interface DistillRequest {
      * @type {any}
      * @memberof DistillRequest
      */
-    synthesis_notes?: any;
+    evidence?: any;
+    /**
+     * The extraction intent.
+     * @type {any}
+     * @memberof DistillRequest
+     */
+    goal: any;
+    /**
+     * Maximum number of learnings to extract from this distill job. Defaults to 10; lower for sparse corpora or raise for large, dense documents.
+     * @type {any}
+     * @memberof DistillRequest
+     */
+    max_learnings?: any;
+    /**
+     * 
+     * @type {any}
+     * @memberof DistillRequest
+     */
+    occurred_at?: any;
+    /**
+     * Optional caller-owned organisation reference.
+     * @type {any}
+     * @memberof DistillRequest
+     */
+    org_id?: any;
+    /**
+     * 
+     * @type {DistillOutcomeModel}
+     * @memberof DistillRequest
+     */
+    outcome: DistillOutcomeModel;
+    /**
+     * Caller-created idempotency and tracing identifier. It must start with `distill:` and does not reference a hosted run.
+     * @type {any}
+     * @memberof DistillRequest
+     */
+    run_id: any;
     /**
      * 
      * @type {any}
@@ -2505,13 +2651,7 @@ export interface DistillRequest {
      * @type {any}
      * @memberof DistillRequest
      */
-    occurred_at?: any;
-    /**
-     * Maximum number of learnings to extract from this distill job. Defaults to 10; lower for sparse corpora or raise for large, dense documents.
-     * @type {any}
-     * @memberof DistillRequest
-     */
-    max_learnings?: any;
+    synthesis_notes?: any;
 }
 /**
  * One topic or taxonomy axis the agent should prefer when learning.
@@ -2519,12 +2659,6 @@ export interface DistillRequest {
  * @interface DomainDimensionModel
  */
 export interface DomainDimensionModel {
-    /**
-     * Short stable key for this focus area (e.g. reliability, OWASP, latency, apply_phase).
-     * @type {any}
-     * @memberof DomainDimensionModel
-     */
-    name: any;
     /**
      * Plain-language explanation of what this dimension means so extraction can prefer relevant patterns.
      * @type {any}
@@ -2537,6 +2671,12 @@ export interface DomainDimensionModel {
      * @memberof DomainDimensionModel
      */
     examples?: any;
+    /**
+     * Short stable key for this focus area (e.g. reliability, OWASP, latency, apply_phase).
+     * @type {any}
+     * @memberof DomainDimensionModel
+     */
+    name: any;
 }
 /**
  * One version of a claim in an entity's curation dossier.  Unlike the agent-facing dossier, this includes quarantined and disputed versions: the whole point of the curation read is to show the reviewer everything the agent knows about an entity, on whose word, and since when.
@@ -2549,79 +2689,19 @@ export interface DossierClaimItem {
      * @type {any}
      * @memberof DossierClaimItem
      */
-    claimId: any;
-    /**
-     * 
-     * @type {any}
-     * @memberof DossierClaimItem
-     */
-    status: any;
-    /**
-     * 
-     * @type {any}
-     * @memberof DossierClaimItem
-     */
-    provenanceClass: any;
-    /**
-     * 
-     * @type {any}
-     * @memberof DossierClaimItem
-     */
-    isBindable: any;
-    /**
-     * 
-     * @type {any}
-     * @memberof DossierClaimItem
-     */
-    isQuarantined: any;
-    /**
-     * 
-     * @type {any}
-     * @memberof DossierClaimItem
-     */
-    quarantineCause?: any;
-    /**
-     * 
-     * @type {any}
-     * @memberof DossierClaimItem
-     */
-    isReleaseLapsed?: any;
-    /**
-     * 
-     * @type {any}
-     * @memberof DossierClaimItem
-     */
-    isOperatorAsserted: any;
-    /**
-     * 
-     * @type {any}
-     * @memberof DossierClaimItem
-     */
     attributeKey?: any;
     /**
      * 
      * @type {any}
      * @memberof DossierClaimItem
      */
-    validFrom: any;
+    claimId: any;
     /**
      * 
      * @type {any}
      * @memberof DossierClaimItem
      */
-    validUntil?: any;
-    /**
-     * 
-     * @type {any}
-     * @memberof DossierClaimItem
-     */
-    recordedAt: any;
-    /**
-     * 
-     * @type {any}
-     * @memberof DossierClaimItem
-     */
-    expiredAt?: any;
+    contradictionCount?: any;
     /**
      * 
      * @type {any}
@@ -2639,7 +2719,13 @@ export interface DossierClaimItem {
      * @type {any}
      * @memberof DossierClaimItem
      */
-    contradictionCount?: any;
+    expiredAt?: any;
+    /**
+     * 
+     * @type {any}
+     * @memberof DossierClaimItem
+     */
+    humanAttestedAt?: any;
     /**
      * 
      * @type {any}
@@ -2651,13 +2737,67 @@ export interface DossierClaimItem {
      * @type {any}
      * @memberof DossierClaimItem
      */
-    humanAttestedAt?: any;
+    isBindable: any;
+    /**
+     * 
+     * @type {any}
+     * @memberof DossierClaimItem
+     */
+    isOperatorAsserted: any;
+    /**
+     * 
+     * @type {any}
+     * @memberof DossierClaimItem
+     */
+    isQuarantined: any;
+    /**
+     * 
+     * @type {any}
+     * @memberof DossierClaimItem
+     */
+    isReleaseLapsed?: any;
+    /**
+     * 
+     * @type {any}
+     * @memberof DossierClaimItem
+     */
+    provenanceClass: any;
+    /**
+     * 
+     * @type {any}
+     * @memberof DossierClaimItem
+     */
+    quarantineCause?: any;
+    /**
+     * 
+     * @type {any}
+     * @memberof DossierClaimItem
+     */
+    recordedAt: any;
     /**
      * 
      * @type {RenderedText}
      * @memberof DossierClaimItem
      */
     statement: RenderedText;
+    /**
+     * 
+     * @type {any}
+     * @memberof DossierClaimItem
+     */
+    status: any;
+    /**
+     * 
+     * @type {any}
+     * @memberof DossierClaimItem
+     */
+    validFrom: any;
+    /**
+     * 
+     * @type {any}
+     * @memberof DossierClaimItem
+     */
+    validUntil?: any;
 }
 /**
  * The plan facts a caller (or a downstream surface) is entitled to act on.
@@ -2670,13 +2810,13 @@ export interface EntitlementsResponse {
      * @type {any}
      * @memberof EntitlementsResponse
      */
-    planCode: any;
+    complianceGuardrailsAddon: any;
     /**
      * 
      * @type {any}
      * @memberof EntitlementsResponse
      */
-    complianceGuardrailsAddon: any;
+    planCode: any;
     /**
      * 
      * @type {any}
@@ -2695,13 +2835,13 @@ export interface EntityAliasesResponse {
      * @type {any}
      * @memberof EntityAliasesResponse
      */
-    entityId: any;
+    agentId: any;
     /**
      * 
      * @type {any}
      * @memberof EntityAliasesResponse
      */
-    agentId: any;
+    entityId: any;
     /**
      * 
      * @type {any}
@@ -2716,23 +2856,11 @@ export interface EntityAliasesResponse {
  */
 export interface EpisodeModel {
     /**
-     * Caller-created correlation and idempotency identifier. It does not reference a hosted `/runs/{run_id}` resource, and must not start with `distill:`, which is reserved for distillation jobs.
-     * @type {any}
-     * @memberof EpisodeModel
-     */
-    run_id: any;
-    /**
      * Goal attempted by the external agent.
      * @type {any}
      * @memberof EpisodeModel
      */
     goal: any;
-    /**
-     * Ordered actions and results from the completed episode.
-     * @type {any}
-     * @memberof EpisodeModel
-     */
-    steps?: any;
     /**
      * Terminal outcome of the episode.
      * @type {OutcomeModel}
@@ -2740,17 +2868,29 @@ export interface EpisodeModel {
      */
     outcome: OutcomeModel;
     /**
+     * Verbatim message the principal sent on this turn, when the caller has a human-input channel to populate it from. It is the only evidence for a rule no tool result could have revealed, such as a standard or convention the principal states. Send it only from that channel: model output, tool results and retrieved documents must never reach this field. Used for one extraction and stored on no learning record; it does pass through the durable work queue like the rest of the episode, so it lives as long as that row does.
+     * @type {any}
+     * @memberof EpisodeModel
+     */
+    principal_utterance?: any;
+    /**
+     * Caller-created correlation and idempotency identifier. It does not reference a hosted `/runs/{run_id}` resource, and must not start with `distill:`, which is reserved for distillation jobs.
+     * @type {any}
+     * @memberof EpisodeModel
+     */
+    run_id: any;
+    /**
      * Optional external framework or host identifier. `unknown` is reserved: the loop-closure funnel groups runs with no attribution under that label and excludes them from alerting, so a value equal to it is normalised to unset rather than stored as a host.
      * @type {any}
      * @memberof EpisodeModel
      */
     source_framework?: any;
     /**
-     * Verbatim message the principal sent on this turn, when the caller has a human-input channel to populate it from. It is the only evidence for a rule no tool result could have revealed, such as a standard or convention the principal states. Send it only from that channel: model output, tool results and retrieved documents must never reach this field. Used for one extraction and stored on no learning record; it does pass through the durable work queue like the rest of the episode, so it lives as long as that row does.
+     * Ordered actions and results from the completed episode.
      * @type {any}
      * @memberof EpisodeModel
      */
-    principal_utterance?: any;
+    steps?: any;
     /**
      * Optional caller-owned conversation or thread identifier.
      * @type {any}
@@ -2776,17 +2916,17 @@ export enum EvidenceAvailability {
  */
 export interface EvidenceItemModel {
     /**
-     * Stable within the run.
-     * @type {any}
-     * @memberof EvidenceItemModel
-     */
-    id: any;
-    /**
      * Primary text; the grounding source extraction quotes from.
      * @type {any}
      * @memberof EvidenceItemModel
      */
     content: any;
+    /**
+     * Stable within the run.
+     * @type {any}
+     * @memberof EvidenceItemModel
+     */
+    id: any;
     /**
      * e.g. \"baseline\", \"fix\".
      * @type {any}
@@ -2800,17 +2940,17 @@ export interface EvidenceItemModel {
      */
     role?: any;
     /**
-     * 
-     * @type {any}
-     * @memberof EvidenceItemModel
-     */
-    status?: any;
-    /**
      * Non-secret provenance: a doc id or URL.
      * @type {any}
      * @memberof EvidenceItemModel
      */
     sourceRef?: any;
+    /**
+     * 
+     * @type {any}
+     * @memberof EvidenceItemModel
+     */
+    status?: any;
 }
 /**
  * 
@@ -2823,13 +2963,13 @@ export interface FeatureFlagModel {
      * @type {any}
      * @memberof FeatureFlagModel
      */
-    enabled: any;
+    config?: any;
     /**
      * 
      * @type {any}
      * @memberof FeatureFlagModel
      */
-    config?: any;
+    enabled: any;
 }
 /**
  * Accepted response for an asynchronously dispatched goal run.
@@ -2857,29 +2997,17 @@ export interface GoalRunAcceptedResponse {
  */
 export interface GoalRunRequest {
     /**
-     * Goal or task for the hosted agent to execute.
-     * @type {any}
-     * @memberof GoalRunRequest
-     */
-    goal: any;
-    /**
      * Optional additional context passed to the reasoning runtime.
      * @type {any}
      * @memberof GoalRunRequest
      */
     context?: any;
     /**
-     * Optional session to associate with this run.
+     * Goal or task for the hosted agent to execute.
      * @type {any}
      * @memberof GoalRunRequest
      */
-    sessionId?: any;
-    /**
-     * Logical worker profile (`default` or `large`).
-     * @type {any}
-     * @memberof GoalRunRequest
-     */
-    workerProfile?: any;
+    goal: any;
     /**
      * Optional caller-defined metadata attached to the run.
      * @type {any}
@@ -2887,17 +3015,29 @@ export interface GoalRunRequest {
      */
     metadata?: any;
     /**
+     * Exemplar/calibration material shown to the model but never admitted as evidence.
+     * @type {any}
+     * @memberof GoalRunRequest
+     */
+    references?: any;
+    /**
+     * Optional session to associate with this run.
+     * @type {any}
+     * @memberof GoalRunRequest
+     */
+    sessionId?: any;
+    /**
      * Source-of-truth text, such as a transcript or record set, that the response may rely on as evidence.
      * @type {any}
      * @memberof GoalRunRequest
      */
     sources?: any;
     /**
-     * Exemplar/calibration material shown to the model but never admitted as evidence.
+     * Logical worker profile (`default` or `large`).
      * @type {any}
      * @memberof GoalRunRequest
      */
-    references?: any;
+    workerProfile?: any;
 }
 /**
  * Action to take when a guardrail finding is detected.
@@ -2916,17 +3056,17 @@ export enum GuardrailAction {
  */
 export interface GuardrailConfig {
     /**
-     * Entity types to detect (Presidio entity names)
-     * @type {any}
-     * @memberof GuardrailConfig
-     */
-    entities?: any;
-    /**
      * Action to take per entity type
      * @type {any}
      * @memberof GuardrailConfig
      */
     actions?: any;
+    /**
+     * Entity types to detect (Presidio entity names)
+     * @type {any}
+     * @memberof GuardrailConfig
+     */
+    entities?: any;
     /**
      * Language for Presidio analyzer
      * @type {any}
@@ -2934,17 +3074,17 @@ export interface GuardrailConfig {
      */
     language?: any;
     /**
-     * Minimum confidence score for PII detection
-     * @type {any}
-     * @memberof GuardrailConfig
-     */
-    scoreThreshold?: any;
-    /**
      * Presidio operator configurations per entity type
      * @type {any}
      * @memberof GuardrailConfig
      */
     operators?: any;
+    /**
+     * Minimum confidence score for PII detection
+     * @type {any}
+     * @memberof GuardrailConfig
+     */
+    scoreThreshold?: any;
 }
 /**
  * Composite configuration for multiple guardrails.  Each field is optional; only configured guardrails are enabled.
@@ -2985,12 +3125,6 @@ export interface HTTPValidationError {
  */
 export interface HiddenCharFinding {
     /**
-     * 
-     * @type {any}
-     * @memberof HiddenCharFinding
-     */
-    kind: any;
-    /**
      * The offending code point as U+XXXX, or null for a whitespace run.
      * @type {any}
      * @memberof HiddenCharFinding
@@ -3008,6 +3142,12 @@ export interface HiddenCharFinding {
      * @memberof HiddenCharFinding
      */
     firstIndex: any;
+    /**
+     * 
+     * @type {any}
+     * @memberof HiddenCharFinding
+     */
+    kind: any;
 }
 /**
  * Supported human-in-the-loop policy presets.
@@ -3029,37 +3169,25 @@ export interface HostLoopClosure {
      * @type {any}
      * @memberof HostLoopClosure
      */
-    host: any;
-    /**
-     * 
-     * @type {any}
-     * @memberof HostLoopClosure
-     */
-    resolved: any;
-    /**
-     * 
-     * @type {any}
-     * @memberof HostLoopClosure
-     */
-    offered: any;
-    /**
-     * 
-     * @type {any}
-     * @memberof HostLoopClosure
-     */
-    observed: any;
-    /**
-     * 
-     * @type {any}
-     * @memberof HostLoopClosure
-     */
-    reinforced: any;
+    avgSecondsToClose?: any;
     /**
      * 
      * @type {any}
      * @memberof HostLoopClosure
      */
     halfOpen: any;
+    /**
+     * 
+     * @type {any}
+     * @memberof HostLoopClosure
+     */
+    halfOpenRate: any;
+    /**
+     * 
+     * @type {any}
+     * @memberof HostLoopClosure
+     */
+    host: any;
     /**
      * 
      * @type {any}
@@ -3077,13 +3205,25 @@ export interface HostLoopClosure {
      * @type {any}
      * @memberof HostLoopClosure
      */
-    halfOpenRate: any;
+    observed: any;
     /**
      * 
      * @type {any}
      * @memberof HostLoopClosure
      */
-    avgSecondsToClose?: any;
+    offered: any;
+    /**
+     * 
+     * @type {any}
+     * @memberof HostLoopClosure
+     */
+    reinforced: any;
+    /**
+     * 
+     * @type {any}
+     * @memberof HostLoopClosure
+     */
+    resolved: any;
 }
 /**
  * 
@@ -3096,7 +3236,7 @@ export interface IdentityUserModel {
      * @type {any}
      * @memberof IdentityUserModel
      */
-    id: any;
+    displayName?: any;
     /**
      * 
      * @type {any}
@@ -3108,7 +3248,7 @@ export interface IdentityUserModel {
      * @type {any}
      * @memberof IdentityUserModel
      */
-    displayName?: any;
+    id: any;
 }
 /**
  * Corpus-wide counts for mutually exclusive review-state buckets.
@@ -3117,17 +3257,17 @@ export interface IdentityUserModel {
  */
 export interface LearningAuditFacets {
     /**
-     * 
-     * @type {any}
-     * @memberof LearningAuditFacets
-     */
-    total: any;
-    /**
      * Live and verified (total minus the rest).
      * @type {any}
      * @memberof LearningAuditFacets
      */
     active: any;
+    /**
+     * 
+     * @type {any}
+     * @memberof LearningAuditFacets
+     */
+    archived: any;
     /**
      * Live but unverified.
      * @type {any}
@@ -3139,13 +3279,13 @@ export interface LearningAuditFacets {
      * @type {any}
      * @memberof LearningAuditFacets
      */
-    archived: any;
+    superseded: any;
     /**
      * 
      * @type {any}
      * @memberof LearningAuditFacets
      */
-    superseded: any;
+    total: any;
 }
 /**
  * A directed edge between two node ids.
@@ -3153,6 +3293,12 @@ export interface LearningAuditFacets {
  * @interface LearningAuditGraphEdge
  */
 export interface LearningAuditGraphEdge {
+    /**
+     * 
+     * @type {LearningGraphEdgeType}
+     * @memberof LearningAuditGraphEdge
+     */
+    edgeType: LearningGraphEdgeType;
     /**
      * 
      * @type {any}
@@ -3171,12 +3317,6 @@ export interface LearningAuditGraphEdge {
      * @memberof LearningAuditGraphEdge
      */
     target: any;
-    /**
-     * 
-     * @type {LearningGraphEdgeType}
-     * @memberof LearningAuditGraphEdge
-     */
-    edgeType: LearningGraphEdgeType;
 }
 /**
  * A graph node. Carries no position: the client computes layout.
@@ -3192,12 +3332,6 @@ export interface LearningAuditGraphNode {
     id: any;
     /**
      * 
-     * @type {LearningGraphNodeType}
-     * @memberof LearningAuditGraphNode
-     */
-    nodeType: LearningGraphNodeType;
-    /**
-     * 
      * @type {any}
      * @memberof LearningAuditGraphNode
      */
@@ -3208,6 +3342,12 @@ export interface LearningAuditGraphNode {
      * @memberof LearningAuditGraphNode
      */
     learningId?: any;
+    /**
+     * 
+     * @type {LearningGraphNodeType}
+     * @memberof LearningAuditGraphNode
+     */
+    nodeType: LearningGraphNodeType;
     /**
      * Status hint for client tone (learning nodes only).
      * @type {any}
@@ -3232,12 +3372,6 @@ export interface LearningAuditGraphResponse {
      * @type {any}
      * @memberof LearningAuditGraphResponse
      */
-    nodes: any;
-    /**
-     * 
-     * @type {any}
-     * @memberof LearningAuditGraphResponse
-     */
     edges: any;
     /**
      * 
@@ -3246,17 +3380,23 @@ export interface LearningAuditGraphResponse {
      */
     learningId?: any;
     /**
-     * True when caps dropped nodes/edges from the response.
+     * 
      * @type {any}
      * @memberof LearningAuditGraphResponse
      */
-    truncated?: any;
+    nodes: any;
     /**
      * 
      * @type {any}
      * @memberof LearningAuditGraphResponse
      */
     retrievedAt: any;
+    /**
+     * True when caps dropped nodes/edges from the response.
+     * @type {any}
+     * @memberof LearningAuditGraphResponse
+     */
+    truncated?: any;
 }
 /**
  * A single agent learning as shown in the curation inventory.
@@ -3264,108 +3404,6 @@ export interface LearningAuditGraphResponse {
  * @interface LearningAuditItem
  */
 export interface LearningAuditItem {
-    /**
-     * 
-     * @type {any}
-     * @memberof LearningAuditItem
-     */
-    learningId: any;
-    /**
-     * 
-     * @type {any}
-     * @memberof LearningAuditItem
-     */
-    content: any;
-    /**
-     * 
-     * @type {any}
-     * @memberof LearningAuditItem
-     */
-    summary?: any;
-    /**
-     * 
-     * @type {LearningScope}
-     * @memberof LearningAuditItem
-     */
-    scope?: LearningScope;
-    /**
-     * 
-     * @type {any}
-     * @memberof LearningAuditItem
-     */
-    category?: any;
-    /**
-     * Deprecated compatibility passthrough; null for new records.
-     * @type {any}
-     * @memberof LearningAuditItem
-     */
-    legacyLearningType?: any;
-    /**
-     * Value when applied, 0.0-1.0 (Core's recency-discounted application-outcome score).
-     * @type {any}
-     * @memberof LearningAuditItem
-     */
-    utility: any;
-    /**
-     * How established, 0.0-1.0 (Wilson lower bound over corroborations, lowered by contradictions).
-     * @type {any}
-     * @memberof LearningAuditItem
-     */
-    reliability: any;
-    /**
-     * Independent sources that corroborated this learning.
-     * @type {any}
-     * @memberof LearningAuditItem
-     */
-    corroborationCount: any;
-    /**
-     * Verification tier; UNKNOWN for an unmappable stored value.
-     * @type {TrustLevel}
-     * @memberof LearningAuditItem
-     */
-    trustLevel: TrustLevel;
-    /**
-     * 
-     * @type {PrivacyClassification}
-     * @memberof LearningAuditItem
-     */
-    privacy: PrivacyClassification;
-    /**
-     * 
-     * @type {ReviewState}
-     * @memberof LearningAuditItem
-     */
-    reviewState: ReviewState;
-    /**
-     * 
-     * @type {any}
-     * @memberof LearningAuditItem
-     */
-    reviewReasons?: any;
-    /**
-     * 
-     * @type {any}
-     * @memberof LearningAuditItem
-     */
-    timesApplied: any;
-    /**
-     * 
-     * @type {any}
-     * @memberof LearningAuditItem
-     */
-    timesHelpful: any;
-    /**
-     * UI alias of times_applied (same value, kept for the curation column heading); not an independent counter.
-     * @type {any}
-     * @memberof LearningAuditItem
-     */
-    reuseCount: any;
-    /**
-     * Display tags (applicable tools and goals merged).
-     * @type {any}
-     * @memberof LearningAuditItem
-     */
-    tags?: any;
     /**
      * 
      * @type {any}
@@ -3383,13 +3421,25 @@ export interface LearningAuditItem {
      * @type {any}
      * @memberof LearningAuditItem
      */
-    instances?: any;
+    category?: any;
     /**
      * 
      * @type {any}
      * @memberof LearningAuditItem
      */
-    evidenceSummary?: any;
+    content: any;
+    /**
+     * Independent sources that corroborated this learning.
+     * @type {any}
+     * @memberof LearningAuditItem
+     */
+    corroborationCount: any;
+    /**
+     * 
+     * @type {any}
+     * @memberof LearningAuditItem
+     */
+    createdAt: any;
     /**
      * 
      * @type {EvidenceAvailability}
@@ -3401,13 +3451,103 @@ export interface LearningAuditItem {
      * @type {any}
      * @memberof LearningAuditItem
      */
-    createdAt: any;
+    evidenceSummary?: any;
+    /**
+     * 
+     * @type {any}
+     * @memberof LearningAuditItem
+     */
+    instances?: any;
+    /**
+     * 
+     * @type {any}
+     * @memberof LearningAuditItem
+     */
+    learningId: any;
+    /**
+     * Deprecated compatibility passthrough; null for new records.
+     * @type {any}
+     * @memberof LearningAuditItem
+     */
+    legacyLearningType?: any;
+    /**
+     * 
+     * @type {PrivacyClassification}
+     * @memberof LearningAuditItem
+     */
+    privacy: PrivacyClassification;
+    /**
+     * How established, 0.0-1.0 (Wilson lower bound over corroborations, lowered by contradictions).
+     * @type {any}
+     * @memberof LearningAuditItem
+     */
+    reliability: any;
+    /**
+     * UI alias of times_applied (same value, kept for the curation column heading); not an independent counter.
+     * @type {any}
+     * @memberof LearningAuditItem
+     */
+    reuseCount: any;
+    /**
+     * 
+     * @type {any}
+     * @memberof LearningAuditItem
+     */
+    reviewReasons?: any;
+    /**
+     * 
+     * @type {ReviewState}
+     * @memberof LearningAuditItem
+     */
+    reviewState: ReviewState;
+    /**
+     * 
+     * @type {LearningScope}
+     * @memberof LearningAuditItem
+     */
+    scope?: LearningScope;
+    /**
+     * 
+     * @type {any}
+     * @memberof LearningAuditItem
+     */
+    summary?: any;
+    /**
+     * Display tags (applicable tools and goals merged).
+     * @type {any}
+     * @memberof LearningAuditItem
+     */
+    tags?: any;
+    /**
+     * 
+     * @type {any}
+     * @memberof LearningAuditItem
+     */
+    timesApplied: any;
+    /**
+     * 
+     * @type {any}
+     * @memberof LearningAuditItem
+     */
+    timesHelpful: any;
+    /**
+     * Verification tier; UNKNOWN for an unmappable stored value.
+     * @type {TrustLevel}
+     * @memberof LearningAuditItem
+     */
+    trustLevel: TrustLevel;
     /**
      * 
      * @type {any}
      * @memberof LearningAuditItem
      */
     updatedAt: any;
+    /**
+     * Value when applied, 0.0-1.0 (Core's recency-discounted application-outcome score).
+     * @type {any}
+     * @memberof LearningAuditItem
+     */
+    utility: any;
 }
 /**
  * Paginated agent learning inventory.
@@ -3415,6 +3555,12 @@ export interface LearningAuditItem {
  * @interface LearningAuditListResponse
  */
 export interface LearningAuditListResponse {
+    /**
+     * Corpus-wide bucket counts; only populated on the first page.
+     * @type {any}
+     * @memberof LearningAuditListResponse
+     */
+    facets?: any;
     /**
      * 
      * @type {any}
@@ -3427,12 +3573,6 @@ export interface LearningAuditListResponse {
      * @memberof LearningAuditListResponse
      */
     nextCursor?: any;
-    /**
-     * Corpus-wide bucket counts; only populated on the first page.
-     * @type {any}
-     * @memberof LearningAuditListResponse
-     */
-    facets?: any;
     /**
      * Unreadable learnings omitted while building this page. This count is authoritative even if partial_failures are aggregated or truncated.
      * @type {any}
@@ -3459,17 +3599,17 @@ export interface LearningAuditListResponse {
  */
 export interface LearningAuditPartialFailure {
     /**
-     * Stable name of the unavailable data source.
-     * @type {any}
-     * @memberof LearningAuditPartialFailure
-     */
-    source: any;
-    /**
      * What was unavailable and the impact.
      * @type {any}
      * @memberof LearningAuditPartialFailure
      */
     detail: any;
+    /**
+     * Stable name of the unavailable data source.
+     * @type {any}
+     * @memberof LearningAuditPartialFailure
+     */
+    source: any;
 }
 /**
  * A claim linked to a learning via claim_learning_edges, for the curation panel.
@@ -3482,85 +3622,7 @@ export interface LearningClaimListItem {
      * @type {any}
      * @memberof LearningClaimListItem
      */
-    itemKind?: any;
-    /**
-     * 
-     * @type {any}
-     * @memberof LearningClaimListItem
-     */
-    claimId: any;
-    /**
-     * 
-     * @type {any}
-     * @memberof LearningClaimListItem
-     */
     agentId: any;
-    /**
-     * 
-     * @type {any}
-     * @memberof LearningClaimListItem
-     */
-    entityId: any;
-    /**
-     * 
-     * @type {any}
-     * @memberof LearningClaimListItem
-     */
-    canonicalName: any;
-    /**
-     * 
-     * @type {any}
-     * @memberof LearningClaimListItem
-     */
-    status: any;
-    /**
-     * 
-     * @type {any}
-     * @memberof LearningClaimListItem
-     */
-    identityTier?: any;
-    /**
-     * 
-     * @type {any}
-     * @memberof LearningClaimListItem
-     */
-    provenanceClass: any;
-    /**
-     * 
-     * @type {any}
-     * @memberof LearningClaimListItem
-     */
-    channelTrust: any;
-    /**
-     * 
-     * @type {any}
-     * @memberof LearningClaimListItem
-     */
-    toolFamily?: any;
-    /**
-     * 
-     * @type {any}
-     * @memberof LearningClaimListItem
-     */
-    isQuarantined: any;
-    /**
-     * 
-     * @type {any}
-     * @memberof LearningClaimListItem
-     */
-    quarantineCause?: any;
-    /**
-     * 
-     * @type {any}
-     * @memberof LearningClaimListItem
-     */
-    isReleaseLapsed?: any;
-    /**
-     * 
-     * @type {any}
-     * @memberof LearningClaimListItem
-     */
-    isBindable: any;
     /**
      * 
      * @type {any}
@@ -3572,19 +3634,19 @@ export interface LearningClaimListItem {
      * @type {any}
      * @memberof LearningClaimListItem
      */
-    recordedAt: any;
+    canonicalName: any;
     /**
      * 
      * @type {any}
      * @memberof LearningClaimListItem
      */
-    latestEdgeAt: any;
+    channelTrust: any;
     /**
      * 
      * @type {any}
      * @memberof LearningClaimListItem
      */
-    edgeTypes: any;
+    claimId: any;
     /**
      * 
      * @type {any}
@@ -3596,13 +3658,91 @@ export interface LearningClaimListItem {
      * @type {any}
      * @memberof LearningClaimListItem
      */
+    edgeTypes: any;
+    /**
+     * 
+     * @type {any}
+     * @memberof LearningClaimListItem
+     */
+    entityId: any;
+    /**
+     * 
+     * @type {any}
+     * @memberof LearningClaimListItem
+     */
     hasUnrepairedActivation: any;
+    /**
+     * 
+     * @type {any}
+     * @memberof LearningClaimListItem
+     */
+    identityTier?: any;
+    /**
+     * 
+     * @type {any}
+     * @memberof LearningClaimListItem
+     */
+    isBindable: any;
+    /**
+     * 
+     * @type {any}
+     * @memberof LearningClaimListItem
+     */
+    isQuarantined: any;
+    /**
+     * 
+     * @type {any}
+     * @memberof LearningClaimListItem
+     */
+    isReleaseLapsed?: any;
+    /**
+     * 
+     * @type {any}
+     * @memberof LearningClaimListItem
+     */
+    itemKind?: any;
+    /**
+     * 
+     * @type {any}
+     * @memberof LearningClaimListItem
+     */
+    latestEdgeAt: any;
+    /**
+     * 
+     * @type {any}
+     * @memberof LearningClaimListItem
+     */
+    provenanceClass: any;
+    /**
+     * 
+     * @type {any}
+     * @memberof LearningClaimListItem
+     */
+    quarantineCause?: any;
+    /**
+     * 
+     * @type {any}
+     * @memberof LearningClaimListItem
+     */
+    recordedAt: any;
     /**
      * 
      * @type {RenderedText}
      * @memberof LearningClaimListItem
      */
     statement: RenderedText;
+    /**
+     * 
+     * @type {any}
+     * @memberof LearningClaimListItem
+     */
+    status: any;
+    /**
+     * 
+     * @type {any}
+     * @memberof LearningClaimListItem
+     */
+    toolFamily?: any;
 }
 /**
  * 
@@ -3615,19 +3755,7 @@ export interface LearningClaimsListResponse {
      * @type {any}
      * @memberof LearningClaimsListResponse
      */
-    learningId: any;
-    /**
-     * 
-     * @type {any}
-     * @memberof LearningClaimsListResponse
-     */
     agentId: any;
-    /**
-     * 
-     * @type {any}
-     * @memberof LearningClaimsListResponse
-     */
-    status: any;
     /**
      * 
      * @type {any}
@@ -3639,7 +3767,19 @@ export interface LearningClaimsListResponse {
      * @type {any}
      * @memberof LearningClaimsListResponse
      */
+    learningId: any;
+    /**
+     * 
+     * @type {any}
+     * @memberof LearningClaimsListResponse
+     */
     nextCursor?: any;
+    /**
+     * 
+     * @type {any}
+     * @memberof LearningClaimsListResponse
+     */
+    status: any;
 }
 /**
  * Relationship kinds returned by the learning evidence graph.
@@ -3707,13 +3847,19 @@ export interface LearningInstanceEvidenceResponse {
      * @type {any}
      * @memberof LearningInstanceEvidenceResponse
      */
-    id: any;
+    createdAt: any;
     /**
      * 
      * @type {any}
      * @memberof LearningInstanceEvidenceResponse
      */
     entityValues: any;
+    /**
+     * 
+     * @type {any}
+     * @memberof LearningInstanceEvidenceResponse
+     */
+    id: any;
     /**
      * 
      * @type {any}
@@ -3726,12 +3872,6 @@ export interface LearningInstanceEvidenceResponse {
      * @memberof LearningInstanceEvidenceResponse
      */
     sourceContext?: any;
-    /**
-     * 
-     * @type {any}
-     * @memberof LearningInstanceEvidenceResponse
-     */
-    createdAt: any;
 }
 /**
  * Full representation of a single learning.
@@ -3739,36 +3879,6 @@ export interface LearningInstanceEvidenceResponse {
  * @interface LearningResponse
  */
 export interface LearningResponse {
-    /**
-     * 
-     * @type {any}
-     * @memberof LearningResponse
-     */
-    learningId: any;
-    /**
-     * 
-     * @type {any}
-     * @memberof LearningResponse
-     */
-    content: any;
-    /**
-     * 
-     * @type {LearningStanding}
-     * @memberof LearningResponse
-     */
-    standing: LearningStanding;
-    /**
-     * 
-     * @type {TrustLevel}
-     * @memberof LearningResponse
-     */
-    trustLevel: TrustLevel;
-    /**
-     * 
-     * @type {any}
-     * @memberof LearningResponse
-     */
-    sourceGoal: any;
     /**
      * 
      * @type {any}
@@ -3782,6 +3892,18 @@ export interface LearningResponse {
      */
     applicableTools: any;
     /**
+     * 
+     * @type {any}
+     * @memberof LearningResponse
+     */
+    content: any;
+    /**
+     * 
+     * @type {any}
+     * @memberof LearningResponse
+     */
+    createdAt: any;
+    /**
      * Names of domain dimensions associated with this learning (same concept as agent ``core_config.domain_dimensions`` names).
      * @type {any}
      * @memberof LearningResponse
@@ -3792,19 +3914,19 @@ export interface LearningResponse {
      * @type {any}
      * @memberof LearningResponse
      */
-    timesApplied: any;
-    /**
-     * 
-     * @type {any}
-     * @memberof LearningResponse
-     */
-    timesHelpful: any;
+    instances?: any;
     /**
      * 
      * @type {any}
      * @memberof LearningResponse
      */
     isArchived: any;
+    /**
+     * 
+     * @type {any}
+     * @memberof LearningResponse
+     */
+    learningId: any;
     /**
      * 
      * @type {PrivacyClassification}
@@ -3822,13 +3944,31 @@ export interface LearningResponse {
      * @type {any}
      * @memberof LearningResponse
      */
-    instances?: any;
+    sourceGoal: any;
+    /**
+     * 
+     * @type {LearningStanding}
+     * @memberof LearningResponse
+     */
+    standing: LearningStanding;
     /**
      * 
      * @type {any}
      * @memberof LearningResponse
      */
-    createdAt: any;
+    timesApplied: any;
+    /**
+     * 
+     * @type {any}
+     * @memberof LearningResponse
+     */
+    timesHelpful: any;
+    /**
+     * 
+     * @type {TrustLevel}
+     * @memberof LearningResponse
+     */
+    trustLevel: TrustLevel;
     /**
      * 
      * @type {any}
@@ -3894,6 +4034,42 @@ export interface LearningSplitProposalListItem {
      * @type {any}
      * @memberof LearningSplitProposalListItem
      */
+    agentId: any;
+    /**
+     * 
+     * @type {any}
+     * @memberof LearningSplitProposalListItem
+     */
+    attributeKey: any;
+    /**
+     * 
+     * @type {any}
+     * @memberof LearningSplitProposalListItem
+     */
+    canonicalName: any;
+    /**
+     * 
+     * @type {any}
+     * @memberof LearningSplitProposalListItem
+     */
+    classification: any;
+    /**
+     * 
+     * @type {any}
+     * @memberof LearningSplitProposalListItem
+     */
+    createdAt: any;
+    /**
+     * 
+     * @type {any}
+     * @memberof LearningSplitProposalListItem
+     */
+    entityId: any;
+    /**
+     * 
+     * @type {any}
+     * @memberof LearningSplitProposalListItem
+     */
     itemKind?: any;
     /**
      * 
@@ -3906,49 +4082,13 @@ export interface LearningSplitProposalListItem {
      * @type {any}
      * @memberof LearningSplitProposalListItem
      */
-    agentId: any;
-    /**
-     * 
-     * @type {any}
-     * @memberof LearningSplitProposalListItem
-     */
-    entityId: any;
-    /**
-     * 
-     * @type {any}
-     * @memberof LearningSplitProposalListItem
-     */
-    canonicalName: any;
-    /**
-     * 
-     * @type {any}
-     * @memberof LearningSplitProposalListItem
-     */
-    attributeKey: any;
-    /**
-     * 
-     * @type {any}
-     * @memberof LearningSplitProposalListItem
-     */
-    classification: any;
-    /**
-     * 
-     * @type {any}
-     * @memberof LearningSplitProposalListItem
-     */
-    status: any;
-    /**
-     * 
-     * @type {any}
-     * @memberof LearningSplitProposalListItem
-     */
     proposedQualifier?: any;
     /**
      * 
      * @type {any}
      * @memberof LearningSplitProposalListItem
      */
-    createdAt: any;
+    status: any;
 }
 /**
  * The two-axis standing of a learning: how useful, and how established.  These are orthogonal. ``utility`` is the value the learning delivered when applied (an application-outcome signal); ``reliability`` is how corroborated it is across independent observations (a Wilson lower bound). A high-utility rule may be barely corroborated (a promising new insight), and a heavily corroborated rule may be low utility (an established platitude), so both are surfaced rather than blended into one number.
@@ -3957,11 +4097,11 @@ export interface LearningSplitProposalListItem {
  */
 export interface LearningStanding {
     /**
-     * Value when applied, 0.0-1.0 (recency-discounted application-outcome score).
+     * Number of independent sources that corroborated this learning.
      * @type {any}
      * @memberof LearningStanding
      */
-    utility: any;
+    corroborationCount: any;
     /**
      * How established, 0.0-1.0 (Wilson lower bound over independent corroborations, lowered by contradictions).
      * @type {any}
@@ -3969,11 +4109,11 @@ export interface LearningStanding {
      */
     reliability: any;
     /**
-     * Number of independent sources that corroborated this learning.
+     * Value when applied, 0.0-1.0 (recency-discounted application-outcome score).
      * @type {any}
      * @memberof LearningStanding
      */
-    corroborationCount: any;
+    utility: any;
 }
 /**
  * Which review-state bucket the inventory returns (maps to the facets).  The buckets are mutually exclusive, so each row's ``review_state`` badge matches the bucket it falls in: ``active`` is live and verified (not archived, not superseded, trust != unverified); ``needs_review`` is live but unverified; ``archived``/``superseded`` select on the respective flag; ``all`` is everything.
@@ -3998,13 +4138,13 @@ export interface LoopClosureFunnelResponse {
      * @type {any}
      * @memberof LoopClosureFunnelResponse
      */
-    windowHours: any;
+    hosts?: any;
     /**
      * 
      * @type {any}
      * @memberof LoopClosureFunnelResponse
      */
-    hosts?: any;
+    windowHours: any;
 }
 /**
  * Base authentication configuration for MCP servers.
@@ -4036,13 +4176,13 @@ export interface MCPConnectionConfig {
      * @type {any}
      * @memberof MCPConnectionConfig
      */
-    reconnectDelayMs?: any;
+    reconnectBackoffMultiplier?: any;
     /**
      * 
      * @type {any}
      * @memberof MCPConnectionConfig
      */
-    reconnectBackoffMultiplier?: any;
+    reconnectDelayMs?: any;
     /**
      * 
      * @type {any}
@@ -4051,41 +4191,11 @@ export interface MCPConnectionConfig {
     reconnectMaxDelayMs?: any;
 }
 /**
- * Configuration for a single MCP server connection.  Exactly one of ``url`` (HTTP/SSE transport) or ``command`` (stdio transport) must be provided.
+ * Configuration for a single MCP server connection. Hosted agents support URL-based MCP transports only. Stdio process-launch fields are local-only and rejected by hosted create/update requests.
  * @export
  * @interface MCPServerConfig
  */
 export interface MCPServerConfig {
-    /**
-     * Unique server identifier
-     * @type {any}
-     * @memberof MCPServerConfig
-     */
-    name: any;
-    /**
-     * Server URL for HTTP/SSE transport
-     * @type {any}
-     * @memberof MCPServerConfig
-     */
-    url?: any;
-    /**
-     * Command for stdio transport
-     * @type {any}
-     * @memberof MCPServerConfig
-     */
-    command?: any;
-    /**
-     * Command arguments (stdio only)
-     * @type {any}
-     * @memberof MCPServerConfig
-     */
-    args?: any;
-    /**
-     * Environment variables for the server process
-     * @type {any}
-     * @memberof MCPServerConfig
-     */
-    env?: any;
     /**
      * Allowlist of tool names to register (None = all tools)
      * @type {any}
@@ -4093,11 +4203,11 @@ export interface MCPServerConfig {
      */
     allowedTools?: any;
     /**
-     * HITL category override for all tools from this server
+     * Command arguments (stdio only) Unsupported for hosted agents; local stdio MCP only.
      * @type {any}
      * @memberof MCPServerConfig
      */
-    category?: any;
+    args?: any;
     /**
      * Authentication configuration
      * @type {any}
@@ -4105,11 +4215,11 @@ export interface MCPServerConfig {
      */
     auth?: any;
     /**
-     * Connection resilience settings (reconnection, backoff, polling)
+     * TOML shorthand: environment variable name for auth token/key
      * @type {any}
      * @memberof MCPServerConfig
      */
-    connection?: any;
+    authTokenEnv?: any;
     /**
      * TOML shorthand: 'bearer' or 'api_key'
      * @type {any}
@@ -4117,11 +4227,47 @@ export interface MCPServerConfig {
      */
     authType?: any;
     /**
-     * TOML shorthand: environment variable name for auth token/key
+     * HITL category override for all tools from this server
      * @type {any}
      * @memberof MCPServerConfig
      */
-    authTokenEnv?: any;
+    category?: any;
+    /**
+     * Command for stdio transport Unsupported for hosted agents; local stdio MCP only.
+     * @type {any}
+     * @memberof MCPServerConfig
+     */
+    command?: any;
+    /**
+     * Connection resilience settings (reconnection, backoff, polling)
+     * @type {any}
+     * @memberof MCPServerConfig
+     */
+    connection?: any;
+    /**
+     * Environment variables for the server process Unsupported for hosted agents; local stdio MCP only.
+     * @type {any}
+     * @memberof MCPServerConfig
+     */
+    env?: any;
+    /**
+     * Unique server identifier
+     * @type {any}
+     * @memberof MCPServerConfig
+     */
+    name: any;
+    /**
+     * Deadline for every tool from this server, overriding the engine's config-wide default. Per server rather than per tool because that is what an operator knows: a remote server's latency is a property of the server, and the engine's default was chosen for a local call.
+     * @type {any}
+     * @memberof MCPServerConfig
+     */
+    toolTimeoutMs?: any;
+    /**
+     * Server URL for HTTP/SSE transport Required for hosted agents; use an HTTP/SSE/streamable-HTTP MCP server URL.
+     * @type {any}
+     * @memberof MCPServerConfig
+     */
+    url?: any;
 }
 /**
  * 
@@ -4134,13 +4280,19 @@ export interface MeResponse {
      * @type {any}
      * @memberof MeResponse
      */
-    user?: any;
+    activeTenant?: any;
     /**
      * 
      * @type {any}
      * @memberof MeResponse
      */
-    activeTenant?: any;
+    authMethod: any;
+    /**
+     * 
+     * @type {any}
+     * @memberof MeResponse
+     */
+    featureFlags?: any;
     /**
      * 
      * @type {any}
@@ -4164,13 +4316,7 @@ export interface MeResponse {
      * @type {any}
      * @memberof MeResponse
      */
-    authMethod: any;
-    /**
-     * 
-     * @type {any}
-     * @memberof MeResponse
-     */
-    featureFlags?: any;
+    user?: any;
 }
 /**
  * 
@@ -4183,18 +4329,6 @@ export interface MembershipModel {
      * @type {any}
      * @memberof MembershipModel
      */
-    tenantId: any;
-    /**
-     * 
-     * @type {any}
-     * @memberof MembershipModel
-     */
-    tenantName: any;
-    /**
-     * 
-     * @type {any}
-     * @memberof MembershipModel
-     */
     role: any;
     /**
      * 
@@ -4202,6 +4336,18 @@ export interface MembershipModel {
      * @memberof MembershipModel
      */
     status: any;
+    /**
+     * 
+     * @type {any}
+     * @memberof MembershipModel
+     */
+    tenantId: any;
+    /**
+     * 
+     * @type {any}
+     * @memberof MembershipModel
+     */
+    tenantName: any;
 }
 /**
  * 
@@ -4214,13 +4360,7 @@ export interface MetricCatalogField {
      * @type {any}
      * @memberof MetricCatalogField
      */
-    field: any;
-    /**
-     * 
-     * @type {any}
-     * @memberof MetricCatalogField
-     */
-    kind: any;
+    derived?: any;
     /**
      * 
      * @type {any}
@@ -4232,7 +4372,13 @@ export interface MetricCatalogField {
      * @type {any}
      * @memberof MetricCatalogField
      */
-    derived?: any;
+    field: any;
+    /**
+     * 
+     * @type {any}
+     * @memberof MetricCatalogField
+     */
+    kind: any;
 }
 /**
  * 
@@ -4242,16 +4388,16 @@ export interface MetricCatalogField {
 export interface MetricCatalogResponse {
     /**
      * 
-     * @type {any}
-     * @memberof MetricCatalogResponse
-     */
-    fields: any;
-    /**
-     * 
      * @type {ReportingConstants}
      * @memberof MetricCatalogResponse
      */
     defaultConstants: ReportingConstants;
+    /**
+     * 
+     * @type {any}
+     * @memberof MetricCatalogResponse
+     */
+    fields: any;
 }
 /**
  * Cross-agent similar-plan search request.
@@ -4266,17 +4412,17 @@ export interface MultiAgentPlanSearchRequest {
      */
     agentIds: any;
     /**
-     * Natural-language plan similarity query.
-     * @type {any}
-     * @memberof MultiAgentPlanSearchRequest
-     */
-    q: any;
-    /**
      * Requested maximum number of merged results.
      * @type {any}
      * @memberof MultiAgentPlanSearchRequest
      */
     limit?: any;
+    /**
+     * Natural-language plan similarity query.
+     * @type {any}
+     * @memberof MultiAgentPlanSearchRequest
+     */
+    q: any;
 }
 /**
  * Submit a finished episode for server-side extraction.
@@ -4291,17 +4437,42 @@ export interface ObserveRequest {
      */
     agent_name: any;
     /**
-     * Optional caller-owned organisation reference.
-     * @type {any}
-     * @memberof ObserveRequest
-     */
-    org_id?: any;
-    /**
      * Caller-supplied completed episode. Direct API clients may construct it without LangGraph.
      * @type {EpisodeModel}
      * @memberof ObserveRequest
      */
     episode: EpisodeModel;
+    /**
+     * Optional caller-owned organisation reference.
+     * @type {any}
+     * @memberof ObserveRequest
+     */
+    org_id?: any;
+}
+/**
+ * Every agent's stability reading for one tenant, plus the tenant total.  The enable decision is taken per agent but reviewed per tenant, and walking agent ids by hand to assemble that view is how it does not get reviewed at all. ``total`` sums the per-agent populations, which is sound because an agent's slots are disjoint from every other agent's.  ``is_truncated`` says the tenant has more agents than ``limit``, so ``total`` covers only the agents listed. A truncated total that read as a tenant total would understate the corpus, which is the permissive direction on a decision about deleting planned reads.
+ * @export
+ * @interface OrgClaimStabilitySummary
+ */
+export interface OrgClaimStabilitySummary {
+    /**
+     * 
+     * @type {any}
+     * @memberof OrgClaimStabilitySummary
+     */
+    agents: any;
+    /**
+     * 
+     * @type {any}
+     * @memberof OrgClaimStabilitySummary
+     */
+    isTruncated: any;
+    /**
+     * 
+     * @type {ClaimStabilityPopulations}
+     * @memberof OrgClaimStabilitySummary
+     */
+    total: ClaimStabilityPopulations;
 }
 /**
  * Lean directory row for invite pickers (no role / space grants).
@@ -4314,7 +4485,7 @@ export interface OrgDirectoryItem {
      * @type {any}
      * @memberof OrgDirectoryItem
      */
-    identityUserId: any;
+    displayName?: any;
     /**
      * 
      * @type {any}
@@ -4326,7 +4497,7 @@ export interface OrgDirectoryItem {
      * @type {any}
      * @memberof OrgDirectoryItem
      */
-    displayName?: any;
+    identityUserId: any;
 }
 /**
  * 
@@ -4358,7 +4529,7 @@ export interface OrgLearningItem {
      * @type {any}
      * @memberof OrgLearningItem
      */
-    orgLearningId: any;
+    applicableTools?: any;
     /**
      * 
      * @type {any}
@@ -4370,49 +4541,13 @@ export interface OrgLearningItem {
      * @type {any}
      * @memberof OrgLearningItem
      */
-    summary?: any;
-    /**
-     * 
-     * @type {any}
-     * @memberof OrgLearningItem
-     */
-    utility: any;
-    /**
-     * 
-     * @type {TrustLevel}
-     * @memberof OrgLearningItem
-     */
-    trustLevel: TrustLevel;
-    /**
-     * 
-     * @type {any}
-     * @memberof OrgLearningItem
-     */
-    originatingAgentId?: any;
-    /**
-     * 
-     * @type {any}
-     * @memberof OrgLearningItem
-     */
-    validatingAgentCount?: any;
+    createdAt: any;
     /**
      * 
      * @type {any}
      * @memberof OrgLearningItem
      */
     crossAgentAppliedCount?: any;
-    /**
-     * 
-     * @type {any}
-     * @memberof OrgLearningItem
-     */
-    applicableTools?: any;
-    /**
-     * 
-     * @type {any}
-     * @memberof OrgLearningItem
-     */
-    evidenceSummary?: any;
     /**
      * 
      * @type {EvidenceAvailability}
@@ -4424,13 +4559,49 @@ export interface OrgLearningItem {
      * @type {any}
      * @memberof OrgLearningItem
      */
-    createdAt: any;
+    evidenceSummary?: any;
+    /**
+     * 
+     * @type {any}
+     * @memberof OrgLearningItem
+     */
+    orgLearningId: any;
+    /**
+     * 
+     * @type {any}
+     * @memberof OrgLearningItem
+     */
+    originatingAgentId?: any;
+    /**
+     * 
+     * @type {any}
+     * @memberof OrgLearningItem
+     */
+    summary?: any;
+    /**
+     * 
+     * @type {TrustLevel}
+     * @memberof OrgLearningItem
+     */
+    trustLevel: TrustLevel;
     /**
      * 
      * @type {any}
      * @memberof OrgLearningItem
      */
     updatedAt: any;
+    /**
+     * 
+     * @type {any}
+     * @memberof OrgLearningItem
+     */
+    utility: any;
+    /**
+     * 
+     * @type {any}
+     * @memberof OrgLearningItem
+     */
+    validatingAgentCount?: any;
 }
 /**
  * Paginated org-shared learning library (tenant-scoped).
@@ -4455,13 +4626,13 @@ export interface OrgLearningListResponse {
      * @type {any}
      * @memberof OrgLearningListResponse
      */
-    total: any;
+    retrievedAt: any;
     /**
      * 
      * @type {any}
      * @memberof OrgLearningListResponse
      */
-    retrievedAt: any;
+    total: any;
 }
 /**
  * 
@@ -4474,13 +4645,7 @@ export interface OrgMemberItem {
      * @type {any}
      * @memberof OrgMemberItem
      */
-    identityUserId: any;
-    /**
-     * 
-     * @type {any}
-     * @memberof OrgMemberItem
-     */
-    email: any;
+    createdAt: any;
     /**
      * 
      * @type {any}
@@ -4492,13 +4657,19 @@ export interface OrgMemberItem {
      * @type {any}
      * @memberof OrgMemberItem
      */
-    role: any;
+    email: any;
     /**
      * 
      * @type {any}
      * @memberof OrgMemberItem
      */
-    status: any;
+    identityUserId: any;
+    /**
+     * 
+     * @type {any}
+     * @memberof OrgMemberItem
+     */
+    role: any;
     /**
      * 
      * @type {any}
@@ -4510,7 +4681,7 @@ export interface OrgMemberItem {
      * @type {any}
      * @memberof OrgMemberItem
      */
-    createdAt: any;
+    status: any;
 }
 /**
  * 
@@ -4586,13 +4757,13 @@ export interface OrgMemberSpaceMembership {
      * @type {any}
      * @memberof OrgMemberSpaceMembership
      */
-    spaceId: any;
+    relation: any;
     /**
      * 
      * @type {any}
      * @memberof OrgMemberSpaceMembership
      */
-    spaceName: any;
+    spaceId: any;
     /**
      * 
      * @type {SpaceKind}
@@ -4604,7 +4775,7 @@ export interface OrgMemberSpaceMembership {
      * @type {any}
      * @memberof OrgMemberSpaceMembership
      */
-    relation: any;
+    spaceName: any;
 }
 /**
  * The run's terminal result.
@@ -4612,18 +4783,6 @@ export interface OrgMemberSpaceMembership {
  * @interface OutcomeModel
  */
 export interface OutcomeModel {
-    /**
-     * Whether the episode achieved its goal.
-     * @type {any}
-     * @memberof OutcomeModel
-     */
-    is_success: any;
-    /**
-     * Total number of attempted steps.
-     * @type {any}
-     * @memberof OutcomeModel
-     */
-    total_steps?: any;
     /**
      * Number of completed steps.
      * @type {any}
@@ -4636,6 +4795,18 @@ export interface OutcomeModel {
      * @memberof OutcomeModel
      */
     failed_steps?: any;
+    /**
+     * Whether the episode achieved its goal.
+     * @type {any}
+     * @memberof OutcomeModel
+     */
+    is_success: any;
+    /**
+     * Total number of attempted steps.
+     * @type {any}
+     * @memberof OutcomeModel
+     */
+    total_steps?: any;
 }
 /**
  * Milestone in a hydrated plan.
@@ -4643,6 +4814,24 @@ export interface OutcomeModel {
  * @interface PlanMilestoneResponse
  */
 export interface PlanMilestoneResponse {
+    /**
+     * 
+     * @type {any}
+     * @memberof PlanMilestoneResponse
+     */
+    description?: any;
+    /**
+     * 
+     * @type {any}
+     * @memberof PlanMilestoneResponse
+     */
+    isCompleted?: any;
+    /**
+     * 
+     * @type {any}
+     * @memberof PlanMilestoneResponse
+     */
+    isDegraded?: any;
     /**
      * 
      * @type {any}
@@ -4660,25 +4849,7 @@ export interface PlanMilestoneResponse {
      * @type {any}
      * @memberof PlanMilestoneResponse
      */
-    description?: any;
-    /**
-     * 
-     * @type {any}
-     * @memberof PlanMilestoneResponse
-     */
     stepIds?: any;
-    /**
-     * 
-     * @type {any}
-     * @memberof PlanMilestoneResponse
-     */
-    isCompleted?: any;
-    /**
-     * 
-     * @type {any}
-     * @memberof PlanMilestoneResponse
-     */
-    isDegraded?: any;
 }
 /**
  * Plan metadata with optional hydrated milestones and steps.
@@ -4691,37 +4862,7 @@ export interface PlanResponse {
      * @type {any}
      * @memberof PlanResponse
      */
-    planId: any;
-    /**
-     * 
-     * @type {any}
-     * @memberof PlanResponse
-     */
     agentId: any;
-    /**
-     * 
-     * @type {any}
-     * @memberof PlanResponse
-     */
-    goal: any;
-    /**
-     * 
-     * @type {any}
-     * @memberof PlanResponse
-     */
-    summary?: any;
-    /**
-     * 
-     * @type {any}
-     * @memberof PlanResponse
-     */
-    reasoning?: any;
-    /**
-     * 
-     * @type {any}
-     * @memberof PlanResponse
-     */
-    isSuccess?: any;
     /**
      * 
      * @type {any}
@@ -4733,7 +4874,13 @@ export interface PlanResponse {
      * @type {any}
      * @memberof PlanResponse
      */
-    numSteps?: any;
+    goal: any;
+    /**
+     * 
+     * @type {any}
+     * @memberof PlanResponse
+     */
+    isSuccess?: any;
     /**
      * 
      * @type {any}
@@ -4745,7 +4892,31 @@ export interface PlanResponse {
      * @type {any}
      * @memberof PlanResponse
      */
+    numSteps?: any;
+    /**
+     * 
+     * @type {any}
+     * @memberof PlanResponse
+     */
+    planId: any;
+    /**
+     * 
+     * @type {any}
+     * @memberof PlanResponse
+     */
+    reasoning?: any;
+    /**
+     * 
+     * @type {any}
+     * @memberof PlanResponse
+     */
     steps?: any;
+    /**
+     * 
+     * @type {any}
+     * @memberof PlanResponse
+     */
+    summary?: any;
 }
 /**
  * Step in a hydrated plan.
@@ -4758,13 +4929,7 @@ export interface PlanStepResponse {
      * @type {any}
      * @memberof PlanStepResponse
      */
-    stepId?: any;
-    /**
-     * 
-     * @type {any}
-     * @memberof PlanStepResponse
-     */
-    description: any;
+    actionSpec?: any;
     /**
      * tool_call | llm_generation | human_input when known.
      * @type {any}
@@ -4776,13 +4941,13 @@ export interface PlanStepResponse {
      * @type {any}
      * @memberof PlanStepResponse
      */
-    actionSpec?: any;
+    dependsOn?: any;
     /**
      * 
      * @type {any}
      * @memberof PlanStepResponse
      */
-    dependsOn?: any;
+    description: any;
     /**
      * 
      * @type {any}
@@ -4795,6 +4960,12 @@ export interface PlanStepResponse {
      * @memberof PlanStepResponse
      */
     status?: any;
+    /**
+     * 
+     * @type {any}
+     * @memberof PlanStepResponse
+     */
+    stepId?: any;
 }
 /**
  * Privacy classification for cross-agent sharing.
@@ -4849,19 +5020,7 @@ export interface QuarantineQueueItem {
      * @type {any}
      * @memberof QuarantineQueueItem
      */
-    claimId: any;
-    /**
-     * 
-     * @type {any}
-     * @memberof QuarantineQueueItem
-     */
     agentId: any;
-    /**
-     * 
-     * @type {any}
-     * @memberof QuarantineQueueItem
-     */
-    entityId: any;
     /**
      * 
      * @type {any}
@@ -4873,25 +5032,25 @@ export interface QuarantineQueueItem {
      * @type {any}
      * @memberof QuarantineQueueItem
      */
-    provenanceClass: any;
-    /**
-     * 
-     * @type {any}
-     * @memberof QuarantineQueueItem
-     */
     channelTrust: any;
     /**
      * 
      * @type {any}
      * @memberof QuarantineQueueItem
      */
-    toolFamily?: any;
+    claimId: any;
     /**
      * 
      * @type {any}
      * @memberof QuarantineQueueItem
      */
-    quarantineCause?: any;
+    corroborationCount?: any;
+    /**
+     * 
+     * @type {any}
+     * @memberof QuarantineQueueItem
+     */
+    entityId: any;
     /**
      * 
      * @type {any}
@@ -4903,7 +5062,13 @@ export interface QuarantineQueueItem {
      * @type {any}
      * @memberof QuarantineQueueItem
      */
-    corroborationCount?: any;
+    provenanceClass: any;
+    /**
+     * 
+     * @type {any}
+     * @memberof QuarantineQueueItem
+     */
+    quarantineCause?: any;
     /**
      * 
      * @type {any}
@@ -4916,6 +5081,12 @@ export interface QuarantineQueueItem {
      * @memberof QuarantineQueueItem
      */
     statement: RenderedText;
+    /**
+     * 
+     * @type {any}
+     * @memberof QuarantineQueueItem
+     */
+    toolFamily?: any;
 }
 /**
  * 
@@ -4930,12 +5101,6 @@ export interface QuarantineQueueResponse {
      */
     filtered?: any;
     /**
-     * Best-effort count of rows this page omitted because the caller's space filter excluded them.
-     * @type {any}
-     * @memberof QuarantineQueueResponse
-     */
-    withheldCount?: any;
-    /**
      * 
      * @type {any}
      * @memberof QuarantineQueueResponse
@@ -4947,6 +5112,12 @@ export interface QuarantineQueueResponse {
      * @memberof QuarantineQueueResponse
      */
     nextCursor?: any;
+    /**
+     * Best-effort count of rows this page omitted because the caller's space filter excluded them.
+     * @type {any}
+     * @memberof QuarantineQueueResponse
+     */
+    withheldCount?: any;
 }
 /**
  * Mode B chart binding: dimensions / measures / filters / limit.  Date range comes from the request ``window`` (UsageTimeWindow), not from/to.
@@ -4959,7 +5130,7 @@ export interface QueryBinding {
      * @type {any}
      * @memberof QueryBinding
      */
-    grain?: any;
+    constantsProfileId?: any;
     /**
      * 
      * @type {any}
@@ -4971,25 +5142,25 @@ export interface QueryBinding {
      * @type {any}
      * @memberof QueryBinding
      */
-    measures?: any;
-    /**
-     * 
-     * @type {any}
-     * @memberof QueryBinding
-     */
     filters?: any;
     /**
      * 
      * @type {any}
      * @memberof QueryBinding
      */
-    constantsProfileId?: any;
+    grain?: any;
     /**
      * 
      * @type {any}
      * @memberof QueryBinding
      */
     limit?: any;
+    /**
+     * 
+     * @type {any}
+     * @memberof QueryBinding
+     */
+    measures?: any;
 }
 /**
  * 
@@ -5027,13 +5198,13 @@ export interface QueryMeasure {
      * @type {any}
      * @memberof QueryMeasure
      */
-    field: any;
+    agg?: any;
     /**
      * 
      * @type {any}
      * @memberof QueryMeasure
      */
-    agg?: any;
+    field: any;
 }
 /**
  * Curated hosted reasoning tiers exposed to customers.
@@ -5077,12 +5248,6 @@ export interface ReinforceLearningResponse {
      */
     standing: LearningStanding;
     /**
-     * Current trust level after reinforcement.
-     * @type {TrustLevel}
-     * @memberof ReinforceLearningResponse
-     */
-    trustLevel: TrustLevel;
-    /**
      * 
      * @type {any}
      * @memberof ReinforceLearningResponse
@@ -5094,6 +5259,12 @@ export interface ReinforceLearningResponse {
      * @memberof ReinforceLearningResponse
      */
     timesHelpful: any;
+    /**
+     * Current trust level after reinforcement.
+     * @type {TrustLevel}
+     * @memberof ReinforceLearningResponse
+     */
+    trustLevel: TrustLevel;
 }
 /**
  * Credit the learnings a run used.
@@ -5108,11 +5279,11 @@ export interface ReinforceRequest {
      */
     agent_name: any;
     /**
-     * Optional caller-owned organisation reference.
+     * The host's record of the context block as its editor accepted it, used to confirm which offered learnings the model was actually shown. A learning no receipt reports as rendered credits nothing, so a host that omits this earns no reinforcement. Send the artefact the editor produced, never the text this client emitted: an echo of what was sent asserts the very thing the receipt exists to evidence. An over-cap receipt is clipped when folded rather than refused, because refusing it would cost the run its whole reinforcement and not merely its evidence; the bound on this field is far above that clip and exists only to stop an unbounded body.
      * @type {any}
      * @memberof ReinforceRequest
      */
-    org_id?: any;
+    contextReceipt?: any;
     /**
      * Completed episode using the same caller-owned `run_id` supplied to resolve.
      * @type {EpisodeModel}
@@ -5125,6 +5296,12 @@ export interface ReinforceRequest {
      * @memberof ReinforceRequest
      */
     is_org_promotion_allowed?: any;
+    /**
+     * Optional caller-owned organisation reference.
+     * @type {any}
+     * @memberof ReinforceRequest
+     */
+    org_id?: any;
 }
 /**
  * Preset reason codes for curator reject (archive).
@@ -5147,16 +5324,16 @@ export enum RejectLearningReasonCode {
 export interface RejectLearningRequest {
     /**
      * 
-     * @type {RejectLearningReasonCode}
-     * @memberof RejectLearningRequest
-     */
-    reasonCode?: RejectLearningReasonCode;
-    /**
-     * 
      * @type {any}
      * @memberof RejectLearningRequest
      */
     reason?: any;
+    /**
+     * 
+     * @type {RejectLearningReasonCode}
+     * @memberof RejectLearningRequest
+     */
+    reasonCode?: RejectLearningReasonCode;
 }
 /**
  * Response after curator reject (archive).
@@ -5212,13 +5389,13 @@ export interface RenderedText {
      * @type {any}
      * @memberof RenderedText
      */
-    rawText: any;
+    findings?: any;
     /**
-     * Characters a human actually sees (excludes zero-width and control characters).
+     * Hint to the console to collapse long text until the reviewer expands it.
      * @type {any}
      * @memberof RenderedText
      */
-    visibleCharCount: any;
+    isCollapsedByDefault?: any;
     /**
      * Total code points in the raw text, including hidden ones.
      * @type {any}
@@ -5230,16 +5407,16 @@ export interface RenderedText {
      * @type {any}
      * @memberof RenderedText
      */
-    findings?: any;
+    rawText: any;
     /**
-     * Hint to the console to collapse long text until the reviewer expands it.
+     * Characters a human actually sees (excludes zero-width and control characters).
      * @type {any}
      * @memberof RenderedText
      */
-    isCollapsedByDefault?: any;
+    visibleCharCount: any;
 }
 /**
- * Space hyperparameters that turn event counts into minutes / dollars.
+ * Space hyperparameters that turn event counts into minutes / dollars.  Research-backed product defaults for new / unset space configs: retrieval ~6 min (Microsoft WTI multi-source ~6.4; Notion ≥5), application ~10 (8–15; AI draft validation can push higher), hourly cash-ish 100 (org payroll should override; 100–120 band). Persisted space JSON wins per key via ``merge_reporting_constants`` — never migrate existing rows to new defaults.
  * @export
  * @interface ReportingConstants
  */
@@ -5249,19 +5426,7 @@ export interface ReportingConstants {
      * @type {any}
      * @memberof ReportingConstants
      */
-    minutesPerRetrieval?: any;
-    /**
-     * 
-     * @type {any}
-     * @memberof ReportingConstants
-     */
-    minutesPerApplication?: any;
-    /**
-     * 
-     * @type {any}
-     * @memberof ReportingConstants
-     */
-    minutesPerLearningSaved?: any;
+    hourlyRateUsd?: any;
     /**
      * 
      * @type {any}
@@ -5273,13 +5438,31 @@ export interface ReportingConstants {
      * @type {any}
      * @memberof ReportingConstants
      */
-    minutesReworkPerMislead?: any;
+    minutesPerApplication?: any;
     /**
      * 
      * @type {any}
      * @memberof ReportingConstants
      */
     minutesPerAssistedRun?: any;
+    /**
+     * 
+     * @type {any}
+     * @memberof ReportingConstants
+     */
+    minutesPerLearningSaved?: any;
+    /**
+     * 
+     * @type {any}
+     * @memberof ReportingConstants
+     */
+    minutesPerRetrieval?: any;
+    /**
+     * 
+     * @type {any}
+     * @memberof ReportingConstants
+     */
+    minutesReworkPerMislead?: any;
     /**
      * 
      * @type {any}
@@ -5292,12 +5475,6 @@ export interface ReportingConstants {
      * @memberof ReportingConstants
      */
     usdPerUtilityWeightedHelp?: any;
-    /**
-     * 
-     * @type {any}
-     * @memberof ReportingConstants
-     */
-    hourlyRateUsd?: any;
 }
 /**
  * 
@@ -5326,12 +5503,6 @@ export interface ReportingDefaultsPutRequest {
 export interface ReportingDefaultsResponse {
     /**
      * 
-     * @type {any}
-     * @memberof ReportingDefaultsResponse
-     */
-    spaceId: any;
-    /**
-     * 
      * @type {ReportingConstants}
      * @memberof ReportingDefaultsResponse
      */
@@ -5348,6 +5519,12 @@ export interface ReportingDefaultsResponse {
      * @memberof ReportingDefaultsResponse
      */
     schemaVersion: any;
+    /**
+     * 
+     * @type {any}
+     * @memberof ReportingDefaultsResponse
+     */
+    spaceId: any;
     /**
      * 
      * @type {any}
@@ -5372,13 +5549,7 @@ export interface ReportingQueryRequest {
      * @type {any}
      * @memberof ReportingQueryRequest
      */
-    spaceId: any;
-    /**
-     * 
-     * @type {UsageTimeWindow}
-     * @memberof ReportingQueryRequest
-     */
-    window?: UsageTimeWindow;
+    asOf?: any;
     /**
      * 
      * @type {QueryBinding}
@@ -5390,7 +5561,13 @@ export interface ReportingQueryRequest {
      * @type {any}
      * @memberof ReportingQueryRequest
      */
-    asOf?: any;
+    spaceId: any;
+    /**
+     * 
+     * @type {UsageTimeWindow}
+     * @memberof ReportingQueryRequest
+     */
+    window?: UsageTimeWindow;
 }
 /**
  * 
@@ -5398,30 +5575,6 @@ export interface ReportingQueryRequest {
  * @interface ReportingQueryResponse
  */
 export interface ReportingQueryResponse {
-    /**
-     * 
-     * @type {any}
-     * @memberof ReportingQueryResponse
-     */
-    rows: any;
-    /**
-     * 
-     * @type {any}
-     * @memberof ReportingQueryResponse
-     */
-    rowCount: any;
-    /**
-     * 
-     * @type {any}
-     * @memberof ReportingQueryResponse
-     */
-    truncated: any;
-    /**
-     * 
-     * @type {QueryBinding}
-     * @memberof ReportingQueryResponse
-     */
-    queryBinding: QueryBinding;
     /**
      * 
      * @type {ReportingConstants}
@@ -5436,10 +5589,10 @@ export interface ReportingQueryResponse {
     isIllustrative: any;
     /**
      * 
-     * @type {UsageTimeWindow}
+     * @type {any}
      * @memberof ReportingQueryResponse
      */
-    window: UsageTimeWindow;
+    periodEndExclusive: any;
     /**
      * 
      * @type {any}
@@ -5448,10 +5601,34 @@ export interface ReportingQueryResponse {
     periodStart: any;
     /**
      * 
+     * @type {QueryBinding}
+     * @memberof ReportingQueryResponse
+     */
+    queryBinding: QueryBinding;
+    /**
+     * 
      * @type {any}
      * @memberof ReportingQueryResponse
      */
-    periodEndExclusive: any;
+    rowCount: any;
+    /**
+     * 
+     * @type {any}
+     * @memberof ReportingQueryResponse
+     */
+    rows: any;
+    /**
+     * 
+     * @type {any}
+     * @memberof ReportingQueryResponse
+     */
+    truncated: any;
+    /**
+     * 
+     * @type {UsageTimeWindow}
+     * @memberof ReportingQueryResponse
+     */
+    window: UsageTimeWindow;
 }
 /**
  * Ask for the learnings bound to a goal at run start.
@@ -5466,35 +5643,17 @@ export interface ResolveRequest {
      */
     agent_name: any;
     /**
-     * Optional caller-owned organisation reference.
+     * 
      * @type {any}
      * @memberof ResolveRequest
      */
-    org_id?: any;
-    /**
-     * Caller-created correlation key. Reuse it with observe and reinforce; it does not reference a hosted `/runs/{run_id}` resource, and must not start with `distill:`, which is reserved for distillation jobs.
-     * @type {any}
-     * @memberof ResolveRequest
-     */
-    run_id: any;
+    available_tools?: any;
     /**
      * Goal about to be attempted by the external agent.
      * @type {any}
      * @memberof ResolveRequest
      */
     goal: any;
-    /**
-     * Producing host/framework (e.g. 'mcp:cursor'), used to attribute the per-host funnel. Optional; backfilled from the episode at write-back. `unknown` is reserved: the loop-closure funnel groups runs with no attribution under that label and excludes them from alerting, so a value equal to it is normalised to unset rather than stored as a host.
-     * @type {any}
-     * @memberof ResolveRequest
-     */
-    source_framework?: any;
-    /**
-     * 
-     * @type {any}
-     * @memberof ResolveRequest
-     */
-    available_tools?: any;
     /**
      * 
      * @type {any}
@@ -5508,17 +5667,35 @@ export interface ResolveRequest {
      */
     model_context_window?: any;
     /**
-     * Retrieval depth. `fast` prioritises response time; `full` may return richer contextual relationships at higher latency.
+     * Optional caller-owned organisation reference.
      * @type {any}
      * @memberof ResolveRequest
      */
-    retrieval?: any;
+    org_id?: any;
     /**
      * Opaque per-recall idempotency key, scoped to this run. Supply a value that is stable across retries of one recall and distinct across genuine recalls (a turn id, milestone id, or UUID) to recall more than once in a run: each distinct key accumulates its offers and is charged once; a retry with the same key neither double-charges nor double-records. Omit for a single recall per run (the default).
      * @type {any}
      * @memberof ResolveRequest
      */
     resolve_idempotency_key?: any;
+    /**
+     * Retrieval depth. `fast` prioritises response time; `full` may return richer contextual relationships at higher latency.
+     * @type {any}
+     * @memberof ResolveRequest
+     */
+    retrieval?: any;
+    /**
+     * Caller-created correlation key. Reuse it with observe and reinforce; it does not reference a hosted `/runs/{run_id}` resource, and must not start with `distill:`, which is reserved for distillation jobs.
+     * @type {any}
+     * @memberof ResolveRequest
+     */
+    run_id: any;
+    /**
+     * Producing host/framework (e.g. 'mcp:cursor'), used to attribute the per-host funnel. Optional; backfilled from the episode at write-back. `unknown` is reserved: the loop-closure funnel groups runs with no attribution under that label and excludes them from alerting, so a value equal to it is normalised to unset rather than stored as a host.
+     * @type {any}
+     * @memberof ResolveRequest
+     */
+    source_framework?: any;
 }
 /**
  * The bound learnings: the rendered block plus the offered IDs.
@@ -5578,11 +5755,11 @@ export interface ResolveSplitResponse {
  */
 export interface ResumeRunRequest {
     /**
-     * ID of the suspension to respond to (from the suspended run metadata).
+     * Optional decision payload, such as modified instructions, selected items, or additional human input.
      * @type {any}
      * @memberof ResumeRunRequest
      */
-    suspensionId: any;
+    data?: any;
     /**
      * Decision type: approve, reject, modify, skip, provide_input, or partial_approve.
      * @type {DecisionType}
@@ -5590,11 +5767,11 @@ export interface ResumeRunRequest {
      */
     decisionType: DecisionType;
     /**
-     * Optional decision payload, such as modified instructions, selected items, or additional human input.
+     * Optional caller-defined metadata for the child run.
      * @type {any}
      * @memberof ResumeRunRequest
      */
-    data?: any;
+    metadata?: any;
     /**
      * Optional human-readable reason (audit / trace; SDK-dependent visibility to the model).
      * @type {any}
@@ -5602,17 +5779,17 @@ export interface ResumeRunRequest {
      */
     reason?: any;
     /**
+     * ID of the suspension to respond to (from the suspended run metadata).
+     * @type {any}
+     * @memberof ResumeRunRequest
+     */
+    suspensionId: any;
+    /**
      * Worker profile for the resume execution.
      * @type {any}
      * @memberof ResumeRunRequest
      */
     workerProfile?: any;
-    /**
-     * Optional caller-defined metadata for the child run.
-     * @type {any}
-     * @memberof ResumeRunRequest
-     */
-    metadata?: any;
 }
 /**
  * A single explanation for why a learning is in its review state.
@@ -5651,59 +5828,23 @@ export enum ReviewState {
  */
 export interface RunDetailResponse {
     /**
-     * Server-issued hosted run UUID used by `/runs/{run_id}`.
-     * @type {any}
-     * @memberof RunDetailResponse
-     */
-    id: any;
-    /**
      * Hosted agent UUID associated with this run.
      * @type {any}
      * @memberof RunDetailResponse
      */
     agentId?: any;
     /**
-     * Conversation session UUID, when the run belongs to a session.
+     * 
      * @type {any}
      * @memberof RunDetailResponse
      */
-    sessionId: any;
-    /**
-     * Parent hosted run UUID when this run resumed a suspension.
-     * @type {any}
-     * @memberof RunDetailResponse
-     */
-    parentRunId?: any;
-    /**
-     * 
-     * @type {RunType}
-     * @memberof RunDetailResponse
-     */
-    runType: RunType;
-    /**
-     * 
-     * @type {RunStatus}
-     * @memberof RunDetailResponse
-     */
-    status: RunStatus;
+    computeSeconds: any;
     /**
      * 
      * @type {any}
      * @memberof RunDetailResponse
      */
-    goal: any;
-    /**
-     * 
-     * @type {any}
-     * @memberof RunDetailResponse
-     */
-    workerProfile: any;
-    /**
-     * 
-     * @type {any}
-     * @memberof RunDetailResponse
-     */
-    startedAt: any;
+    createdAt: any;
     /**
      * 
      * @type {any}
@@ -5715,7 +5856,7 @@ export interface RunDetailResponse {
      * @type {any}
      * @memberof RunDetailResponse
      */
-    computeSeconds: any;
+    error: any;
     /**
      * 
      * @type {any}
@@ -5733,19 +5874,13 @@ export interface RunDetailResponse {
      * @type {any}
      * @memberof RunDetailResponse
      */
-    error: any;
+    goal: any;
     /**
-     * 
+     * Server-issued hosted run UUID used by `/runs/{run_id}`.
      * @type {any}
      * @memberof RunDetailResponse
      */
-    metadata?: any;
-    /**
-     * 
-     * @type {any}
-     * @memberof RunDetailResponse
-     */
-    createdAt: any;
+    id: any;
     /**
      * 
      * @type {RunInputSummary}
@@ -5754,10 +5889,52 @@ export interface RunDetailResponse {
     input: RunInputSummary;
     /**
      * 
+     * @type {any}
+     * @memberof RunDetailResponse
+     */
+    metadata?: any;
+    /**
+     * 
      * @type {RunOutputSummary}
      * @memberof RunDetailResponse
      */
     output: RunOutputSummary;
+    /**
+     * Parent hosted run UUID when this run resumed a suspension.
+     * @type {any}
+     * @memberof RunDetailResponse
+     */
+    parentRunId?: any;
+    /**
+     * 
+     * @type {RunType}
+     * @memberof RunDetailResponse
+     */
+    runType: RunType;
+    /**
+     * Conversation session UUID, when the run belongs to a session.
+     * @type {any}
+     * @memberof RunDetailResponse
+     */
+    sessionId: any;
+    /**
+     * 
+     * @type {any}
+     * @memberof RunDetailResponse
+     */
+    startedAt: any;
+    /**
+     * 
+     * @type {RunStatus}
+     * @memberof RunDetailResponse
+     */
+    status: RunStatus;
+    /**
+     * 
+     * @type {any}
+     * @memberof RunDetailResponse
+     */
+    workerProfile: any;
 }
 /**
  * Caller-supplied inputs for a run (goal + optional context).
@@ -5770,13 +5947,13 @@ export interface RunInputSummary {
      * @type {any}
      * @memberof RunInputSummary
      */
-    goal?: any;
+    context?: any;
     /**
      * 
      * @type {any}
      * @memberof RunInputSummary
      */
-    context?: any;
+    goal?: any;
 }
 /**
  * Paginated list of runs.
@@ -5804,11 +5981,17 @@ export interface RunListResponse {
  */
 export interface RunOutputSummary {
     /**
-     * 
+     * For a suspension awaiting a multi-approver quorum, the number of distinct approvals recorded so far (out of the suspension's ``required_approvals``). Null when the suspension is not a quorum.
      * @type {any}
      * @memberof RunOutputSummary
      */
-    result?: any;
+    approvalsRecorded?: any;
+    /**
+     * Which stored facts this run used. ``bound`` is everything that reached the planner, used or not, so ``bound`` minus ``applied`` answers why a fact was not used; each applied id carries its credit route (``by_construction`` is certain, ``by_value_equality`` is a guarded match); ``misled`` is the subset the outcome then contradicted. When nothing was applied, ``reason`` says which of a closed set applies, so an empty result is never confused with a pass that failed or never ran. ``child_run_ids`` references delegated runs rather than absorbing their claims, which are scoped to their own agent. Null when the run predates the record or claims are not configured.
+     * @type {any}
+     * @memberof RunOutputSummary
+     */
+    claimAttribution?: any;
     /**
      * 
      * @type {any}
@@ -5820,13 +6003,13 @@ export interface RunOutputSummary {
      * @type {any}
      * @memberof RunOutputSummary
      */
-    suspension?: any;
+    result?: any;
     /**
-     * For a suspension awaiting a multi-approver quorum, the number of distinct approvals recorded so far (out of the suspension's ``required_approvals``). Null when the suspension is not a quorum.
+     * 
      * @type {any}
      * @memberof RunOutputSummary
      */
-    approvalsRecorded?: any;
+    suspension?: any;
 }
 /**
  * Optional example material used to communicate preferred tone or format.
@@ -5835,17 +6018,17 @@ export interface RunOutputSummary {
  */
 export interface RunReference {
     /**
-     * Example text used for style or format, not as factual evidence.
-     * @type {any}
-     * @memberof RunReference
-     */
-    text: any;
-    /**
      * Optional human-readable label for the reference.
      * @type {any}
      * @memberof RunReference
      */
     label?: any;
+    /**
+     * Example text used for style or format, not as factual evidence.
+     * @type {any}
+     * @memberof RunReference
+     */
+    text: any;
 }
 /**
  * Public representation of one tenant-visible run.
@@ -5854,59 +6037,23 @@ export interface RunReference {
  */
 export interface RunResponse {
     /**
-     * Server-issued hosted run UUID used by `/runs/{run_id}`.
-     * @type {any}
-     * @memberof RunResponse
-     */
-    id: any;
-    /**
      * Hosted agent UUID associated with this run.
      * @type {any}
      * @memberof RunResponse
      */
     agentId?: any;
     /**
-     * Conversation session UUID, when the run belongs to a session.
+     * 
      * @type {any}
      * @memberof RunResponse
      */
-    sessionId: any;
-    /**
-     * Parent hosted run UUID when this run resumed a suspension.
-     * @type {any}
-     * @memberof RunResponse
-     */
-    parentRunId?: any;
-    /**
-     * 
-     * @type {RunType}
-     * @memberof RunResponse
-     */
-    runType: RunType;
-    /**
-     * 
-     * @type {RunStatus}
-     * @memberof RunResponse
-     */
-    status: RunStatus;
+    computeSeconds: any;
     /**
      * 
      * @type {any}
      * @memberof RunResponse
      */
-    goal: any;
-    /**
-     * 
-     * @type {any}
-     * @memberof RunResponse
-     */
-    workerProfile: any;
-    /**
-     * 
-     * @type {any}
-     * @memberof RunResponse
-     */
-    startedAt: any;
+    createdAt: any;
     /**
      * 
      * @type {any}
@@ -5918,7 +6065,7 @@ export interface RunResponse {
      * @type {any}
      * @memberof RunResponse
      */
-    computeSeconds: any;
+    error: any;
     /**
      * 
      * @type {any}
@@ -5936,7 +6083,13 @@ export interface RunResponse {
      * @type {any}
      * @memberof RunResponse
      */
-    error: any;
+    goal: any;
+    /**
+     * Server-issued hosted run UUID used by `/runs/{run_id}`.
+     * @type {any}
+     * @memberof RunResponse
+     */
+    id: any;
     /**
      * 
      * @type {any}
@@ -5944,11 +6097,41 @@ export interface RunResponse {
      */
     metadata?: any;
     /**
+     * Parent hosted run UUID when this run resumed a suspension.
+     * @type {any}
+     * @memberof RunResponse
+     */
+    parentRunId?: any;
+    /**
+     * 
+     * @type {RunType}
+     * @memberof RunResponse
+     */
+    runType: RunType;
+    /**
+     * Conversation session UUID, when the run belongs to a session.
+     * @type {any}
+     * @memberof RunResponse
+     */
+    sessionId: any;
+    /**
      * 
      * @type {any}
      * @memberof RunResponse
      */
-    createdAt: any;
+    startedAt: any;
+    /**
+     * 
+     * @type {RunStatus}
+     * @memberof RunResponse
+     */
+    status: RunStatus;
+    /**
+     * 
+     * @type {any}
+     * @memberof RunResponse
+     */
+    workerProfile: any;
 }
 /**
  * Caller-supplied source-of-truth text that a response may cite as evidence.
@@ -5956,12 +6139,6 @@ export interface RunResponse {
  * @interface RunSource
  */
 export interface RunSource {
-    /**
-     * Source-of-truth text that a response may rely on as evidence.
-     * @type {any}
-     * @memberof RunSource
-     */
-    text: any;
     /**
      * Optional stable provenance handle; auto-assigned when omitted, must be unique across the set.
      * @type {any}
@@ -5974,6 +6151,12 @@ export interface RunSource {
      * @memberof RunSource
      */
     label?: any;
+    /**
+     * Source-of-truth text that a response may rely on as evidence.
+     * @type {any}
+     * @memberof RunSource
+     */
+    text: any;
 }
 /**
  * Lifecycle states returned for hosted runs.
@@ -6045,25 +6228,19 @@ export interface SessionMessageResponse {
      * @type {any}
      * @memberof SessionMessageResponse
      */
-    id: any;
-    /**
-     * 
-     * @type {any}
-     * @memberof SessionMessageResponse
-     */
-    sessionId: any;
-    /**
-     * 
-     * @type {any}
-     * @memberof SessionMessageResponse
-     */
-    role: any;
-    /**
-     * 
-     * @type {any}
-     * @memberof SessionMessageResponse
-     */
     content: any;
+    /**
+     * 
+     * @type {any}
+     * @memberof SessionMessageResponse
+     */
+    createdAt: any;
+    /**
+     * 
+     * @type {any}
+     * @memberof SessionMessageResponse
+     */
+    id: any;
     /**
      * 
      * @type {any}
@@ -6075,7 +6252,13 @@ export interface SessionMessageResponse {
      * @type {any}
      * @memberof SessionMessageResponse
      */
-    createdAt: any;
+    role: any;
+    /**
+     * 
+     * @type {any}
+     * @memberof SessionMessageResponse
+     */
+    sessionId: any;
 }
 /**
  * 
@@ -6088,25 +6271,19 @@ export interface SessionResponse {
      * @type {any}
      * @memberof SessionResponse
      */
-    id: any;
-    /**
-     * 
-     * @type {any}
-     * @memberof SessionResponse
-     */
     agentId: any;
     /**
      * 
      * @type {any}
      * @memberof SessionResponse
      */
-    status: any;
+    createdAt: any;
     /**
      * 
      * @type {any}
      * @memberof SessionResponse
      */
-    title: any;
+    id: any;
     /**
      * 
      * @type {any}
@@ -6126,6 +6303,12 @@ export interface SessionResponse {
      */
     messageCount?: any;
     /**
+     * 
+     * @type {any}
+     * @memberof SessionResponse
+     */
+    metadata?: any;
+    /**
      * Number of runs in the session; only populated on list responses.
      * @type {any}
      * @memberof SessionResponse
@@ -6136,13 +6319,13 @@ export interface SessionResponse {
      * @type {any}
      * @memberof SessionResponse
      */
-    metadata?: any;
+    status: any;
     /**
      * 
      * @type {any}
      * @memberof SessionResponse
      */
-    createdAt: any;
+    title: any;
     /**
      * 
      * @type {any}
@@ -6177,6 +6360,12 @@ export interface SimilarPlanFailureResponse {
 export interface SimilarPlanHitResponse {
     /**
      * 
+     * @type {any}
+     * @memberof SimilarPlanHitResponse
+     */
+    candidateLearnings?: any;
+    /**
+     * 
      * @type {PlanResponse}
      * @memberof SimilarPlanHitResponse
      */
@@ -6187,12 +6376,6 @@ export interface SimilarPlanHitResponse {
      * @memberof SimilarPlanHitResponse
      */
     similarityScore: any;
-    /**
-     * 
-     * @type {any}
-     * @memberof SimilarPlanHitResponse
-     */
-    candidateLearnings?: any;
 }
 /**
  * Multi-hit response for similar-plan retrieval.
@@ -6211,13 +6394,13 @@ export interface SimilarPlansResponse {
      * @type {any}
      * @memberof SimilarPlansResponse
      */
-    retrievedAt: any;
+    partialFailures?: any;
     /**
      * 
      * @type {any}
      * @memberof SimilarPlansResponse
      */
-    partialFailures?: any;
+    retrievedAt: any;
 }
 /**
  * Space kinds, matching the `spaces.kind` check constraint.
@@ -6279,7 +6462,7 @@ export interface SpaceMemberListItem {
      * @type {any}
      * @memberof SpaceMemberListItem
      */
-    identityUserId: any;
+    displayName?: any;
     /**
      * 
      * @type {any}
@@ -6291,7 +6474,7 @@ export interface SpaceMemberListItem {
      * @type {any}
      * @memberof SpaceMemberListItem
      */
-    displayName?: any;
+    identityUserId: any;
     /**
      * 
      * @type {any}
@@ -6323,12 +6506,6 @@ export interface SpaceMemberResponse {
      * @type {any}
      * @memberof SpaceMemberResponse
      */
-    spaceId: any;
-    /**
-     * 
-     * @type {any}
-     * @memberof SpaceMemberResponse
-     */
     identityUserId: any;
     /**
      * 
@@ -6336,6 +6513,12 @@ export interface SpaceMemberResponse {
      * @memberof SpaceMemberResponse
      */
     relation: any;
+    /**
+     * 
+     * @type {any}
+     * @memberof SpaceMemberResponse
+     */
+    spaceId: any;
 }
 /**
  * One tenant-visible space plus a convenience count of homed agents.
@@ -6343,36 +6526,6 @@ export interface SpaceMemberResponse {
  * @interface SpaceResponse
  */
 export interface SpaceResponse {
-    /**
-     * 
-     * @type {any}
-     * @memberof SpaceResponse
-     */
-    id: any;
-    /**
-     * 
-     * @type {any}
-     * @memberof SpaceResponse
-     */
-    name: any;
-    /**
-     * 
-     * @type {SpaceKind}
-     * @memberof SpaceResponse
-     */
-    kind: SpaceKind;
-    /**
-     * WorkOS directory group id; set iff kind == 'department'.
-     * @type {any}
-     * @memberof SpaceResponse
-     */
-    departmentId?: any;
-    /**
-     * Steward identity user id; set iff kind == 'personal'.
-     * @type {any}
-     * @memberof SpaceResponse
-     */
-    ownerIdentityUserId?: any;
     /**
      * How many agents currently home in this space.
      * @type {any}
@@ -6391,6 +6544,36 @@ export interface SpaceResponse {
      * @memberof SpaceResponse
      */
     createdAt: any;
+    /**
+     * WorkOS directory group id; set iff kind == 'department'.
+     * @type {any}
+     * @memberof SpaceResponse
+     */
+    departmentId?: any;
+    /**
+     * 
+     * @type {any}
+     * @memberof SpaceResponse
+     */
+    id: any;
+    /**
+     * 
+     * @type {SpaceKind}
+     * @memberof SpaceResponse
+     */
+    kind: SpaceKind;
+    /**
+     * 
+     * @type {any}
+     * @memberof SpaceResponse
+     */
+    name: any;
+    /**
+     * Steward identity user id; set iff kind == 'personal'.
+     * @type {any}
+     * @memberof SpaceResponse
+     */
+    ownerIdentityUserId?: any;
 }
 /**
  * A proposal that an oscillating attribute key be split rather than superseded.
@@ -6403,25 +6586,7 @@ export interface SplitProposalQueueItem {
      * @type {any}
      * @memberof SplitProposalQueueItem
      */
-    proposalId: any;
-    /**
-     * 
-     * @type {any}
-     * @memberof SplitProposalQueueItem
-     */
     agentId: any;
-    /**
-     * 
-     * @type {any}
-     * @memberof SplitProposalQueueItem
-     */
-    entityId: any;
-    /**
-     * 
-     * @type {any}
-     * @memberof SplitProposalQueueItem
-     */
-    canonicalName: any;
     /**
      * 
      * @type {any}
@@ -6433,13 +6598,31 @@ export interface SplitProposalQueueItem {
      * @type {any}
      * @memberof SplitProposalQueueItem
      */
+    canonicalName: any;
+    /**
+     * 
+     * @type {any}
+     * @memberof SplitProposalQueueItem
+     */
     classification: any;
     /**
      * 
      * @type {any}
      * @memberof SplitProposalQueueItem
      */
-    status: any;
+    createdAt: any;
+    /**
+     * 
+     * @type {any}
+     * @memberof SplitProposalQueueItem
+     */
+    entityId: any;
+    /**
+     * 
+     * @type {any}
+     * @memberof SplitProposalQueueItem
+     */
+    proposalId: any;
     /**
      * 
      * @type {any}
@@ -6451,7 +6634,7 @@ export interface SplitProposalQueueItem {
      * @type {any}
      * @memberof SplitProposalQueueItem
      */
-    createdAt: any;
+    status: any;
 }
 /**
  * 
@@ -6466,12 +6649,6 @@ export interface SplitProposalQueueResponse {
      */
     filtered?: any;
     /**
-     * Best-effort count of rows this page omitted because the caller's space filter excluded them.
-     * @type {any}
-     * @memberof SplitProposalQueueResponse
-     */
-    withheldCount?: any;
-    /**
      * 
      * @type {any}
      * @memberof SplitProposalQueueResponse
@@ -6483,6 +6660,12 @@ export interface SplitProposalQueueResponse {
      * @memberof SplitProposalQueueResponse
      */
     nextCursor?: any;
+    /**
+     * Best-effort count of rows this page omitted because the caller's space filter excluded them.
+     * @type {any}
+     * @memberof SplitProposalQueueResponse
+     */
+    withheldCount?: any;
 }
 /**
  * Lifecycle of a flip-flop split proposal.
@@ -6501,6 +6684,24 @@ export enum SplitProposalStatus {
  */
 export interface StepModel {
     /**
+     * Arguments supplied to the tool or action.
+     * @type {any}
+     * @memberof StepModel
+     */
+    args?: any;
+    /**
+     * Optional caller-declared sensitivity metadata for step fields.
+     * @type {any}
+     * @memberof StepModel
+     */
+    declared_sensitivity?: any;
+    /**
+     * Human-readable failure detail when `status` is `failed`.
+     * @type {any}
+     * @memberof StepModel
+     */
+    error?: any;
+    /**
      * Step identifier unique within this episode.
      * @type {any}
      * @memberof StepModel
@@ -6513,35 +6714,17 @@ export interface StepModel {
      */
     name: any;
     /**
-     * Arguments supplied to the tool or action.
-     * @type {any}
-     * @memberof StepModel
-     */
-    args?: any;
-    /**
-     * Whether this step completed or failed.
-     * @type {any}
-     * @memberof StepModel
-     */
-    status?: any;
-    /**
      * Caller-supplied step result. Pre-redact secrets and personal data.
      * @type {any}
      * @memberof StepModel
      */
     result?: any;
     /**
-     * Human-readable failure detail when `status` is `failed`.
+     * Whether this step completed or failed.
      * @type {any}
      * @memberof StepModel
      */
-    error?: any;
-    /**
-     * Optional caller-declared sensitivity metadata for step fields.
-     * @type {any}
-     * @memberof StepModel
-     */
-    declared_sensitivity?: any;
+    status?: any;
 }
 /**
  * Accepted response for asynchronous learning storage.
@@ -6569,24 +6752,6 @@ export interface StoreLearningAcceptedResponse {
  */
 export interface StoreLearningRequest {
     /**
-     * The learning content to store.
-     * @type {any}
-     * @memberof StoreLearningRequest
-     */
-    content: any;
-    /**
-     * Starting utility prior, the curator's initial belief in how useful this learning is when applied (0.0-1.0). Both utility and establishedness are then earned, utility from application outcomes and establishedness from corroboration, so the value read back moves off this prior over time.
-     * @type {any}
-     * @memberof StoreLearningRequest
-     */
-    utility?: any;
-    /**
-     * Goal or context this learning originated from.
-     * @type {any}
-     * @memberof StoreLearningRequest
-     */
-    sourceGoal?: any;
-    /**
      * Keywords or patterns this learning applies to.
      * @type {any}
      * @memberof StoreLearningRequest
@@ -6599,11 +6764,23 @@ export interface StoreLearningRequest {
      */
     applicableTools?: any;
     /**
+     * The learning content to store.
+     * @type {any}
+     * @memberof StoreLearningRequest
+     */
+    content: any;
+    /**
      * Names of domain dimensions this learning addresses (e.g. OWASP, reliability). Prefer names from the agent's ``core_config.domain_dimensions`` rather than stuffing taxonomy into applicable_goals.
      * @type {any}
      * @memberof StoreLearningRequest
      */
     domainDimensions?: any;
+    /**
+     * Specific structured examples that support the learning, expressed as entity values and observed outcomes.
+     * @type {any}
+     * @memberof StoreLearningRequest
+     */
+    instances?: any;
     /**
      * Privacy classification for cross-agent sharing eligibility.
      * @type {PrivacyClassification}
@@ -6611,11 +6788,17 @@ export interface StoreLearningRequest {
      */
     privacy?: PrivacyClassification;
     /**
-     * Specific structured examples that support the learning, expressed as entity values and observed outcomes.
+     * Goal or context this learning originated from.
      * @type {any}
      * @memberof StoreLearningRequest
      */
-    instances?: any;
+    sourceGoal?: any;
+    /**
+     * Starting utility prior, the curator's initial belief in how useful this learning is when applied (0.0-1.0). Both utility and establishedness are then earned, utility from application outcomes and establishedness from corroboration, so the value read back moves off this prior over time.
+     * @type {any}
+     * @memberof StoreLearningRequest
+     */
+    utility?: any;
 }
 /**
  * Why an open version was closed, distinguishing update from revision.  WORLD_CHANGE: the world moved on (Katsuno-Mendelzon update); prior sources were right, no reliability penalty. CORRECTION: a genuine conflict (revision); the prior version's reliability interval widens. RETRACTION: withdrawn with no replacement. REFINEMENT: narrowed to a more qualified claim.  The last three are all blameless closures the system performed on its own behalf, kept distinct from WORLD_CHANGE so a synthesised chain is never later read as observed history. ATTRIBUTE_MERGE: an offline merge put two keys in one class and their chains folded together. RETROACTIVE_KEY: the adoption sweep recovered a key and ordered rows that were only ever parallel because the key was missing. RETROACTIVE_CORROBORATION: the same, where the rows agreed and folded into one surviving version rather than a chain.
@@ -6642,6 +6825,12 @@ export interface TenantModel {
      * @type {any}
      * @memberof TenantModel
      */
+    complianceGuardrailsAddon?: any;
+    /**
+     * 
+     * @type {any}
+     * @memberof TenantModel
+     */
     id: any;
     /**
      * 
@@ -6655,12 +6844,6 @@ export interface TenantModel {
      * @memberof TenantModel
      */
     plan: any;
-    /**
-     * 
-     * @type {any}
-     * @memberof TenantModel
-     */
-    complianceGuardrailsAddon?: any;
 }
 /**
  * A tool the agent had available, for tool-aware retrieval.
@@ -6669,17 +6852,17 @@ export interface TenantModel {
  */
 export interface ToolSpecModel {
     /**
-     * Caller-visible tool name.
-     * @type {any}
-     * @memberof ToolSpecModel
-     */
-    name: any;
-    /**
      * Short explanation of what the tool can do.
      * @type {any}
      * @memberof ToolSpecModel
      */
     description?: any;
+    /**
+     * Caller-visible tool name.
+     * @type {any}
+     * @memberof ToolSpecModel
+     */
+    name: any;
 }
 /**
  * Verification tier of a learning (mirrors Core's ``TrustLevel``).  A closed set rather than a bare string so an invalid tier can't flow through to a client (and the TS mirror stays in sync). ``UNKNOWN`` is API-only: it represents a stored value we couldn't map (corrupt/legacy payload) so the UI shows an honest \"unknown\" instead of silently labelling it verified. Map inbound values through :meth:`coerce` at the response boundary.
@@ -6713,6 +6896,12 @@ export interface UsageLearningAggregates {
  */
 export interface UsageRunAggregates {
     /**
+     * Mean compute_seconds over runs with compute > 0; null if none.
+     * @type {any}
+     * @memberof UsageRunAggregates
+     */
+    averageComputeSeconds?: any;
+    /**
      * All runs created in the window.
      * @type {any}
      * @memberof UsageRunAggregates
@@ -6725,23 +6914,17 @@ export interface UsageRunAggregates {
      */
     runsWithComputeCount: any;
     /**
-     * Sum of compute_seconds for runs in the window.
-     * @type {any}
-     * @memberof UsageRunAggregates
-     */
-    totalComputeSeconds: any;
-    /**
      * total_compute_seconds / 3600.
      * @type {any}
      * @memberof UsageRunAggregates
      */
     totalComputeHours: any;
     /**
-     * Sum of estimated_total_cost_usd (ledger values at completion time).
+     * Sum of compute_seconds for runs in the window.
      * @type {any}
      * @memberof UsageRunAggregates
      */
-    totalEstimatedCostUsd: any;
+    totalComputeSeconds: any;
     /**
      * Sum of estimated_compute_cost_usd.
      * @type {any}
@@ -6749,17 +6932,17 @@ export interface UsageRunAggregates {
      */
     totalEstimatedComputeCostUsd: any;
     /**
+     * Sum of estimated_total_cost_usd (ledger values at completion time).
+     * @type {any}
+     * @memberof UsageRunAggregates
+     */
+    totalEstimatedCostUsd: any;
+    /**
      * Sum of estimated_llm_cost_usd.
      * @type {any}
      * @memberof UsageRunAggregates
      */
     totalEstimatedLlmCostUsd: any;
-    /**
-     * Mean compute_seconds over runs with compute > 0; null if none.
-     * @type {any}
-     * @memberof UsageRunAggregates
-     */
-    averageComputeSeconds?: any;
     /**
      * Distinct non-null session_id values in the window.
      * @type {any}
@@ -6778,61 +6961,25 @@ export interface UsageRunItem {
      * @type {any}
      * @memberof UsageRunItem
      */
-    id: any;
-    /**
-     * 
-     * @type {any}
-     * @memberof UsageRunItem
-     */
     agentId?: any;
     /**
      * 
      * @type {any}
      * @memberof UsageRunItem
      */
-    sessionId: any;
+    computeSeconds: any;
     /**
      * 
      * @type {any}
      * @memberof UsageRunItem
      */
-    parentRunId?: any;
-    /**
-     * 
-     * @type {RunType}
-     * @memberof UsageRunItem
-     */
-    runType: RunType;
-    /**
-     * 
-     * @type {RunStatus}
-     * @memberof UsageRunItem
-     */
-    status: RunStatus;
-    /**
-     * 
-     * @type {any}
-     * @memberof UsageRunItem
-     */
-    workerProfile: any;
-    /**
-     * 
-     * @type {any}
-     * @memberof UsageRunItem
-     */
-    startedAt: any;
+    createdAt: any;
     /**
      * 
      * @type {any}
      * @memberof UsageRunItem
      */
     endedAt: any;
-    /**
-     * 
-     * @type {any}
-     * @memberof UsageRunItem
-     */
-    computeSeconds: any;
     /**
      * 
      * @type {any}
@@ -6856,7 +7003,43 @@ export interface UsageRunItem {
      * @type {any}
      * @memberof UsageRunItem
      */
-    createdAt: any;
+    id: any;
+    /**
+     * 
+     * @type {any}
+     * @memberof UsageRunItem
+     */
+    parentRunId?: any;
+    /**
+     * 
+     * @type {RunType}
+     * @memberof UsageRunItem
+     */
+    runType: RunType;
+    /**
+     * 
+     * @type {any}
+     * @memberof UsageRunItem
+     */
+    sessionId: any;
+    /**
+     * 
+     * @type {any}
+     * @memberof UsageRunItem
+     */
+    startedAt: any;
+    /**
+     * 
+     * @type {RunStatus}
+     * @memberof UsageRunItem
+     */
+    status: RunStatus;
+    /**
+     * 
+     * @type {any}
+     * @memberof UsageRunItem
+     */
+    workerProfile: any;
 }
 /**
  * Cursor page of runs in the same window as the summary.
@@ -6869,30 +7052,6 @@ export interface UsageRunListResponse {
      * @type {any}
      * @memberof UsageRunListResponse
      */
-    tenantId: any;
-    /**
-     * 
-     * @type {UsageTimeWindow}
-     * @memberof UsageRunListResponse
-     */
-    window: UsageTimeWindow;
-    /**
-     * Inclusive UTC boundary.
-     * @type {any}
-     * @memberof UsageRunListResponse
-     */
-    periodStart: any;
-    /**
-     * Exclusive UTC boundary.
-     * @type {any}
-     * @memberof UsageRunListResponse
-     */
-    periodEndExclusive: any;
-    /**
-     * 
-     * @type {any}
-     * @memberof UsageRunListResponse
-     */
     items: any;
     /**
      * Opaque cursor; pass as `cursor` for the next page.
@@ -6900,6 +7059,30 @@ export interface UsageRunListResponse {
      * @memberof UsageRunListResponse
      */
     nextCursor?: any;
+    /**
+     * Exclusive UTC boundary.
+     * @type {any}
+     * @memberof UsageRunListResponse
+     */
+    periodEndExclusive: any;
+    /**
+     * Inclusive UTC boundary.
+     * @type {any}
+     * @memberof UsageRunListResponse
+     */
+    periodStart: any;
+    /**
+     * 
+     * @type {any}
+     * @memberof UsageRunListResponse
+     */
+    tenantId: any;
+    /**
+     * 
+     * @type {UsageTimeWindow}
+     * @memberof UsageRunListResponse
+     */
+    window: UsageTimeWindow;
 }
 /**
  * Tenant usage for a preset window.
@@ -6907,30 +7090,6 @@ export interface UsageRunListResponse {
  * @interface UsageSummaryResponse
  */
 export interface UsageSummaryResponse {
-    /**
-     * 
-     * @type {any}
-     * @memberof UsageSummaryResponse
-     */
-    tenantId: any;
-    /**
-     * 
-     * @type {UsageTimeWindow}
-     * @memberof UsageSummaryResponse
-     */
-    window: UsageTimeWindow;
-    /**
-     * Inclusive UTC boundary.
-     * @type {any}
-     * @memberof UsageSummaryResponse
-     */
-    periodStart: any;
-    /**
-     * Exclusive UTC boundary.
-     * @type {any}
-     * @memberof UsageSummaryResponse
-     */
-    periodEndExclusive: any;
     /**
      * 
      * @type {UsageRunAggregates}
@@ -6943,6 +7102,30 @@ export interface UsageSummaryResponse {
      * @memberof UsageSummaryResponse
      */
     learnings: UsageLearningAggregates;
+    /**
+     * Exclusive UTC boundary.
+     * @type {any}
+     * @memberof UsageSummaryResponse
+     */
+    periodEndExclusive: any;
+    /**
+     * Inclusive UTC boundary.
+     * @type {any}
+     * @memberof UsageSummaryResponse
+     */
+    periodStart: any;
+    /**
+     * 
+     * @type {any}
+     * @memberof UsageSummaryResponse
+     */
+    tenantId: any;
+    /**
+     * 
+     * @type {UsageTimeWindow}
+     * @memberof UsageSummaryResponse
+     */
+    window: UsageTimeWindow;
 }
 /**
  * Preset reporting window (inclusive start, exclusive end in UTC).
@@ -6966,6 +7149,18 @@ export interface ValidationError {
      * @type {any}
      * @memberof ValidationError
      */
+    ctx?: any;
+    /**
+     * 
+     * @type {any}
+     * @memberof ValidationError
+     */
+    input?: any;
+    /**
+     * 
+     * @type {any}
+     * @memberof ValidationError
+     */
     loc: any;
     /**
      * 
@@ -6979,18 +7174,6 @@ export interface ValidationError {
      * @memberof ValidationError
      */
     type: any;
-    /**
-     * 
-     * @type {any}
-     * @memberof ValidationError
-     */
-    input?: any;
-    /**
-     * 
-     * @type {any}
-     * @memberof ValidationError
-     */
-    ctx?: any;
 }
 /**
  * AgentsApi - fetch parameter creator
@@ -8807,6 +8990,42 @@ export const ClaimsApiFetchParamCreator = function (configuration?: Configuratio
             };
         },
         /**
+         * The per-agent stability readings the decision to enable the plan-rewrite pass is taken on, plus the tenant total. The decision is per agent but reviewed per tenant, and this is the view that makes that possible without knowing every agent id. is_truncated says the tenant has more agents than limit, so the total covers only the agents listed. See the claim curation API guide for how to interpret each population.
+         * @summary Read how warm every agent's claim corpus is across the tenant
+         * @param {any} [limit] Maximum number of items to return on this page.
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        getOrgStabilitySummaryEndpointOrgClaimsStabilityGet(limit?: any, options: any = {}): FetchArgs {
+            const localVarPath = `/org/claims/stability`;
+            const localVarUrlObj = url.parse(localVarPath, true);
+            const localVarRequestOptions = Object.assign({ method: 'GET' }, options);
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication BearerApiKey required
+            if (configuration && configuration.apiKey) {
+                const localVarApiKeyValue = typeof configuration.apiKey === 'function'
+					? configuration.apiKey("Authorization")
+					: configuration.apiKey;
+                localVarHeaderParameter["Authorization"] = localVarApiKeyValue;
+            }
+
+            if (limit !== undefined) {
+                localVarQueryParameter['limit'] = limit;
+            }
+
+            localVarUrlObj.query = Object.assign({}, localVarUrlObj.query, localVarQueryParameter, options.query);
+            // fix override query string Detail: https://stackoverflow.com/a/7517673/1077943
+            localVarUrlObj.search = null;
+            localVarRequestOptions.headers = Object.assign({}, localVarHeaderParameter, options.headers);
+
+            return {
+                url: url.format(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
          * The provenance, quarantine reason and corroboration a reviewer must see before releasing a claim, plus an ETag consent token. Pass the ETag back as If-Match on release, promote or adopt; any change to the claim invalidates it.
          * @summary Get a claim's review context and consent token
          * @param {any} agentId Hosted agent UUID returned by the agent create or list endpoint.
@@ -8826,6 +9045,43 @@ export const ClaimsApiFetchParamCreator = function (configuration?: Configuratio
             const localVarPath = `/agents/{agent_id}/claims/{claim_id}/review-context`
                 .replace(`{${"agent_id"}}`, encodeURIComponent(String(agentId)))
                 .replace(`{${"claim_id"}}`, encodeURIComponent(String(claimId)));
+            const localVarUrlObj = url.parse(localVarPath, true);
+            const localVarRequestOptions = Object.assign({ method: 'GET' }, options);
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication BearerApiKey required
+            if (configuration && configuration.apiKey) {
+                const localVarApiKeyValue = typeof configuration.apiKey === 'function'
+					? configuration.apiKey("Authorization")
+					: configuration.apiKey;
+                localVarHeaderParameter["Authorization"] = localVarApiKeyValue;
+            }
+
+            localVarUrlObj.query = Object.assign({}, localVarUrlObj.query, localVarQueryParameter, options.query);
+            // fix override query string Detail: https://stackoverflow.com/a/7517673/1077943
+            localVarUrlObj.search = null;
+            localVarRequestOptions.headers = Object.assign({}, localVarHeaderParameter, options.headers);
+
+            return {
+                url: url.format(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * The slot populations the decision to enable the plan-rewrite pass is taken on, and the confidence and prior_changes they were evaluated at. Read admitted_slots as a series, not a single number, and as an upper bound on read elimination rather than a count of it. See the claim curation API guide for how to interpret each population.
+         * @summary Read how warm this agent's claim corpus is
+         * @param {any} agentId Hosted agent UUID returned by the agent create or list endpoint.
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        getStabilitySummaryEndpointAgentsAgentIdClaimsStabilityGet(agentId: any, options: any = {}): FetchArgs {
+            // verify required parameter 'agentId' is not null or undefined
+            if (agentId === null || agentId === undefined) {
+                throw new RequiredError('agentId','Required parameter agentId was null or undefined when calling getStabilitySummaryEndpointAgentsAgentIdClaimsStabilityGet.');
+            }
+            const localVarPath = `/agents/{agent_id}/claims/stability`
+                .replace(`{${"agent_id"}}`, encodeURIComponent(String(agentId)));
             const localVarUrlObj = url.parse(localVarPath, true);
             const localVarRequestOptions = Object.assign({ method: 'GET' }, options);
             const localVarHeaderParameter = {} as any;
@@ -9406,6 +9662,25 @@ export const ClaimsApiFp = function(configuration?: Configuration) {
             };
         },
         /**
+         * The per-agent stability readings the decision to enable the plan-rewrite pass is taken on, plus the tenant total. The decision is per agent but reviewed per tenant, and this is the view that makes that possible without knowing every agent id. is_truncated says the tenant has more agents than limit, so the total covers only the agents listed. See the claim curation API guide for how to interpret each population.
+         * @summary Read how warm every agent's claim corpus is across the tenant
+         * @param {any} [limit] Maximum number of items to return on this page.
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        getOrgStabilitySummaryEndpointOrgClaimsStabilityGet(limit?: any, options?: any): (fetch?: FetchAPI, basePath?: string) => Promise<OrgClaimStabilitySummary> {
+            const localVarFetchArgs = ClaimsApiFetchParamCreator(configuration).getOrgStabilitySummaryEndpointOrgClaimsStabilityGet(limit, options);
+            return (fetch: FetchAPI = isomorphicFetch, basePath: string = BASE_PATH) => {
+                return fetch(basePath + localVarFetchArgs.url, localVarFetchArgs.options).then((response) => {
+                    if (response.status >= 200 && response.status < 300) {
+                        return response.json();
+                    } else {
+                        throw response;
+                    }
+                });
+            };
+        },
+        /**
          * The provenance, quarantine reason and corroboration a reviewer must see before releasing a claim, plus an ETag consent token. Pass the ETag back as If-Match on release, promote or adopt; any change to the claim invalidates it.
          * @summary Get a claim's review context and consent token
          * @param {any} agentId Hosted agent UUID returned by the agent create or list endpoint.
@@ -9415,6 +9690,25 @@ export const ClaimsApiFp = function(configuration?: Configuration) {
          */
         getReviewContextEndpointAgentsAgentIdClaimsClaimIdReviewContextGet(agentId: any, claimId: any, options?: any): (fetch?: FetchAPI, basePath?: string) => Promise<ClaimReviewContext> {
             const localVarFetchArgs = ClaimsApiFetchParamCreator(configuration).getReviewContextEndpointAgentsAgentIdClaimsClaimIdReviewContextGet(agentId, claimId, options);
+            return (fetch: FetchAPI = isomorphicFetch, basePath: string = BASE_PATH) => {
+                return fetch(basePath + localVarFetchArgs.url, localVarFetchArgs.options).then((response) => {
+                    if (response.status >= 200 && response.status < 300) {
+                        return response.json();
+                    } else {
+                        throw response;
+                    }
+                });
+            };
+        },
+        /**
+         * The slot populations the decision to enable the plan-rewrite pass is taken on, and the confidence and prior_changes they were evaluated at. Read admitted_slots as a series, not a single number, and as an upper bound on read elimination rather than a count of it. See the claim curation API guide for how to interpret each population.
+         * @summary Read how warm this agent's claim corpus is
+         * @param {any} agentId Hosted agent UUID returned by the agent create or list endpoint.
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        getStabilitySummaryEndpointAgentsAgentIdClaimsStabilityGet(agentId: any, options?: any): (fetch?: FetchAPI, basePath?: string) => Promise<ClaimStabilitySummary> {
+            const localVarFetchArgs = ClaimsApiFetchParamCreator(configuration).getStabilitySummaryEndpointAgentsAgentIdClaimsStabilityGet(agentId, options);
             return (fetch: FetchAPI = isomorphicFetch, basePath: string = BASE_PATH) => {
                 return fetch(basePath + localVarFetchArgs.url, localVarFetchArgs.options).then((response) => {
                     if (response.status >= 200 && response.status < 300) {
@@ -9699,6 +9993,16 @@ export const ClaimsApiFactory = function (configuration?: Configuration, fetch?:
             return ClaimsApiFp(configuration).getEntityDossierEndpointAgentsAgentIdClaimsEntitiesEntityIdGet(agentId, entityId, options)(fetch, basePath);
         },
         /**
+         * The per-agent stability readings the decision to enable the plan-rewrite pass is taken on, plus the tenant total. The decision is per agent but reviewed per tenant, and this is the view that makes that possible without knowing every agent id. is_truncated says the tenant has more agents than limit, so the total covers only the agents listed. See the claim curation API guide for how to interpret each population.
+         * @summary Read how warm every agent's claim corpus is across the tenant
+         * @param {any} [limit] Maximum number of items to return on this page.
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        getOrgStabilitySummaryEndpointOrgClaimsStabilityGet(limit?: any, options?: any) {
+            return ClaimsApiFp(configuration).getOrgStabilitySummaryEndpointOrgClaimsStabilityGet(limit, options)(fetch, basePath);
+        },
+        /**
          * The provenance, quarantine reason and corroboration a reviewer must see before releasing a claim, plus an ETag consent token. Pass the ETag back as If-Match on release, promote or adopt; any change to the claim invalidates it.
          * @summary Get a claim's review context and consent token
          * @param {any} agentId Hosted agent UUID returned by the agent create or list endpoint.
@@ -9708,6 +10012,16 @@ export const ClaimsApiFactory = function (configuration?: Configuration, fetch?:
          */
         getReviewContextEndpointAgentsAgentIdClaimsClaimIdReviewContextGet(agentId: any, claimId: any, options?: any) {
             return ClaimsApiFp(configuration).getReviewContextEndpointAgentsAgentIdClaimsClaimIdReviewContextGet(agentId, claimId, options)(fetch, basePath);
+        },
+        /**
+         * The slot populations the decision to enable the plan-rewrite pass is taken on, and the confidence and prior_changes they were evaluated at. Read admitted_slots as a series, not a single number, and as an upper bound on read elimination rather than a count of it. See the claim curation API guide for how to interpret each population.
+         * @summary Read how warm this agent's claim corpus is
+         * @param {any} agentId Hosted agent UUID returned by the agent create or list endpoint.
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        getStabilitySummaryEndpointAgentsAgentIdClaimsStabilityGet(agentId: any, options?: any) {
+            return ClaimsApiFp(configuration).getStabilitySummaryEndpointAgentsAgentIdClaimsStabilityGet(agentId, options)(fetch, basePath);
         },
         /**
          * Claims stored without a structural attribute key, awaiting adoption under one. Fanned across the tenant's agents and labelled with the owning agent. recorded_at keyset pagination.
@@ -9917,6 +10231,18 @@ export class ClaimsApi extends BaseAPI {
     }
 
     /**
+     * The per-agent stability readings the decision to enable the plan-rewrite pass is taken on, plus the tenant total. The decision is per agent but reviewed per tenant, and this is the view that makes that possible without knowing every agent id. is_truncated says the tenant has more agents than limit, so the total covers only the agents listed. See the claim curation API guide for how to interpret each population.
+     * @summary Read how warm every agent's claim corpus is across the tenant
+     * @param {any} [limit] Maximum number of items to return on this page.
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof ClaimsApi
+     */
+    public getOrgStabilitySummaryEndpointOrgClaimsStabilityGet(limit?: any, options?: any) {
+        return ClaimsApiFp(this.configuration).getOrgStabilitySummaryEndpointOrgClaimsStabilityGet(limit, options)(this.fetch, this.basePath);
+    }
+
+    /**
      * The provenance, quarantine reason and corroboration a reviewer must see before releasing a claim, plus an ETag consent token. Pass the ETag back as If-Match on release, promote or adopt; any change to the claim invalidates it.
      * @summary Get a claim's review context and consent token
      * @param {any} agentId Hosted agent UUID returned by the agent create or list endpoint.
@@ -9927,6 +10253,18 @@ export class ClaimsApi extends BaseAPI {
      */
     public getReviewContextEndpointAgentsAgentIdClaimsClaimIdReviewContextGet(agentId: any, claimId: any, options?: any) {
         return ClaimsApiFp(this.configuration).getReviewContextEndpointAgentsAgentIdClaimsClaimIdReviewContextGet(agentId, claimId, options)(this.fetch, this.basePath);
+    }
+
+    /**
+     * The slot populations the decision to enable the plan-rewrite pass is taken on, and the confidence and prior_changes they were evaluated at. Read admitted_slots as a series, not a single number, and as an upper bound on read elimination rather than a count of it. See the claim curation API guide for how to interpret each population.
+     * @summary Read how warm this agent's claim corpus is
+     * @param {any} agentId Hosted agent UUID returned by the agent create or list endpoint.
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof ClaimsApi
+     */
+    public getStabilitySummaryEndpointAgentsAgentIdClaimsStabilityGet(agentId: any, options?: any) {
+        return ClaimsApiFp(this.configuration).getStabilitySummaryEndpointAgentsAgentIdClaimsStabilityGet(agentId, options)(this.fetch, this.basePath);
     }
 
     /**

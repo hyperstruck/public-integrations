@@ -28,51 +28,74 @@ class UsageRunAggregates(object):
                             and the value is json key in definition.
     """
     swagger_types = {
+        'average_compute_seconds': 'object',
         'run_count': 'object',
         'runs_with_compute_count': 'object',
-        'total_compute_seconds': 'object',
         'total_compute_hours': 'object',
-        'total_estimated_cost_usd': 'object',
+        'total_compute_seconds': 'object',
         'total_estimated_compute_cost_usd': 'object',
+        'total_estimated_cost_usd': 'object',
         'total_estimated_llm_cost_usd': 'object',
-        'average_compute_seconds': 'object',
         'unique_session_count': 'object'
     }
 
     attribute_map = {
+        'average_compute_seconds': 'average_compute_seconds',
         'run_count': 'run_count',
         'runs_with_compute_count': 'runs_with_compute_count',
-        'total_compute_seconds': 'total_compute_seconds',
         'total_compute_hours': 'total_compute_hours',
-        'total_estimated_cost_usd': 'total_estimated_cost_usd',
+        'total_compute_seconds': 'total_compute_seconds',
         'total_estimated_compute_cost_usd': 'total_estimated_compute_cost_usd',
+        'total_estimated_cost_usd': 'total_estimated_cost_usd',
         'total_estimated_llm_cost_usd': 'total_estimated_llm_cost_usd',
-        'average_compute_seconds': 'average_compute_seconds',
         'unique_session_count': 'unique_session_count'
     }
 
-    def __init__(self, run_count=None, runs_with_compute_count=None, total_compute_seconds=None, total_compute_hours=None, total_estimated_cost_usd=None, total_estimated_compute_cost_usd=None, total_estimated_llm_cost_usd=None, average_compute_seconds=None, unique_session_count=None):  # noqa: E501
+    def __init__(self, average_compute_seconds=None, run_count=None, runs_with_compute_count=None, total_compute_hours=None, total_compute_seconds=None, total_estimated_compute_cost_usd=None, total_estimated_cost_usd=None, total_estimated_llm_cost_usd=None, unique_session_count=None):  # noqa: E501
         """UsageRunAggregates - a model defined in Swagger"""  # noqa: E501
+        self._average_compute_seconds = None
         self._run_count = None
         self._runs_with_compute_count = None
-        self._total_compute_seconds = None
         self._total_compute_hours = None
-        self._total_estimated_cost_usd = None
+        self._total_compute_seconds = None
         self._total_estimated_compute_cost_usd = None
+        self._total_estimated_cost_usd = None
         self._total_estimated_llm_cost_usd = None
-        self._average_compute_seconds = None
         self._unique_session_count = None
         self.discriminator = None
-        self.run_count = run_count
-        self.runs_with_compute_count = runs_with_compute_count
-        self.total_compute_seconds = total_compute_seconds
-        self.total_compute_hours = total_compute_hours
-        self.total_estimated_cost_usd = total_estimated_cost_usd
-        self.total_estimated_compute_cost_usd = total_estimated_compute_cost_usd
-        self.total_estimated_llm_cost_usd = total_estimated_llm_cost_usd
         if average_compute_seconds is not None:
             self.average_compute_seconds = average_compute_seconds
+        self.run_count = run_count
+        self.runs_with_compute_count = runs_with_compute_count
+        self.total_compute_hours = total_compute_hours
+        self.total_compute_seconds = total_compute_seconds
+        self.total_estimated_compute_cost_usd = total_estimated_compute_cost_usd
+        self.total_estimated_cost_usd = total_estimated_cost_usd
+        self.total_estimated_llm_cost_usd = total_estimated_llm_cost_usd
         self.unique_session_count = unique_session_count
+
+    @property
+    def average_compute_seconds(self):
+        """Gets the average_compute_seconds of this UsageRunAggregates.  # noqa: E501
+
+        Mean compute_seconds over runs with compute > 0; null if none.  # noqa: E501
+
+        :return: The average_compute_seconds of this UsageRunAggregates.  # noqa: E501
+        :rtype: object
+        """
+        return self._average_compute_seconds
+
+    @average_compute_seconds.setter
+    def average_compute_seconds(self, average_compute_seconds):
+        """Sets the average_compute_seconds of this UsageRunAggregates.
+
+        Mean compute_seconds over runs with compute > 0; null if none.  # noqa: E501
+
+        :param average_compute_seconds: The average_compute_seconds of this UsageRunAggregates.  # noqa: E501
+        :type: object
+        """
+
+        self._average_compute_seconds = average_compute_seconds
 
     @property
     def run_count(self):
@@ -125,31 +148,6 @@ class UsageRunAggregates(object):
         self._runs_with_compute_count = runs_with_compute_count
 
     @property
-    def total_compute_seconds(self):
-        """Gets the total_compute_seconds of this UsageRunAggregates.  # noqa: E501
-
-        Sum of compute_seconds for runs in the window.  # noqa: E501
-
-        :return: The total_compute_seconds of this UsageRunAggregates.  # noqa: E501
-        :rtype: object
-        """
-        return self._total_compute_seconds
-
-    @total_compute_seconds.setter
-    def total_compute_seconds(self, total_compute_seconds):
-        """Sets the total_compute_seconds of this UsageRunAggregates.
-
-        Sum of compute_seconds for runs in the window.  # noqa: E501
-
-        :param total_compute_seconds: The total_compute_seconds of this UsageRunAggregates.  # noqa: E501
-        :type: object
-        """
-        if total_compute_seconds is None:
-            raise ValueError("Invalid value for `total_compute_seconds`, must not be `None`")  # noqa: E501
-
-        self._total_compute_seconds = total_compute_seconds
-
-    @property
     def total_compute_hours(self):
         """Gets the total_compute_hours of this UsageRunAggregates.  # noqa: E501
 
@@ -175,29 +173,29 @@ class UsageRunAggregates(object):
         self._total_compute_hours = total_compute_hours
 
     @property
-    def total_estimated_cost_usd(self):
-        """Gets the total_estimated_cost_usd of this UsageRunAggregates.  # noqa: E501
+    def total_compute_seconds(self):
+        """Gets the total_compute_seconds of this UsageRunAggregates.  # noqa: E501
 
-        Sum of estimated_total_cost_usd (ledger values at completion time).  # noqa: E501
+        Sum of compute_seconds for runs in the window.  # noqa: E501
 
-        :return: The total_estimated_cost_usd of this UsageRunAggregates.  # noqa: E501
+        :return: The total_compute_seconds of this UsageRunAggregates.  # noqa: E501
         :rtype: object
         """
-        return self._total_estimated_cost_usd
+        return self._total_compute_seconds
 
-    @total_estimated_cost_usd.setter
-    def total_estimated_cost_usd(self, total_estimated_cost_usd):
-        """Sets the total_estimated_cost_usd of this UsageRunAggregates.
+    @total_compute_seconds.setter
+    def total_compute_seconds(self, total_compute_seconds):
+        """Sets the total_compute_seconds of this UsageRunAggregates.
 
-        Sum of estimated_total_cost_usd (ledger values at completion time).  # noqa: E501
+        Sum of compute_seconds for runs in the window.  # noqa: E501
 
-        :param total_estimated_cost_usd: The total_estimated_cost_usd of this UsageRunAggregates.  # noqa: E501
+        :param total_compute_seconds: The total_compute_seconds of this UsageRunAggregates.  # noqa: E501
         :type: object
         """
-        if total_estimated_cost_usd is None:
-            raise ValueError("Invalid value for `total_estimated_cost_usd`, must not be `None`")  # noqa: E501
+        if total_compute_seconds is None:
+            raise ValueError("Invalid value for `total_compute_seconds`, must not be `None`")  # noqa: E501
 
-        self._total_estimated_cost_usd = total_estimated_cost_usd
+        self._total_compute_seconds = total_compute_seconds
 
     @property
     def total_estimated_compute_cost_usd(self):
@@ -225,6 +223,31 @@ class UsageRunAggregates(object):
         self._total_estimated_compute_cost_usd = total_estimated_compute_cost_usd
 
     @property
+    def total_estimated_cost_usd(self):
+        """Gets the total_estimated_cost_usd of this UsageRunAggregates.  # noqa: E501
+
+        Sum of estimated_total_cost_usd (ledger values at completion time).  # noqa: E501
+
+        :return: The total_estimated_cost_usd of this UsageRunAggregates.  # noqa: E501
+        :rtype: object
+        """
+        return self._total_estimated_cost_usd
+
+    @total_estimated_cost_usd.setter
+    def total_estimated_cost_usd(self, total_estimated_cost_usd):
+        """Sets the total_estimated_cost_usd of this UsageRunAggregates.
+
+        Sum of estimated_total_cost_usd (ledger values at completion time).  # noqa: E501
+
+        :param total_estimated_cost_usd: The total_estimated_cost_usd of this UsageRunAggregates.  # noqa: E501
+        :type: object
+        """
+        if total_estimated_cost_usd is None:
+            raise ValueError("Invalid value for `total_estimated_cost_usd`, must not be `None`")  # noqa: E501
+
+        self._total_estimated_cost_usd = total_estimated_cost_usd
+
+    @property
     def total_estimated_llm_cost_usd(self):
         """Gets the total_estimated_llm_cost_usd of this UsageRunAggregates.  # noqa: E501
 
@@ -248,29 +271,6 @@ class UsageRunAggregates(object):
             raise ValueError("Invalid value for `total_estimated_llm_cost_usd`, must not be `None`")  # noqa: E501
 
         self._total_estimated_llm_cost_usd = total_estimated_llm_cost_usd
-
-    @property
-    def average_compute_seconds(self):
-        """Gets the average_compute_seconds of this UsageRunAggregates.  # noqa: E501
-
-        Mean compute_seconds over runs with compute > 0; null if none.  # noqa: E501
-
-        :return: The average_compute_seconds of this UsageRunAggregates.  # noqa: E501
-        :rtype: object
-        """
-        return self._average_compute_seconds
-
-    @average_compute_seconds.setter
-    def average_compute_seconds(self, average_compute_seconds):
-        """Sets the average_compute_seconds of this UsageRunAggregates.
-
-        Mean compute_seconds over runs with compute > 0; null if none.  # noqa: E501
-
-        :param average_compute_seconds: The average_compute_seconds of this UsageRunAggregates.  # noqa: E501
-        :type: object
-        """
-
-        self._average_compute_seconds = average_compute_seconds
 
     @property
     def unique_session_count(self):

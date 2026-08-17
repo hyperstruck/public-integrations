@@ -28,42 +28,113 @@ class AgentCreateRequest(object):
                             and the value is json key in definition.
     """
     swagger_types = {
-        'name': 'object',
+        'core_config': 'AgentCoreConfig',
         'description': 'object',
-        'status': 'AgentStatus',
-        'reasoning_profile': 'ReasoningTier',
         'home_space_id': 'object',
-        'core_config': 'AgentCoreConfig'
+        'name': 'object',
+        'reasoning_profile': 'ReasoningTier',
+        'status': 'AgentStatus'
     }
 
     attribute_map = {
-        'name': 'name',
+        'core_config': 'core_config',
         'description': 'description',
-        'status': 'status',
-        'reasoning_profile': 'reasoning_profile',
         'home_space_id': 'home_space_id',
-        'core_config': 'core_config'
+        'name': 'name',
+        'reasoning_profile': 'reasoning_profile',
+        'status': 'status'
     }
 
-    def __init__(self, name=None, description=None, status=None, reasoning_profile=None, home_space_id=None, core_config=None):  # noqa: E501
+    def __init__(self, core_config=None, description=None, home_space_id=None, name=None, reasoning_profile=None, status=None):  # noqa: E501
         """AgentCreateRequest - a model defined in Swagger"""  # noqa: E501
-        self._name = None
-        self._description = None
-        self._status = None
-        self._reasoning_profile = None
-        self._home_space_id = None
         self._core_config = None
+        self._description = None
+        self._home_space_id = None
+        self._name = None
+        self._reasoning_profile = None
+        self._status = None
         self.discriminator = None
-        self.name = name
+        self.core_config = core_config
         if description is not None:
             self.description = description
-        if status is not None:
-            self.status = status
-        if reasoning_profile is not None:
-            self.reasoning_profile = reasoning_profile
         if home_space_id is not None:
             self.home_space_id = home_space_id
-        self.core_config = core_config
+        self.name = name
+        if reasoning_profile is not None:
+            self.reasoning_profile = reasoning_profile
+        if status is not None:
+            self.status = status
+
+    @property
+    def core_config(self):
+        """Gets the core_config of this AgentCreateRequest.  # noqa: E501
+
+        Runtime instructions and optional execution settings.  # noqa: E501
+
+        :return: The core_config of this AgentCreateRequest.  # noqa: E501
+        :rtype: AgentCoreConfig
+        """
+        return self._core_config
+
+    @core_config.setter
+    def core_config(self, core_config):
+        """Sets the core_config of this AgentCreateRequest.
+
+        Runtime instructions and optional execution settings.  # noqa: E501
+
+        :param core_config: The core_config of this AgentCreateRequest.  # noqa: E501
+        :type: AgentCoreConfig
+        """
+        if core_config is None:
+            raise ValueError("Invalid value for `core_config`, must not be `None`")  # noqa: E501
+
+        self._core_config = core_config
+
+    @property
+    def description(self):
+        """Gets the description of this AgentCreateRequest.  # noqa: E501
+
+        Optional short agent description.  # noqa: E501
+
+        :return: The description of this AgentCreateRequest.  # noqa: E501
+        :rtype: object
+        """
+        return self._description
+
+    @description.setter
+    def description(self, description):
+        """Sets the description of this AgentCreateRequest.
+
+        Optional short agent description.  # noqa: E501
+
+        :param description: The description of this AgentCreateRequest.  # noqa: E501
+        :type: object
+        """
+
+        self._description = description
+
+    @property
+    def home_space_id(self):
+        """Gets the home_space_id of this AgentCreateRequest.  # noqa: E501
+
+        Optional UUID of the accessible space that owns this agent.  # noqa: E501
+
+        :return: The home_space_id of this AgentCreateRequest.  # noqa: E501
+        :rtype: object
+        """
+        return self._home_space_id
+
+    @home_space_id.setter
+    def home_space_id(self, home_space_id):
+        """Sets the home_space_id of this AgentCreateRequest.
+
+        Optional UUID of the accessible space that owns this agent.  # noqa: E501
+
+        :param home_space_id: The home_space_id of this AgentCreateRequest.  # noqa: E501
+        :type: object
+        """
+
+        self._home_space_id = home_space_id
 
     @property
     def name(self):
@@ -91,52 +162,6 @@ class AgentCreateRequest(object):
         self._name = name
 
     @property
-    def description(self):
-        """Gets the description of this AgentCreateRequest.  # noqa: E501
-
-        Optional short agent description.  # noqa: E501
-
-        :return: The description of this AgentCreateRequest.  # noqa: E501
-        :rtype: object
-        """
-        return self._description
-
-    @description.setter
-    def description(self, description):
-        """Sets the description of this AgentCreateRequest.
-
-        Optional short agent description.  # noqa: E501
-
-        :param description: The description of this AgentCreateRequest.  # noqa: E501
-        :type: object
-        """
-
-        self._description = description
-
-    @property
-    def status(self):
-        """Gets the status of this AgentCreateRequest.  # noqa: E501
-
-        Hosted lifecycle state (active, paused, archived).  # noqa: E501
-
-        :return: The status of this AgentCreateRequest.  # noqa: E501
-        :rtype: AgentStatus
-        """
-        return self._status
-
-    @status.setter
-    def status(self, status):
-        """Sets the status of this AgentCreateRequest.
-
-        Hosted lifecycle state (active, paused, archived).  # noqa: E501
-
-        :param status: The status of this AgentCreateRequest.  # noqa: E501
-        :type: AgentStatus
-        """
-
-        self._status = status
-
-    @property
     def reasoning_profile(self):
         """Gets the reasoning_profile of this AgentCreateRequest.  # noqa: E501
 
@@ -160,52 +185,27 @@ class AgentCreateRequest(object):
         self._reasoning_profile = reasoning_profile
 
     @property
-    def home_space_id(self):
-        """Gets the home_space_id of this AgentCreateRequest.  # noqa: E501
+    def status(self):
+        """Gets the status of this AgentCreateRequest.  # noqa: E501
 
-        Optional UUID of the accessible space that owns this agent.  # noqa: E501
+        Hosted lifecycle state (active, paused, archived).  # noqa: E501
 
-        :return: The home_space_id of this AgentCreateRequest.  # noqa: E501
-        :rtype: object
+        :return: The status of this AgentCreateRequest.  # noqa: E501
+        :rtype: AgentStatus
         """
-        return self._home_space_id
+        return self._status
 
-    @home_space_id.setter
-    def home_space_id(self, home_space_id):
-        """Sets the home_space_id of this AgentCreateRequest.
+    @status.setter
+    def status(self, status):
+        """Sets the status of this AgentCreateRequest.
 
-        Optional UUID of the accessible space that owns this agent.  # noqa: E501
+        Hosted lifecycle state (active, paused, archived).  # noqa: E501
 
-        :param home_space_id: The home_space_id of this AgentCreateRequest.  # noqa: E501
-        :type: object
+        :param status: The status of this AgentCreateRequest.  # noqa: E501
+        :type: AgentStatus
         """
 
-        self._home_space_id = home_space_id
-
-    @property
-    def core_config(self):
-        """Gets the core_config of this AgentCreateRequest.  # noqa: E501
-
-        Runtime instructions and optional execution settings.  # noqa: E501
-
-        :return: The core_config of this AgentCreateRequest.  # noqa: E501
-        :rtype: AgentCoreConfig
-        """
-        return self._core_config
-
-    @core_config.setter
-    def core_config(self, core_config):
-        """Sets the core_config of this AgentCreateRequest.
-
-        Runtime instructions and optional execution settings.  # noqa: E501
-
-        :param core_config: The core_config of this AgentCreateRequest.  # noqa: E501
-        :type: AgentCoreConfig
-        """
-        if core_config is None:
-            raise ValueError("Invalid value for `core_config`, must not be `None`")  # noqa: E501
-
-        self._core_config = core_config
+        self._status = status
 
     def to_dict(self):
         """Returns the model properties as a dict"""

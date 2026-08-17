@@ -28,84 +28,61 @@ class PlanResponse(object):
                             and the value is json key in definition.
     """
     swagger_types = {
-        'plan_id': 'object',
         'agent_id': 'object',
-        'goal': 'object',
-        'summary': 'object',
-        'reasoning': 'object',
-        'is_success': 'object',
         'executed_at': 'object',
-        'num_steps': 'object',
+        'goal': 'object',
+        'is_success': 'object',
         'milestones': 'object',
-        'steps': 'object'
+        'num_steps': 'object',
+        'plan_id': 'object',
+        'reasoning': 'object',
+        'steps': 'object',
+        'summary': 'object'
     }
 
     attribute_map = {
-        'plan_id': 'plan_id',
         'agent_id': 'agent_id',
-        'goal': 'goal',
-        'summary': 'summary',
-        'reasoning': 'reasoning',
-        'is_success': 'is_success',
         'executed_at': 'executed_at',
-        'num_steps': 'num_steps',
+        'goal': 'goal',
+        'is_success': 'is_success',
         'milestones': 'milestones',
-        'steps': 'steps'
+        'num_steps': 'num_steps',
+        'plan_id': 'plan_id',
+        'reasoning': 'reasoning',
+        'steps': 'steps',
+        'summary': 'summary'
     }
 
-    def __init__(self, plan_id=None, agent_id=None, goal=None, summary=None, reasoning=None, is_success=None, executed_at=None, num_steps=None, milestones=None, steps=None):  # noqa: E501
+    def __init__(self, agent_id=None, executed_at=None, goal=None, is_success=None, milestones=None, num_steps=None, plan_id=None, reasoning=None, steps=None, summary=None):  # noqa: E501
         """PlanResponse - a model defined in Swagger"""  # noqa: E501
-        self._plan_id = None
         self._agent_id = None
-        self._goal = None
-        self._summary = None
-        self._reasoning = None
-        self._is_success = None
         self._executed_at = None
-        self._num_steps = None
+        self._goal = None
+        self._is_success = None
         self._milestones = None
+        self._num_steps = None
+        self._plan_id = None
+        self._reasoning = None
         self._steps = None
+        self._summary = None
         self.discriminator = None
-        self.plan_id = plan_id
         self.agent_id = agent_id
-        self.goal = goal
-        if summary is not None:
-            self.summary = summary
-        if reasoning is not None:
-            self.reasoning = reasoning
-        if is_success is not None:
-            self.is_success = is_success
         if executed_at is not None:
             self.executed_at = executed_at
-        if num_steps is not None:
-            self.num_steps = num_steps
+        self.goal = goal
+        if is_success is not None:
+            self.is_success = is_success
         if milestones is not None:
             self.milestones = milestones
+        if num_steps is not None:
+            self.num_steps = num_steps
+        self.plan_id = plan_id
+        if reasoning is not None:
+            self.reasoning = reasoning
         if steps is not None:
             self.steps = steps
-
-    @property
-    def plan_id(self):
-        """Gets the plan_id of this PlanResponse.  # noqa: E501
-
-
-        :return: The plan_id of this PlanResponse.  # noqa: E501
-        :rtype: object
-        """
-        return self._plan_id
-
-    @plan_id.setter
-    def plan_id(self, plan_id):
-        """Sets the plan_id of this PlanResponse.
-
-
-        :param plan_id: The plan_id of this PlanResponse.  # noqa: E501
-        :type: object
-        """
-        if plan_id is None:
-            raise ValueError("Invalid value for `plan_id`, must not be `None`")  # noqa: E501
-
-        self._plan_id = plan_id
+        if summary is not None:
+            self.summary = summary
 
     @property
     def agent_id(self):
@@ -131,6 +108,27 @@ class PlanResponse(object):
         self._agent_id = agent_id
 
     @property
+    def executed_at(self):
+        """Gets the executed_at of this PlanResponse.  # noqa: E501
+
+
+        :return: The executed_at of this PlanResponse.  # noqa: E501
+        :rtype: object
+        """
+        return self._executed_at
+
+    @executed_at.setter
+    def executed_at(self, executed_at):
+        """Sets the executed_at of this PlanResponse.
+
+
+        :param executed_at: The executed_at of this PlanResponse.  # noqa: E501
+        :type: object
+        """
+
+        self._executed_at = executed_at
+
+    @property
     def goal(self):
         """Gets the goal of this PlanResponse.  # noqa: E501
 
@@ -154,48 +152,6 @@ class PlanResponse(object):
         self._goal = goal
 
     @property
-    def summary(self):
-        """Gets the summary of this PlanResponse.  # noqa: E501
-
-
-        :return: The summary of this PlanResponse.  # noqa: E501
-        :rtype: object
-        """
-        return self._summary
-
-    @summary.setter
-    def summary(self, summary):
-        """Sets the summary of this PlanResponse.
-
-
-        :param summary: The summary of this PlanResponse.  # noqa: E501
-        :type: object
-        """
-
-        self._summary = summary
-
-    @property
-    def reasoning(self):
-        """Gets the reasoning of this PlanResponse.  # noqa: E501
-
-
-        :return: The reasoning of this PlanResponse.  # noqa: E501
-        :rtype: object
-        """
-        return self._reasoning
-
-    @reasoning.setter
-    def reasoning(self, reasoning):
-        """Sets the reasoning of this PlanResponse.
-
-
-        :param reasoning: The reasoning of this PlanResponse.  # noqa: E501
-        :type: object
-        """
-
-        self._reasoning = reasoning
-
-    @property
     def is_success(self):
         """Gets the is_success of this PlanResponse.  # noqa: E501
 
@@ -215,48 +171,6 @@ class PlanResponse(object):
         """
 
         self._is_success = is_success
-
-    @property
-    def executed_at(self):
-        """Gets the executed_at of this PlanResponse.  # noqa: E501
-
-
-        :return: The executed_at of this PlanResponse.  # noqa: E501
-        :rtype: object
-        """
-        return self._executed_at
-
-    @executed_at.setter
-    def executed_at(self, executed_at):
-        """Sets the executed_at of this PlanResponse.
-
-
-        :param executed_at: The executed_at of this PlanResponse.  # noqa: E501
-        :type: object
-        """
-
-        self._executed_at = executed_at
-
-    @property
-    def num_steps(self):
-        """Gets the num_steps of this PlanResponse.  # noqa: E501
-
-
-        :return: The num_steps of this PlanResponse.  # noqa: E501
-        :rtype: object
-        """
-        return self._num_steps
-
-    @num_steps.setter
-    def num_steps(self, num_steps):
-        """Sets the num_steps of this PlanResponse.
-
-
-        :param num_steps: The num_steps of this PlanResponse.  # noqa: E501
-        :type: object
-        """
-
-        self._num_steps = num_steps
 
     @property
     def milestones(self):
@@ -280,6 +194,71 @@ class PlanResponse(object):
         self._milestones = milestones
 
     @property
+    def num_steps(self):
+        """Gets the num_steps of this PlanResponse.  # noqa: E501
+
+
+        :return: The num_steps of this PlanResponse.  # noqa: E501
+        :rtype: object
+        """
+        return self._num_steps
+
+    @num_steps.setter
+    def num_steps(self, num_steps):
+        """Sets the num_steps of this PlanResponse.
+
+
+        :param num_steps: The num_steps of this PlanResponse.  # noqa: E501
+        :type: object
+        """
+
+        self._num_steps = num_steps
+
+    @property
+    def plan_id(self):
+        """Gets the plan_id of this PlanResponse.  # noqa: E501
+
+
+        :return: The plan_id of this PlanResponse.  # noqa: E501
+        :rtype: object
+        """
+        return self._plan_id
+
+    @plan_id.setter
+    def plan_id(self, plan_id):
+        """Sets the plan_id of this PlanResponse.
+
+
+        :param plan_id: The plan_id of this PlanResponse.  # noqa: E501
+        :type: object
+        """
+        if plan_id is None:
+            raise ValueError("Invalid value for `plan_id`, must not be `None`")  # noqa: E501
+
+        self._plan_id = plan_id
+
+    @property
+    def reasoning(self):
+        """Gets the reasoning of this PlanResponse.  # noqa: E501
+
+
+        :return: The reasoning of this PlanResponse.  # noqa: E501
+        :rtype: object
+        """
+        return self._reasoning
+
+    @reasoning.setter
+    def reasoning(self, reasoning):
+        """Sets the reasoning of this PlanResponse.
+
+
+        :param reasoning: The reasoning of this PlanResponse.  # noqa: E501
+        :type: object
+        """
+
+        self._reasoning = reasoning
+
+    @property
     def steps(self):
         """Gets the steps of this PlanResponse.  # noqa: E501
 
@@ -299,6 +278,27 @@ class PlanResponse(object):
         """
 
         self._steps = steps
+
+    @property
+    def summary(self):
+        """Gets the summary of this PlanResponse.  # noqa: E501
+
+
+        :return: The summary of this PlanResponse.  # noqa: E501
+        :rtype: object
+        """
+        return self._summary
+
+    @summary.setter
+    def summary(self, summary):
+        """Sets the summary of this PlanResponse.
+
+
+        :param summary: The summary of this PlanResponse.  # noqa: E501
+        :type: object
+        """
+
+        self._summary = summary
 
     def to_dict(self):
         """Returns the model properties as a dict"""

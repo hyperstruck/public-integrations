@@ -28,173 +28,64 @@ class ApiKeyCreateResponse(object):
                             and the value is json key in definition.
     """
     swagger_types = {
-        'id': 'object',
-        'name': 'object',
-        'key_prefix': 'object',
-        'scopes': 'object',
-        'tier': 'object',
         'all_spaces': 'object',
-        'space_ids': 'object',
         'created_at': 'object',
+        'full_key': 'object',
+        'id': 'object',
+        'key_prefix': 'object',
         'last_used_at': 'object',
+        'name': 'object',
         'revoked_at': 'object',
-        'full_key': 'object'
+        'scopes': 'object',
+        'space_ids': 'object',
+        'tier': 'object'
     }
 
     attribute_map = {
-        'id': 'id',
-        'name': 'name',
-        'key_prefix': 'key_prefix',
-        'scopes': 'scopes',
-        'tier': 'tier',
         'all_spaces': 'all_spaces',
-        'space_ids': 'space_ids',
         'created_at': 'created_at',
+        'full_key': 'full_key',
+        'id': 'id',
+        'key_prefix': 'key_prefix',
         'last_used_at': 'last_used_at',
+        'name': 'name',
         'revoked_at': 'revoked_at',
-        'full_key': 'full_key'
+        'scopes': 'scopes',
+        'space_ids': 'space_ids',
+        'tier': 'tier'
     }
 
-    def __init__(self, id=None, name=None, key_prefix=None, scopes=None, tier=None, all_spaces=None, space_ids=None, created_at=None, last_used_at=None, revoked_at=None, full_key=None):  # noqa: E501
+    def __init__(self, all_spaces=None, created_at=None, full_key=None, id=None, key_prefix=None, last_used_at=None, name=None, revoked_at=None, scopes=None, space_ids=None, tier=None):  # noqa: E501
         """ApiKeyCreateResponse - a model defined in Swagger"""  # noqa: E501
-        self._id = None
-        self._name = None
-        self._key_prefix = None
-        self._scopes = None
-        self._tier = None
         self._all_spaces = None
-        self._space_ids = None
         self._created_at = None
-        self._last_used_at = None
-        self._revoked_at = None
         self._full_key = None
+        self._id = None
+        self._key_prefix = None
+        self._last_used_at = None
+        self._name = None
+        self._revoked_at = None
+        self._scopes = None
+        self._space_ids = None
+        self._tier = None
         self.discriminator = None
-        self.id = id
-        if name is not None:
-            self.name = name
-        self.key_prefix = key_prefix
-        if scopes is not None:
-            self.scopes = scopes
-        if tier is not None:
-            self.tier = tier
         self.all_spaces = all_spaces
-        if space_ids is not None:
-            self.space_ids = space_ids
         self.created_at = created_at
+        self.full_key = full_key
+        self.id = id
+        self.key_prefix = key_prefix
         if last_used_at is not None:
             self.last_used_at = last_used_at
+        if name is not None:
+            self.name = name
         if revoked_at is not None:
             self.revoked_at = revoked_at
-        self.full_key = full_key
-
-    @property
-    def id(self):
-        """Gets the id of this ApiKeyCreateResponse.  # noqa: E501
-
-
-        :return: The id of this ApiKeyCreateResponse.  # noqa: E501
-        :rtype: object
-        """
-        return self._id
-
-    @id.setter
-    def id(self, id):
-        """Sets the id of this ApiKeyCreateResponse.
-
-
-        :param id: The id of this ApiKeyCreateResponse.  # noqa: E501
-        :type: object
-        """
-        if id is None:
-            raise ValueError("Invalid value for `id`, must not be `None`")  # noqa: E501
-
-        self._id = id
-
-    @property
-    def name(self):
-        """Gets the name of this ApiKeyCreateResponse.  # noqa: E501
-
-
-        :return: The name of this ApiKeyCreateResponse.  # noqa: E501
-        :rtype: object
-        """
-        return self._name
-
-    @name.setter
-    def name(self, name):
-        """Sets the name of this ApiKeyCreateResponse.
-
-
-        :param name: The name of this ApiKeyCreateResponse.  # noqa: E501
-        :type: object
-        """
-
-        self._name = name
-
-    @property
-    def key_prefix(self):
-        """Gets the key_prefix of this ApiKeyCreateResponse.  # noqa: E501
-
-
-        :return: The key_prefix of this ApiKeyCreateResponse.  # noqa: E501
-        :rtype: object
-        """
-        return self._key_prefix
-
-    @key_prefix.setter
-    def key_prefix(self, key_prefix):
-        """Sets the key_prefix of this ApiKeyCreateResponse.
-
-
-        :param key_prefix: The key_prefix of this ApiKeyCreateResponse.  # noqa: E501
-        :type: object
-        """
-        if key_prefix is None:
-            raise ValueError("Invalid value for `key_prefix`, must not be `None`")  # noqa: E501
-
-        self._key_prefix = key_prefix
-
-    @property
-    def scopes(self):
-        """Gets the scopes of this ApiKeyCreateResponse.  # noqa: E501
-
-
-        :return: The scopes of this ApiKeyCreateResponse.  # noqa: E501
-        :rtype: object
-        """
-        return self._scopes
-
-    @scopes.setter
-    def scopes(self, scopes):
-        """Sets the scopes of this ApiKeyCreateResponse.
-
-
-        :param scopes: The scopes of this ApiKeyCreateResponse.  # noqa: E501
-        :type: object
-        """
-
-        self._scopes = scopes
-
-    @property
-    def tier(self):
-        """Gets the tier of this ApiKeyCreateResponse.  # noqa: E501
-
-
-        :return: The tier of this ApiKeyCreateResponse.  # noqa: E501
-        :rtype: object
-        """
-        return self._tier
-
-    @tier.setter
-    def tier(self, tier):
-        """Sets the tier of this ApiKeyCreateResponse.
-
-
-        :param tier: The tier of this ApiKeyCreateResponse.  # noqa: E501
-        :type: object
-        """
-
-        self._tier = tier
+        if scopes is not None:
+            self.scopes = scopes
+        if space_ids is not None:
+            self.space_ids = space_ids
+        if tier is not None:
+            self.tier = tier
 
     @property
     def all_spaces(self):
@@ -220,27 +111,6 @@ class ApiKeyCreateResponse(object):
         self._all_spaces = all_spaces
 
     @property
-    def space_ids(self):
-        """Gets the space_ids of this ApiKeyCreateResponse.  # noqa: E501
-
-
-        :return: The space_ids of this ApiKeyCreateResponse.  # noqa: E501
-        :rtype: object
-        """
-        return self._space_ids
-
-    @space_ids.setter
-    def space_ids(self, space_ids):
-        """Sets the space_ids of this ApiKeyCreateResponse.
-
-
-        :param space_ids: The space_ids of this ApiKeyCreateResponse.  # noqa: E501
-        :type: object
-        """
-
-        self._space_ids = space_ids
-
-    @property
     def created_at(self):
         """Gets the created_at of this ApiKeyCreateResponse.  # noqa: E501
 
@@ -262,48 +132,6 @@ class ApiKeyCreateResponse(object):
             raise ValueError("Invalid value for `created_at`, must not be `None`")  # noqa: E501
 
         self._created_at = created_at
-
-    @property
-    def last_used_at(self):
-        """Gets the last_used_at of this ApiKeyCreateResponse.  # noqa: E501
-
-
-        :return: The last_used_at of this ApiKeyCreateResponse.  # noqa: E501
-        :rtype: object
-        """
-        return self._last_used_at
-
-    @last_used_at.setter
-    def last_used_at(self, last_used_at):
-        """Sets the last_used_at of this ApiKeyCreateResponse.
-
-
-        :param last_used_at: The last_used_at of this ApiKeyCreateResponse.  # noqa: E501
-        :type: object
-        """
-
-        self._last_used_at = last_used_at
-
-    @property
-    def revoked_at(self):
-        """Gets the revoked_at of this ApiKeyCreateResponse.  # noqa: E501
-
-
-        :return: The revoked_at of this ApiKeyCreateResponse.  # noqa: E501
-        :rtype: object
-        """
-        return self._revoked_at
-
-    @revoked_at.setter
-    def revoked_at(self, revoked_at):
-        """Sets the revoked_at of this ApiKeyCreateResponse.
-
-
-        :param revoked_at: The revoked_at of this ApiKeyCreateResponse.  # noqa: E501
-        :type: object
-        """
-
-        self._revoked_at = revoked_at
 
     @property
     def full_key(self):
@@ -329,6 +157,178 @@ class ApiKeyCreateResponse(object):
             raise ValueError("Invalid value for `full_key`, must not be `None`")  # noqa: E501
 
         self._full_key = full_key
+
+    @property
+    def id(self):
+        """Gets the id of this ApiKeyCreateResponse.  # noqa: E501
+
+
+        :return: The id of this ApiKeyCreateResponse.  # noqa: E501
+        :rtype: object
+        """
+        return self._id
+
+    @id.setter
+    def id(self, id):
+        """Sets the id of this ApiKeyCreateResponse.
+
+
+        :param id: The id of this ApiKeyCreateResponse.  # noqa: E501
+        :type: object
+        """
+        if id is None:
+            raise ValueError("Invalid value for `id`, must not be `None`")  # noqa: E501
+
+        self._id = id
+
+    @property
+    def key_prefix(self):
+        """Gets the key_prefix of this ApiKeyCreateResponse.  # noqa: E501
+
+
+        :return: The key_prefix of this ApiKeyCreateResponse.  # noqa: E501
+        :rtype: object
+        """
+        return self._key_prefix
+
+    @key_prefix.setter
+    def key_prefix(self, key_prefix):
+        """Sets the key_prefix of this ApiKeyCreateResponse.
+
+
+        :param key_prefix: The key_prefix of this ApiKeyCreateResponse.  # noqa: E501
+        :type: object
+        """
+        if key_prefix is None:
+            raise ValueError("Invalid value for `key_prefix`, must not be `None`")  # noqa: E501
+
+        self._key_prefix = key_prefix
+
+    @property
+    def last_used_at(self):
+        """Gets the last_used_at of this ApiKeyCreateResponse.  # noqa: E501
+
+
+        :return: The last_used_at of this ApiKeyCreateResponse.  # noqa: E501
+        :rtype: object
+        """
+        return self._last_used_at
+
+    @last_used_at.setter
+    def last_used_at(self, last_used_at):
+        """Sets the last_used_at of this ApiKeyCreateResponse.
+
+
+        :param last_used_at: The last_used_at of this ApiKeyCreateResponse.  # noqa: E501
+        :type: object
+        """
+
+        self._last_used_at = last_used_at
+
+    @property
+    def name(self):
+        """Gets the name of this ApiKeyCreateResponse.  # noqa: E501
+
+
+        :return: The name of this ApiKeyCreateResponse.  # noqa: E501
+        :rtype: object
+        """
+        return self._name
+
+    @name.setter
+    def name(self, name):
+        """Sets the name of this ApiKeyCreateResponse.
+
+
+        :param name: The name of this ApiKeyCreateResponse.  # noqa: E501
+        :type: object
+        """
+
+        self._name = name
+
+    @property
+    def revoked_at(self):
+        """Gets the revoked_at of this ApiKeyCreateResponse.  # noqa: E501
+
+
+        :return: The revoked_at of this ApiKeyCreateResponse.  # noqa: E501
+        :rtype: object
+        """
+        return self._revoked_at
+
+    @revoked_at.setter
+    def revoked_at(self, revoked_at):
+        """Sets the revoked_at of this ApiKeyCreateResponse.
+
+
+        :param revoked_at: The revoked_at of this ApiKeyCreateResponse.  # noqa: E501
+        :type: object
+        """
+
+        self._revoked_at = revoked_at
+
+    @property
+    def scopes(self):
+        """Gets the scopes of this ApiKeyCreateResponse.  # noqa: E501
+
+
+        :return: The scopes of this ApiKeyCreateResponse.  # noqa: E501
+        :rtype: object
+        """
+        return self._scopes
+
+    @scopes.setter
+    def scopes(self, scopes):
+        """Sets the scopes of this ApiKeyCreateResponse.
+
+
+        :param scopes: The scopes of this ApiKeyCreateResponse.  # noqa: E501
+        :type: object
+        """
+
+        self._scopes = scopes
+
+    @property
+    def space_ids(self):
+        """Gets the space_ids of this ApiKeyCreateResponse.  # noqa: E501
+
+
+        :return: The space_ids of this ApiKeyCreateResponse.  # noqa: E501
+        :rtype: object
+        """
+        return self._space_ids
+
+    @space_ids.setter
+    def space_ids(self, space_ids):
+        """Sets the space_ids of this ApiKeyCreateResponse.
+
+
+        :param space_ids: The space_ids of this ApiKeyCreateResponse.  # noqa: E501
+        :type: object
+        """
+
+        self._space_ids = space_ids
+
+    @property
+    def tier(self):
+        """Gets the tier of this ApiKeyCreateResponse.  # noqa: E501
+
+
+        :return: The tier of this ApiKeyCreateResponse.  # noqa: E501
+        :rtype: object
+        """
+        return self._tier
+
+    @tier.setter
+    def tier(self, tier):
+        """Sets the tier of this ApiKeyCreateResponse.
+
+
+        :param tier: The tier of this ApiKeyCreateResponse.  # noqa: E501
+        :type: object
+        """
+
+        self._tier = tier
 
     def to_dict(self):
         """Returns the model properties as a dict"""

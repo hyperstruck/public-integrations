@@ -28,36 +28,57 @@ class AgentDefinitionSuggestion(object):
                             and the value is json key in definition.
     """
     swagger_types = {
+        'description': 'object',
         'id': 'object',
         'kind': 'AgentDefinitionSuggestionKind',
         'label': 'object',
-        'description': 'object',
         'payload': 'object'
     }
 
     attribute_map = {
+        'description': 'description',
         'id': 'id',
         'kind': 'kind',
         'label': 'label',
-        'description': 'description',
         'payload': 'payload'
     }
 
-    def __init__(self, id=None, kind=None, label=None, description=None, payload=None):  # noqa: E501
+    def __init__(self, description=None, id=None, kind=None, label=None, payload=None):  # noqa: E501
         """AgentDefinitionSuggestion - a model defined in Swagger"""  # noqa: E501
+        self._description = None
         self._id = None
         self._kind = None
         self._label = None
-        self._description = None
         self._payload = None
         self.discriminator = None
+        if description is not None:
+            self.description = description
         self.id = id
         self.kind = kind
         self.label = label
-        if description is not None:
-            self.description = description
         if payload is not None:
             self.payload = payload
+
+    @property
+    def description(self):
+        """Gets the description of this AgentDefinitionSuggestion.  # noqa: E501
+
+
+        :return: The description of this AgentDefinitionSuggestion.  # noqa: E501
+        :rtype: object
+        """
+        return self._description
+
+    @description.setter
+    def description(self, description):
+        """Sets the description of this AgentDefinitionSuggestion.
+
+
+        :param description: The description of this AgentDefinitionSuggestion.  # noqa: E501
+        :type: object
+        """
+
+        self._description = description
 
     @property
     def id(self):
@@ -127,27 +148,6 @@ class AgentDefinitionSuggestion(object):
             raise ValueError("Invalid value for `label`, must not be `None`")  # noqa: E501
 
         self._label = label
-
-    @property
-    def description(self):
-        """Gets the description of this AgentDefinitionSuggestion.  # noqa: E501
-
-
-        :return: The description of this AgentDefinitionSuggestion.  # noqa: E501
-        :rtype: object
-        """
-        return self._description
-
-    @description.setter
-    def description(self, description):
-        """Sets the description of this AgentDefinitionSuggestion.
-
-
-        :param description: The description of this AgentDefinitionSuggestion.  # noqa: E501
-        :type: object
-        """
-
-        self._description = description
 
     @property
     def payload(self):

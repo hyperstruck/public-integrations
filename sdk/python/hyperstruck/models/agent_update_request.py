@@ -28,65 +28,65 @@ class AgentUpdateRequest(object):
                             and the value is json key in definition.
     """
     swagger_types = {
-        'name': 'object',
+        'core_config': 'object',
         'description': 'object',
-        'status': 'object',
-        'reasoning_profile': 'object',
         'home_space_id': 'object',
-        'core_config': 'object'
+        'name': 'object',
+        'reasoning_profile': 'object',
+        'status': 'object'
     }
 
     attribute_map = {
-        'name': 'name',
+        'core_config': 'core_config',
         'description': 'description',
-        'status': 'status',
-        'reasoning_profile': 'reasoning_profile',
         'home_space_id': 'home_space_id',
-        'core_config': 'core_config'
+        'name': 'name',
+        'reasoning_profile': 'reasoning_profile',
+        'status': 'status'
     }
 
-    def __init__(self, name=None, description=None, status=None, reasoning_profile=None, home_space_id=None, core_config=None):  # noqa: E501
+    def __init__(self, core_config=None, description=None, home_space_id=None, name=None, reasoning_profile=None, status=None):  # noqa: E501
         """AgentUpdateRequest - a model defined in Swagger"""  # noqa: E501
-        self._name = None
-        self._description = None
-        self._status = None
-        self._reasoning_profile = None
-        self._home_space_id = None
         self._core_config = None
+        self._description = None
+        self._home_space_id = None
+        self._name = None
+        self._reasoning_profile = None
+        self._status = None
         self.discriminator = None
-        if name is not None:
-            self.name = name
-        if description is not None:
-            self.description = description
-        if status is not None:
-            self.status = status
-        if reasoning_profile is not None:
-            self.reasoning_profile = reasoning_profile
-        if home_space_id is not None:
-            self.home_space_id = home_space_id
         if core_config is not None:
             self.core_config = core_config
+        if description is not None:
+            self.description = description
+        if home_space_id is not None:
+            self.home_space_id = home_space_id
+        if name is not None:
+            self.name = name
+        if reasoning_profile is not None:
+            self.reasoning_profile = reasoning_profile
+        if status is not None:
+            self.status = status
 
     @property
-    def name(self):
-        """Gets the name of this AgentUpdateRequest.  # noqa: E501
+    def core_config(self):
+        """Gets the core_config of this AgentUpdateRequest.  # noqa: E501
 
 
-        :return: The name of this AgentUpdateRequest.  # noqa: E501
+        :return: The core_config of this AgentUpdateRequest.  # noqa: E501
         :rtype: object
         """
-        return self._name
+        return self._core_config
 
-    @name.setter
-    def name(self, name):
-        """Sets the name of this AgentUpdateRequest.
+    @core_config.setter
+    def core_config(self, core_config):
+        """Sets the core_config of this AgentUpdateRequest.
 
 
-        :param name: The name of this AgentUpdateRequest.  # noqa: E501
+        :param core_config: The core_config of this AgentUpdateRequest.  # noqa: E501
         :type: object
         """
 
-        self._name = name
+        self._core_config = core_config
 
     @property
     def description(self):
@@ -108,48 +108,6 @@ class AgentUpdateRequest(object):
         """
 
         self._description = description
-
-    @property
-    def status(self):
-        """Gets the status of this AgentUpdateRequest.  # noqa: E501
-
-
-        :return: The status of this AgentUpdateRequest.  # noqa: E501
-        :rtype: object
-        """
-        return self._status
-
-    @status.setter
-    def status(self, status):
-        """Sets the status of this AgentUpdateRequest.
-
-
-        :param status: The status of this AgentUpdateRequest.  # noqa: E501
-        :type: object
-        """
-
-        self._status = status
-
-    @property
-    def reasoning_profile(self):
-        """Gets the reasoning_profile of this AgentUpdateRequest.  # noqa: E501
-
-
-        :return: The reasoning_profile of this AgentUpdateRequest.  # noqa: E501
-        :rtype: object
-        """
-        return self._reasoning_profile
-
-    @reasoning_profile.setter
-    def reasoning_profile(self, reasoning_profile):
-        """Sets the reasoning_profile of this AgentUpdateRequest.
-
-
-        :param reasoning_profile: The reasoning_profile of this AgentUpdateRequest.  # noqa: E501
-        :type: object
-        """
-
-        self._reasoning_profile = reasoning_profile
 
     @property
     def home_space_id(self):
@@ -175,25 +133,67 @@ class AgentUpdateRequest(object):
         self._home_space_id = home_space_id
 
     @property
-    def core_config(self):
-        """Gets the core_config of this AgentUpdateRequest.  # noqa: E501
+    def name(self):
+        """Gets the name of this AgentUpdateRequest.  # noqa: E501
 
 
-        :return: The core_config of this AgentUpdateRequest.  # noqa: E501
+        :return: The name of this AgentUpdateRequest.  # noqa: E501
         :rtype: object
         """
-        return self._core_config
+        return self._name
 
-    @core_config.setter
-    def core_config(self, core_config):
-        """Sets the core_config of this AgentUpdateRequest.
+    @name.setter
+    def name(self, name):
+        """Sets the name of this AgentUpdateRequest.
 
 
-        :param core_config: The core_config of this AgentUpdateRequest.  # noqa: E501
+        :param name: The name of this AgentUpdateRequest.  # noqa: E501
         :type: object
         """
 
-        self._core_config = core_config
+        self._name = name
+
+    @property
+    def reasoning_profile(self):
+        """Gets the reasoning_profile of this AgentUpdateRequest.  # noqa: E501
+
+
+        :return: The reasoning_profile of this AgentUpdateRequest.  # noqa: E501
+        :rtype: object
+        """
+        return self._reasoning_profile
+
+    @reasoning_profile.setter
+    def reasoning_profile(self, reasoning_profile):
+        """Sets the reasoning_profile of this AgentUpdateRequest.
+
+
+        :param reasoning_profile: The reasoning_profile of this AgentUpdateRequest.  # noqa: E501
+        :type: object
+        """
+
+        self._reasoning_profile = reasoning_profile
+
+    @property
+    def status(self):
+        """Gets the status of this AgentUpdateRequest.  # noqa: E501
+
+
+        :return: The status of this AgentUpdateRequest.  # noqa: E501
+        :rtype: object
+        """
+        return self._status
+
+    @status.setter
+    def status(self, status):
+        """Sets the status of this AgentUpdateRequest.
+
+
+        :param status: The status of this AgentUpdateRequest.  # noqa: E501
+        :type: object
+        """
+
+        self._status = status
 
     def to_dict(self):
         """Returns the model properties as a dict"""

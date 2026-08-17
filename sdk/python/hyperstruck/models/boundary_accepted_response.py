@@ -28,54 +28,56 @@ class BoundaryAcceptedResponse(object):
                             and the value is json key in definition.
     """
     swagger_types = {
-        'status': 'object',
-        'run_id': 'object',
         'is_duplicate': 'object',
+        'run_id': 'object',
+        'status': 'object',
         'worker_payload_version': 'object'
     }
 
     attribute_map = {
-        'status': 'status',
-        'run_id': 'run_id',
         'is_duplicate': 'is_duplicate',
+        'run_id': 'run_id',
+        'status': 'status',
         'worker_payload_version': 'worker_payload_version'
     }
 
-    def __init__(self, status=None, run_id=None, is_duplicate=None, worker_payload_version=None):  # noqa: E501
+    def __init__(self, is_duplicate=None, run_id=None, status=None, worker_payload_version=None):  # noqa: E501
         """BoundaryAcceptedResponse - a model defined in Swagger"""  # noqa: E501
-        self._status = None
-        self._run_id = None
         self._is_duplicate = None
+        self._run_id = None
+        self._status = None
         self._worker_payload_version = None
         self.discriminator = None
-        if status is not None:
-            self.status = status
-        self.run_id = run_id
         if is_duplicate is not None:
             self.is_duplicate = is_duplicate
+        self.run_id = run_id
+        if status is not None:
+            self.status = status
         if worker_payload_version is not None:
             self.worker_payload_version = worker_payload_version
 
     @property
-    def status(self):
-        """Gets the status of this BoundaryAcceptedResponse.  # noqa: E501
+    def is_duplicate(self):
+        """Gets the is_duplicate of this BoundaryAcceptedResponse.  # noqa: E501
 
+        True when this run was already done or already in flight, so nothing was dispatched. The request is still accepted, because at-least-once delivery makes a repeat legitimate, but no work follows. Callers that report success to a human must distinguish the two: reporting a no-op as delivered is what let a whole class of silently discarded distils go unnoticed. Absent on older servers, where it reads False.  # noqa: E501
 
-        :return: The status of this BoundaryAcceptedResponse.  # noqa: E501
+        :return: The is_duplicate of this BoundaryAcceptedResponse.  # noqa: E501
         :rtype: object
         """
-        return self._status
+        return self._is_duplicate
 
-    @status.setter
-    def status(self, status):
-        """Sets the status of this BoundaryAcceptedResponse.
+    @is_duplicate.setter
+    def is_duplicate(self, is_duplicate):
+        """Sets the is_duplicate of this BoundaryAcceptedResponse.
 
+        True when this run was already done or already in flight, so nothing was dispatched. The request is still accepted, because at-least-once delivery makes a repeat legitimate, but no work follows. Callers that report success to a human must distinguish the two: reporting a no-op as delivered is what let a whole class of silently discarded distils go unnoticed. Absent on older servers, where it reads False.  # noqa: E501
 
-        :param status: The status of this BoundaryAcceptedResponse.  # noqa: E501
+        :param is_duplicate: The is_duplicate of this BoundaryAcceptedResponse.  # noqa: E501
         :type: object
         """
 
-        self._status = status
+        self._is_duplicate = is_duplicate
 
     @property
     def run_id(self):
@@ -103,27 +105,25 @@ class BoundaryAcceptedResponse(object):
         self._run_id = run_id
 
     @property
-    def is_duplicate(self):
-        """Gets the is_duplicate of this BoundaryAcceptedResponse.  # noqa: E501
+    def status(self):
+        """Gets the status of this BoundaryAcceptedResponse.  # noqa: E501
 
-        True when this run was already done or already in flight, so nothing was dispatched. The request is still accepted, because at-least-once delivery makes a repeat legitimate, but no work follows. Callers that report success to a human must distinguish the two: reporting a no-op as delivered is what let a whole class of silently discarded distils go unnoticed. Absent on older servers, where it reads False.  # noqa: E501
 
-        :return: The is_duplicate of this BoundaryAcceptedResponse.  # noqa: E501
+        :return: The status of this BoundaryAcceptedResponse.  # noqa: E501
         :rtype: object
         """
-        return self._is_duplicate
+        return self._status
 
-    @is_duplicate.setter
-    def is_duplicate(self, is_duplicate):
-        """Sets the is_duplicate of this BoundaryAcceptedResponse.
+    @status.setter
+    def status(self, status):
+        """Sets the status of this BoundaryAcceptedResponse.
 
-        True when this run was already done or already in flight, so nothing was dispatched. The request is still accepted, because at-least-once delivery makes a repeat legitimate, but no work follows. Callers that report success to a human must distinguish the two: reporting a no-op as delivered is what let a whole class of silently discarded distils go unnoticed. Absent on older servers, where it reads False.  # noqa: E501
 
-        :param is_duplicate: The is_duplicate of this BoundaryAcceptedResponse.  # noqa: E501
+        :param status: The status of this BoundaryAcceptedResponse.  # noqa: E501
         :type: object
         """
 
-        self._is_duplicate = is_duplicate
+        self._status = status
 
     @property
     def worker_payload_version(self):

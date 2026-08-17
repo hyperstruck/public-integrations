@@ -28,45 +28,24 @@ class ChartDataRequest(object):
                             and the value is json key in definition.
     """
     swagger_types = {
-        'window': 'object',
-        'as_of': 'object'
+        'as_of': 'object',
+        'window': 'object'
     }
 
     attribute_map = {
-        'window': 'window',
-        'as_of': 'as_of'
+        'as_of': 'as_of',
+        'window': 'window'
     }
 
-    def __init__(self, window=None, as_of=None):  # noqa: E501
+    def __init__(self, as_of=None, window=None):  # noqa: E501
         """ChartDataRequest - a model defined in Swagger"""  # noqa: E501
-        self._window = None
         self._as_of = None
+        self._window = None
         self.discriminator = None
-        if window is not None:
-            self.window = window
         if as_of is not None:
             self.as_of = as_of
-
-    @property
-    def window(self):
-        """Gets the window of this ChartDataRequest.  # noqa: E501
-
-
-        :return: The window of this ChartDataRequest.  # noqa: E501
-        :rtype: object
-        """
-        return self._window
-
-    @window.setter
-    def window(self, window):
-        """Sets the window of this ChartDataRequest.
-
-
-        :param window: The window of this ChartDataRequest.  # noqa: E501
-        :type: object
-        """
-
-        self._window = window
+        if window is not None:
+            self.window = window
 
     @property
     def as_of(self):
@@ -88,6 +67,27 @@ class ChartDataRequest(object):
         """
 
         self._as_of = as_of
+
+    @property
+    def window(self):
+        """Gets the window of this ChartDataRequest.  # noqa: E501
+
+
+        :return: The window of this ChartDataRequest.  # noqa: E501
+        :rtype: object
+        """
+        return self._window
+
+    @window.setter
+    def window(self, window):
+        """Sets the window of this ChartDataRequest.
+
+
+        :param window: The window of this ChartDataRequest.  # noqa: E501
+        :type: object
+        """
+
+        self._window = window
 
     def to_dict(self):
         """Returns the model properties as a dict"""

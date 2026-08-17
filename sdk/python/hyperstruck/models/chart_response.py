@@ -28,129 +28,104 @@ class ChartResponse(object):
                             and the value is json key in definition.
     """
     swagger_types = {
-        'id': 'object',
-        'space_id': 'object',
-        'title': 'object',
+        'created_at': 'object',
+        'created_by': 'object',
         'description': 'object',
-        'viz_spec': 'object',
+        'id': 'object',
         'query_binding': 'QueryBinding',
         'schema_version': 'object',
-        'created_by': 'object',
+        'space_id': 'object',
+        'title': 'object',
+        'updated_at': 'object',
         'updated_by': 'object',
-        'created_at': 'object',
-        'updated_at': 'object'
+        'viz_spec': 'object'
     }
 
     attribute_map = {
-        'id': 'id',
-        'space_id': 'space_id',
-        'title': 'title',
+        'created_at': 'created_at',
+        'created_by': 'created_by',
         'description': 'description',
-        'viz_spec': 'viz_spec',
+        'id': 'id',
         'query_binding': 'query_binding',
         'schema_version': 'schema_version',
-        'created_by': 'created_by',
+        'space_id': 'space_id',
+        'title': 'title',
+        'updated_at': 'updated_at',
         'updated_by': 'updated_by',
-        'created_at': 'created_at',
-        'updated_at': 'updated_at'
+        'viz_spec': 'viz_spec'
     }
 
-    def __init__(self, id=None, space_id=None, title=None, description=None, viz_spec=None, query_binding=None, schema_version=None, created_by=None, updated_by=None, created_at=None, updated_at=None):  # noqa: E501
+    def __init__(self, created_at=None, created_by=None, description=None, id=None, query_binding=None, schema_version=None, space_id=None, title=None, updated_at=None, updated_by=None, viz_spec=None):  # noqa: E501
         """ChartResponse - a model defined in Swagger"""  # noqa: E501
-        self._id = None
-        self._space_id = None
-        self._title = None
+        self._created_at = None
+        self._created_by = None
         self._description = None
-        self._viz_spec = None
+        self._id = None
         self._query_binding = None
         self._schema_version = None
-        self._created_by = None
-        self._updated_by = None
-        self._created_at = None
+        self._space_id = None
+        self._title = None
         self._updated_at = None
+        self._updated_by = None
+        self._viz_spec = None
         self.discriminator = None
-        self.id = id
-        self.space_id = space_id
-        self.title = title
-        self.description = description
-        self.viz_spec = viz_spec
-        self.query_binding = query_binding
-        self.schema_version = schema_version
+        self.created_at = created_at
         if created_by is not None:
             self.created_by = created_by
+        self.description = description
+        self.id = id
+        self.query_binding = query_binding
+        self.schema_version = schema_version
+        self.space_id = space_id
+        self.title = title
+        self.updated_at = updated_at
         if updated_by is not None:
             self.updated_by = updated_by
-        self.created_at = created_at
-        self.updated_at = updated_at
+        self.viz_spec = viz_spec
 
     @property
-    def id(self):
-        """Gets the id of this ChartResponse.  # noqa: E501
+    def created_at(self):
+        """Gets the created_at of this ChartResponse.  # noqa: E501
 
 
-        :return: The id of this ChartResponse.  # noqa: E501
+        :return: The created_at of this ChartResponse.  # noqa: E501
         :rtype: object
         """
-        return self._id
+        return self._created_at
 
-    @id.setter
-    def id(self, id):
-        """Sets the id of this ChartResponse.
+    @created_at.setter
+    def created_at(self, created_at):
+        """Sets the created_at of this ChartResponse.
 
 
-        :param id: The id of this ChartResponse.  # noqa: E501
+        :param created_at: The created_at of this ChartResponse.  # noqa: E501
         :type: object
         """
-        if id is None:
-            raise ValueError("Invalid value for `id`, must not be `None`")  # noqa: E501
+        if created_at is None:
+            raise ValueError("Invalid value for `created_at`, must not be `None`")  # noqa: E501
 
-        self._id = id
+        self._created_at = created_at
 
     @property
-    def space_id(self):
-        """Gets the space_id of this ChartResponse.  # noqa: E501
+    def created_by(self):
+        """Gets the created_by of this ChartResponse.  # noqa: E501
 
 
-        :return: The space_id of this ChartResponse.  # noqa: E501
+        :return: The created_by of this ChartResponse.  # noqa: E501
         :rtype: object
         """
-        return self._space_id
+        return self._created_by
 
-    @space_id.setter
-    def space_id(self, space_id):
-        """Sets the space_id of this ChartResponse.
+    @created_by.setter
+    def created_by(self, created_by):
+        """Sets the created_by of this ChartResponse.
 
 
-        :param space_id: The space_id of this ChartResponse.  # noqa: E501
+        :param created_by: The created_by of this ChartResponse.  # noqa: E501
         :type: object
         """
-        if space_id is None:
-            raise ValueError("Invalid value for `space_id`, must not be `None`")  # noqa: E501
 
-        self._space_id = space_id
-
-    @property
-    def title(self):
-        """Gets the title of this ChartResponse.  # noqa: E501
-
-
-        :return: The title of this ChartResponse.  # noqa: E501
-        :rtype: object
-        """
-        return self._title
-
-    @title.setter
-    def title(self, title):
-        """Sets the title of this ChartResponse.
-
-
-        :param title: The title of this ChartResponse.  # noqa: E501
-        :type: object
-        """
-        if title is None:
-            raise ValueError("Invalid value for `title`, must not be `None`")  # noqa: E501
-
-        self._title = title
+        self._created_by = created_by
 
     @property
     def description(self):
@@ -176,27 +151,27 @@ class ChartResponse(object):
         self._description = description
 
     @property
-    def viz_spec(self):
-        """Gets the viz_spec of this ChartResponse.  # noqa: E501
+    def id(self):
+        """Gets the id of this ChartResponse.  # noqa: E501
 
 
-        :return: The viz_spec of this ChartResponse.  # noqa: E501
+        :return: The id of this ChartResponse.  # noqa: E501
         :rtype: object
         """
-        return self._viz_spec
+        return self._id
 
-    @viz_spec.setter
-    def viz_spec(self, viz_spec):
-        """Sets the viz_spec of this ChartResponse.
+    @id.setter
+    def id(self, id):
+        """Sets the id of this ChartResponse.
 
 
-        :param viz_spec: The viz_spec of this ChartResponse.  # noqa: E501
+        :param id: The id of this ChartResponse.  # noqa: E501
         :type: object
         """
-        if viz_spec is None:
-            raise ValueError("Invalid value for `viz_spec`, must not be `None`")  # noqa: E501
+        if id is None:
+            raise ValueError("Invalid value for `id`, must not be `None`")  # noqa: E501
 
-        self._viz_spec = viz_spec
+        self._id = id
 
     @property
     def query_binding(self):
@@ -245,69 +220,50 @@ class ChartResponse(object):
         self._schema_version = schema_version
 
     @property
-    def created_by(self):
-        """Gets the created_by of this ChartResponse.  # noqa: E501
+    def space_id(self):
+        """Gets the space_id of this ChartResponse.  # noqa: E501
 
 
-        :return: The created_by of this ChartResponse.  # noqa: E501
+        :return: The space_id of this ChartResponse.  # noqa: E501
         :rtype: object
         """
-        return self._created_by
+        return self._space_id
 
-    @created_by.setter
-    def created_by(self, created_by):
-        """Sets the created_by of this ChartResponse.
+    @space_id.setter
+    def space_id(self, space_id):
+        """Sets the space_id of this ChartResponse.
 
 
-        :param created_by: The created_by of this ChartResponse.  # noqa: E501
+        :param space_id: The space_id of this ChartResponse.  # noqa: E501
         :type: object
         """
+        if space_id is None:
+            raise ValueError("Invalid value for `space_id`, must not be `None`")  # noqa: E501
 
-        self._created_by = created_by
+        self._space_id = space_id
 
     @property
-    def updated_by(self):
-        """Gets the updated_by of this ChartResponse.  # noqa: E501
+    def title(self):
+        """Gets the title of this ChartResponse.  # noqa: E501
 
 
-        :return: The updated_by of this ChartResponse.  # noqa: E501
+        :return: The title of this ChartResponse.  # noqa: E501
         :rtype: object
         """
-        return self._updated_by
+        return self._title
 
-    @updated_by.setter
-    def updated_by(self, updated_by):
-        """Sets the updated_by of this ChartResponse.
+    @title.setter
+    def title(self, title):
+        """Sets the title of this ChartResponse.
 
 
-        :param updated_by: The updated_by of this ChartResponse.  # noqa: E501
+        :param title: The title of this ChartResponse.  # noqa: E501
         :type: object
         """
+        if title is None:
+            raise ValueError("Invalid value for `title`, must not be `None`")  # noqa: E501
 
-        self._updated_by = updated_by
-
-    @property
-    def created_at(self):
-        """Gets the created_at of this ChartResponse.  # noqa: E501
-
-
-        :return: The created_at of this ChartResponse.  # noqa: E501
-        :rtype: object
-        """
-        return self._created_at
-
-    @created_at.setter
-    def created_at(self, created_at):
-        """Sets the created_at of this ChartResponse.
-
-
-        :param created_at: The created_at of this ChartResponse.  # noqa: E501
-        :type: object
-        """
-        if created_at is None:
-            raise ValueError("Invalid value for `created_at`, must not be `None`")  # noqa: E501
-
-        self._created_at = created_at
+        self._title = title
 
     @property
     def updated_at(self):
@@ -331,6 +287,50 @@ class ChartResponse(object):
             raise ValueError("Invalid value for `updated_at`, must not be `None`")  # noqa: E501
 
         self._updated_at = updated_at
+
+    @property
+    def updated_by(self):
+        """Gets the updated_by of this ChartResponse.  # noqa: E501
+
+
+        :return: The updated_by of this ChartResponse.  # noqa: E501
+        :rtype: object
+        """
+        return self._updated_by
+
+    @updated_by.setter
+    def updated_by(self, updated_by):
+        """Sets the updated_by of this ChartResponse.
+
+
+        :param updated_by: The updated_by of this ChartResponse.  # noqa: E501
+        :type: object
+        """
+
+        self._updated_by = updated_by
+
+    @property
+    def viz_spec(self):
+        """Gets the viz_spec of this ChartResponse.  # noqa: E501
+
+
+        :return: The viz_spec of this ChartResponse.  # noqa: E501
+        :rtype: object
+        """
+        return self._viz_spec
+
+    @viz_spec.setter
+    def viz_spec(self, viz_spec):
+        """Sets the viz_spec of this ChartResponse.
+
+
+        :param viz_spec: The viz_spec of this ChartResponse.  # noqa: E501
+        :type: object
+        """
+        if viz_spec is None:
+            raise ValueError("Invalid value for `viz_spec`, must not be `None`")  # noqa: E501
+
+        self._viz_spec = viz_spec
 
     def to_dict(self):
         """Returns the model properties as a dict"""

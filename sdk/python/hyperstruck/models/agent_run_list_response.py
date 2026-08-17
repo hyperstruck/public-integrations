@@ -29,38 +29,38 @@ class AgentRunListResponse(object):
     """
     swagger_types = {
         'agent_id': 'object',
-        'window': 'object',
-        'period_start': 'object',
-        'period_end_exclusive': 'object',
         'items': 'object',
-        'next_cursor': 'object'
+        'next_cursor': 'object',
+        'period_end_exclusive': 'object',
+        'period_start': 'object',
+        'window': 'object'
     }
 
     attribute_map = {
         'agent_id': 'agent_id',
-        'window': 'window',
-        'period_start': 'period_start',
-        'period_end_exclusive': 'period_end_exclusive',
         'items': 'items',
-        'next_cursor': 'next_cursor'
+        'next_cursor': 'next_cursor',
+        'period_end_exclusive': 'period_end_exclusive',
+        'period_start': 'period_start',
+        'window': 'window'
     }
 
-    def __init__(self, agent_id=None, window=None, period_start=None, period_end_exclusive=None, items=None, next_cursor=None):  # noqa: E501
+    def __init__(self, agent_id=None, items=None, next_cursor=None, period_end_exclusive=None, period_start=None, window=None):  # noqa: E501
         """AgentRunListResponse - a model defined in Swagger"""  # noqa: E501
         self._agent_id = None
-        self._window = None
-        self._period_start = None
-        self._period_end_exclusive = None
         self._items = None
         self._next_cursor = None
+        self._period_end_exclusive = None
+        self._period_start = None
+        self._window = None
         self.discriminator = None
         self.agent_id = agent_id
-        self.window = window
-        self.period_start = period_start
-        self.period_end_exclusive = period_end_exclusive
         self.items = items
         if next_cursor is not None:
             self.next_cursor = next_cursor
+        self.period_end_exclusive = period_end_exclusive
+        self.period_start = period_start
+        self.window = window
 
     @property
     def agent_id(self):
@@ -84,81 +84,6 @@ class AgentRunListResponse(object):
             raise ValueError("Invalid value for `agent_id`, must not be `None`")  # noqa: E501
 
         self._agent_id = agent_id
-
-    @property
-    def window(self):
-        """Gets the window of this AgentRunListResponse.  # noqa: E501
-
-        Echo of the usage window applied to the page.  # noqa: E501
-
-        :return: The window of this AgentRunListResponse.  # noqa: E501
-        :rtype: object
-        """
-        return self._window
-
-    @window.setter
-    def window(self, window):
-        """Sets the window of this AgentRunListResponse.
-
-        Echo of the usage window applied to the page.  # noqa: E501
-
-        :param window: The window of this AgentRunListResponse.  # noqa: E501
-        :type: object
-        """
-        if window is None:
-            raise ValueError("Invalid value for `window`, must not be `None`")  # noqa: E501
-
-        self._window = window
-
-    @property
-    def period_start(self):
-        """Gets the period_start of this AgentRunListResponse.  # noqa: E501
-
-        Inclusive UTC boundary.  # noqa: E501
-
-        :return: The period_start of this AgentRunListResponse.  # noqa: E501
-        :rtype: object
-        """
-        return self._period_start
-
-    @period_start.setter
-    def period_start(self, period_start):
-        """Sets the period_start of this AgentRunListResponse.
-
-        Inclusive UTC boundary.  # noqa: E501
-
-        :param period_start: The period_start of this AgentRunListResponse.  # noqa: E501
-        :type: object
-        """
-        if period_start is None:
-            raise ValueError("Invalid value for `period_start`, must not be `None`")  # noqa: E501
-
-        self._period_start = period_start
-
-    @property
-    def period_end_exclusive(self):
-        """Gets the period_end_exclusive of this AgentRunListResponse.  # noqa: E501
-
-        Exclusive UTC boundary.  # noqa: E501
-
-        :return: The period_end_exclusive of this AgentRunListResponse.  # noqa: E501
-        :rtype: object
-        """
-        return self._period_end_exclusive
-
-    @period_end_exclusive.setter
-    def period_end_exclusive(self, period_end_exclusive):
-        """Sets the period_end_exclusive of this AgentRunListResponse.
-
-        Exclusive UTC boundary.  # noqa: E501
-
-        :param period_end_exclusive: The period_end_exclusive of this AgentRunListResponse.  # noqa: E501
-        :type: object
-        """
-        if period_end_exclusive is None:
-            raise ValueError("Invalid value for `period_end_exclusive`, must not be `None`")  # noqa: E501
-
-        self._period_end_exclusive = period_end_exclusive
 
     @property
     def items(self):
@@ -205,6 +130,81 @@ class AgentRunListResponse(object):
         """
 
         self._next_cursor = next_cursor
+
+    @property
+    def period_end_exclusive(self):
+        """Gets the period_end_exclusive of this AgentRunListResponse.  # noqa: E501
+
+        Exclusive UTC boundary.  # noqa: E501
+
+        :return: The period_end_exclusive of this AgentRunListResponse.  # noqa: E501
+        :rtype: object
+        """
+        return self._period_end_exclusive
+
+    @period_end_exclusive.setter
+    def period_end_exclusive(self, period_end_exclusive):
+        """Sets the period_end_exclusive of this AgentRunListResponse.
+
+        Exclusive UTC boundary.  # noqa: E501
+
+        :param period_end_exclusive: The period_end_exclusive of this AgentRunListResponse.  # noqa: E501
+        :type: object
+        """
+        if period_end_exclusive is None:
+            raise ValueError("Invalid value for `period_end_exclusive`, must not be `None`")  # noqa: E501
+
+        self._period_end_exclusive = period_end_exclusive
+
+    @property
+    def period_start(self):
+        """Gets the period_start of this AgentRunListResponse.  # noqa: E501
+
+        Inclusive UTC boundary.  # noqa: E501
+
+        :return: The period_start of this AgentRunListResponse.  # noqa: E501
+        :rtype: object
+        """
+        return self._period_start
+
+    @period_start.setter
+    def period_start(self, period_start):
+        """Sets the period_start of this AgentRunListResponse.
+
+        Inclusive UTC boundary.  # noqa: E501
+
+        :param period_start: The period_start of this AgentRunListResponse.  # noqa: E501
+        :type: object
+        """
+        if period_start is None:
+            raise ValueError("Invalid value for `period_start`, must not be `None`")  # noqa: E501
+
+        self._period_start = period_start
+
+    @property
+    def window(self):
+        """Gets the window of this AgentRunListResponse.  # noqa: E501
+
+        Echo of the usage window applied to the page.  # noqa: E501
+
+        :return: The window of this AgentRunListResponse.  # noqa: E501
+        :rtype: object
+        """
+        return self._window
+
+    @window.setter
+    def window(self, window):
+        """Sets the window of this AgentRunListResponse.
+
+        Echo of the usage window applied to the page.  # noqa: E501
+
+        :param window: The window of this AgentRunListResponse.  # noqa: E501
+        :type: object
+        """
+        if window is None:
+            raise ValueError("Invalid value for `window`, must not be `None`")  # noqa: E501
+
+        self._window = window
 
     def to_dict(self):
         """Returns the model properties as a dict"""

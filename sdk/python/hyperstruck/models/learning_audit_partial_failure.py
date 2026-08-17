@@ -28,47 +28,22 @@ class LearningAuditPartialFailure(object):
                             and the value is json key in definition.
     """
     swagger_types = {
-        'source': 'object',
-        'detail': 'object'
+        'detail': 'object',
+        'source': 'object'
     }
 
     attribute_map = {
-        'source': 'source',
-        'detail': 'detail'
+        'detail': 'detail',
+        'source': 'source'
     }
 
-    def __init__(self, source=None, detail=None):  # noqa: E501
+    def __init__(self, detail=None, source=None):  # noqa: E501
         """LearningAuditPartialFailure - a model defined in Swagger"""  # noqa: E501
-        self._source = None
         self._detail = None
+        self._source = None
         self.discriminator = None
-        self.source = source
         self.detail = detail
-
-    @property
-    def source(self):
-        """Gets the source of this LearningAuditPartialFailure.  # noqa: E501
-
-        Stable name of the unavailable data source.  # noqa: E501
-
-        :return: The source of this LearningAuditPartialFailure.  # noqa: E501
-        :rtype: object
-        """
-        return self._source
-
-    @source.setter
-    def source(self, source):
-        """Sets the source of this LearningAuditPartialFailure.
-
-        Stable name of the unavailable data source.  # noqa: E501
-
-        :param source: The source of this LearningAuditPartialFailure.  # noqa: E501
-        :type: object
-        """
-        if source is None:
-            raise ValueError("Invalid value for `source`, must not be `None`")  # noqa: E501
-
-        self._source = source
+        self.source = source
 
     @property
     def detail(self):
@@ -94,6 +69,31 @@ class LearningAuditPartialFailure(object):
             raise ValueError("Invalid value for `detail`, must not be `None`")  # noqa: E501
 
         self._detail = detail
+
+    @property
+    def source(self):
+        """Gets the source of this LearningAuditPartialFailure.  # noqa: E501
+
+        Stable name of the unavailable data source.  # noqa: E501
+
+        :return: The source of this LearningAuditPartialFailure.  # noqa: E501
+        :rtype: object
+        """
+        return self._source
+
+    @source.setter
+    def source(self, source):
+        """Sets the source of this LearningAuditPartialFailure.
+
+        Stable name of the unavailable data source.  # noqa: E501
+
+        :param source: The source of this LearningAuditPartialFailure.  # noqa: E501
+        :type: object
+        """
+        if source is None:
+            raise ValueError("Invalid value for `source`, must not be `None`")  # noqa: E501
+
+        self._source = source
 
     def to_dict(self):
         """Returns the model properties as a dict"""

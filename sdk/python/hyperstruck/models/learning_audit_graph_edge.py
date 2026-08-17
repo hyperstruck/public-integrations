@@ -28,30 +28,53 @@ class LearningAuditGraphEdge(object):
                             and the value is json key in definition.
     """
     swagger_types = {
+        'edge_type': 'LearningGraphEdgeType',
         'id': 'object',
         'source': 'object',
-        'target': 'object',
-        'edge_type': 'LearningGraphEdgeType'
+        'target': 'object'
     }
 
     attribute_map = {
+        'edge_type': 'edge_type',
         'id': 'id',
         'source': 'source',
-        'target': 'target',
-        'edge_type': 'edge_type'
+        'target': 'target'
     }
 
-    def __init__(self, id=None, source=None, target=None, edge_type=None):  # noqa: E501
+    def __init__(self, edge_type=None, id=None, source=None, target=None):  # noqa: E501
         """LearningAuditGraphEdge - a model defined in Swagger"""  # noqa: E501
+        self._edge_type = None
         self._id = None
         self._source = None
         self._target = None
-        self._edge_type = None
         self.discriminator = None
+        self.edge_type = edge_type
         self.id = id
         self.source = source
         self.target = target
-        self.edge_type = edge_type
+
+    @property
+    def edge_type(self):
+        """Gets the edge_type of this LearningAuditGraphEdge.  # noqa: E501
+
+
+        :return: The edge_type of this LearningAuditGraphEdge.  # noqa: E501
+        :rtype: LearningGraphEdgeType
+        """
+        return self._edge_type
+
+    @edge_type.setter
+    def edge_type(self, edge_type):
+        """Sets the edge_type of this LearningAuditGraphEdge.
+
+
+        :param edge_type: The edge_type of this LearningAuditGraphEdge.  # noqa: E501
+        :type: LearningGraphEdgeType
+        """
+        if edge_type is None:
+            raise ValueError("Invalid value for `edge_type`, must not be `None`")  # noqa: E501
+
+        self._edge_type = edge_type
 
     @property
     def id(self):
@@ -121,29 +144,6 @@ class LearningAuditGraphEdge(object):
             raise ValueError("Invalid value for `target`, must not be `None`")  # noqa: E501
 
         self._target = target
-
-    @property
-    def edge_type(self):
-        """Gets the edge_type of this LearningAuditGraphEdge.  # noqa: E501
-
-
-        :return: The edge_type of this LearningAuditGraphEdge.  # noqa: E501
-        :rtype: LearningGraphEdgeType
-        """
-        return self._edge_type
-
-    @edge_type.setter
-    def edge_type(self, edge_type):
-        """Sets the edge_type of this LearningAuditGraphEdge.
-
-
-        :param edge_type: The edge_type of this LearningAuditGraphEdge.  # noqa: E501
-        :type: LearningGraphEdgeType
-        """
-        if edge_type is None:
-            raise ValueError("Invalid value for `edge_type`, must not be `None`")  # noqa: E501
-
-        self._edge_type = edge_type
 
     def to_dict(self):
         """Returns the model properties as a dict"""

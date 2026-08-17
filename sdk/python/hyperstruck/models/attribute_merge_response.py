@@ -28,75 +28,52 @@ class AttributeMergeResponse(object):
                             and the value is json key in definition.
     """
     swagger_types = {
-        'merge_id': 'object',
         'attribute_id_a': 'object',
         'attribute_id_b': 'object',
         'attribute_key_a': 'object',
         'attribute_key_b': 'object',
-        'proposed_by_run': 'object',
-        'is_active': 'object',
         'created_at': 'object',
-        'deactivated_at': 'object'
+        'deactivated_at': 'object',
+        'is_active': 'object',
+        'merge_id': 'object',
+        'proposed_by_run': 'object'
     }
 
     attribute_map = {
-        'merge_id': 'merge_id',
         'attribute_id_a': 'attribute_id_a',
         'attribute_id_b': 'attribute_id_b',
         'attribute_key_a': 'attribute_key_a',
         'attribute_key_b': 'attribute_key_b',
-        'proposed_by_run': 'proposed_by_run',
-        'is_active': 'is_active',
         'created_at': 'created_at',
-        'deactivated_at': 'deactivated_at'
+        'deactivated_at': 'deactivated_at',
+        'is_active': 'is_active',
+        'merge_id': 'merge_id',
+        'proposed_by_run': 'proposed_by_run'
     }
 
-    def __init__(self, merge_id=None, attribute_id_a=None, attribute_id_b=None, attribute_key_a=None, attribute_key_b=None, proposed_by_run=None, is_active=None, created_at=None, deactivated_at=None):  # noqa: E501
+    def __init__(self, attribute_id_a=None, attribute_id_b=None, attribute_key_a=None, attribute_key_b=None, created_at=None, deactivated_at=None, is_active=None, merge_id=None, proposed_by_run=None):  # noqa: E501
         """AttributeMergeResponse - a model defined in Swagger"""  # noqa: E501
-        self._merge_id = None
         self._attribute_id_a = None
         self._attribute_id_b = None
         self._attribute_key_a = None
         self._attribute_key_b = None
-        self._proposed_by_run = None
-        self._is_active = None
         self._created_at = None
         self._deactivated_at = None
+        self._is_active = None
+        self._merge_id = None
+        self._proposed_by_run = None
         self.discriminator = None
-        self.merge_id = merge_id
         self.attribute_id_a = attribute_id_a
         self.attribute_id_b = attribute_id_b
         self.attribute_key_a = attribute_key_a
         self.attribute_key_b = attribute_key_b
-        if proposed_by_run is not None:
-            self.proposed_by_run = proposed_by_run
-        self.is_active = is_active
         self.created_at = created_at
         if deactivated_at is not None:
             self.deactivated_at = deactivated_at
-
-    @property
-    def merge_id(self):
-        """Gets the merge_id of this AttributeMergeResponse.  # noqa: E501
-
-
-        :return: The merge_id of this AttributeMergeResponse.  # noqa: E501
-        :rtype: object
-        """
-        return self._merge_id
-
-    @merge_id.setter
-    def merge_id(self, merge_id):
-        """Sets the merge_id of this AttributeMergeResponse.
-
-
-        :param merge_id: The merge_id of this AttributeMergeResponse.  # noqa: E501
-        :type: object
-        """
-        if merge_id is None:
-            raise ValueError("Invalid value for `merge_id`, must not be `None`")  # noqa: E501
-
-        self._merge_id = merge_id
+        self.is_active = is_active
+        self.merge_id = merge_id
+        if proposed_by_run is not None:
+            self.proposed_by_run = proposed_by_run
 
     @property
     def attribute_id_a(self):
@@ -191,50 +168,6 @@ class AttributeMergeResponse(object):
         self._attribute_key_b = attribute_key_b
 
     @property
-    def proposed_by_run(self):
-        """Gets the proposed_by_run of this AttributeMergeResponse.  # noqa: E501
-
-
-        :return: The proposed_by_run of this AttributeMergeResponse.  # noqa: E501
-        :rtype: object
-        """
-        return self._proposed_by_run
-
-    @proposed_by_run.setter
-    def proposed_by_run(self, proposed_by_run):
-        """Sets the proposed_by_run of this AttributeMergeResponse.
-
-
-        :param proposed_by_run: The proposed_by_run of this AttributeMergeResponse.  # noqa: E501
-        :type: object
-        """
-
-        self._proposed_by_run = proposed_by_run
-
-    @property
-    def is_active(self):
-        """Gets the is_active of this AttributeMergeResponse.  # noqa: E501
-
-
-        :return: The is_active of this AttributeMergeResponse.  # noqa: E501
-        :rtype: object
-        """
-        return self._is_active
-
-    @is_active.setter
-    def is_active(self, is_active):
-        """Sets the is_active of this AttributeMergeResponse.
-
-
-        :param is_active: The is_active of this AttributeMergeResponse.  # noqa: E501
-        :type: object
-        """
-        if is_active is None:
-            raise ValueError("Invalid value for `is_active`, must not be `None`")  # noqa: E501
-
-        self._is_active = is_active
-
-    @property
     def created_at(self):
         """Gets the created_at of this AttributeMergeResponse.  # noqa: E501
 
@@ -277,6 +210,73 @@ class AttributeMergeResponse(object):
         """
 
         self._deactivated_at = deactivated_at
+
+    @property
+    def is_active(self):
+        """Gets the is_active of this AttributeMergeResponse.  # noqa: E501
+
+
+        :return: The is_active of this AttributeMergeResponse.  # noqa: E501
+        :rtype: object
+        """
+        return self._is_active
+
+    @is_active.setter
+    def is_active(self, is_active):
+        """Sets the is_active of this AttributeMergeResponse.
+
+
+        :param is_active: The is_active of this AttributeMergeResponse.  # noqa: E501
+        :type: object
+        """
+        if is_active is None:
+            raise ValueError("Invalid value for `is_active`, must not be `None`")  # noqa: E501
+
+        self._is_active = is_active
+
+    @property
+    def merge_id(self):
+        """Gets the merge_id of this AttributeMergeResponse.  # noqa: E501
+
+
+        :return: The merge_id of this AttributeMergeResponse.  # noqa: E501
+        :rtype: object
+        """
+        return self._merge_id
+
+    @merge_id.setter
+    def merge_id(self, merge_id):
+        """Sets the merge_id of this AttributeMergeResponse.
+
+
+        :param merge_id: The merge_id of this AttributeMergeResponse.  # noqa: E501
+        :type: object
+        """
+        if merge_id is None:
+            raise ValueError("Invalid value for `merge_id`, must not be `None`")  # noqa: E501
+
+        self._merge_id = merge_id
+
+    @property
+    def proposed_by_run(self):
+        """Gets the proposed_by_run of this AttributeMergeResponse.  # noqa: E501
+
+
+        :return: The proposed_by_run of this AttributeMergeResponse.  # noqa: E501
+        :rtype: object
+        """
+        return self._proposed_by_run
+
+    @proposed_by_run.setter
+    def proposed_by_run(self, proposed_by_run):
+        """Sets the proposed_by_run of this AttributeMergeResponse.
+
+
+        :param proposed_by_run: The proposed_by_run of this AttributeMergeResponse.  # noqa: E501
+        :type: object
+        """
+
+        self._proposed_by_run = proposed_by_run
 
     def to_dict(self):
         """Returns the model properties as a dict"""

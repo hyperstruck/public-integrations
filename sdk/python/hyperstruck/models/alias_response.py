@@ -29,38 +29,38 @@ class AliasResponse(object):
     """
     swagger_types = {
         'alias_id': 'object',
-        'entity_id': 'object',
         'alias_text': 'object',
-        'provenance': 'object',
+        'created_at': 'object',
+        'entity_id': 'object',
         'is_active': 'object',
-        'created_at': 'object'
+        'provenance': 'object'
     }
 
     attribute_map = {
         'alias_id': 'alias_id',
-        'entity_id': 'entity_id',
         'alias_text': 'alias_text',
-        'provenance': 'provenance',
+        'created_at': 'created_at',
+        'entity_id': 'entity_id',
         'is_active': 'is_active',
-        'created_at': 'created_at'
+        'provenance': 'provenance'
     }
 
-    def __init__(self, alias_id=None, entity_id=None, alias_text=None, provenance=None, is_active=None, created_at=None):  # noqa: E501
+    def __init__(self, alias_id=None, alias_text=None, created_at=None, entity_id=None, is_active=None, provenance=None):  # noqa: E501
         """AliasResponse - a model defined in Swagger"""  # noqa: E501
         self._alias_id = None
-        self._entity_id = None
         self._alias_text = None
-        self._provenance = None
-        self._is_active = None
         self._created_at = None
+        self._entity_id = None
+        self._is_active = None
+        self._provenance = None
         self.discriminator = None
         self.alias_id = alias_id
-        self.entity_id = entity_id
         self.alias_text = alias_text
+        self.created_at = created_at
+        self.entity_id = entity_id
+        self.is_active = is_active
         if provenance is not None:
             self.provenance = provenance
-        self.is_active = is_active
-        self.created_at = created_at
 
     @property
     def alias_id(self):
@@ -86,29 +86,6 @@ class AliasResponse(object):
         self._alias_id = alias_id
 
     @property
-    def entity_id(self):
-        """Gets the entity_id of this AliasResponse.  # noqa: E501
-
-
-        :return: The entity_id of this AliasResponse.  # noqa: E501
-        :rtype: object
-        """
-        return self._entity_id
-
-    @entity_id.setter
-    def entity_id(self, entity_id):
-        """Sets the entity_id of this AliasResponse.
-
-
-        :param entity_id: The entity_id of this AliasResponse.  # noqa: E501
-        :type: object
-        """
-        if entity_id is None:
-            raise ValueError("Invalid value for `entity_id`, must not be `None`")  # noqa: E501
-
-        self._entity_id = entity_id
-
-    @property
     def alias_text(self):
         """Gets the alias_text of this AliasResponse.  # noqa: E501
 
@@ -132,25 +109,50 @@ class AliasResponse(object):
         self._alias_text = alias_text
 
     @property
-    def provenance(self):
-        """Gets the provenance of this AliasResponse.  # noqa: E501
+    def created_at(self):
+        """Gets the created_at of this AliasResponse.  # noqa: E501
 
 
-        :return: The provenance of this AliasResponse.  # noqa: E501
+        :return: The created_at of this AliasResponse.  # noqa: E501
         :rtype: object
         """
-        return self._provenance
+        return self._created_at
 
-    @provenance.setter
-    def provenance(self, provenance):
-        """Sets the provenance of this AliasResponse.
+    @created_at.setter
+    def created_at(self, created_at):
+        """Sets the created_at of this AliasResponse.
 
 
-        :param provenance: The provenance of this AliasResponse.  # noqa: E501
+        :param created_at: The created_at of this AliasResponse.  # noqa: E501
         :type: object
         """
+        if created_at is None:
+            raise ValueError("Invalid value for `created_at`, must not be `None`")  # noqa: E501
 
-        self._provenance = provenance
+        self._created_at = created_at
+
+    @property
+    def entity_id(self):
+        """Gets the entity_id of this AliasResponse.  # noqa: E501
+
+
+        :return: The entity_id of this AliasResponse.  # noqa: E501
+        :rtype: object
+        """
+        return self._entity_id
+
+    @entity_id.setter
+    def entity_id(self, entity_id):
+        """Sets the entity_id of this AliasResponse.
+
+
+        :param entity_id: The entity_id of this AliasResponse.  # noqa: E501
+        :type: object
+        """
+        if entity_id is None:
+            raise ValueError("Invalid value for `entity_id`, must not be `None`")  # noqa: E501
+
+        self._entity_id = entity_id
 
     @property
     def is_active(self):
@@ -176,27 +178,25 @@ class AliasResponse(object):
         self._is_active = is_active
 
     @property
-    def created_at(self):
-        """Gets the created_at of this AliasResponse.  # noqa: E501
+    def provenance(self):
+        """Gets the provenance of this AliasResponse.  # noqa: E501
 
 
-        :return: The created_at of this AliasResponse.  # noqa: E501
+        :return: The provenance of this AliasResponse.  # noqa: E501
         :rtype: object
         """
-        return self._created_at
+        return self._provenance
 
-    @created_at.setter
-    def created_at(self, created_at):
-        """Sets the created_at of this AliasResponse.
+    @provenance.setter
+    def provenance(self, provenance):
+        """Sets the provenance of this AliasResponse.
 
 
-        :param created_at: The created_at of this AliasResponse.  # noqa: E501
+        :param provenance: The provenance of this AliasResponse.  # noqa: E501
         :type: object
         """
-        if created_at is None:
-            raise ValueError("Invalid value for `created_at`, must not be `None`")  # noqa: E501
 
-        self._created_at = created_at
+        self._provenance = provenance
 
     def to_dict(self):
         """Returns the model properties as a dict"""

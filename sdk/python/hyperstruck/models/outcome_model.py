@@ -28,33 +28,79 @@ class OutcomeModel(object):
                             and the value is json key in definition.
     """
     swagger_types = {
-        'is_success': 'object',
-        'total_steps': 'object',
         'completed_steps': 'object',
-        'failed_steps': 'object'
+        'failed_steps': 'object',
+        'is_success': 'object',
+        'total_steps': 'object'
     }
 
     attribute_map = {
-        'is_success': 'is_success',
-        'total_steps': 'total_steps',
         'completed_steps': 'completed_steps',
-        'failed_steps': 'failed_steps'
+        'failed_steps': 'failed_steps',
+        'is_success': 'is_success',
+        'total_steps': 'total_steps'
     }
 
-    def __init__(self, is_success=None, total_steps=None, completed_steps=None, failed_steps=None):  # noqa: E501
+    def __init__(self, completed_steps=None, failed_steps=None, is_success=None, total_steps=None):  # noqa: E501
         """OutcomeModel - a model defined in Swagger"""  # noqa: E501
-        self._is_success = None
-        self._total_steps = None
         self._completed_steps = None
         self._failed_steps = None
+        self._is_success = None
+        self._total_steps = None
         self.discriminator = None
-        self.is_success = is_success
-        if total_steps is not None:
-            self.total_steps = total_steps
         if completed_steps is not None:
             self.completed_steps = completed_steps
         if failed_steps is not None:
             self.failed_steps = failed_steps
+        self.is_success = is_success
+        if total_steps is not None:
+            self.total_steps = total_steps
+
+    @property
+    def completed_steps(self):
+        """Gets the completed_steps of this OutcomeModel.  # noqa: E501
+
+        Number of completed steps.  # noqa: E501
+
+        :return: The completed_steps of this OutcomeModel.  # noqa: E501
+        :rtype: object
+        """
+        return self._completed_steps
+
+    @completed_steps.setter
+    def completed_steps(self, completed_steps):
+        """Sets the completed_steps of this OutcomeModel.
+
+        Number of completed steps.  # noqa: E501
+
+        :param completed_steps: The completed_steps of this OutcomeModel.  # noqa: E501
+        :type: object
+        """
+
+        self._completed_steps = completed_steps
+
+    @property
+    def failed_steps(self):
+        """Gets the failed_steps of this OutcomeModel.  # noqa: E501
+
+        Number of failed steps.  # noqa: E501
+
+        :return: The failed_steps of this OutcomeModel.  # noqa: E501
+        :rtype: object
+        """
+        return self._failed_steps
+
+    @failed_steps.setter
+    def failed_steps(self, failed_steps):
+        """Sets the failed_steps of this OutcomeModel.
+
+        Number of failed steps.  # noqa: E501
+
+        :param failed_steps: The failed_steps of this OutcomeModel.  # noqa: E501
+        :type: object
+        """
+
+        self._failed_steps = failed_steps
 
     @property
     def is_success(self):
@@ -103,52 +149,6 @@ class OutcomeModel(object):
         """
 
         self._total_steps = total_steps
-
-    @property
-    def completed_steps(self):
-        """Gets the completed_steps of this OutcomeModel.  # noqa: E501
-
-        Number of completed steps.  # noqa: E501
-
-        :return: The completed_steps of this OutcomeModel.  # noqa: E501
-        :rtype: object
-        """
-        return self._completed_steps
-
-    @completed_steps.setter
-    def completed_steps(self, completed_steps):
-        """Sets the completed_steps of this OutcomeModel.
-
-        Number of completed steps.  # noqa: E501
-
-        :param completed_steps: The completed_steps of this OutcomeModel.  # noqa: E501
-        :type: object
-        """
-
-        self._completed_steps = completed_steps
-
-    @property
-    def failed_steps(self):
-        """Gets the failed_steps of this OutcomeModel.  # noqa: E501
-
-        Number of failed steps.  # noqa: E501
-
-        :return: The failed_steps of this OutcomeModel.  # noqa: E501
-        :rtype: object
-        """
-        return self._failed_steps
-
-    @failed_steps.setter
-    def failed_steps(self, failed_steps):
-        """Sets the failed_steps of this OutcomeModel.
-
-        Number of failed steps.  # noqa: E501
-
-        :param failed_steps: The failed_steps of this OutcomeModel.  # noqa: E501
-        :type: object
-        """
-
-        self._failed_steps = failed_steps
 
     def to_dict(self):
         """Returns the model properties as a dict"""

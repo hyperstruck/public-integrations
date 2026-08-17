@@ -28,47 +28,116 @@ class StepModel(object):
                             and the value is json key in definition.
     """
     swagger_types = {
+        'args': 'object',
+        'declared_sensitivity': 'object',
+        'error': 'object',
         'id': 'object',
         'name': 'object',
-        'args': 'object',
-        'status': 'object',
         'result': 'object',
-        'error': 'object',
-        'declared_sensitivity': 'object'
+        'status': 'object'
     }
 
     attribute_map = {
+        'args': 'args',
+        'declared_sensitivity': 'declared_sensitivity',
+        'error': 'error',
         'id': 'id',
         'name': 'name',
-        'args': 'args',
-        'status': 'status',
         'result': 'result',
-        'error': 'error',
-        'declared_sensitivity': 'declared_sensitivity'
+        'status': 'status'
     }
 
-    def __init__(self, id=None, name=None, args=None, status=None, result=None, error=None, declared_sensitivity=None):  # noqa: E501
+    def __init__(self, args=None, declared_sensitivity=None, error=None, id=None, name=None, result=None, status=None):  # noqa: E501
         """StepModel - a model defined in Swagger"""  # noqa: E501
+        self._args = None
+        self._declared_sensitivity = None
+        self._error = None
         self._id = None
         self._name = None
-        self._args = None
-        self._status = None
         self._result = None
-        self._error = None
-        self._declared_sensitivity = None
+        self._status = None
         self.discriminator = None
-        self.id = id
-        self.name = name
         if args is not None:
             self.args = args
-        if status is not None:
-            self.status = status
-        if result is not None:
-            self.result = result
-        if error is not None:
-            self.error = error
         if declared_sensitivity is not None:
             self.declared_sensitivity = declared_sensitivity
+        if error is not None:
+            self.error = error
+        self.id = id
+        self.name = name
+        if result is not None:
+            self.result = result
+        if status is not None:
+            self.status = status
+
+    @property
+    def args(self):
+        """Gets the args of this StepModel.  # noqa: E501
+
+        Arguments supplied to the tool or action.  # noqa: E501
+
+        :return: The args of this StepModel.  # noqa: E501
+        :rtype: object
+        """
+        return self._args
+
+    @args.setter
+    def args(self, args):
+        """Sets the args of this StepModel.
+
+        Arguments supplied to the tool or action.  # noqa: E501
+
+        :param args: The args of this StepModel.  # noqa: E501
+        :type: object
+        """
+
+        self._args = args
+
+    @property
+    def declared_sensitivity(self):
+        """Gets the declared_sensitivity of this StepModel.  # noqa: E501
+
+        Optional caller-declared sensitivity metadata for step fields.  # noqa: E501
+
+        :return: The declared_sensitivity of this StepModel.  # noqa: E501
+        :rtype: object
+        """
+        return self._declared_sensitivity
+
+    @declared_sensitivity.setter
+    def declared_sensitivity(self, declared_sensitivity):
+        """Sets the declared_sensitivity of this StepModel.
+
+        Optional caller-declared sensitivity metadata for step fields.  # noqa: E501
+
+        :param declared_sensitivity: The declared_sensitivity of this StepModel.  # noqa: E501
+        :type: object
+        """
+
+        self._declared_sensitivity = declared_sensitivity
+
+    @property
+    def error(self):
+        """Gets the error of this StepModel.  # noqa: E501
+
+        Human-readable failure detail when `status` is `failed`.  # noqa: E501
+
+        :return: The error of this StepModel.  # noqa: E501
+        :rtype: object
+        """
+        return self._error
+
+    @error.setter
+    def error(self, error):
+        """Sets the error of this StepModel.
+
+        Human-readable failure detail when `status` is `failed`.  # noqa: E501
+
+        :param error: The error of this StepModel.  # noqa: E501
+        :type: object
+        """
+
+        self._error = error
 
     @property
     def id(self):
@@ -121,52 +190,6 @@ class StepModel(object):
         self._name = name
 
     @property
-    def args(self):
-        """Gets the args of this StepModel.  # noqa: E501
-
-        Arguments supplied to the tool or action.  # noqa: E501
-
-        :return: The args of this StepModel.  # noqa: E501
-        :rtype: object
-        """
-        return self._args
-
-    @args.setter
-    def args(self, args):
-        """Sets the args of this StepModel.
-
-        Arguments supplied to the tool or action.  # noqa: E501
-
-        :param args: The args of this StepModel.  # noqa: E501
-        :type: object
-        """
-
-        self._args = args
-
-    @property
-    def status(self):
-        """Gets the status of this StepModel.  # noqa: E501
-
-        Whether this step completed or failed.  # noqa: E501
-
-        :return: The status of this StepModel.  # noqa: E501
-        :rtype: object
-        """
-        return self._status
-
-    @status.setter
-    def status(self, status):
-        """Sets the status of this StepModel.
-
-        Whether this step completed or failed.  # noqa: E501
-
-        :param status: The status of this StepModel.  # noqa: E501
-        :type: object
-        """
-
-        self._status = status
-
-    @property
     def result(self):
         """Gets the result of this StepModel.  # noqa: E501
 
@@ -190,50 +213,27 @@ class StepModel(object):
         self._result = result
 
     @property
-    def error(self):
-        """Gets the error of this StepModel.  # noqa: E501
+    def status(self):
+        """Gets the status of this StepModel.  # noqa: E501
 
-        Human-readable failure detail when `status` is `failed`.  # noqa: E501
+        Whether this step completed or failed.  # noqa: E501
 
-        :return: The error of this StepModel.  # noqa: E501
+        :return: The status of this StepModel.  # noqa: E501
         :rtype: object
         """
-        return self._error
+        return self._status
 
-    @error.setter
-    def error(self, error):
-        """Sets the error of this StepModel.
+    @status.setter
+    def status(self, status):
+        """Sets the status of this StepModel.
 
-        Human-readable failure detail when `status` is `failed`.  # noqa: E501
+        Whether this step completed or failed.  # noqa: E501
 
-        :param error: The error of this StepModel.  # noqa: E501
+        :param status: The status of this StepModel.  # noqa: E501
         :type: object
         """
 
-        self._error = error
-
-    @property
-    def declared_sensitivity(self):
-        """Gets the declared_sensitivity of this StepModel.  # noqa: E501
-
-        Optional caller-declared sensitivity metadata for step fields.  # noqa: E501
-
-        :return: The declared_sensitivity of this StepModel.  # noqa: E501
-        :rtype: object
-        """
-        return self._declared_sensitivity
-
-    @declared_sensitivity.setter
-    def declared_sensitivity(self, declared_sensitivity):
-        """Sets the declared_sensitivity of this StepModel.
-
-        Optional caller-declared sensitivity metadata for step fields.  # noqa: E501
-
-        :param declared_sensitivity: The declared_sensitivity of this StepModel.  # noqa: E501
-        :type: object
-        """
-
-        self._declared_sensitivity = declared_sensitivity
+        self._status = status
 
     def to_dict(self):
         """Returns the model properties as a dict"""

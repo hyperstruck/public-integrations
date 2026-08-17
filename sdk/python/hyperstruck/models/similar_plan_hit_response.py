@@ -28,27 +28,48 @@ class SimilarPlanHitResponse(object):
                             and the value is json key in definition.
     """
     swagger_types = {
+        'candidate_learnings': 'object',
         'plan': 'PlanResponse',
-        'similarity_score': 'object',
-        'candidate_learnings': 'object'
+        'similarity_score': 'object'
     }
 
     attribute_map = {
+        'candidate_learnings': 'candidate_learnings',
         'plan': 'plan',
-        'similarity_score': 'similarity_score',
-        'candidate_learnings': 'candidate_learnings'
+        'similarity_score': 'similarity_score'
     }
 
-    def __init__(self, plan=None, similarity_score=None, candidate_learnings=None):  # noqa: E501
+    def __init__(self, candidate_learnings=None, plan=None, similarity_score=None):  # noqa: E501
         """SimilarPlanHitResponse - a model defined in Swagger"""  # noqa: E501
+        self._candidate_learnings = None
         self._plan = None
         self._similarity_score = None
-        self._candidate_learnings = None
         self.discriminator = None
-        self.plan = plan
-        self.similarity_score = similarity_score
         if candidate_learnings is not None:
             self.candidate_learnings = candidate_learnings
+        self.plan = plan
+        self.similarity_score = similarity_score
+
+    @property
+    def candidate_learnings(self):
+        """Gets the candidate_learnings of this SimilarPlanHitResponse.  # noqa: E501
+
+
+        :return: The candidate_learnings of this SimilarPlanHitResponse.  # noqa: E501
+        :rtype: object
+        """
+        return self._candidate_learnings
+
+    @candidate_learnings.setter
+    def candidate_learnings(self, candidate_learnings):
+        """Sets the candidate_learnings of this SimilarPlanHitResponse.
+
+
+        :param candidate_learnings: The candidate_learnings of this SimilarPlanHitResponse.  # noqa: E501
+        :type: object
+        """
+
+        self._candidate_learnings = candidate_learnings
 
     @property
     def plan(self):
@@ -95,27 +116,6 @@ class SimilarPlanHitResponse(object):
             raise ValueError("Invalid value for `similarity_score`, must not be `None`")  # noqa: E501
 
         self._similarity_score = similarity_score
-
-    @property
-    def candidate_learnings(self):
-        """Gets the candidate_learnings of this SimilarPlanHitResponse.  # noqa: E501
-
-
-        :return: The candidate_learnings of this SimilarPlanHitResponse.  # noqa: E501
-        :rtype: object
-        """
-        return self._candidate_learnings
-
-    @candidate_learnings.setter
-    def candidate_learnings(self, candidate_learnings):
-        """Sets the candidate_learnings of this SimilarPlanHitResponse.
-
-
-        :param candidate_learnings: The candidate_learnings of this SimilarPlanHitResponse.  # noqa: E501
-        :type: object
-        """
-
-        self._candidate_learnings = candidate_learnings
 
     def to_dict(self):
         """Returns the model properties as a dict"""

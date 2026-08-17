@@ -28,32 +28,55 @@ class AgentInventoryResponse(object):
                             and the value is json key in definition.
     """
     swagger_types = {
+        'as_of': 'object',
         'items': 'object',
         'next_cursor': 'object',
-        'as_of': 'object',
         'window': 'UsageTimeWindow'
     }
 
     attribute_map = {
+        'as_of': 'as_of',
         'items': 'items',
         'next_cursor': 'next_cursor',
-        'as_of': 'as_of',
         'window': 'window'
     }
 
-    def __init__(self, items=None, next_cursor=None, as_of=None, window=None):  # noqa: E501
+    def __init__(self, as_of=None, items=None, next_cursor=None, window=None):  # noqa: E501
         """AgentInventoryResponse - a model defined in Swagger"""  # noqa: E501
+        self._as_of = None
         self._items = None
         self._next_cursor = None
-        self._as_of = None
         self._window = None
         self.discriminator = None
+        if as_of is not None:
+            self.as_of = as_of
         self.items = items
         if next_cursor is not None:
             self.next_cursor = next_cursor
-        if as_of is not None:
-            self.as_of = as_of
         self.window = window
+
+    @property
+    def as_of(self):
+        """Gets the as_of of this AgentInventoryResponse.  # noqa: E501
+
+        Fixed window anchor used for metric sorts/summaries.  # noqa: E501
+
+        :return: The as_of of this AgentInventoryResponse.  # noqa: E501
+        :rtype: object
+        """
+        return self._as_of
+
+    @as_of.setter
+    def as_of(self, as_of):
+        """Sets the as_of of this AgentInventoryResponse.
+
+        Fixed window anchor used for metric sorts/summaries.  # noqa: E501
+
+        :param as_of: The as_of of this AgentInventoryResponse.  # noqa: E501
+        :type: object
+        """
+
+        self._as_of = as_of
 
     @property
     def items(self):
@@ -100,29 +123,6 @@ class AgentInventoryResponse(object):
         """
 
         self._next_cursor = next_cursor
-
-    @property
-    def as_of(self):
-        """Gets the as_of of this AgentInventoryResponse.  # noqa: E501
-
-        Fixed window anchor used for metric sorts/summaries.  # noqa: E501
-
-        :return: The as_of of this AgentInventoryResponse.  # noqa: E501
-        :rtype: object
-        """
-        return self._as_of
-
-    @as_of.setter
-    def as_of(self, as_of):
-        """Sets the as_of of this AgentInventoryResponse.
-
-        Fixed window anchor used for metric sorts/summaries.  # noqa: E501
-
-        :param as_of: The as_of of this AgentInventoryResponse.  # noqa: E501
-        :type: object
-        """
-
-        self._as_of = as_of
 
     @property
     def window(self):

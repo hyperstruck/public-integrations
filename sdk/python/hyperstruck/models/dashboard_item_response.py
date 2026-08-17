@@ -28,65 +28,42 @@ class DashboardItemResponse(object):
                             and the value is json key in definition.
     """
     swagger_types = {
-        'id': 'object',
         'chart_id': 'object',
-        'row_index': 'object',
         'col_index': 'object',
         'col_span': 'object',
-        'sort_key': 'object',
-        'created_at': 'object'
+        'created_at': 'object',
+        'id': 'object',
+        'row_index': 'object',
+        'sort_key': 'object'
     }
 
     attribute_map = {
-        'id': 'id',
         'chart_id': 'chart_id',
-        'row_index': 'row_index',
         'col_index': 'col_index',
         'col_span': 'col_span',
-        'sort_key': 'sort_key',
-        'created_at': 'created_at'
+        'created_at': 'created_at',
+        'id': 'id',
+        'row_index': 'row_index',
+        'sort_key': 'sort_key'
     }
 
-    def __init__(self, id=None, chart_id=None, row_index=None, col_index=None, col_span=None, sort_key=None, created_at=None):  # noqa: E501
+    def __init__(self, chart_id=None, col_index=None, col_span=None, created_at=None, id=None, row_index=None, sort_key=None):  # noqa: E501
         """DashboardItemResponse - a model defined in Swagger"""  # noqa: E501
-        self._id = None
         self._chart_id = None
-        self._row_index = None
         self._col_index = None
         self._col_span = None
-        self._sort_key = None
         self._created_at = None
+        self._id = None
+        self._row_index = None
+        self._sort_key = None
         self.discriminator = None
-        self.id = id
         self.chart_id = chart_id
-        self.row_index = row_index
         self.col_index = col_index
         self.col_span = col_span
-        self.sort_key = sort_key
         self.created_at = created_at
-
-    @property
-    def id(self):
-        """Gets the id of this DashboardItemResponse.  # noqa: E501
-
-
-        :return: The id of this DashboardItemResponse.  # noqa: E501
-        :rtype: object
-        """
-        return self._id
-
-    @id.setter
-    def id(self, id):
-        """Sets the id of this DashboardItemResponse.
-
-
-        :param id: The id of this DashboardItemResponse.  # noqa: E501
-        :type: object
-        """
-        if id is None:
-            raise ValueError("Invalid value for `id`, must not be `None`")  # noqa: E501
-
-        self._id = id
+        self.id = id
+        self.row_index = row_index
+        self.sort_key = sort_key
 
     @property
     def chart_id(self):
@@ -110,29 +87,6 @@ class DashboardItemResponse(object):
             raise ValueError("Invalid value for `chart_id`, must not be `None`")  # noqa: E501
 
         self._chart_id = chart_id
-
-    @property
-    def row_index(self):
-        """Gets the row_index of this DashboardItemResponse.  # noqa: E501
-
-
-        :return: The row_index of this DashboardItemResponse.  # noqa: E501
-        :rtype: object
-        """
-        return self._row_index
-
-    @row_index.setter
-    def row_index(self, row_index):
-        """Sets the row_index of this DashboardItemResponse.
-
-
-        :param row_index: The row_index of this DashboardItemResponse.  # noqa: E501
-        :type: object
-        """
-        if row_index is None:
-            raise ValueError("Invalid value for `row_index`, must not be `None`")  # noqa: E501
-
-        self._row_index = row_index
 
     @property
     def col_index(self):
@@ -181,29 +135,6 @@ class DashboardItemResponse(object):
         self._col_span = col_span
 
     @property
-    def sort_key(self):
-        """Gets the sort_key of this DashboardItemResponse.  # noqa: E501
-
-
-        :return: The sort_key of this DashboardItemResponse.  # noqa: E501
-        :rtype: object
-        """
-        return self._sort_key
-
-    @sort_key.setter
-    def sort_key(self, sort_key):
-        """Sets the sort_key of this DashboardItemResponse.
-
-
-        :param sort_key: The sort_key of this DashboardItemResponse.  # noqa: E501
-        :type: object
-        """
-        if sort_key is None:
-            raise ValueError("Invalid value for `sort_key`, must not be `None`")  # noqa: E501
-
-        self._sort_key = sort_key
-
-    @property
     def created_at(self):
         """Gets the created_at of this DashboardItemResponse.  # noqa: E501
 
@@ -225,6 +156,75 @@ class DashboardItemResponse(object):
             raise ValueError("Invalid value for `created_at`, must not be `None`")  # noqa: E501
 
         self._created_at = created_at
+
+    @property
+    def id(self):
+        """Gets the id of this DashboardItemResponse.  # noqa: E501
+
+
+        :return: The id of this DashboardItemResponse.  # noqa: E501
+        :rtype: object
+        """
+        return self._id
+
+    @id.setter
+    def id(self, id):
+        """Sets the id of this DashboardItemResponse.
+
+
+        :param id: The id of this DashboardItemResponse.  # noqa: E501
+        :type: object
+        """
+        if id is None:
+            raise ValueError("Invalid value for `id`, must not be `None`")  # noqa: E501
+
+        self._id = id
+
+    @property
+    def row_index(self):
+        """Gets the row_index of this DashboardItemResponse.  # noqa: E501
+
+
+        :return: The row_index of this DashboardItemResponse.  # noqa: E501
+        :rtype: object
+        """
+        return self._row_index
+
+    @row_index.setter
+    def row_index(self, row_index):
+        """Sets the row_index of this DashboardItemResponse.
+
+
+        :param row_index: The row_index of this DashboardItemResponse.  # noqa: E501
+        :type: object
+        """
+        if row_index is None:
+            raise ValueError("Invalid value for `row_index`, must not be `None`")  # noqa: E501
+
+        self._row_index = row_index
+
+    @property
+    def sort_key(self):
+        """Gets the sort_key of this DashboardItemResponse.  # noqa: E501
+
+
+        :return: The sort_key of this DashboardItemResponse.  # noqa: E501
+        :rtype: object
+        """
+        return self._sort_key
+
+    @sort_key.setter
+    def sort_key(self, sort_key):
+        """Sets the sort_key of this DashboardItemResponse.
+
+
+        :param sort_key: The sort_key of this DashboardItemResponse.  # noqa: E501
+        :type: object
+        """
+        if sort_key is None:
+            raise ValueError("Invalid value for `sort_key`, must not be `None`")  # noqa: E501
+
+        self._sort_key = sort_key
 
     def to_dict(self):
         """Returns the model properties as a dict"""

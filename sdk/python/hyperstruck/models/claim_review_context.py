@@ -28,104 +28,81 @@ class ClaimReviewContext(object):
                             and the value is json key in definition.
     """
     swagger_types = {
-        'claim_id': 'object',
         'agent_id': 'object',
-        'entity_id': 'object',
         'canonical_name': 'object',
-        'is_quarantined': 'object',
-        'quarantine_cause': 'object',
-        'is_release_lapsed': 'object',
-        'provenance_class': 'object',
         'channel_trust': 'object',
-        'tool_family': 'object',
-        'distinct_origins': 'object',
-        'k_required': 'object',
+        'claim_id': 'object',
         'corroboration_count': 'object',
+        'distinct_origins': 'object',
+        'entity_id': 'object',
+        'etag': 'object',
+        'is_quarantined': 'object',
+        'is_release_lapsed': 'object',
+        'k_required': 'object',
+        'provenance_class': 'object',
+        'quarantine_cause': 'object',
         'recorded_at': 'object',
         'statement': 'RenderedText',
-        'etag': 'object'
+        'tool_family': 'object'
     }
 
     attribute_map = {
-        'claim_id': 'claim_id',
         'agent_id': 'agent_id',
-        'entity_id': 'entity_id',
         'canonical_name': 'canonical_name',
-        'is_quarantined': 'is_quarantined',
-        'quarantine_cause': 'quarantine_cause',
-        'is_release_lapsed': 'is_release_lapsed',
-        'provenance_class': 'provenance_class',
         'channel_trust': 'channel_trust',
-        'tool_family': 'tool_family',
-        'distinct_origins': 'distinct_origins',
-        'k_required': 'k_required',
+        'claim_id': 'claim_id',
         'corroboration_count': 'corroboration_count',
+        'distinct_origins': 'distinct_origins',
+        'entity_id': 'entity_id',
+        'etag': 'etag',
+        'is_quarantined': 'is_quarantined',
+        'is_release_lapsed': 'is_release_lapsed',
+        'k_required': 'k_required',
+        'provenance_class': 'provenance_class',
+        'quarantine_cause': 'quarantine_cause',
         'recorded_at': 'recorded_at',
         'statement': 'statement',
-        'etag': 'etag'
+        'tool_family': 'tool_family'
     }
 
-    def __init__(self, claim_id=None, agent_id=None, entity_id=None, canonical_name=None, is_quarantined=None, quarantine_cause=None, is_release_lapsed=None, provenance_class=None, channel_trust=None, tool_family=None, distinct_origins=None, k_required=None, corroboration_count=None, recorded_at=None, statement=None, etag=None):  # noqa: E501
+    def __init__(self, agent_id=None, canonical_name=None, channel_trust=None, claim_id=None, corroboration_count=None, distinct_origins=None, entity_id=None, etag=None, is_quarantined=None, is_release_lapsed=None, k_required=None, provenance_class=None, quarantine_cause=None, recorded_at=None, statement=None, tool_family=None):  # noqa: E501
         """ClaimReviewContext - a model defined in Swagger"""  # noqa: E501
-        self._claim_id = None
         self._agent_id = None
-        self._entity_id = None
         self._canonical_name = None
-        self._is_quarantined = None
-        self._quarantine_cause = None
-        self._is_release_lapsed = None
-        self._provenance_class = None
         self._channel_trust = None
-        self._tool_family = None
-        self._distinct_origins = None
-        self._k_required = None
+        self._claim_id = None
         self._corroboration_count = None
+        self._distinct_origins = None
+        self._entity_id = None
+        self._etag = None
+        self._is_quarantined = None
+        self._is_release_lapsed = None
+        self._k_required = None
+        self._provenance_class = None
+        self._quarantine_cause = None
         self._recorded_at = None
         self._statement = None
-        self._etag = None
+        self._tool_family = None
         self.discriminator = None
-        self.claim_id = claim_id
         self.agent_id = agent_id
-        self.entity_id = entity_id
         self.canonical_name = canonical_name
+        self.channel_trust = channel_trust
+        self.claim_id = claim_id
+        self.corroboration_count = corroboration_count
+        self.distinct_origins = distinct_origins
+        self.entity_id = entity_id
+        self.etag = etag
         self.is_quarantined = is_quarantined
-        if quarantine_cause is not None:
-            self.quarantine_cause = quarantine_cause
         if is_release_lapsed is not None:
             self.is_release_lapsed = is_release_lapsed
-        self.provenance_class = provenance_class
-        self.channel_trust = channel_trust
-        if tool_family is not None:
-            self.tool_family = tool_family
-        self.distinct_origins = distinct_origins
         self.k_required = k_required
-        self.corroboration_count = corroboration_count
+        self.provenance_class = provenance_class
+        if quarantine_cause is not None:
+            self.quarantine_cause = quarantine_cause
         self.recorded_at = recorded_at
         self.statement = statement
-        self.etag = etag
-
-    @property
-    def claim_id(self):
-        """Gets the claim_id of this ClaimReviewContext.  # noqa: E501
-
-
-        :return: The claim_id of this ClaimReviewContext.  # noqa: E501
-        :rtype: object
-        """
-        return self._claim_id
-
-    @claim_id.setter
-    def claim_id(self, claim_id):
-        """Sets the claim_id of this ClaimReviewContext.
-
-
-        :param claim_id: The claim_id of this ClaimReviewContext.  # noqa: E501
-        :type: object
-        """
-        if claim_id is None:
-            raise ValueError("Invalid value for `claim_id`, must not be `None`")  # noqa: E501
-
-        self._claim_id = claim_id
+        if tool_family is not None:
+            self.tool_family = tool_family
 
     @property
     def agent_id(self):
@@ -151,29 +128,6 @@ class ClaimReviewContext(object):
         self._agent_id = agent_id
 
     @property
-    def entity_id(self):
-        """Gets the entity_id of this ClaimReviewContext.  # noqa: E501
-
-
-        :return: The entity_id of this ClaimReviewContext.  # noqa: E501
-        :rtype: object
-        """
-        return self._entity_id
-
-    @entity_id.setter
-    def entity_id(self, entity_id):
-        """Sets the entity_id of this ClaimReviewContext.
-
-
-        :param entity_id: The entity_id of this ClaimReviewContext.  # noqa: E501
-        :type: object
-        """
-        if entity_id is None:
-            raise ValueError("Invalid value for `entity_id`, must not be `None`")  # noqa: E501
-
-        self._entity_id = entity_id
-
-    @property
     def canonical_name(self):
         """Gets the canonical_name of this ClaimReviewContext.  # noqa: E501
 
@@ -195,94 +149,6 @@ class ClaimReviewContext(object):
             raise ValueError("Invalid value for `canonical_name`, must not be `None`")  # noqa: E501
 
         self._canonical_name = canonical_name
-
-    @property
-    def is_quarantined(self):
-        """Gets the is_quarantined of this ClaimReviewContext.  # noqa: E501
-
-
-        :return: The is_quarantined of this ClaimReviewContext.  # noqa: E501
-        :rtype: object
-        """
-        return self._is_quarantined
-
-    @is_quarantined.setter
-    def is_quarantined(self, is_quarantined):
-        """Sets the is_quarantined of this ClaimReviewContext.
-
-
-        :param is_quarantined: The is_quarantined of this ClaimReviewContext.  # noqa: E501
-        :type: object
-        """
-        if is_quarantined is None:
-            raise ValueError("Invalid value for `is_quarantined`, must not be `None`")  # noqa: E501
-
-        self._is_quarantined = is_quarantined
-
-    @property
-    def quarantine_cause(self):
-        """Gets the quarantine_cause of this ClaimReviewContext.  # noqa: E501
-
-
-        :return: The quarantine_cause of this ClaimReviewContext.  # noqa: E501
-        :rtype: object
-        """
-        return self._quarantine_cause
-
-    @quarantine_cause.setter
-    def quarantine_cause(self, quarantine_cause):
-        """Sets the quarantine_cause of this ClaimReviewContext.
-
-
-        :param quarantine_cause: The quarantine_cause of this ClaimReviewContext.  # noqa: E501
-        :type: object
-        """
-
-        self._quarantine_cause = quarantine_cause
-
-    @property
-    def is_release_lapsed(self):
-        """Gets the is_release_lapsed of this ClaimReviewContext.  # noqa: E501
-
-
-        :return: The is_release_lapsed of this ClaimReviewContext.  # noqa: E501
-        :rtype: object
-        """
-        return self._is_release_lapsed
-
-    @is_release_lapsed.setter
-    def is_release_lapsed(self, is_release_lapsed):
-        """Sets the is_release_lapsed of this ClaimReviewContext.
-
-
-        :param is_release_lapsed: The is_release_lapsed of this ClaimReviewContext.  # noqa: E501
-        :type: object
-        """
-
-        self._is_release_lapsed = is_release_lapsed
-
-    @property
-    def provenance_class(self):
-        """Gets the provenance_class of this ClaimReviewContext.  # noqa: E501
-
-
-        :return: The provenance_class of this ClaimReviewContext.  # noqa: E501
-        :rtype: object
-        """
-        return self._provenance_class
-
-    @provenance_class.setter
-    def provenance_class(self, provenance_class):
-        """Sets the provenance_class of this ClaimReviewContext.
-
-
-        :param provenance_class: The provenance_class of this ClaimReviewContext.  # noqa: E501
-        :type: object
-        """
-        if provenance_class is None:
-            raise ValueError("Invalid value for `provenance_class`, must not be `None`")  # noqa: E501
-
-        self._provenance_class = provenance_class
 
     @property
     def channel_trust(self):
@@ -308,25 +174,50 @@ class ClaimReviewContext(object):
         self._channel_trust = channel_trust
 
     @property
-    def tool_family(self):
-        """Gets the tool_family of this ClaimReviewContext.  # noqa: E501
+    def claim_id(self):
+        """Gets the claim_id of this ClaimReviewContext.  # noqa: E501
 
 
-        :return: The tool_family of this ClaimReviewContext.  # noqa: E501
+        :return: The claim_id of this ClaimReviewContext.  # noqa: E501
         :rtype: object
         """
-        return self._tool_family
+        return self._claim_id
 
-    @tool_family.setter
-    def tool_family(self, tool_family):
-        """Sets the tool_family of this ClaimReviewContext.
+    @claim_id.setter
+    def claim_id(self, claim_id):
+        """Sets the claim_id of this ClaimReviewContext.
 
 
-        :param tool_family: The tool_family of this ClaimReviewContext.  # noqa: E501
+        :param claim_id: The claim_id of this ClaimReviewContext.  # noqa: E501
         :type: object
         """
+        if claim_id is None:
+            raise ValueError("Invalid value for `claim_id`, must not be `None`")  # noqa: E501
 
-        self._tool_family = tool_family
+        self._claim_id = claim_id
+
+    @property
+    def corroboration_count(self):
+        """Gets the corroboration_count of this ClaimReviewContext.  # noqa: E501
+
+
+        :return: The corroboration_count of this ClaimReviewContext.  # noqa: E501
+        :rtype: object
+        """
+        return self._corroboration_count
+
+    @corroboration_count.setter
+    def corroboration_count(self, corroboration_count):
+        """Sets the corroboration_count of this ClaimReviewContext.
+
+
+        :param corroboration_count: The corroboration_count of this ClaimReviewContext.  # noqa: E501
+        :type: object
+        """
+        if corroboration_count is None:
+            raise ValueError("Invalid value for `corroboration_count`, must not be `None`")  # noqa: E501
+
+        self._corroboration_count = corroboration_count
 
     @property
     def distinct_origins(self):
@@ -352,6 +243,96 @@ class ClaimReviewContext(object):
         self._distinct_origins = distinct_origins
 
     @property
+    def entity_id(self):
+        """Gets the entity_id of this ClaimReviewContext.  # noqa: E501
+
+
+        :return: The entity_id of this ClaimReviewContext.  # noqa: E501
+        :rtype: object
+        """
+        return self._entity_id
+
+    @entity_id.setter
+    def entity_id(self, entity_id):
+        """Sets the entity_id of this ClaimReviewContext.
+
+
+        :param entity_id: The entity_id of this ClaimReviewContext.  # noqa: E501
+        :type: object
+        """
+        if entity_id is None:
+            raise ValueError("Invalid value for `entity_id`, must not be `None`")  # noqa: E501
+
+        self._entity_id = entity_id
+
+    @property
+    def etag(self):
+        """Gets the etag of this ClaimReviewContext.  # noqa: E501
+
+
+        :return: The etag of this ClaimReviewContext.  # noqa: E501
+        :rtype: object
+        """
+        return self._etag
+
+    @etag.setter
+    def etag(self, etag):
+        """Sets the etag of this ClaimReviewContext.
+
+
+        :param etag: The etag of this ClaimReviewContext.  # noqa: E501
+        :type: object
+        """
+        if etag is None:
+            raise ValueError("Invalid value for `etag`, must not be `None`")  # noqa: E501
+
+        self._etag = etag
+
+    @property
+    def is_quarantined(self):
+        """Gets the is_quarantined of this ClaimReviewContext.  # noqa: E501
+
+
+        :return: The is_quarantined of this ClaimReviewContext.  # noqa: E501
+        :rtype: object
+        """
+        return self._is_quarantined
+
+    @is_quarantined.setter
+    def is_quarantined(self, is_quarantined):
+        """Sets the is_quarantined of this ClaimReviewContext.
+
+
+        :param is_quarantined: The is_quarantined of this ClaimReviewContext.  # noqa: E501
+        :type: object
+        """
+        if is_quarantined is None:
+            raise ValueError("Invalid value for `is_quarantined`, must not be `None`")  # noqa: E501
+
+        self._is_quarantined = is_quarantined
+
+    @property
+    def is_release_lapsed(self):
+        """Gets the is_release_lapsed of this ClaimReviewContext.  # noqa: E501
+
+
+        :return: The is_release_lapsed of this ClaimReviewContext.  # noqa: E501
+        :rtype: object
+        """
+        return self._is_release_lapsed
+
+    @is_release_lapsed.setter
+    def is_release_lapsed(self, is_release_lapsed):
+        """Sets the is_release_lapsed of this ClaimReviewContext.
+
+
+        :param is_release_lapsed: The is_release_lapsed of this ClaimReviewContext.  # noqa: E501
+        :type: object
+        """
+
+        self._is_release_lapsed = is_release_lapsed
+
+    @property
     def k_required(self):
         """Gets the k_required of this ClaimReviewContext.  # noqa: E501
 
@@ -375,27 +356,48 @@ class ClaimReviewContext(object):
         self._k_required = k_required
 
     @property
-    def corroboration_count(self):
-        """Gets the corroboration_count of this ClaimReviewContext.  # noqa: E501
+    def provenance_class(self):
+        """Gets the provenance_class of this ClaimReviewContext.  # noqa: E501
 
 
-        :return: The corroboration_count of this ClaimReviewContext.  # noqa: E501
+        :return: The provenance_class of this ClaimReviewContext.  # noqa: E501
         :rtype: object
         """
-        return self._corroboration_count
+        return self._provenance_class
 
-    @corroboration_count.setter
-    def corroboration_count(self, corroboration_count):
-        """Sets the corroboration_count of this ClaimReviewContext.
+    @provenance_class.setter
+    def provenance_class(self, provenance_class):
+        """Sets the provenance_class of this ClaimReviewContext.
 
 
-        :param corroboration_count: The corroboration_count of this ClaimReviewContext.  # noqa: E501
+        :param provenance_class: The provenance_class of this ClaimReviewContext.  # noqa: E501
         :type: object
         """
-        if corroboration_count is None:
-            raise ValueError("Invalid value for `corroboration_count`, must not be `None`")  # noqa: E501
+        if provenance_class is None:
+            raise ValueError("Invalid value for `provenance_class`, must not be `None`")  # noqa: E501
 
-        self._corroboration_count = corroboration_count
+        self._provenance_class = provenance_class
+
+    @property
+    def quarantine_cause(self):
+        """Gets the quarantine_cause of this ClaimReviewContext.  # noqa: E501
+
+
+        :return: The quarantine_cause of this ClaimReviewContext.  # noqa: E501
+        :rtype: object
+        """
+        return self._quarantine_cause
+
+    @quarantine_cause.setter
+    def quarantine_cause(self, quarantine_cause):
+        """Sets the quarantine_cause of this ClaimReviewContext.
+
+
+        :param quarantine_cause: The quarantine_cause of this ClaimReviewContext.  # noqa: E501
+        :type: object
+        """
+
+        self._quarantine_cause = quarantine_cause
 
     @property
     def recorded_at(self):
@@ -444,27 +446,25 @@ class ClaimReviewContext(object):
         self._statement = statement
 
     @property
-    def etag(self):
-        """Gets the etag of this ClaimReviewContext.  # noqa: E501
+    def tool_family(self):
+        """Gets the tool_family of this ClaimReviewContext.  # noqa: E501
 
 
-        :return: The etag of this ClaimReviewContext.  # noqa: E501
+        :return: The tool_family of this ClaimReviewContext.  # noqa: E501
         :rtype: object
         """
-        return self._etag
+        return self._tool_family
 
-    @etag.setter
-    def etag(self, etag):
-        """Sets the etag of this ClaimReviewContext.
+    @tool_family.setter
+    def tool_family(self, tool_family):
+        """Sets the tool_family of this ClaimReviewContext.
 
 
-        :param etag: The etag of this ClaimReviewContext.  # noqa: E501
+        :param tool_family: The tool_family of this ClaimReviewContext.  # noqa: E501
         :type: object
         """
-        if etag is None:
-            raise ValueError("Invalid value for `etag`, must not be `None`")  # noqa: E501
 
-        self._etag = etag
+        self._tool_family = tool_family
 
     def to_dict(self):
         """Returns the model properties as a dict"""

@@ -28,58 +28,58 @@ class LearningInstanceEvidenceResponse(object):
                             and the value is json key in definition.
     """
     swagger_types = {
-        'id': 'object',
+        'created_at': 'object',
         'entity_values': 'object',
+        'id': 'object',
         'outcome': 'object',
-        'source_context': 'object',
-        'created_at': 'object'
+        'source_context': 'object'
     }
 
     attribute_map = {
-        'id': 'id',
+        'created_at': 'created_at',
         'entity_values': 'entity_values',
+        'id': 'id',
         'outcome': 'outcome',
-        'source_context': 'source_context',
-        'created_at': 'created_at'
+        'source_context': 'source_context'
     }
 
-    def __init__(self, id=None, entity_values=None, outcome=None, source_context=None, created_at=None):  # noqa: E501
+    def __init__(self, created_at=None, entity_values=None, id=None, outcome=None, source_context=None):  # noqa: E501
         """LearningInstanceEvidenceResponse - a model defined in Swagger"""  # noqa: E501
-        self._id = None
+        self._created_at = None
         self._entity_values = None
+        self._id = None
         self._outcome = None
         self._source_context = None
-        self._created_at = None
         self.discriminator = None
-        self.id = id
+        self.created_at = created_at
         self.entity_values = entity_values
+        self.id = id
         self.outcome = outcome
         if source_context is not None:
             self.source_context = source_context
-        self.created_at = created_at
 
     @property
-    def id(self):
-        """Gets the id of this LearningInstanceEvidenceResponse.  # noqa: E501
+    def created_at(self):
+        """Gets the created_at of this LearningInstanceEvidenceResponse.  # noqa: E501
 
 
-        :return: The id of this LearningInstanceEvidenceResponse.  # noqa: E501
+        :return: The created_at of this LearningInstanceEvidenceResponse.  # noqa: E501
         :rtype: object
         """
-        return self._id
+        return self._created_at
 
-    @id.setter
-    def id(self, id):
-        """Sets the id of this LearningInstanceEvidenceResponse.
+    @created_at.setter
+    def created_at(self, created_at):
+        """Sets the created_at of this LearningInstanceEvidenceResponse.
 
 
-        :param id: The id of this LearningInstanceEvidenceResponse.  # noqa: E501
+        :param created_at: The created_at of this LearningInstanceEvidenceResponse.  # noqa: E501
         :type: object
         """
-        if id is None:
-            raise ValueError("Invalid value for `id`, must not be `None`")  # noqa: E501
+        if created_at is None:
+            raise ValueError("Invalid value for `created_at`, must not be `None`")  # noqa: E501
 
-        self._id = id
+        self._created_at = created_at
 
     @property
     def entity_values(self):
@@ -103,6 +103,29 @@ class LearningInstanceEvidenceResponse(object):
             raise ValueError("Invalid value for `entity_values`, must not be `None`")  # noqa: E501
 
         self._entity_values = entity_values
+
+    @property
+    def id(self):
+        """Gets the id of this LearningInstanceEvidenceResponse.  # noqa: E501
+
+
+        :return: The id of this LearningInstanceEvidenceResponse.  # noqa: E501
+        :rtype: object
+        """
+        return self._id
+
+    @id.setter
+    def id(self, id):
+        """Sets the id of this LearningInstanceEvidenceResponse.
+
+
+        :param id: The id of this LearningInstanceEvidenceResponse.  # noqa: E501
+        :type: object
+        """
+        if id is None:
+            raise ValueError("Invalid value for `id`, must not be `None`")  # noqa: E501
+
+        self._id = id
 
     @property
     def outcome(self):
@@ -147,29 +170,6 @@ class LearningInstanceEvidenceResponse(object):
         """
 
         self._source_context = source_context
-
-    @property
-    def created_at(self):
-        """Gets the created_at of this LearningInstanceEvidenceResponse.  # noqa: E501
-
-
-        :return: The created_at of this LearningInstanceEvidenceResponse.  # noqa: E501
-        :rtype: object
-        """
-        return self._created_at
-
-    @created_at.setter
-    def created_at(self, created_at):
-        """Sets the created_at of this LearningInstanceEvidenceResponse.
-
-
-        :param created_at: The created_at of this LearningInstanceEvidenceResponse.  # noqa: E501
-        :type: object
-        """
-        if created_at is None:
-            raise ValueError("Invalid value for `created_at`, must not be `None`")  # noqa: E501
-
-        self._created_at = created_at
 
     def to_dict(self):
         """Returns the model properties as a dict"""

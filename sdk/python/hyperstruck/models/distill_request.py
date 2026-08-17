@@ -29,64 +29,64 @@ class DistillRequest(object):
     """
     swagger_types = {
         'agent_name': 'object',
-        'org_id': 'object',
-        'run_id': 'object',
-        'goal': 'object',
-        'evidence': 'object',
-        'outcome': 'DistillOutcomeModel',
         'evaluation': 'object',
-        'synthesis_notes': 'object',
-        'source_framework': 'object',
+        'evidence': 'object',
+        'goal': 'object',
+        'max_learnings': 'object',
         'occurred_at': 'object',
-        'max_learnings': 'object'
+        'org_id': 'object',
+        'outcome': 'DistillOutcomeModel',
+        'run_id': 'object',
+        'source_framework': 'object',
+        'synthesis_notes': 'object'
     }
 
     attribute_map = {
         'agent_name': 'agent_name',
-        'org_id': 'org_id',
-        'run_id': 'run_id',
-        'goal': 'goal',
-        'evidence': 'evidence',
-        'outcome': 'outcome',
         'evaluation': 'evaluation',
-        'synthesis_notes': 'synthesis_notes',
-        'source_framework': 'source_framework',
+        'evidence': 'evidence',
+        'goal': 'goal',
+        'max_learnings': 'max_learnings',
         'occurred_at': 'occurred_at',
-        'max_learnings': 'max_learnings'
+        'org_id': 'org_id',
+        'outcome': 'outcome',
+        'run_id': 'run_id',
+        'source_framework': 'source_framework',
+        'synthesis_notes': 'synthesis_notes'
     }
 
-    def __init__(self, agent_name=None, org_id=None, run_id=None, goal=None, evidence=None, outcome=None, evaluation=None, synthesis_notes=None, source_framework=None, occurred_at=None, max_learnings=None):  # noqa: E501
+    def __init__(self, agent_name=None, evaluation=None, evidence=None, goal=None, max_learnings=None, occurred_at=None, org_id=None, outcome=None, run_id=None, source_framework=None, synthesis_notes=None):  # noqa: E501
         """DistillRequest - a model defined in Swagger"""  # noqa: E501
         self._agent_name = None
-        self._org_id = None
-        self._run_id = None
-        self._goal = None
-        self._evidence = None
-        self._outcome = None
         self._evaluation = None
-        self._synthesis_notes = None
-        self._source_framework = None
-        self._occurred_at = None
+        self._evidence = None
+        self._goal = None
         self._max_learnings = None
+        self._occurred_at = None
+        self._org_id = None
+        self._outcome = None
+        self._run_id = None
+        self._source_framework = None
+        self._synthesis_notes = None
         self.discriminator = None
         self.agent_name = agent_name
-        if org_id is not None:
-            self.org_id = org_id
-        self.run_id = run_id
-        self.goal = goal
-        if evidence is not None:
-            self.evidence = evidence
-        self.outcome = outcome
         if evaluation is not None:
             self.evaluation = evaluation
-        if synthesis_notes is not None:
-            self.synthesis_notes = synthesis_notes
-        if source_framework is not None:
-            self.source_framework = source_framework
-        if occurred_at is not None:
-            self.occurred_at = occurred_at
+        if evidence is not None:
+            self.evidence = evidence
+        self.goal = goal
         if max_learnings is not None:
             self.max_learnings = max_learnings
+        if occurred_at is not None:
+            self.occurred_at = occurred_at
+        if org_id is not None:
+            self.org_id = org_id
+        self.outcome = outcome
+        self.run_id = run_id
+        if source_framework is not None:
+            self.source_framework = source_framework
+        if synthesis_notes is not None:
+            self.synthesis_notes = synthesis_notes
 
     @property
     def agent_name(self):
@@ -114,52 +114,48 @@ class DistillRequest(object):
         self._agent_name = agent_name
 
     @property
-    def org_id(self):
-        """Gets the org_id of this DistillRequest.  # noqa: E501
+    def evaluation(self):
+        """Gets the evaluation of this DistillRequest.  # noqa: E501
 
-        Optional caller-owned organisation reference.  # noqa: E501
+        Reviewer verdict or contrast aid; folded into the grounding corpus.  # noqa: E501
 
-        :return: The org_id of this DistillRequest.  # noqa: E501
+        :return: The evaluation of this DistillRequest.  # noqa: E501
         :rtype: object
         """
-        return self._org_id
+        return self._evaluation
 
-    @org_id.setter
-    def org_id(self, org_id):
-        """Sets the org_id of this DistillRequest.
+    @evaluation.setter
+    def evaluation(self, evaluation):
+        """Sets the evaluation of this DistillRequest.
 
-        Optional caller-owned organisation reference.  # noqa: E501
+        Reviewer verdict or contrast aid; folded into the grounding corpus.  # noqa: E501
 
-        :param org_id: The org_id of this DistillRequest.  # noqa: E501
+        :param evaluation: The evaluation of this DistillRequest.  # noqa: E501
         :type: object
         """
 
-        self._org_id = org_id
+        self._evaluation = evaluation
 
     @property
-    def run_id(self):
-        """Gets the run_id of this DistillRequest.  # noqa: E501
+    def evidence(self):
+        """Gets the evidence of this DistillRequest.  # noqa: E501
 
-        Caller-created idempotency and tracing identifier. It must start with `distill:` and does not reference a hosted run.  # noqa: E501
 
-        :return: The run_id of this DistillRequest.  # noqa: E501
+        :return: The evidence of this DistillRequest.  # noqa: E501
         :rtype: object
         """
-        return self._run_id
+        return self._evidence
 
-    @run_id.setter
-    def run_id(self, run_id):
-        """Sets the run_id of this DistillRequest.
+    @evidence.setter
+    def evidence(self, evidence):
+        """Sets the evidence of this DistillRequest.
 
-        Caller-created idempotency and tracing identifier. It must start with `distill:` and does not reference a hosted run.  # noqa: E501
 
-        :param run_id: The run_id of this DistillRequest.  # noqa: E501
+        :param evidence: The evidence of this DistillRequest.  # noqa: E501
         :type: object
         """
-        if run_id is None:
-            raise ValueError("Invalid value for `run_id`, must not be `None`")  # noqa: E501
 
-        self._run_id = run_id
+        self._evidence = evidence
 
     @property
     def goal(self):
@@ -187,25 +183,71 @@ class DistillRequest(object):
         self._goal = goal
 
     @property
-    def evidence(self):
-        """Gets the evidence of this DistillRequest.  # noqa: E501
+    def max_learnings(self):
+        """Gets the max_learnings of this DistillRequest.  # noqa: E501
 
+        Maximum number of learnings to extract from this distill job. Defaults to 10; lower for sparse corpora or raise for large, dense documents.  # noqa: E501
 
-        :return: The evidence of this DistillRequest.  # noqa: E501
+        :return: The max_learnings of this DistillRequest.  # noqa: E501
         :rtype: object
         """
-        return self._evidence
+        return self._max_learnings
 
-    @evidence.setter
-    def evidence(self, evidence):
-        """Sets the evidence of this DistillRequest.
+    @max_learnings.setter
+    def max_learnings(self, max_learnings):
+        """Sets the max_learnings of this DistillRequest.
 
+        Maximum number of learnings to extract from this distill job. Defaults to 10; lower for sparse corpora or raise for large, dense documents.  # noqa: E501
 
-        :param evidence: The evidence of this DistillRequest.  # noqa: E501
+        :param max_learnings: The max_learnings of this DistillRequest.  # noqa: E501
         :type: object
         """
 
-        self._evidence = evidence
+        self._max_learnings = max_learnings
+
+    @property
+    def occurred_at(self):
+        """Gets the occurred_at of this DistillRequest.  # noqa: E501
+
+
+        :return: The occurred_at of this DistillRequest.  # noqa: E501
+        :rtype: object
+        """
+        return self._occurred_at
+
+    @occurred_at.setter
+    def occurred_at(self, occurred_at):
+        """Sets the occurred_at of this DistillRequest.
+
+
+        :param occurred_at: The occurred_at of this DistillRequest.  # noqa: E501
+        :type: object
+        """
+
+        self._occurred_at = occurred_at
+
+    @property
+    def org_id(self):
+        """Gets the org_id of this DistillRequest.  # noqa: E501
+
+        Optional caller-owned organisation reference.  # noqa: E501
+
+        :return: The org_id of this DistillRequest.  # noqa: E501
+        :rtype: object
+        """
+        return self._org_id
+
+    @org_id.setter
+    def org_id(self, org_id):
+        """Sets the org_id of this DistillRequest.
+
+        Optional caller-owned organisation reference.  # noqa: E501
+
+        :param org_id: The org_id of this DistillRequest.  # noqa: E501
+        :type: object
+        """
+
+        self._org_id = org_id
 
     @property
     def outcome(self):
@@ -231,48 +273,29 @@ class DistillRequest(object):
         self._outcome = outcome
 
     @property
-    def evaluation(self):
-        """Gets the evaluation of this DistillRequest.  # noqa: E501
+    def run_id(self):
+        """Gets the run_id of this DistillRequest.  # noqa: E501
 
-        Reviewer verdict or contrast aid; folded into the grounding corpus.  # noqa: E501
+        Caller-created idempotency and tracing identifier. It must start with `distill:` and does not reference a hosted run.  # noqa: E501
 
-        :return: The evaluation of this DistillRequest.  # noqa: E501
+        :return: The run_id of this DistillRequest.  # noqa: E501
         :rtype: object
         """
-        return self._evaluation
+        return self._run_id
 
-    @evaluation.setter
-    def evaluation(self, evaluation):
-        """Sets the evaluation of this DistillRequest.
+    @run_id.setter
+    def run_id(self, run_id):
+        """Sets the run_id of this DistillRequest.
 
-        Reviewer verdict or contrast aid; folded into the grounding corpus.  # noqa: E501
+        Caller-created idempotency and tracing identifier. It must start with `distill:` and does not reference a hosted run.  # noqa: E501
 
-        :param evaluation: The evaluation of this DistillRequest.  # noqa: E501
+        :param run_id: The run_id of this DistillRequest.  # noqa: E501
         :type: object
         """
+        if run_id is None:
+            raise ValueError("Invalid value for `run_id`, must not be `None`")  # noqa: E501
 
-        self._evaluation = evaluation
-
-    @property
-    def synthesis_notes(self):
-        """Gets the synthesis_notes of this DistillRequest.  # noqa: E501
-
-
-        :return: The synthesis_notes of this DistillRequest.  # noqa: E501
-        :rtype: object
-        """
-        return self._synthesis_notes
-
-    @synthesis_notes.setter
-    def synthesis_notes(self, synthesis_notes):
-        """Sets the synthesis_notes of this DistillRequest.
-
-
-        :param synthesis_notes: The synthesis_notes of this DistillRequest.  # noqa: E501
-        :type: object
-        """
-
-        self._synthesis_notes = synthesis_notes
+        self._run_id = run_id
 
     @property
     def source_framework(self):
@@ -296,48 +319,25 @@ class DistillRequest(object):
         self._source_framework = source_framework
 
     @property
-    def occurred_at(self):
-        """Gets the occurred_at of this DistillRequest.  # noqa: E501
+    def synthesis_notes(self):
+        """Gets the synthesis_notes of this DistillRequest.  # noqa: E501
 
 
-        :return: The occurred_at of this DistillRequest.  # noqa: E501
+        :return: The synthesis_notes of this DistillRequest.  # noqa: E501
         :rtype: object
         """
-        return self._occurred_at
+        return self._synthesis_notes
 
-    @occurred_at.setter
-    def occurred_at(self, occurred_at):
-        """Sets the occurred_at of this DistillRequest.
+    @synthesis_notes.setter
+    def synthesis_notes(self, synthesis_notes):
+        """Sets the synthesis_notes of this DistillRequest.
 
 
-        :param occurred_at: The occurred_at of this DistillRequest.  # noqa: E501
+        :param synthesis_notes: The synthesis_notes of this DistillRequest.  # noqa: E501
         :type: object
         """
 
-        self._occurred_at = occurred_at
-
-    @property
-    def max_learnings(self):
-        """Gets the max_learnings of this DistillRequest.  # noqa: E501
-
-        Maximum number of learnings to extract from this distill job. Defaults to 10; lower for sparse corpora or raise for large, dense documents.  # noqa: E501
-
-        :return: The max_learnings of this DistillRequest.  # noqa: E501
-        :rtype: object
-        """
-        return self._max_learnings
-
-    @max_learnings.setter
-    def max_learnings(self, max_learnings):
-        """Sets the max_learnings of this DistillRequest.
-
-        Maximum number of learnings to extract from this distill job. Defaults to 10; lower for sparse corpora or raise for large, dense documents.  # noqa: E501
-
-        :param max_learnings: The max_learnings of this DistillRequest.  # noqa: E501
-        :type: object
-        """
-
-        self._max_learnings = max_learnings
+        self._synthesis_notes = synthesis_notes
 
     def to_dict(self):
         """Returns the model properties as a dict"""

@@ -29,32 +29,32 @@ class AbstainedQueueResponse(object):
     """
     swagger_types = {
         'filtered': 'object',
-        'withheld_count': 'object',
         'items': 'object',
-        'next_cursor': 'object'
+        'next_cursor': 'object',
+        'withheld_count': 'object'
     }
 
     attribute_map = {
         'filtered': 'filtered',
-        'withheld_count': 'withheld_count',
         'items': 'items',
-        'next_cursor': 'next_cursor'
+        'next_cursor': 'next_cursor',
+        'withheld_count': 'withheld_count'
     }
 
-    def __init__(self, filtered=None, withheld_count=None, items=None, next_cursor=None):  # noqa: E501
+    def __init__(self, filtered=None, items=None, next_cursor=None, withheld_count=None):  # noqa: E501
         """AbstainedQueueResponse - a model defined in Swagger"""  # noqa: E501
         self._filtered = None
-        self._withheld_count = None
         self._items = None
         self._next_cursor = None
+        self._withheld_count = None
         self.discriminator = None
         if filtered is not None:
             self.filtered = filtered
-        if withheld_count is not None:
-            self.withheld_count = withheld_count
         self.items = items
         if next_cursor is not None:
             self.next_cursor = next_cursor
+        if withheld_count is not None:
+            self.withheld_count = withheld_count
 
     @property
     def filtered(self):
@@ -78,29 +78,6 @@ class AbstainedQueueResponse(object):
         """
 
         self._filtered = filtered
-
-    @property
-    def withheld_count(self):
-        """Gets the withheld_count of this AbstainedQueueResponse.  # noqa: E501
-
-        Best-effort count of rows this page omitted because the caller's space filter excluded them.  # noqa: E501
-
-        :return: The withheld_count of this AbstainedQueueResponse.  # noqa: E501
-        :rtype: object
-        """
-        return self._withheld_count
-
-    @withheld_count.setter
-    def withheld_count(self, withheld_count):
-        """Sets the withheld_count of this AbstainedQueueResponse.
-
-        Best-effort count of rows this page omitted because the caller's space filter excluded them.  # noqa: E501
-
-        :param withheld_count: The withheld_count of this AbstainedQueueResponse.  # noqa: E501
-        :type: object
-        """
-
-        self._withheld_count = withheld_count
 
     @property
     def items(self):
@@ -145,6 +122,29 @@ class AbstainedQueueResponse(object):
         """
 
         self._next_cursor = next_cursor
+
+    @property
+    def withheld_count(self):
+        """Gets the withheld_count of this AbstainedQueueResponse.  # noqa: E501
+
+        Best-effort count of rows this page omitted because the caller's space filter excluded them.  # noqa: E501
+
+        :return: The withheld_count of this AbstainedQueueResponse.  # noqa: E501
+        :rtype: object
+        """
+        return self._withheld_count
+
+    @withheld_count.setter
+    def withheld_count(self, withheld_count):
+        """Sets the withheld_count of this AbstainedQueueResponse.
+
+        Best-effort count of rows this page omitted because the caller's space filter excluded them.  # noqa: E501
+
+        :param withheld_count: The withheld_count of this AbstainedQueueResponse.  # noqa: E501
+        :type: object
+        """
+
+        self._withheld_count = withheld_count
 
     def to_dict(self):
         """Returns the model properties as a dict"""
