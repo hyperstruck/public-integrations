@@ -10581,8 +10581,8 @@ export const LearningBoundaryApiFetchParamCreator = function (configuration?: Co
         /**
          * Report the loop-closure funnel (resolve -> offered -> observed -> reinforced) per producing host over a recent window. A half-open loop, a run that resolved but whose write-back never arrived, shows as a non-closure rather than a false closure. Scoped to the calling tenant.
          * @summary Per-host loop-closure funnel
-         * @param {any} [windowHours] Recent lookback window in hours; values are capped at 90 days.
-         * @param {any} [graceMinutes] Minutes allowed for asynchronous write-back before a resolved run is counted as half-open.
+         * @param {any} [windowHours] Recent lookback window in hours. Must be at least 2 times `grace_minutes`, since a shorter window holds no run old enough to have closed; a request that is not is refused rather than answered. Narrowed to the reinforced-retention interval when it exceeds it, because past that boundary closed runs have been reclaimed while unclosed ones survive; the response reports the window actually used, and reports rates as null when that narrowing leaves the window below the same ratio.
+         * @param {any} [graceMinutes] Minutes allowed for asynchronous write-back before a resolved run is counted as half-open. The default covers the 95th percentile of observed close times, so a run still legitimately in flight is reported as in-flight rather than as a non-closure. Bounded above by `window_hours`, per the ratio described there.
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
@@ -10789,8 +10789,8 @@ export const LearningBoundaryApiFp = function(configuration?: Configuration) {
         /**
          * Report the loop-closure funnel (resolve -> offered -> observed -> reinforced) per producing host over a recent window. A half-open loop, a run that resolved but whose write-back never arrived, shows as a non-closure rather than a false closure. Scoped to the calling tenant.
          * @summary Per-host loop-closure funnel
-         * @param {any} [windowHours] Recent lookback window in hours; values are capped at 90 days.
-         * @param {any} [graceMinutes] Minutes allowed for asynchronous write-back before a resolved run is counted as half-open.
+         * @param {any} [windowHours] Recent lookback window in hours. Must be at least 2 times `grace_minutes`, since a shorter window holds no run old enough to have closed; a request that is not is refused rather than answered. Narrowed to the reinforced-retention interval when it exceeds it, because past that boundary closed runs have been reclaimed while unclosed ones survive; the response reports the window actually used, and reports rates as null when that narrowing leaves the window below the same ratio.
+         * @param {any} [graceMinutes] Minutes allowed for asynchronous write-back before a resolved run is counted as half-open. The default covers the 95th percentile of observed close times, so a run still legitimately in flight is reported as in-flight rather than as a non-closure. Bounded above by `window_hours`, per the ratio described there.
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
@@ -10895,8 +10895,8 @@ export const LearningBoundaryApiFactory = function (configuration?: Configuratio
         /**
          * Report the loop-closure funnel (resolve -> offered -> observed -> reinforced) per producing host over a recent window. A half-open loop, a run that resolved but whose write-back never arrived, shows as a non-closure rather than a false closure. Scoped to the calling tenant.
          * @summary Per-host loop-closure funnel
-         * @param {any} [windowHours] Recent lookback window in hours; values are capped at 90 days.
-         * @param {any} [graceMinutes] Minutes allowed for asynchronous write-back before a resolved run is counted as half-open.
+         * @param {any} [windowHours] Recent lookback window in hours. Must be at least 2 times `grace_minutes`, since a shorter window holds no run old enough to have closed; a request that is not is refused rather than answered. Narrowed to the reinforced-retention interval when it exceeds it, because past that boundary closed runs have been reclaimed while unclosed ones survive; the response reports the window actually used, and reports rates as null when that narrowing leaves the window below the same ratio.
+         * @param {any} [graceMinutes] Minutes allowed for asynchronous write-back before a resolved run is counted as half-open. The default covers the 95th percentile of observed close times, so a run still legitimately in flight is reported as in-flight rather than as a non-closure. Bounded above by `window_hours`, per the ratio described there.
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
@@ -10970,8 +10970,8 @@ export class LearningBoundaryApi extends BaseAPI {
     /**
      * Report the loop-closure funnel (resolve -> offered -> observed -> reinforced) per producing host over a recent window. A half-open loop, a run that resolved but whose write-back never arrived, shows as a non-closure rather than a false closure. Scoped to the calling tenant.
      * @summary Per-host loop-closure funnel
-     * @param {any} [windowHours] Recent lookback window in hours; values are capped at 90 days.
-     * @param {any} [graceMinutes] Minutes allowed for asynchronous write-back before a resolved run is counted as half-open.
+     * @param {any} [windowHours] Recent lookback window in hours. Must be at least 2 times `grace_minutes`, since a shorter window holds no run old enough to have closed; a request that is not is refused rather than answered. Narrowed to the reinforced-retention interval when it exceeds it, because past that boundary closed runs have been reclaimed while unclosed ones survive; the response reports the window actually used, and reports rates as null when that narrowing leaves the window below the same ratio.
+     * @param {any} [graceMinutes] Minutes allowed for asynchronous write-back before a resolved run is counted as half-open. The default covers the 95th percentile of observed close times, so a run still legitimately in flight is reported as in-flight rather than as a non-closure. Bounded above by `window_hours`, per the ratio described there.
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      * @memberof LearningBoundaryApi

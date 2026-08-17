@@ -142,8 +142,8 @@ configuration.api_key['Authorization'] = 'YOUR_API_KEY'
 
 # create an instance of the API class
 api_instance = hyperstruck.LearningBoundaryApi(hyperstruck.ApiClient(configuration))
-window_hours = 24 # object | Recent lookback window in hours; values are capped at 90 days. (optional) (default to 24)
-grace_minutes = 15 # object | Minutes allowed for asynchronous write-back before a resolved run is counted as half-open. (optional) (default to 15)
+window_hours = 24 # object | Recent lookback window in hours. Must be at least 2 times `grace_minutes`, since a shorter window holds no run old enough to have closed; a request that is not is refused rather than answered. Narrowed to the reinforced-retention interval when it exceeds it, because past that boundary closed runs have been reclaimed while unclosed ones survive; the response reports the window actually used, and reports rates as null when that narrowing leaves the window below the same ratio. (optional) (default to 24)
+grace_minutes = 120 # object | Minutes allowed for asynchronous write-back before a resolved run is counted as half-open. The default covers the 95th percentile of observed close times, so a run still legitimately in flight is reported as in-flight rather than as a non-closure. Bounded above by `window_hours`, per the ratio described there. (optional) (default to 120)
 
 try:
     # Per-host loop-closure funnel
@@ -157,8 +157,8 @@ except ApiException as e:
 
 Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
- **window_hours** | [**object**](.md)| Recent lookback window in hours; values are capped at 90 days. | [optional] [default to 24]
- **grace_minutes** | [**object**](.md)| Minutes allowed for asynchronous write-back before a resolved run is counted as half-open. | [optional] [default to 15]
+ **window_hours** | [**object**](.md)| Recent lookback window in hours. Must be at least 2 times `grace_minutes`, since a shorter window holds no run old enough to have closed; a request that is not is refused rather than answered. Narrowed to the reinforced-retention interval when it exceeds it, because past that boundary closed runs have been reclaimed while unclosed ones survive; the response reports the window actually used, and reports rates as null when that narrowing leaves the window below the same ratio. | [optional] [default to 24]
+ **grace_minutes** | [**object**](.md)| Minutes allowed for asynchronous write-back before a resolved run is counted as half-open. The default covers the 95th percentile of observed close times, so a run still legitimately in flight is reported as in-flight rather than as a non-closure. Bounded above by `window_hours`, per the ratio described there. | [optional] [default to 120]
 
 ### Return type
 

@@ -141,9 +141,6 @@ class HostLoopClosure(object):
         :param half_open_rate: The half_open_rate of this HostLoopClosure.  # noqa: E501
         :type: object
         """
-        if half_open_rate is None:
-            raise ValueError("Invalid value for `half_open_rate`, must not be `None`")  # noqa: E501
-
         self._half_open_rate = half_open_rate
 
     @property
@@ -208,9 +205,6 @@ class HostLoopClosure(object):
         :param loop_closure_rate: The loop_closure_rate of this HostLoopClosure.  # noqa: E501
         :type: object
         """
-        if loop_closure_rate is None:
-            raise ValueError("Invalid value for `loop_closure_rate`, must not be `None`")  # noqa: E501
-
         self._loop_closure_rate = loop_closure_rate
 
     @property

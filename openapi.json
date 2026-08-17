@@ -3955,8 +3955,15 @@
             "type": "integer"
           },
           "half_open_rate": {
-            "title": "Half Open Rate",
-            "type": "number"
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Half Open Rate"
           },
           "host": {
             "title": "Host",
@@ -3968,8 +3975,15 @@
             "type": "integer"
           },
           "loop_closure_rate": {
-            "title": "Loop Closure Rate",
-            "type": "number"
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Loop Closure Rate"
           },
           "observed": {
             "title": "Observed",
@@ -12231,31 +12245,35 @@
         "operationId": "funnel_endpoint_funnel_get",
         "parameters": [
           {
-            "description": "Recent lookback window in hours; values are capped at 90 days.",
+            "description": "Recent lookback window in hours. Must be at least 2 times `grace_minutes`, since a shorter window holds no run old enough to have closed; a request that is not is refused rather than answered. Narrowed to the reinforced-retention interval when it exceeds it, because past that boundary closed runs have been reclaimed while unclosed ones survive; the response reports the window actually used, and reports rates as null when that narrowing leaves the window below the same ratio.",
             "in": "query",
             "name": "window_hours",
             "required": false,
             "schema": {
               "default": 24,
-              "description": "Recent lookback window in hours; values are capped at 90 days.",
+              "description": "Recent lookback window in hours. Must be at least 2 times `grace_minutes`, since a shorter window holds no run old enough to have closed; a request that is not is refused rather than answered. Narrowed to the reinforced-retention interval when it exceeds it, because past that boundary closed runs have been reclaimed while unclosed ones survive; the response reports the window actually used, and reports rates as null when that narrowing leaves the window below the same ratio.",
               "examples": [
                 24
               ],
+              "maximum": 2160,
+              "minimum": 1,
               "title": "Window Hours",
               "type": "integer"
             }
           },
           {
-            "description": "Minutes allowed for asynchronous write-back before a resolved run is counted as half-open.",
+            "description": "Minutes allowed for asynchronous write-back before a resolved run is counted as half-open. The default covers the 95th percentile of observed close times, so a run still legitimately in flight is reported as in-flight rather than as a non-closure. Bounded above by `window_hours`, per the ratio described there.",
             "in": "query",
             "name": "grace_minutes",
             "required": false,
             "schema": {
-              "default": 15,
-              "description": "Minutes allowed for asynchronous write-back before a resolved run is counted as half-open.",
+              "default": 120,
+              "description": "Minutes allowed for asynchronous write-back before a resolved run is counted as half-open. The default covers the 95th percentile of observed close times, so a run still legitimately in flight is reported as in-flight rather than as a non-closure. Bounded above by `window_hours`, per the ratio described there.",
               "examples": [
-                15
+                120
               ],
+              "maximum": 1440,
+              "minimum": 0,
               "title": "Grace Minutes",
               "type": "integer"
             }

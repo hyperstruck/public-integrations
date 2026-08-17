@@ -240,8 +240,8 @@ class LearningBoundaryApi(object):
         >>> result = thread.get()
 
         :param async_req bool
-        :param object window_hours: Recent lookback window in hours; values are capped at 90 days.
-        :param object grace_minutes: Minutes allowed for asynchronous write-back before a resolved run is counted as half-open.
+        :param object window_hours: Recent lookback window in hours. Must be at least 2 times `grace_minutes`, since a shorter window holds no run old enough to have closed; a request that is not is refused rather than answered. Narrowed to the reinforced-retention interval when it exceeds it, because past that boundary closed runs have been reclaimed while unclosed ones survive; the response reports the window actually used, and reports rates as null when that narrowing leaves the window below the same ratio.
+        :param object grace_minutes: Minutes allowed for asynchronous write-back before a resolved run is counted as half-open. The default covers the 95th percentile of observed close times, so a run still legitimately in flight is reported as in-flight rather than as a non-closure. Bounded above by `window_hours`, per the ratio described there.
         :return: LoopClosureFunnelResponse
                  If the method is called asynchronously,
                  returns the request thread.
@@ -263,8 +263,8 @@ class LearningBoundaryApi(object):
         >>> result = thread.get()
 
         :param async_req bool
-        :param object window_hours: Recent lookback window in hours; values are capped at 90 days.
-        :param object grace_minutes: Minutes allowed for asynchronous write-back before a resolved run is counted as half-open.
+        :param object window_hours: Recent lookback window in hours. Must be at least 2 times `grace_minutes`, since a shorter window holds no run old enough to have closed; a request that is not is refused rather than answered. Narrowed to the reinforced-retention interval when it exceeds it, because past that boundary closed runs have been reclaimed while unclosed ones survive; the response reports the window actually used, and reports rates as null when that narrowing leaves the window below the same ratio.
+        :param object grace_minutes: Minutes allowed for asynchronous write-back before a resolved run is counted as half-open. The default covers the 95th percentile of observed close times, so a run still legitimately in flight is reported as in-flight rather than as a non-closure. Bounded above by `window_hours`, per the ratio described there.
         :return: LoopClosureFunnelResponse
                  If the method is called asynchronously,
                  returns the request thread.
