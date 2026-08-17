@@ -170,17 +170,30 @@ class DistillJob:
 class ResolvedContext:
     """The bound learnings for a goal, as returned by resolve.
 
-    ``injected_text`` is the rendered block to prepend to the model call (rendered
-    server-side); ``offered_learning_ids`` are the IDs offered, for client-side
-    visibility and the injection-fidelity metric.
+    ``injected_text`` is the rendered advice block to prepend to the model call
+    (rendered server-side); ``offered_learning_ids`` are the IDs offered, for
+    client-side visibility and the injection-fidelity metric.
+
+    ``injected_facts_text`` is the block of facts the agent established about
+    entities it has already investigated, returned separately so a host can place
+    it where its model treats it best and keep the advice half in a cached prompt
+    prefix. A host that wants no choice injects the two adjacently.
+    ``offered_claim_ids`` names the facts that block carries.
+
+    Both fact fields are empty against a server that predates them, and against a
+    deployment holding no claims for the agent.
     """
 
     injected_text: str | None = None
+    injected_facts_text: str | None = None
     offered_learning_ids: tuple[str, ...] = ()
+    offered_claim_ids: tuple[str, ...] = ()
 
     @classmethod
     def from_response(cls, data: dict[str, Any]) -> ResolvedContext:
         return cls(
             injected_text=data.get("injected_text"),
+            injected_facts_text=data.get("injected_facts_text"),
             offered_learning_ids=tuple(data.get("offered_learning_ids") or ()),
+            offered_claim_ids=tuple(data.get("offered_claim_ids") or ()),
         )

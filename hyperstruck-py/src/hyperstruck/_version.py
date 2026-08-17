@@ -11,4 +11,7 @@ from __future__ import annotations
 # gate reads exactly that boundary out of the User-Agent. Shipping the receipt code
 # without moving this would leave every capable and incapable client reporting the same
 # string, which is what made the gate read 100% safe on a fleet that could send nothing.
-__version__ = "0.5.0"
+# 0.5.1 is the first release that parses the recalled-fact block a resolve now returns
+# separately from the advice block. Additive only: it changes nothing about the receipt the
+# 0.5.0 gate reads, and an older client against the new server simply never sees the facts.
+__version__ = "0.5.1"

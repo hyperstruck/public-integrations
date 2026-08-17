@@ -7159,8 +7159,19 @@
         "type": "object"
       },
       "ResolveResponse": {
-        "description": "The bound learnings: the rendered block plus the offered IDs.",
+        "description": "What this run was offered: two separately placeable blocks and the ids behind them.\n\n``injected_text`` carries the advice half (rules, plus the annotations compiled from\nproceduralised learnings). ``injected_facts_text`` carries the fenced block of facts the agent\nestablished about entities it has already investigated, on its own so a host can place it where\nits model treats it best and keep the more stable advice half in a cached prompt prefix.\nSeparation costs attribution nothing: a receipt is the prompt as sent, and each half is matched\nwithin it rather than by position.\n\n``offered_claim_ids`` mirrors the fact block in first-emission order and is render-confirmed: a\nfact refused by the trust floor or cut by the lane's token budget appears in neither.",
         "properties": {
+          "injected_facts_text": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Injected Facts Text"
+          },
           "injected_text": {
             "anyOf": [
               {
@@ -7171,6 +7182,13 @@
               }
             ],
             "title": "Injected Text"
+          },
+          "offered_claim_ids": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Offered Claim Ids",
+            "type": "array"
           },
           "offered_learning_ids": {
             "items": {

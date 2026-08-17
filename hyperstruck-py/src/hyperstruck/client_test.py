@@ -152,6 +152,43 @@ async def test_resolve_returns_bound_context() -> None:
     await client.aclose()
 
 
+async def test_resolve_carries_the_fact_block_separately_from_the_advice() -> None:
+    """The two blocks are placeable independently, so the client must not merge them."""
+
+    def handler(request: httpx.Request) -> httpx.Response:
+        return httpx.Response(
+            200,
+            json={
+                "injected_text": "L",
+                "injected_facts_text": "Acme Corp:\n- region: eu-west-1",
+                "offered_learning_ids": ["a"],
+                "offered_claim_ids": ["claim-region"],
+            },
+        )
+
+    client = _client(handler)
+    ctx = await client.resolve(identity=IDENTITY, run_id="r1", goal="g")
+    assert ctx.injected_text == "L"
+    assert "eu-west-1" in ctx.injected_facts_text
+    assert ctx.offered_claim_ids == ("claim-region",)
+    await client.aclose()
+
+
+async def test_a_server_that_serves_no_facts_leaves_the_fact_fields_empty() -> None:
+    """Every deployment before this lane, and every agent holding no claims."""
+
+    def handler(request: httpx.Request) -> httpx.Response:
+        return httpx.Response(
+            200, json={"injected_text": "L", "offered_learning_ids": ["a"]}
+        )
+
+    client = _client(handler)
+    ctx = await client.resolve(identity=IDENTITY, run_id="r1", goal="g")
+    assert ctx.injected_facts_text is None
+    assert ctx.offered_claim_ids == ()
+    await client.aclose()
+
+
 async def test_resolve_raises_on_error_so_middleware_can_fail_open() -> None:
     def handler(request: httpx.Request) -> httpx.Response:
         return httpx.Response(500, json={"detail": "boom"})
