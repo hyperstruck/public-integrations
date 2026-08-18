@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import argparse
 import asyncio
+import contextlib
 import json
 from dataclasses import replace
 from types import SimpleNamespace
@@ -21,8 +22,8 @@ from hyperstruck._wire import (
 from hyperstruck import client
 from hyperstruck.ide import receipt
 from hyperstruck.ide import hook, state
-from hyperstruck.ide.constants import CREDENTIAL_HEAD_CHARS
-from hyperstruck.redaction import REDACTION_MARKER
+from hyperstruck.ide.constants import CREDENTIAL_HEAD_CHARS, PENDING_FILE
+from hyperstruck.ide.redaction import redact_ide_episode
 from hyperstruck.ide.constants import (
     MAX_BOUNDARY_GOAL_CHARS,
     MAX_EPISODE_STEPS,
@@ -92,7 +93,28 @@ def _last_staged(staged: list) -> dict:
     return state.read_flush(staged[-1])
 
 
-def test_turn_captured_and_deferred(_env) -> None:
+@contextlib.contextmanager
+def _capturing_delivered_turns():
+    """Collect the turn records handed to delivery, which no longer land on disk.
+
+    A turn used to be readable from ``pending.json`` after its finalise. It is now
+    staged and gone, so a test that needs the record itself, rather than the wire
+    payload built from it, has to watch it go past.
+    """
+    delivered: list[state.FinishedTurn] = []
+    real_stage_and_flush = hook._stage_and_flush
+
+    def capture(session_id, turn, turn_outcome):
+        delivered.append(turn)
+        real_stage_and_flush(session_id, turn, turn_outcome)
+
+    with pytest.MonkeyPatch.context() as patch:
+        patch.setattr(hook, "_stage_and_flush", capture)
+        yield delivered
+
+
+def test_a_single_turn_closes_its_loop_at_its_own_stop(_env) -> None:
+    """The headless one-shot case: no successor turn, no session end, still delivered."""
     staged = _env
     _run_turn(
         "s1",
@@ -107,18 +129,92 @@ def test_turn_captured_and_deferred(_env) -> None:
             },
         ],
     )
-    # Nothing flushed yet: the first turn has no prior to resolve.
-    assert staged == []
-    pending = state.read_pending("s1")
-    assert (
-        pending is not None and pending.is_success is True
-    )  # tests passed -> provisional green
+    assert len(staged) == 1
+    flushed = _last_staged(staged)
+    assert "decline" not in flushed
+    assert flushed["episode"]["outcome"]["is_success"] is True
+    assert flushed["do_observe"] is True
+    assert flushed["do_reinforce"] is True
+    assert state.read_active("s1") is None
 
 
-def test_rework_resolution_on_one_session(_env) -> None:
+def test_a_turn_with_nothing_to_show_for_itself_declines(_env) -> None:
+    """The optimistic default is gone: no oracle and no declared status credits nothing."""
+    staged = _env
+    _run_turn(
+        "s-unevidenced",
+        "read through the module",
+        [
+            {"tool_name": "Edit", "file_path": "client.py", "tool_response": "updated"},
+            {"tool_name": "Edit", "file_path": "server.py", "tool_response": "updated"},
+        ],
+    )
+    assert len(staged) == 1
+    flushed = _last_staged(staged)
+    assert flushed["decline"]["reason"] == "unevidenced_outcome"
+    assert flushed["decline"]["is_delivered"] is True
+    assert "episode" not in flushed
+
+
+def test_a_status_no_host_declares_is_declined_not_credited(_env) -> None:
+    """A CI run killed by a timeout used to be credited as a success."""
+    staged = _env
+    hook.cmd_prompt(
+        {"session_id": "s-timeout", "prompt": "run the suite", "cwd": "/repo"},
+        _args("prompt"),
+    )
+    hook.cmd_tool(
+        {
+            "session_id": "s-timeout",
+            "tool_name": "Edit",
+            "file_path": "client.py",
+            "tool_response": "ok",
+        },
+        _args("tool"),
+    )
+    hook.cmd_stop(
+        {"session_id": "s-timeout", "cwd": "/repo", "status": "timeout"}, _args("stop")
+    )
+
+    assert _last_staged(staged)["decline"]["reason"] == "unevidenced_outcome"
+
+
+def test_a_declared_failure_status_still_lands_as_a_failed_episode(_env) -> None:
+    """Abstention must not swallow the statuses a host does declare."""
+    staged = _env
+    hook.cmd_prompt(
+        {"session_id": "s-aborted", "prompt": "run the suite", "cwd": "/repo"},
+        _args("prompt"),
+    )
+    for path in ("client.py", "server.py"):
+        hook.cmd_tool(
+            {
+                "session_id": "s-aborted",
+                "tool_name": "Edit",
+                "file_path": path,
+                "tool_response": "ok",
+            },
+            _args("tool"),
+        )
+    hook.cmd_stop(
+        {"session_id": "s-aborted", "cwd": "/repo", "status": "aborted"}, _args("stop")
+    )
+
+    flushed = _last_staged(staged)
+    assert "decline" not in flushed
+    assert flushed["episode"]["outcome"]["is_success"] is False
+
+
+def test_each_turn_is_delivered_once_on_its_own_evidence(_env) -> None:
+    """The accepted cost, pinned: a later turn no longer retracts an earlier one.
+
+    Turn one passes its tests and is credited at its own stop. Turn two reworks the
+    same file, which the retired deferral would have read as turn one having been
+    rejected. Turn one keeps its credit, and turn two is delivered separately rather
+    than as a correction to it.
+    """
     staged = _env
     session = "s1"
-    # Turn 1: green, edits client.py.
     hook.cmd_prompt(
         {"session_id": session, "prompt": "add feature to client.py", "cwd": "/repo"},
         _args("prompt"),
@@ -143,9 +239,19 @@ def test_rework_resolution_on_one_session(_env) -> None:
         _args("tool"),
     )
     hook.cmd_stop({"session_id": session, "cwd": "/repo"}, _args("stop"))
-    assert staged == []  # deferred
 
-    # Turn 2: reworks client.py -> resolves turn 1 as failed (false-green caught).
+    assert len(staged) == 1
+    first = _last_staged(staged)
+    assert first["agent_name"] == "agent-x"
+    assert first["episode"]["outcome"]["is_success"] is True
+    assert first["do_observe"] is True  # 2 material steps
+    assert first["do_reinforce"] is True  # L1 was offered
+    # Steps validate against the wire StepModel shape (no client-only fields).
+    for step in first["episode"]["steps"]:
+        assert set(step) <= {"id", "name", "args", "status", "result", "error"}
+        assert step["id"]
+        StepRecord(**step)
+
     hook.cmd_prompt(
         {"session_id": session, "prompt": "that's broken", "cwd": "/repo"},
         _args("prompt"),
@@ -159,21 +265,26 @@ def test_rework_resolution_on_one_session(_env) -> None:
         },
         _args("tool"),
     )
+    hook.cmd_tool(
+        {
+            "session_id": session,
+            "tool_name": "Bash",
+            "command": "pytest",
+            "tool_response": "1 failed",
+            "exit_code": 1,
+        },
+        _args("tool"),
+    )
     hook.cmd_stop({"session_id": session, "cwd": "/repo"}, _args("stop"))
 
-    assert len(staged) == 1
-    flushed = _last_staged(staged)
-    assert flushed["agent_name"] == "agent-x"
+    assert len(staged) == 2
+    assert state.read_flush(staged[0])["episode"]["outcome"]["is_success"] is True
+    second = _last_staged(staged)
+    assert second["episode"]["outcome"]["is_success"] is False
     assert (
-        flushed["episode"]["outcome"]["is_success"] is False
-    )  # rework overrode the green
-    assert flushed["do_observe"] is True  # 2 material steps
-    assert flushed["do_reinforce"] is True  # L1 was offered
-    # Steps validate against the wire StepModel shape (no client-only fields).
-    for step in flushed["episode"]["steps"]:
-        assert set(step) <= {"id", "name", "args", "status", "result", "error"}
-        assert step["id"]
-        StepRecord(**step)
+        second["episode"]["run_id"]
+        != state.read_flush(staged[0])["episode"]["run_id"]
+    )
 
 
 def test_observed_empty_offer_turn_reinforces(_env, monkeypatch) -> None:
@@ -194,12 +305,64 @@ def test_observed_empty_offer_turn_reinforces(_env, monkeypatch) -> None:
             },
         ],
     )
-    assert staged == []  # deferred until the next turn resolves it
-    _run_turn(session, "next", [{"tool_name": "Read", "file_path": "a.py"}])
-
     flushed = state.read_flush(staged[0])
     assert flushed["do_observe"] is True
     assert flushed["do_reinforce"] is True  # empty offer still closes the loop
+
+
+@pytest.mark.parametrize(
+    ("steps", "native_status"),
+    [
+        ([{"tool_name": "Read", "file_path": "a.py"}], None),
+        ([{"tool_name": "Edit", "file_path": "a.py", "tool_response": "ok"}], None),
+        (
+            [
+                {"tool_name": "Edit", "file_path": "a.py", "tool_response": "ok"},
+                {"tool_name": "Edit", "file_path": "b.py", "tool_response": "ok"},
+            ],
+            "completed",
+        ),
+        (
+            [
+                {"tool_name": "Edit", "file_path": "a.py", "tool_response": "ok"},
+                {
+                    "tool_name": "Bash",
+                    "command": "pytest",
+                    "tool_response": "ok",
+                    "exit_code": 0,
+                },
+            ],
+            None,
+        ),
+    ],
+)
+def test_reinforcing_and_closing_the_loop_cannot_be_moved_apart(
+    _env, steps, native_status
+) -> None:
+    """No lever moves credited turns without moving half-open ones the other way.
+
+    A turn either observes and reinforces together, or declines. No shape closes a
+    run without crediting it or credits one without closing it, which is what makes a
+    rise in reinforce and a fall in half-open the same event rather than two.
+    """
+    staged = _env
+    session = f"s-coupled-{len(steps)}-{native_status}"
+    hook.cmd_prompt(
+        {"session_id": session, "prompt": "work", "cwd": "/repo"}, _args("prompt")
+    )
+    for step in steps:
+        hook.cmd_tool({"session_id": session, "cwd": "/repo", **step}, _args("tool"))
+    payload = {"session_id": session, "cwd": "/repo"}
+    if native_status:
+        payload["status"] = native_status
+    hook.cmd_stop(payload, _args("stop"))
+
+    assert len(staged) == 1  # every turn closes its run, exactly once
+    flushed = _last_staged(staged)
+    if "decline" in flushed:
+        assert "episode" not in flushed
+    else:
+        assert flushed["do_observe"] is True and flushed["do_reinforce"] is True
 
 
 def test_trivial_turn_without_offer_declines(_env, monkeypatch) -> None:
@@ -214,7 +377,6 @@ def test_trivial_turn_without_offer_declines(_env, monkeypatch) -> None:
     monkeypatch.setattr(hook, "_spawn_resolve", lambda session_id: None)  # no offer
     session = "s-trivial"
     _run_turn(session, "just read", [{"tool_name": "Read", "file_path": "a.py"}])
-    _run_turn(session, "read again", [{"tool_name": "Read", "file_path": "b.py"}])
 
     assert len(staged) == 1
     flushed = state.read_flush(staged[0])
@@ -229,7 +391,6 @@ def test_turn_with_no_tool_calls_declines_as_no_tool_calls(_env, monkeypatch) ->
     monkeypatch.setattr(hook, "_spawn_resolve", lambda session_id: None)
     session = "s-chat"
     _run_turn(session, "what does this do?", [])
-    _run_turn(session, "and this?", [])
 
     assert len(staged) == 1
     flushed = state.read_flush(staged[0])
@@ -258,21 +419,6 @@ def test_new_task_keeps_green(_env) -> None:
             "command": "pytest",
             "tool_response": "ok",
             "exit_code": 0,
-        },
-        _args("tool"),
-    )
-    hook.cmd_stop({"session_id": session, "cwd": "/repo"}, _args("stop"))
-    # Turn 2 is a different file, ambiguous prompt -> turn 1 stays green.
-    hook.cmd_prompt(
-        {"session_id": session, "prompt": "now add b.py", "cwd": "/repo"},
-        _args("prompt"),
-    )
-    hook.cmd_tool(
-        {
-            "session_id": session,
-            "tool_name": "Edit",
-            "file_path": "b.py",
-            "tool_response": "ok",
         },
         _args("tool"),
     )
@@ -348,26 +494,118 @@ def test_interrupted_turn_is_recovered(_env) -> None:
         },
         _args("tool"),
     )
-    # No cmd_stop. Turn 2 begins: the orphan must be promoted, not discarded.
+    # No cmd_stop. Turn 2 begins: the orphan is delivered now, not discarded, and it
+    # keeps its own evidence (the passing test run) rather than an optimistic default.
     hook.cmd_prompt(
         {"session_id": session, "prompt": "now edit b.py", "cwd": "/repo"},
         _args("prompt"),
     )
-    pending = state.read_pending(session)
-    assert pending is not None and pending.goal == "edit a.py"  # orphan promoted
-    # Turn 2 completes -> the recovered turn 1 is resolved and flushed, not lost.
-    hook.cmd_tool(
-        {
-            "session_id": session,
-            "tool_name": "Edit",
-            "file_path": "b.py",
-            "tool_response": "ok",
-        },
-        _args("tool"),
-    )
-    hook.cmd_stop({"session_id": session, "cwd": "/repo"}, _args("stop"))
+
     assert len(staged) == 1
-    assert _last_staged(staged)["episode"]["goal"] == "edit a.py"
+    recovered = _last_staged(staged)
+    assert recovered["episode"]["goal"] == "edit a.py"
+    assert recovered["episode"]["outcome"]["is_success"] is True
+    assert state.read_active(session) is not None  # turn 2 is under way
+
+
+def test_an_orphan_with_no_evidence_is_declined_not_credited(_env) -> None:
+    """A session that died mid-turn has no stop payload, so it has nothing to credit."""
+    staged = _env
+    session = "s-crashed"
+    hook.cmd_prompt(
+        {"session_id": session, "prompt": "edit a.py", "cwd": "/repo"}, _args("prompt")
+    )
+    for path in ("a.py", "b.py"):
+        hook.cmd_tool(
+            {
+                "session_id": session,
+                "tool_name": "Edit",
+                "file_path": path,
+                "tool_response": "ok",
+            },
+            _args("tool"),
+        )
+    hook.cmd_prompt(
+        {"session_id": session, "prompt": "carry on", "cwd": "/repo"}, _args("prompt")
+    )
+
+    assert len(staged) == 1
+    assert _last_staged(staged)["decline"]["reason"] == "unevidenced_outcome"
+
+
+def test_a_stop_racing_the_sweep_delivers_the_turn_once(_env) -> None:
+    """The two writers that can now reach one turn, interleaved rather than in sequence.
+
+    The sweep's orphan recovery and the turn's own stop both stage directly, with no
+    pending file to serialise them. The guard is ``stage_flush`` keying the staged
+    filename on the run id, so the loser overwrites the winner instead of adding a
+    second delivery for the same run.
+    """
+    staged = _env
+    session = "s-race"
+    hook.cmd_prompt(
+        {"session_id": session, "prompt": "work", "cwd": "/repo"}, _args("prompt")
+    )
+    for path in ("a.py", "b.py"):
+        hook.cmd_tool(
+            {
+                "session_id": session,
+                "tool_name": "Edit",
+                "file_path": path,
+                "tool_response": "ok",
+            },
+            _args("tool"),
+        )
+    active = state.read_active(session)
+    assert active is not None
+    aged = replace(active, started_at=0.0)
+    state.write_active(session, aged, reset_steps=False)
+
+    # Both writers read the turn before either retires it, which is the whole race: the
+    # sweep judges the session abandoned and stages it, while the stop hook is already
+    # holding the copy it read. Restoring the active turn between them reproduces that
+    # interleaving. Running them in plain sequence would not: the sweep's retire makes
+    # the stop a no-op, only one write happens, and the guard is never reached.
+    hook._sweep_stale(exclude="other-session")
+    state.write_active(session, aged, reset_steps=False)
+    hook.cmd_stop({"session_id": session, "cwd": "/repo"}, _args("stop"))
+
+    assert len(staged) == 2, "both writers must stage, or this proves nothing"
+    assert staged[0] == staged[1]  # the second write replaced the first in place
+    flush_dir = state.session_dir(session) / "flushing"
+    staged_files = list(flush_dir.glob("*.json"))
+    assert len(staged_files) == 1, "one run id must never yield two staged deliveries"
+    assert state.read_flush(staged_files[0])["decline"]["run_id"] == active.run_id
+
+
+def test_the_sweep_declines_an_orphan_from_a_session_that_never_stopped(
+    _env, monkeypatch
+) -> None:
+    """The sweep's second job: a session abandoned before Stop still closes its run."""
+    staged = _env
+    hook.cmd_prompt(
+        {"session_id": "s-dead", "prompt": "edit a.py", "cwd": "/repo"}, _args("prompt")
+    )
+    for path in ("a.py", "b.py"):
+        hook.cmd_tool(
+            {
+                "session_id": "s-dead",
+                "tool_name": "Edit",
+                "file_path": path,
+                "tool_response": "ok",
+            },
+            _args("tool"),
+        )
+    orphan = state.read_active("s-dead")
+    assert orphan is not None
+    state.write_active(
+        "s-dead", replace(orphan, started_at=0.0), reset_steps=False
+    )
+
+    hook._sweep_stale(exclude="other-session")
+
+    assert len(staged) == 1
+    assert _last_staged(staged)["decline"]["reason"] == "unevidenced_outcome"
 
 
 def test_read_and_edit_results_not_shipped(_env) -> None:
@@ -395,9 +633,16 @@ def test_read_and_edit_results_not_shipped(_env) -> None:
         },
         _args("tool"),
     )
-    hook.cmd_stop({"session_id": session, "cwd": "/repo"}, _args("stop"))
-    hook.cmd_prompt(
-        {"session_id": session, "prompt": "next", "cwd": "/repo"}, _args("prompt")
+    # A command step, so the turn is evidenced and reaches the episode path at all.
+    hook.cmd_tool(
+        {
+            "session_id": session,
+            "tool_name": "Bash",
+            "command": "pytest",
+            "tool_response": "ok",
+            "exit_code": 0,
+        },
+        _args("tool"),
     )
     hook.cmd_stop({"session_id": session, "cwd": "/repo"}, _args("stop"))
     flushed = _last_staged(staged)
@@ -405,7 +650,8 @@ def test_read_and_edit_results_not_shipped(_env) -> None:
     assert "RAW_FILE_BODY_LINE" not in blob  # read content never ships
     assert "RAW_DIFF_BODY" not in blob  # edit diff never ships
     for step in flushed["episode"]["steps"]:
-        assert step["result"] is None  # no result body for read/edit steps
+        if step["name"] != "Bash":
+            assert step["result"] is None  # no result body for read/edit steps
 
 
 def test_run_id_preserved_end_to_end(_env, monkeypatch) -> None:
@@ -450,12 +696,8 @@ def test_run_id_preserved_end_to_end(_env, monkeypatch) -> None:
         _args("tool"),
     )
     hook.cmd_stop({"session_id": session, "cwd": "/repo"}, _args("stop"))
-    hook.cmd_prompt(
-        {"session_id": session, "prompt": "y", "cwd": "/repo"}, _args("prompt")
-    )
-    hook.cmd_stop({"session_id": session, "cwd": "/repo"}, _args("stop"))
     flushed = _last_staged(staged)
-    # The shipped run_id must equal turn 1's resolve run_id (the server keys its
+    # The shipped run_id must equal this turn's resolve run_id (the server keys its
     # offer log on that id).
     assert flushed["episode"]["run_id"] == run_ids[0]
     assert "[REDACTED]" not in flushed["episode"]["run_id"]
@@ -496,40 +738,88 @@ def test_dump_command_output_dropped(_env) -> None:
     assert "rawcontents" not in blob
 
 
-def test_eviction_flushes_stale_pending(_env) -> None:
+def test_a_pending_file_from_the_previous_release_is_drained_not_stranded(
+    _env,
+) -> None:
+    """On upgrade, a machine may hold turns this release's code no longer writes.
+
+    Written here by hand, because nothing in the tree can produce one any more, which
+    is exactly why the drain would go untested if this used a writer.
+    """
     staged = _env
-    state.write_pending(
-        "oldsess",
-        state.PendingTurn(
-            run_id="agent-x:oldsess:r1",
-            agent_name="agent-x",
-            goal="g",
-            steps=(
-                {
-                    "id": "1",
-                    "name": "Edit",
-                    "args": {"path": "a.py"},
-                    "status": "completed",
-                    "kind": "edit",
-                },
-                {
-                    "id": "2",
-                    "name": "Bash",
-                    "args": {"command": "pytest"},
-                    "status": "completed",
-                    "kind": "command",
-                },
-            ),
-            is_success=True,
-            source_framework="claude-code",
-            ended_at=0.0,  # far past the eviction window
-            offered_learning_ids=("L1",),
-        ),
+    session_dir = state.session_dir("oldsess")
+    state.ensure_private_dir(session_dir)
+    (session_dir / PENDING_FILE).write_text(
+        json.dumps(
+            {
+                "run_id": "agent-x:oldsess:r1",
+                "agent_name": "agent-x",
+                "goal": "g",
+                "steps": [
+                    {
+                        "id": "1",
+                        "name": "Edit",
+                        "args": {"path": "a.py"},
+                        "status": "completed",
+                        "kind": "edit",
+                    },
+                    {
+                        "id": "2",
+                        "name": "Bash",
+                        "args": {"command": "pytest"},
+                        "status": "completed",
+                        "kind": "command",
+                    },
+                ],
+                "is_success": True,
+                "source_framework": "claude-code",
+                "ended_at": 0.0,
+                "offered_learning_ids": ["L1"],
+            }
+        )
     )
+
     hook._sweep_stale(exclude="other")
+
     assert len(staged) == 1
     assert state.read_pending("oldsess") is None
-    assert _last_staged(staged)["episode"]["run_id"] == "agent-x:oldsess:r1"
+    drained = _last_staged(staged)
+    assert drained["episode"]["run_id"] == "agent-x:oldsess:r1"
+    # Drained on the boolean label that file recorded, not re-derived from its steps.
+    assert drained["episode"]["outcome"]["is_success"] is True
+
+
+def test_the_drain_reaches_the_session_the_user_upgraded_inside(_env) -> None:
+    """The commonest holder of a stale pending file is the session still being used.
+
+    ``exclude`` exists to stop the sweep taking the caller's own live turn. Letting it
+    cover the drain as well would strand exactly the case the drain is for, until the
+    user happened to open some other session.
+    """
+    staged = _env
+    session_dir = state.session_dir("s-upgraded")
+    state.ensure_private_dir(session_dir)
+    (session_dir / PENDING_FILE).write_text(
+        json.dumps(
+            {
+                "run_id": "agent-x:s-upgraded:r1",
+                "agent_name": "agent-x",
+                "goal": "g",
+                "steps": [
+                    {"id": "1", "name": "Edit", "args": {}, "status": "completed"},
+                    {"id": "2", "name": "Bash", "args": {}, "status": "completed"},
+                ],
+                "is_success": True,
+                "source_framework": "claude-code",
+                "ended_at": 0.0,
+            }
+        )
+    )
+
+    hook._sweep_stale(exclude="s-upgraded")
+
+    assert len(staged) == 1
+    assert state.read_pending("s-upgraded") is None
 
 
 def test_sweep_removes_recall_without_an_active_turn(_env) -> None:
@@ -791,12 +1081,11 @@ def test_episode_holds_the_step_cap_and_still_counts_the_whole_turn() -> None:
         {"id": f"s{n}", "name": "Bash", "args": {}, "status": "completed"}
         for n in range(MAX_EPISODE_STEPS + 20)
     ]
-    pending = state.PendingTurn(
+    pending = state.FinishedTurn(
         run_id="a:b:c",
         agent_name="agent-x",
         goal="g",
         steps=tuple(steps),
-        is_success=True,
         source_framework="claude-code",
         ended_at=0.0,
     )
@@ -1119,10 +1408,6 @@ def test_cursor_rendezvous_credits_reinforce(_env) -> None:
         hook._parse_args(["tool", *cc, "--kind", "command"]),
     )
     hook.cmd_stop(conv, hook._parse_args(["stop", *cc]))
-    assert staged == []  # deferred
-    # Next turn finalises and flushes the prior one.
-    hook.cmd_prompt({**conv, "prompt": "next"}, hook._parse_args(["prompt", *cc]))
-    hook.cmd_stop(conv, hook._parse_args(["stop", *cc]))
     flushed = _last_staged(staged)
     assert flushed["do_observe"] is True  # 2 material steps captured under c1
     assert flushed["do_reinforce"] is True  # offered ids rendezvoused with the turn
@@ -1150,6 +1435,13 @@ def test_uninjected_recall_credits_nothing_and_is_removed(_env) -> None:
     never be mistaken for a used one.
     """
     staged = _env
+    delivered: list[state.FinishedTurn] = []
+    real_stage_and_flush = hook._stage_and_flush
+
+    def capture(session_id, turn, turn_outcome):
+        delivered.append(turn)
+        real_stage_and_flush(session_id, turn, turn_outcome)
+
     conv = {"conversation_id": "c1", "cwd": "/repo"}
     hook.cmd_prompt(
         {**conv, "prompt": "do x"},
@@ -1163,13 +1455,12 @@ def test_uninjected_recall_credits_nothing_and_is_removed(_env) -> None:
         {**conv, "command": "pytest"},
         hook._parse_args(["tool", "--source", "cursor", "--kind", "command"]),
     )
-    hook.cmd_stop(conv, hook._parse_args(["stop", "--source", "cursor"]))
-    pending = state.read_pending("c1")
-    assert (
-        pending is not None and pending.offered_learning_ids == ()
-    )  # nothing credited
+    with pytest.MonkeyPatch.context() as patch:
+        patch.setattr(hook, "_stage_and_flush", capture)
+        hook.cmd_stop(conv, hook._parse_args(["stop", "--source", "cursor"]))
+
+    assert [turn.offered_learning_ids for turn in delivered] == [()]  # nothing credited
     assert state.claim_recall("c1") is None  # the stale recall is removed
-    hook._stage_and_flush("c1", pending, True)
     flushed = _last_staged(staged)
     assert flushed["do_observe"] is True
     assert flushed["do_reinforce"] is True  # a material turn still closes its loop
@@ -1901,74 +2192,28 @@ def test_deliver_decline_reports_a_terminal_rejection(_env, monkeypatch) -> None
     assert cause == "HTTP 422"
 
 
-def test_the_successors_message_lands_on_the_prior_turns_episode() -> None:
-    """The objection is typed on turn N+1 and is about turn N."""
-    pending = state.PendingTurn(
+def test_this_host_no_longer_puts_an_utterance_on_the_wire() -> None:
+    """Asserted by the key's absence, so reintroducing it unpopulated fails here.
+
+    The field remains on the API for callers with a human-input channel to populate.
+    This host had one only because it deferred a turn until the next message arrived,
+    and with the deferral gone there is no moment at which it could honestly speak for
+    the turn being written.
+    """
+    finished = state.FinishedTurn(
         run_id="r1",
         agent_name="a",
         goal="fix the vacuity gate",
         steps=({"status": "completed", "description": "edit"},),
-        is_success=True,
-        source_framework="claude-code",
-        ended_at=0.0,
-        principal_utterance="we do not add word lists to our code",
-    )
-
-    episode = hook._build_episode(pending, is_success=False)
-
-    assert episode["principal_utterance"] == "we do not add word lists to our code"
-
-
-def test_a_turn_with_no_successor_message_sends_none() -> None:
-    pending = state.PendingTurn(
-        run_id="r1",
-        agent_name="a",
-        goal="fix the vacuity gate",
-        steps=({"status": "completed", "description": "edit"},),
-        is_success=True,
         source_framework="claude-code",
         ended_at=0.0,
     )
 
-    assert hook._build_episode(pending, is_success=True)["principal_utterance"] is None
+    episode = hook._build_episode(finished, is_success=True)
 
-
-class TestUtteranceAdmission:
-    """A non-empty utterance authorises a frozen, undecayable, primacy-rendered rule."""
-
-    def test_an_ordinary_message_is_admitted(self) -> None:
-        assert (
-            hook._principal_utterance("we use British English here", "sess-1")
-            == "we use British English here"
-        )
-
-    def test_a_derived_session_admits_nothing(self) -> None:
-        """Two conversations collapse onto one derived session, so the turn is not established."""
-        assert (
-            hook._principal_utterance("we use British English here", "derived-42-abc")
-            == ""
-        )
-
-    def test_a_message_the_scrub_touched_is_refused(self) -> None:
-        scrubbed = f"the key is {REDACTION_MARKER} so be careful"
-
-        assert hook._principal_utterance(scrubbed, "sess-1") == ""
-
-    def test_a_message_past_the_bound_is_refused_not_truncated(self) -> None:
-        """Half a stated norm can mean the opposite of the whole one."""
-        assert (
-            hook._principal_utterance("x" * (hook.MAX_UTTERANCE_CHARS + 1), "sess-1")
-            == ""
-        )
-
-    def test_a_message_at_the_bound_is_kept(self) -> None:
-        at_bound = "y" * hook.MAX_UTTERANCE_CHARS
-
-        assert hook._principal_utterance(at_bound, "sess-1") == at_bound
-
-    def test_every_measured_norm_statement_fits(self) -> None:
-        """Calibrated on real sessions: the longest observed statement was 368 characters."""
-        assert hook.MAX_UTTERANCE_CHARS > 368
+    assert "principal_utterance" not in episode
+    assert not hasattr(finished, "principal_utterance")
+    assert "principal_utterance" not in redact_ide_episode(episode)
 
 
 def test_delivery_carries_the_utterance_to_the_client() -> None:
@@ -2185,19 +2430,19 @@ def test_an_interrupted_turn_still_reports_what_the_editor_accepted(
     assert orphan is not None
     path = _transcript(tmp_path, _accepted_line(orphan.run_id, "- the recovered rule"))
 
-    hook.cmd_prompt(
-        {
-            "session_id": session,
-            "prompt": "now edit b.py",
-            "cwd": "/repo",
-            "transcript_path": path,
-        },
-        _args("prompt"),
-    )
+    with _capturing_delivered_turns() as delivered:
+        hook.cmd_prompt(
+            {
+                "session_id": session,
+                "prompt": "now edit b.py",
+                "cwd": "/repo",
+                "transcript_path": path,
+            },
+            _args("prompt"),
+        )
 
-    pending = state.read_pending(session)
-    assert pending is not None
-    assert "the recovered rule" in pending.context_receipt
+    assert len(delivered) == 1
+    assert "the recovered rule" in delivered[0].context_receipt
 
 
 def test_a_swept_turn_reads_the_transcript_it_recorded_at_its_start(
@@ -2224,12 +2469,12 @@ def test_a_swept_turn_reads_the_transcript_it_recorded_at_its_start(
         ),
     )
 
-    hook._sweep_stale(exclude="other")
+    with _capturing_delivered_turns() as delivered:
+        hook._sweep_stale(exclude="other")
 
-    pending = state.read_pending("oldsess")
-    assert pending is not None
-    assert "the swept rule" in pending.context_receipt
-    assert staged == []  # the swept turn becomes pending; its own flush waits
+    assert len(delivered) == 1
+    assert "the swept rule" in delivered[0].context_receipt
+    assert len(staged) == 1  # the swept turn is delivered, not held
 
 
 def test_the_live_payloads_transcript_wins_over_the_one_stored_at_turn_start(
@@ -2252,14 +2497,14 @@ def test_the_live_payloads_transcript_wins_over_the_one_stored_at_turn_start(
     current.write_text(_accepted_line(active.run_id, "- the rule after resume") + "\n")
     state.write_active(session, replace(active, is_injected=True), reset_steps=False)
 
-    hook.cmd_stop(
-        {"session_id": session, "cwd": "/repo", "transcript_path": str(current)},
-        _args("stop"),
-    )
+    with _capturing_delivered_turns() as delivered:
+        hook.cmd_stop(
+            {"session_id": session, "cwd": "/repo", "transcript_path": str(current)},
+            _args("stop"),
+        )
 
-    pending = state.read_pending(session)
-    assert pending is not None
-    assert "the rule after resume" in pending.context_receipt
+    assert len(delivered) == 1
+    assert "the rule after resume" in delivered[0].context_receipt
 
 
 def test_only_claude_codes_block_is_stamped_with_a_marker(_env, capsys) -> None:

@@ -85,6 +85,7 @@ HOOK_DEBUG_OFF_VALUES = frozenset({"", "0", "false", "no", "off"})
 
 SOURCE_CLAUDE_CODE = "claude-code"
 SOURCE_CURSOR = "cursor"
+SOURCE_OPENHANDS = "openhands"
 
 # -- timing / gating ---------------------------------------------------------
 
@@ -181,5 +182,9 @@ MATERIAL_KINDS = frozenset({STEP_KIND_EDIT, STEP_KIND_COMMAND})
 STATUS_COMPLETED = "completed"
 STATUS_FAILED = "failed"
 
-# Native terminal statuses an editor may report at stop that mean failure.
-NATIVE_FAILURE_STATUSES = frozenset({"aborted", "error", "cancelled", "failed"})
+# Statuses a host may put on a single tool result that mean that call failed. This
+# is a per-step signal, not a verdict on the turn: a turn's terminal status is read
+# against the vocabulary its own host declares (see host_vocabularies). Membership
+# here decides failure and non-membership decides nothing, because a step's outcome
+# is corroborated by an exit code, stderr and an error field alongside it.
+STEP_FAILURE_STATUSES = frozenset({"aborted", "error", "cancelled", "failed"})

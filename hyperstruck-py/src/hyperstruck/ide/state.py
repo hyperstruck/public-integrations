@@ -57,18 +57,18 @@ class ActiveTurn:
 
 
 @dataclass(frozen=True)
-class PendingTurn:
-    """A finished turn awaiting outcome ground truth from the next prompt.
+class FinishedTurn:
+    """A turn that has ended, carrying everything its delivery needs except its label.
 
-    ``is_success`` is the *provisional* label computed at turn end; the next
-    prompt may override it before the episode is written.
+    Built in memory at the turn's own stop and staged immediately. The label travels
+    beside it rather than on it, because a record that carried one would have two
+    sources of truth for the same verdict and only one of them read.
     """
 
     run_id: str
     agent_name: str
     goal: str
     steps: tuple[dict[str, Any], ...]
-    is_success: bool
     source_framework: str
     ended_at: float
     offered_learning_ids: tuple[str, ...] = field(default_factory=tuple)
@@ -76,11 +76,6 @@ class PendingTurn:
     # recall reached the model: a turn can be shown its learnings and then do too
     # little to be worth learning from, and only the host knows which happened.
     is_injected: bool = False
-    # The message the principal typed on the NEXT turn, attached here because that is when an
-    # objection to this turn actually arrives. Empty when there was no successor, or when the
-    # message could not honestly be offered as the principal's own words (see
-    # hook._principal_utterance for the four rules that decide).
-    principal_utterance: str = ""
     # What the editor recorded itself accepting for this turn, its own artefact rather
     # than this client's claim. Empty when the host produced none, which credits nothing.
     context_receipt: str = ""
@@ -213,18 +208,21 @@ def read_steps(session_id: str) -> list[dict[str, Any]]:
     return steps
 
 
-# -- pending turn ------------------------------------------------------------
+# -- turn retirement ---------------------------------------------------------
 
 
-def write_pending(session_id: str, pending: PendingTurn) -> None:
-    """Move the finished turn into ``pending`` and retire its active state."""
-    sdir = session_dir(session_id)
-    _write_json_atomic(sdir / PENDING_FILE, _pending_to_dict(pending))
+def retire_active(session_id: str) -> None:
+    """Close out a turn once it has been staged for delivery."""
     clear_active(session_id)
     clear_recall(session_id)
 
 
-def read_pending(session_id: str) -> PendingTurn | None:
+def read_pending(session_id: str) -> tuple[FinishedTurn, bool] | None:
+    """A turn an earlier release deferred to disk, with the label that file recorded.
+
+    The label comes back alongside the turn rather than on it, because it is the older
+    code's verdict travelling with older data, not something this release computed.
+    """
     return _pending_from_dict(_read_json(session_dir(session_id) / PENDING_FILE))
 
 
@@ -238,16 +236,22 @@ def clear_pending(session_id: str) -> None:
 def stage_flush(session_id: str, run_id: str, episode_payload: dict[str, Any]) -> Path:
     """Hand a resolved episode to a detached flush, keyed by the real run id.
 
-    Writing it under ``flushing/`` decouples delivery from the active/pending
-    lifecycle, so the next turn can proceed while the flush runs in another
-    process. The filename uses the caller's *un-redacted* run id (the redacted
-    episode's run id would collapse to a constant and collide across turns,
-    overwriting an undelivered episode), with a uuid fallback to keep the name
-    unique even if the id is empty.
+    Writing it under ``flushing/`` decouples delivery from the turn lifecycle, so
+    the next turn can proceed while the flush runs in another process. The filename
+    uses the caller's *un-redacted* run id (the redacted episode's run id would
+    collapse to a constant and collide across turns, overwriting an undelivered
+    episode).
+
+    That name is the single-delivery guard: one run id yields one path, so a second
+    stage of the same turn atomically replaces the first file rather than adding a
+    second one, and the run can be delivered at most once. Two writers can reach the
+    same turn now that a stop and the sweep's orphan recovery both stage directly. A
+    uuid is used only when there is no run id to key on, where there is no identity
+    to collapse onto and losing one write would be worse than delivering two.
     """
     flush_dir = session_dir(session_id) / FLUSHING_SUBDIR
     ensure_private_dir(flush_dir)
-    name = f"{_safe_name(run_id)}-{uuid.uuid4().hex}"
+    name = _safe_name(run_id) if run_id else f"unkeyed-{uuid.uuid4().hex}"
     path = flush_dir / f"{name}.json"
     _write_json_atomic(path, episode_payload)
     return path
@@ -364,23 +368,17 @@ def remove_session_if_empty(session_id: str) -> None:
 # -- serialisation helpers ---------------------------------------------------
 
 
-def _pending_to_dict(pending: PendingTurn) -> dict[str, Any]:
-    data = asdict(pending)
-    data["steps"] = list(pending.steps)
-    data["offered_learning_ids"] = list(pending.offered_learning_ids)
-    return data
-
-
-def _pending_from_dict(data: dict[str, Any] | None) -> PendingTurn | None:
+def _pending_from_dict(
+    data: dict[str, Any] | None,
+) -> tuple[FinishedTurn, bool] | None:
     if not data:
         return None
     try:
-        return PendingTurn(
+        turn = FinishedTurn(
             run_id=data["run_id"],
             agent_name=data.get("agent_name") or data.get("agent_id", ""),
             goal=data.get("goal", ""),
             steps=tuple(data.get("steps") or ()),
-            is_success=bool(data.get("is_success", True)),
             source_framework=data.get("source_framework", ""),
             ended_at=float(data.get("ended_at", 0.0)),
             offered_learning_ids=tuple(data.get("offered_learning_ids") or ()),
@@ -388,11 +386,11 @@ def _pending_from_dict(data: dict[str, Any] | None) -> PendingTurn | None:
             # so a pending turn reloaded from disk always reported False and the decline
             # payload's is_delivered was permanently wrong.
             is_injected=bool(data.get("is_injected", False)),
-            principal_utterance=data.get("principal_utterance", ""),
             context_receipt=data.get("context_receipt", ""),
         )
     except (KeyError, TypeError, ValueError):
         return None
+    return turn, bool(data.get("is_success", True))
 
 
 # -- filesystem primitives ---------------------------------------------------

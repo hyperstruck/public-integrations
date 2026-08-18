@@ -5,20 +5,19 @@ Where the middleware runs the resolve/observe/reinforce loop inside one
 editor, sharing per-turn state on disk (see :mod:`hyperstruck.ide.state`):
 
 * ``prompt`` (Claude Code ``UserPromptSubmit``; the Cursor skill calls it too):
-  flushes the previous turn now that this prompt is its ground truth, sweeps
-  stale sessions, records the new active turn, and detaches its resolve.
+  recovers any turn whose stop never fired, sweeps stale sessions, records the new
+  active turn, and detaches its resolve.
 * ``resolve`` (internal, detached): resolves the active goal into a recall stash.
 * ``tool`` (``PostToolUse`` / Cursor tool hooks): appends one redacted step and,
   on the first eligible hook, atomically claims and injects the recall stash.
-* ``stop`` (``Stop`` / Cursor ``stop``): finalises the turn with a provisional
-  outcome and holds it as pending. No write to the platform yet.
+* ``stop`` (``Stop`` / Cursor ``stop``): labels the turn from its own evidence and
+  stages it for delivery. Nothing is held for a successor turn.
 * ``flush`` (internal, detached): delivers one turn's observe then reinforce.
 
 Every command fails open: any error exits 0 with no output, so the learning loop
-can never block or break the user's editing. The deferred write for turn N runs
-at the *start* of turn N+1 (or at stale eviction), once the next prompt supplies
-ground truth, and is handed to a detached ``flush`` process so it never delays the
-prompt the user is waiting on.
+can never block or break the user's editing. A turn is written at its own stop and
+handed to a detached ``flush`` process, so it never delays the editor and never
+depends on a later event that a one-shot run will not produce.
 """
 
 from __future__ import annotations
@@ -44,6 +43,7 @@ from typing import Any
 from hyperstruck._wire import (
     REASON_BELOW_MATERIAL_THRESHOLD,
     REASON_NO_TOOL_CALLS,
+    REASON_UNEVIDENCED_OUTCOME,
     EvidenceItem,
 )
 from hyperstruck.client import DEFAULT_RECALL_TIMEOUT, HostedLearningClient
@@ -67,22 +67,23 @@ from hyperstruck.ide.constants import (
     MIN_RECALL_TIMEOUT,
     MINTED_RUN_ID_CHARS,
     MINTED_RUN_ID_TOKEN,
-    NATIVE_FAILURE_STATUSES,
     SOURCE_CLAUDE_CODE,
     SOURCE_CURSOR,
     STATUS_COMPLETED,
     STATUS_FAILED,
+    STEP_FAILURE_STATUSES,
     hyper_home,
 )
 from hyperstruck.ide.gating import classify_tool, should_observe
+from hyperstruck.ide.host_vocabularies import vocabulary_for
 from hyperstruck.ide.redaction import (
     clip_goal,
     clip_result,
     redact_ide_episode,
     scrub_secrets,
 )
-from hyperstruck.ide.state import ActiveTurn, PendingTurn
-from hyperstruck.redaction import REDACTION_MARKER, known_credential_match
+from hyperstruck.ide.state import ActiveTurn, FinishedTurn
+from hyperstruck.redaction import known_credential_match
 
 # Wire fields of a step (the rest of a stored step, e.g. ``kind``, is client-only).
 _WIRE_STEP_FIELDS = ("id", "name", "args", "status", "result", "error")
@@ -106,12 +107,10 @@ def cmd_prompt(payload: dict[str, Any], args: argparse.Namespace) -> None:
     # Scrubbed here, not just in redact_ide_episode: this goal also goes to
     # resolve, which the episode redaction never touches.
     # --goal is honoured only for read-only recall. On the recording path the goal must come
-    # from the host's prompt payload and nothing else, because it becomes the principal's
-    # utterance on the previous turn, and a non-empty utterance is what authorises a rule that
-    # is frozen against outcomes and rendered at the top of every future prompt. The installed
-    # hooks already pass stdin, but this CLI is invocable by any agent with a shell, including
-    # one under prompt injection, so the restriction has to live in the code rather than in
-    # which argv the installer happens to write.
+    # from the host's prompt payload and nothing else: it is the turn's stated intent and it
+    # reaches the corpus. The installed hooks already pass stdin, but this CLI is invocable by
+    # any agent with a shell, including one under prompt injection, so the restriction has to
+    # live in the code rather than in which argv the installer happens to write.
     raw_goal = (args.goal if args.readonly else payload.get("prompt")) or ""
     goal = clip_goal(scrub_secrets(raw_goal.strip()))
     agent_name = configured_agent_name()
@@ -133,8 +132,9 @@ def cmd_prompt(payload: dict[str, Any], args: argparse.Namespace) -> None:
         return
 
     # 1. Orphan recovery: a turn interrupted before its stop hook fired never
-    #    finalised. Treat it as a completed turn now (it really happened): it
-    #    resolves the prior pending and becomes pending itself.
+    #    finalised. It really happened, so close it now. With no stop payload it has
+    #    no native status, so it is labelled from its steps alone and declines when
+    #    they say nothing, rather than being credited for having been interrupted.
     orphan = state.read_active(session_id)
     if orphan is not None:
         # An interrupted turn still showed the model its recall, and its marker is
@@ -147,7 +147,7 @@ def cmd_prompt(payload: dict[str, Any], args: argparse.Namespace) -> None:
             native_status=None,
             context_receipt=_acceptance_record(orphan, payload),
         )
-    # 2. Sweep stale sessions on their provisional label (backstop delivery).
+    # 2. Sweep stale sessions (backstop delivery).
     _sweep_stale(exclude=session_id)
     # 3. No configured agent means nothing to learn into: fail open, no injection.
     if not agent_name:
@@ -216,7 +216,7 @@ def cmd_tool(payload: dict[str, Any], args: argparse.Namespace) -> None:
 
 
 def cmd_stop(payload: dict[str, Any], args: argparse.Namespace) -> None:
-    """Turn end: resolve the prior turn with this turn's evidence, hold this one."""
+    """Turn end: label this turn from its own evidence and stage it for delivery."""
     cwd = _cwd(payload, args)
     session_id = resolve_session_id(payload, cwd, args)
     active = state.read_active(session_id)
@@ -724,53 +724,6 @@ def cmd_flush(args: argparse.Namespace) -> None:
 # -- turn finalisation / flush staging ---------------------------------------
 
 
-# A stated standard is short. Measured over real sessions: 18 messages that actually state
-# one run 30 to 368 characters, while the typed-prompt distribution has a median of 46 and a
-# maximum near 20,000. The long tail is pasted logs, code and documents, which are the least
-# likely to be a standard and the most expensive to ship a second time. This is a data
-# minimisation bound, NOT a quality gate: irrelevant utterances were measured not to become
-# norms, so nothing here is protecting precision. Drops are counted, never truncated: half a
-# stated norm can mean the opposite of the whole one.
-MAX_UTTERANCE_CHARS = 500
-
-
-def _principal_utterance(goal: str, session_id: str) -> str:
-    """The successor's message, when it can honestly be offered as the principal's own words.
-
-    Returns "" rather than a best effort, because downstream a non-empty value is what
-    authorises a rule that is frozen against outcomes, never decays, and renders at the top
-    of every future prompt. Anything we cannot stand behind must be absent, not approximate.
-
-    Suppressed when the session id is derived rather than supplied by the host: two
-    conversations in one terminal and working directory collapse onto one session, so the
-    turn this message belongs to is not established, and attributing it to the pending turn
-    asserts an authority we do not have. That is the same confused-deputy reasoning the
-    field-level guarantee rests on, applied one layer up. It lifts on its own once a host
-    supplies real session ids.
-    """
-    if not goal or session_id.startswith("derived-"):
-        return ""
-    if REDACTION_MARKER in goal:
-        # The scrub already fired on this message. A message carrying a credential is strong
-        # evidence it is not a stated standard, and a placeholder frozen into a rule would
-        # render at primacy forever. Reading our own marker, not guessing at content.
-        return ""
-    if len(goal) > MAX_UTTERANCE_CHARS:
-        _count_dropped_utterance(len(goal))
-        return ""
-    return goal
-
-
-def _count_dropped_utterance(length: int) -> None:
-    """Record a message the bound refused, so a real standard lost to it is not invisible.
-
-    The spec's own rule: no cap ships without logging what it drops.
-    """
-    _debug(
-        f"utterance not attached: {length} chars exceeds the {MAX_UTTERANCE_CHARS} bound"
-    )
-
-
 def _finalise(
     session_id: str,
     current: ActiveTurn,
@@ -779,43 +732,34 @@ def _finalise(
     native_status: str | None,
     context_receipt: str | None = None,
 ) -> None:
-    """Resolve the prior turn using this turn's evidence, then hold this turn.
+    """Label this turn from its own evidence and deliver it now.
 
-    The prior pending turn's outcome is decided here, now that this (its
-    successor) turn's actions exist: rework against the prior turn's files marks it
-    failed, otherwise its objective provisional label stands. This turn then
-    becomes the pending turn, resolved when the *following* turn ends.
+    Nothing is held for a successor. A turn whose evidence supports no label is
+    declined rather than credited, so there is nothing left for a later turn to
+    retract, and a run that has no successor by construction (a headless one-shot,
+    or the last turn of any session) still closes its loop at its only stop.
     """
-    prior = state.read_pending(session_id)
-    if prior is not None:
-        final_is_success = outcome.resolve_prior_outcome(
-            prior.is_success,
-            reworked=outcome.reworked(prior.steps, current_steps),
-        )
-        # The objection is typed on this turn but is about the prior one, and this is the
-        # only moment both are in scope: the prior turn is resolved here precisely because
-        # its successor now exists. No buffering, no re-observe, no idempotency problem.
-        prior = replace(
-            prior,
-            principal_utterance=_principal_utterance(current.goal, session_id),
-        )
-        _stage_and_flush(session_id, prior, final_is_success)
-        state.clear_pending(session_id)
-    state.write_pending(
+    turn_outcome = outcome.provisional_outcome(
+        current_steps,
+        native_status,
+        vocabulary_for(current.source_framework),
+    )
+    _stage_and_flush(
         session_id,
-        PendingTurn(
+        FinishedTurn(
             run_id=current.run_id,
             agent_name=current.agent_name,
             goal=current.goal,
             steps=tuple(current_steps),
-            is_success=outcome.provisional_outcome(current_steps, native_status),
             source_framework=current.source_framework,
             ended_at=time.time(),
             offered_learning_ids=current.offered_learning_ids,
             is_injected=current.is_injected,
             context_receipt=context_receipt or "",
         ),
+        turn_outcome,
     )
+    state.retire_active(session_id)
 
 
 def _transcript_path(payload: dict[str, Any], turn: ActiveTurn) -> str:
@@ -869,17 +813,26 @@ def _clipped_receipt(receipt_text: str) -> str | None:
 
 
 def _stage_and_flush(
-    session_id: str, pending: PendingTurn, final_is_success: bool
+    session_id: str, pending: FinishedTurn, turn_outcome: outcome.TurnOutcome
 ) -> None:
-    """Gate, stage the redacted episode with its final label, detach a flush."""
+    """Gate, stage the redacted episode with its label, detach a flush.
+
+    An unevidenced turn never reaches the episode path however material it was.
+    Observing it would have to assert an outcome, and the only assertion available
+    would be a guess; declining closes the run, credits nothing, and asserts
+    nothing, which is what the outcome ladder abstained for.
+    """
     if not pending.agent_name:
         return  # nothing to deliver to (turn captured before an agent was set)
     steps = list(pending.steps)
-    do_observe = should_observe(steps)
     # An observed turn that offered nothing still closes its loop server-side, so
     # reinforce it too; skipping empty offers is what left those runs half-open. A
     # trivial turn (no material steps, no offer) still short-circuits below.
-    do_reinforce = do_observe or bool(pending.offered_learning_ids)
+    is_worth_learning_from = should_observe(steps) or bool(pending.offered_learning_ids)
+    do_observe = turn_outcome.is_evidenced and should_observe(steps)
+    do_reinforce = do_observe or (
+        turn_outcome.is_evidenced and bool(pending.offered_learning_ids)
+    )
     if not (do_observe or do_reinforce):
         # Not worth learning from, but the run it opened is still open server-side,
         # and going quiet made a deliberate skip look identical to a broken host.
@@ -888,14 +841,14 @@ def _stage_and_flush(
             "agent_name": pending.agent_name,
             "decline": {
                 "run_id": pending.run_id,
-                "reason": _decline_reason(steps),
+                "reason": _decline_reason(steps, is_worth_learning_from),
                 "is_delivered": pending.is_injected,
                 "source_framework": pending.source_framework,
             },
         }
         _spawn_flush(state.stage_flush(session_id, pending.run_id, staged_decline))
         return
-    episode = _build_episode(pending, final_is_success)
+    episode = _build_episode(pending, turn_outcome.is_success)
     staged = {
         "agent_name": pending.agent_name,
         "episode": redact_ide_episode(episode),
@@ -921,21 +874,30 @@ def _staged_run_id(payload: dict[str, Any]) -> str:
     return ""
 
 
-def _decline_reason(steps: list[dict[str, Any]]) -> str:
-    """Why this turn was not worth learning from, from the gate that decided it.
+def _decline_reason(
+    steps: list[dict[str, Any]], is_worth_learning_from: bool
+) -> str:
+    """Why this turn was declined, from the gate that actually decided it.
 
     Derived rather than invented, so the reported cause and the gate can never
     disagree. This is what makes the gate measurable: until now it fired silently,
     so how often it skipped a turn, and why, was invisible.
 
+    The missing outcome is reported only for a turn the step gates would have let
+    through, because that is the only case where it decided anything. A read-only
+    turn is below the material threshold whatever its evidence says, and naming the
+    outcome there would report a gate that never got to run.
+
     The wire contract also carries ``empty_offer`` for callers whose recall returned
     nothing to apply. This host cannot reach it: an empty offer with material steps
     still observes, and one without them is already described by the step count.
     """
+    if is_worth_learning_from:
+        return REASON_UNEVIDENCED_OUTCOME
     return REASON_NO_TOOL_CALLS if not steps else REASON_BELOW_MATERIAL_THRESHOLD
 
 
-def _build_episode(pending: PendingTurn, is_success: bool) -> dict[str, Any]:
+def _build_episode(pending: FinishedTurn, is_success: bool) -> dict[str, Any]:
     """Project stored steps onto the wire episode shape (drops client-only fields)."""
     # Keep the tail when a turn overruns the boundary's cap: the trailing steps
     # carry the outcome the producer reads. The counts stay over the full turn.
@@ -958,27 +920,33 @@ def _build_episode(pending: PendingTurn, is_success: bool) -> dict[str, Any]:
             "failed_steps": failed,
         },
         "source_framework": pending.source_framework,
-        "principal_utterance": pending.principal_utterance or None,
         "thread_id": None,
     }
 
 
 def _sweep_stale(*, exclude: str) -> None:
-    """Flush turns left longer than the eviction window, on their provisional label.
+    """Recover turns no stop hook ever closed, and drain the previous release's pending.
 
-    A session abandoned with no successor turn never gets behavioural ground
-    truth, so its pending (and any interrupted active) is delivered on the
-    provisional label rather than lost.
+    Two jobs, not one. The orphan branch recovers a turn from a session that died
+    before ``Stop`` fired: it has no stop payload, therefore no native status, so it
+    is unevidenced by definition and is declined. That is the honest outcome for a
+    crashed turn and it is what this sweep always reached for.
+
+    ``exclude`` protects the caller's own *live* turn from being swept out from under
+    it. It deliberately does not cover the drain below: a pending file cannot belong to
+    a live turn, because nothing in this release writes one, and the session holding it
+    is usually the very session the user upgraded in the middle of. Excluding that one
+    would strand the commonest case until the user happened to open a different session.
+
+    TODO(ceiling): the drain reads ``pending.json`` files written by the release before
+    this one, on the boolean label that file recorded. Remove it, and
+    ``state.read_pending`` with it, one release after this ships.
     """
     now = time.time()
     for session_id in state.all_session_ids():
+        _drain_previous_release_pending(session_id)
         if session_id == exclude:
             continue
-        pending = state.read_pending(session_id)
-        if pending is not None and now - pending.ended_at > EVICTION_WINDOW_SECONDS:
-            _stage_and_flush(session_id, pending, pending.is_success)
-            state.clear_pending(session_id)
-            state.clear_recall(session_id)
         orphan = state.read_active(session_id)
         if orphan is not None and now - orphan.started_at > EVICTION_WINDOW_SECONDS:
             _finalise(
@@ -992,6 +960,25 @@ def _sweep_stale(*, exclude: str) -> None:
             state.clear_recall(session_id)
         _recover_flushes(session_id, now)
         state.remove_session_if_empty(session_id)
+
+
+def _drain_previous_release_pending(session_id: str) -> None:
+    """Deliver a turn the previous release deferred to disk, on the label it recorded.
+
+    Not re-derived from the turn's steps: that file is the older code's verdict on a
+    turn this code never saw end, and re-labelling it would apply a stricter rule to
+    evidence gathered under a looser one.
+    """
+    deferred = state.read_pending(session_id)
+    if deferred is None:
+        return
+    turn, is_success = deferred
+    _stage_and_flush(
+        session_id,
+        turn,
+        outcome.TurnOutcome.SUCCESS if is_success else outcome.TurnOutcome.FAILURE,
+    )
+    state.clear_pending(session_id)
 
 
 def _recover_flushes(session_id: str, now: float) -> None:
@@ -1283,7 +1270,7 @@ def _is_error(payload: dict[str, Any]) -> bool:
         return True
     if payload.get("is_error") or payload.get("error") or payload.get("stderr"):
         return True
-    if str(payload.get("status") or "").lower() in NATIVE_FAILURE_STATUSES:
+    if str(payload.get("status") or "").lower() in STEP_FAILURE_STATUSES:
         return True
     response = payload.get("tool_response")
     if isinstance(response, dict):
@@ -1299,7 +1286,7 @@ def _is_error(payload: dict[str, Any]) -> bool:
             or response.get("returnCode")
         ):
             return True
-        if str(response.get("status") or "").lower() in NATIVE_FAILURE_STATUSES:
+        if str(response.get("status") or "").lower() in STEP_FAILURE_STATUSES:
             return True
     return False
 

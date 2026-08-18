@@ -145,52 +145,29 @@ def test_kv_assignment_value_redacted() -> None:
     assert "topsecret" not in scrub_secrets("token: topsecret123")
 
 
-def test_the_principal_utterance_is_scrubbed_like_the_goal() -> None:
-    """It is the same class of data as the goal, so it inherits the goal's treatment."""
+def test_a_stray_principal_utterance_is_dropped_rather_than_forwarded() -> None:
+    """This host stopped populating the field when it stopped deferring turns.
+
+    A value here therefore arrived from somewhere that never passed the admission
+    rules that used to guard it, so it is removed rather than scrubbed and sent. The
+    secret in the fixture would ship unredacted if the key were merely passed through.
+    """
     redacted = redact_ide_episode(
         {
             "run_id": "r1",
             "goal": "write the README",
-            "principal_utterance": "use the key sk-ant-api03-AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA and British English",
+            "principal_utterance": (
+                "use the key sk-ant-api03-AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"
+            ),
             "steps": [],
         }
     )
 
-    assert (
-        "sk-ant-api03-AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"
-        not in redacted["principal_utterance"]
+    assert "principal_utterance" not in redacted
+    assert "sk-ant-api03-AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA" not in str(
+        redacted
     )
-    assert "British English" in redacted["principal_utterance"]
-
-
-def test_a_null_utterance_survives_redaction_as_null() -> None:
-    """The shape production actually emits: _build_episode always sets the key."""
-    redacted = redact_ide_episode(
-        {
-            "run_id": "r1",
-            "goal": "write the README",
-            "principal_utterance": None,
-            "steps": [],
-        }
-    )
-
-    assert redacted["principal_utterance"] is None
-
-
-def test_an_utterance_is_scrubbed_but_never_clipped() -> None:
-    """Length is decided at admission, which refuses; truncating here could invert meaning."""
-    long_utterance = "we use British English " * 500
-
-    redacted = redact_ide_episode(
-        {
-            "run_id": "r1",
-            "goal": "g",
-            "principal_utterance": long_utterance,
-            "steps": [],
-        }
-    )
-
-    assert redacted["principal_utterance"] == long_utterance
+    assert redacted["goal"] == "write the README"
 
 
 def _episode_with_step_ids(step_ids: list[str]) -> dict:

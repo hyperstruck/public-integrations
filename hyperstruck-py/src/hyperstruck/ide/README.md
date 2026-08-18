@@ -13,7 +13,7 @@ is the thin, fail-open client that wires it into your editor.
 - [Install](#install)
 - [What gets learned, and when](#what-gets-learned-and-when)
 - [Distilling a referenced corpus](#distilling-a-referenced-corpus)
-- [Outcome: scoring a turn on what happened next](#outcome-scoring-a-turn-on-what-happened-next)
+- [Outcome: what a turn can show for itself](#outcome-what-a-turn-can-show-for-itself)
 - [Proving the model was shown it](#proving-the-model-was-shown-it)
 - [Privacy](#privacy)
 - [Identity](#identity)
@@ -42,8 +42,8 @@ platform episode: the goal is the prompt, the steps are the tool calls.
             one TURN  =  one run  =  one episode
   prompt ───────────►  assistant acts (edits, shell) ───────────► stop
      │                        │  │  │                               │
-  detach resolve         first tool injects recall             finalise
-  (read path)            + capture each outcome                (deferred)
+  detach resolve         first tool injects recall          label + deliver
+  (read path)            + capture each outcome              (detached write)
 ```
 
 Three editor hooks fire as three separate processes, so they share per-turn state
@@ -166,28 +166,48 @@ one way two ids you thought were distinct can still meet, so pick ids that diffe
 by more than whitespace or the prefix. Omit `run_id` entirely and a clean one is
 minted for you, which is also the escape hatch if an id of yours is ever refused.
 
-## Outcome: scoring a turn on what happened next
+## Outcome: what a turn can show for itself
 
-Whether a turn *succeeded* is the crux of learning, and it is a delayed-feedback
-problem: the truest signal arrives on the **next** turn. Coding turns fail
-transiently on the way to a fix, so a turn is scored on its final state, not on
-any failure en route, and resolved one turn later when the evidence is in:
+Whether a turn *succeeded* is the crux of learning, and the honest answer is
+sometimes that nobody knows. Coding turns fail transiently on the way to a fix, so
+a turn is scored on its final state rather than on any failure en route, and it is
+scored from evidence the turn itself produced:
 
 ```
-  turn N ends ──► provisional label (did its tests/commands pass?)
-                        │
-  turn N+1 acts ──► did N+1 rework the SAME files N touched?
-                        │           (the strong, language-agnostic signal)
-                        ▼
-               final label, written once
+  turn ends ──► did its trailing test or command pass?      ──► success / failure
+                     │ nothing ran
+                     ▼
+                did the host report a status it declares?   ──► success / failure
+                     │ no status, or one it never declared
+                     ▼
+                unevidenced ──► the run is declined: closed, crediting nothing
 ```
 
-The decisive signal is **behavioural**: if the next turn re-edits the files the
-prior turn just changed, the prior turn did not land, even if its tests passed
-(the classic false-green). The wording of the next prompt is only a weak
-corroborator. When the evidence is weak or conflicting, the provisional label
-stands, because abstaining beats a confident-wrong flip. Each turn's learning is
-therefore written exactly once, with no need to retract a label later.
+There is no third rung. An absent signal is its own answer, not a reason to assume
+the best. That matters because assuming the best is a *fabrication*, and the sole
+purpose of the retired design was to retract fabrications one turn later, by asking
+whether the next turn re-edited the same files. Remove the fabrication and there is
+nothing left to retract, which is what lets a turn be written once, at its own stop.
+
+Three consequences follow, and the first is the reason for the change:
+
+- **A turn with no successor still closes its loop.** A headless one-shot run is
+  always its own last turn, and so is the final turn of every interactive session.
+  Waiting for a successor meant those never closed at all.
+- **A status the host does not declare is not a pass.** Statuses are host protocol
+  values, so each host declares which of its own mean success and which mean failure,
+  and anything else abstains. Under the old shared failure list, membership decided
+  failure and non-membership decided success, so a run killed by a CI `timeout` was
+  credited for it.
+- **Fewer turns are credited than before, deliberately.** Turns that used to pass on
+  the assumption now decline instead, and the counts fall to what the evidence supports.
+
+The trade taken knowingly: a turn whose tests pass but whose work is rejected keeps its
+credit, because there is no longer a later turn to take it away. In an interactive
+session the signal is re-attributed rather than lost, since the next turn is offered the
+same learnings and its own outcome feeds their reinforcement. In a headless run there is
+no principal to do the rejecting in the first place, so its exit code *is* the acceptance
+criterion rather than a proxy for one.
 
 ## Proving the model was shown it
 
@@ -237,22 +257,12 @@ Redaction happens on your machine, before anything leaves it.
 - **No raw file contents or diffs are shipped.** A step carries the tool name, the
   path, the status, the error, and a clipped result. Learnings are about patterns,
   not literal code.
-- **Your next prompt is attached to the previous turn.** When you object to what a
-  turn did, you say so on the turn *after* it, so that message travels with the turn
-  it is about. It is the only way a standard you state in passing ("we use British
-  English here") can be learned rather than repeated forever. It means a prompt can
-  leave this machine twice: once as its own turn's goal, once as the previous turn's
-  attached message. Four rules bound it, and a message failing any of them is dropped
-  rather than trimmed:
-  - Only what you typed. It comes from your editor's prompt, never from model output,
-    tool results, or retrieved documents, and `--goal` is ignored except for read-only
-    recall so a tool cannot supply one.
-  - Nothing over 500 characters. A stated standard is short; longer messages are
-    pasted logs, code or documents, and are dropped whole.
-  - Nothing the secret scrub touched, on the grounds that a message carrying a
-    credential is not a standard.
-  - Nothing when your editor supplies no session id, because two conversations can
-    then share one session and the message cannot be tied to the right turn.
+- **Your prompt leaves this machine once, as its own turn's goal.** It used to leave
+  twice, because a turn was held back until your next message arrived and that message
+  was attached to it as the principal's own words. Turns are no longer held, so there is
+  no moment at which a later message could honestly speak for an earlier turn, and
+  nothing of the kind is sent. The platform still accepts such a message from callers
+  that have a human-input channel to supply one; this client is not one of them.
 - **Secrets are scrubbed from descriptive text**: known credential shapes and
   high-entropy tokens are removed from every descriptive string that ships, on both
   paths. The goal is scrubbed at capture, before recall ever sees it, and the

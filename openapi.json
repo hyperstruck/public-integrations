@@ -2971,7 +2971,8 @@
         "enum": [
           "no_tool_calls",
           "below_material_threshold",
-          "empty_offer"
+          "empty_offer",
+          "unevidenced_outcome"
         ],
         "title": "DeclineReason",
         "type": "string"

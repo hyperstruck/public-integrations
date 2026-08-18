@@ -9,12 +9,24 @@ from typing import Any
 import pytest
 
 from hyperstruck.ide import state
-from hyperstruck.ide.state import ActiveTurn, PendingTurn
+from hyperstruck.ide.constants import PENDING_FILE
+from hyperstruck.ide.state import ActiveTurn, FinishedTurn
 
 
 @pytest.fixture(autouse=True)
 def _home(tmp_path, monkeypatch) -> None:
     monkeypatch.setenv("HYPER_HOME", str(tmp_path))
+
+
+def _write_legacy_pending(session_id: str, data: dict[str, Any]) -> None:
+    """A ``pending.json`` as the previous release wrote it, by hand.
+
+    Written directly rather than through a writer, because this release has none:
+    the drain has to read a file shape that no code in the tree can produce.
+    """
+    sdir = state.session_dir(session_id)
+    state.ensure_private_dir(sdir)
+    (sdir / PENDING_FILE).write_text(json.dumps(data))
 
 
 def test_active_round_trip() -> None:
@@ -48,37 +60,99 @@ def test_steps_append_and_order() -> None:
     assert [s["id"] for s in steps] == ["0", "1", "2"]
 
 
-def test_pending_round_trip() -> None:
-    pending = PendingTurn(
+def test_a_previous_release_pending_file_reads_back_for_the_drain() -> None:
+    """Nothing writes ``pending.json`` any more, so only the read side survives."""
+    _write_legacy_pending(
+        "s1",
+        {
+            "run_id": "r",
+            "agent_name": "a",
+            "goal": "g",
+            "steps": [{"id": "1"}],
+            "is_success": False,
+            "source_framework": "cursor",
+            "ended_at": 2.0,
+            "offered_learning_ids": ["L1", "L2"],
+            "is_injected": True,
+            "principal_utterance": "a field this release no longer carries",
+        },
+    )
+    read = state.read_pending("s1")
+    assert read is not None
+    turn, is_success = read
+    assert is_success is False  # the label travels beside the turn, not on it
+    assert turn == FinishedTurn(
         run_id="r",
         agent_name="a",
         goal="g",
         steps=({"id": "1"},),
-        is_success=False,
         source_framework="cursor",
         ended_at=2.0,
         offered_learning_ids=("L1", "L2"),
+        is_injected=True,
     )
+    state.clear_pending("s1")
+    assert state.read_pending("s1") is None
+
+
+def test_retire_active_closes_the_turn_out() -> None:
     state.write_active(
         "s1",
         ActiveTurn(
             run_id="r", agent_name="a", goal="g", source_framework="x", started_at=0.0
         ),
     )
-    state.write_pending("s1", pending)
-    assert state.read_active("s1") is None  # write_pending retires active
-    read = state.read_pending("s1")
-    assert read == pending
-    state.clear_pending("s1")
-    assert state.read_pending("s1") is None
+    state.retire_active("s1")
+    assert state.read_active("s1") is None
+
+
+def test_one_run_id_stages_to_one_path_however_many_writers_reach_it() -> None:
+    """The single-delivery guard: the staged filename is keyed on the run id alone.
+
+    Two writers can now reach the same turn, since a stop and the sweep's orphan
+    recovery both stage directly with no pending file serialising them. The guard is
+    the name, not a lock: the second write atomically replaces the first file, so the
+    run can be delivered at most once.
+    """
+    run_id = "a:s1:run123"
+    first = state.stage_flush("s-once", run_id, {"episode": {"run_id": run_id}})
+    second = state.stage_flush(
+        "s-once", run_id, {"episode": {"run_id": run_id}, "do_observe": True}
+    )
+
+    assert first == second
+    staged = list((state.session_dir("s-once") / "flushing").glob("*.json"))
+    assert len(staged) == 1
+    assert state.read_flush(first) == {
+        "episode": {"run_id": run_id},
+        "do_observe": True,
+    }
+
+
+def test_a_turn_with_no_run_id_keeps_its_own_path() -> None:
+    """With no identity to collapse onto, losing a write is worse than two deliveries."""
+    first = state.stage_flush("s-unkeyed", "", {"episode": {}})
+    second = state.stage_flush("s-unkeyed", "", {"episode": {}})
+
+    assert first != second
+
+
+def test_a_delivered_run_id_is_not_resurrected_by_a_later_stage() -> None:
+    """``record_flush_attempt`` returning None is how a flush learns it lost the race."""
+    run_id = "a:s1:run777"
+    path = state.stage_flush("s-race", run_id, {"episode": {"run_id": run_id}})
+    state.remove_flush(path)
+
+    assert state.record_flush_attempt(path) is None
 
 
 def test_flush_staging_round_trip() -> None:
     payload = {"agent_id": "a", "episode": {"run_id": "r"}, "do_observe": True}
     path = state.stage_flush("s1", "a:s1:run123", payload)
     assert state.read_flush(path) == payload
-    # Distinct turns never collide on the flush filename, even with the same run id.
-    other = state.stage_flush("s1", "a:s1:run123", payload)
+    # Distinct turns never collide, because a run id ends in a fresh uuid4 (_new_run_id),
+    # so a shared filename can only ever mean the same turn staged twice.
+    other = state.stage_flush("s1", "a:s1:run999", payload)
     assert other != path
     assert len(state.iter_flush_files("s1")) == 2
     assert state.record_flush_attempt(path) == 1
@@ -259,35 +333,52 @@ def test_an_active_turn_round_trips_every_field() -> None:
     assert state.read_active("s-round-trip") == turn
 
 
-def test_a_pending_turn_round_trips_every_field() -> None:
-    """Anything written but not read back is dead on disk, which is how is_injected broke."""
-    pending = PendingTurn(
+def test_the_drain_reads_back_every_field_a_legacy_pending_file_carries() -> None:
+    """A field the drain drops is a turn delivered wrong, which is how is_injected broke."""
+    expected = FinishedTurn(
         run_id="r1",
         agent_name="a",
         goal="fix the vacuity gate",
         steps=({"status": "completed"},),
-        is_success=True,
         source_framework="claude-code",
         ended_at=1.0,
         offered_learning_ids=("l1",),
         is_injected=True,
-        principal_utterance="we do not add word lists to our code",
         context_receipt="<!-- hyperstruck-run: r1 -->\n- the rule the editor accepted",
     )
 
     _assert_every_field_differs_from_its_default(
-        pending,
-        PendingTurn(
+        expected,
+        FinishedTurn(
             run_id="",
             agent_name="",
             goal="",
             steps=(),
-            is_success=False,
             source_framework="",
             ended_at=0.0,
         ),
     )
 
-    restored = state._pending_from_dict(state._pending_to_dict(pending))
+    _write_legacy_pending(
+        "s-drain",
+        {
+            "run_id": "r1",
+            "agent_name": "a",
+            "goal": "fix the vacuity gate",
+            "steps": [{"status": "completed"}],
+            "is_success": True,
+            "source_framework": "claude-code",
+            "ended_at": 1.0,
+            "offered_learning_ids": ["l1"],
+            "is_injected": True,
+            "context_receipt": (
+                "<!-- hyperstruck-run: r1 -->\n- the rule the editor accepted"
+            ),
+        },
+    )
 
-    assert restored == pending
+    drained = state.read_pending("s-drain")
+    assert drained is not None
+    turn, is_success = drained
+    assert turn == expected
+    assert is_success is True

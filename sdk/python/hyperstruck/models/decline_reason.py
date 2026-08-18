@@ -27,6 +27,7 @@ class DeclineReason(object):
     NO_TOOL_CALLS = "no_tool_calls"
     BELOW_MATERIAL_THRESHOLD = "below_material_threshold"
     EMPTY_OFFER = "empty_offer"
+    UNEVIDENCED_OUTCOME = "unevidenced_outcome"
     """
     Attributes:
       swagger_types (dict): The key is attribute name
