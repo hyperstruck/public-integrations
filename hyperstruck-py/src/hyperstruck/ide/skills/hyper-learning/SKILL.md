@@ -38,7 +38,8 @@ prompt that started the turn).
 Print the learnings relevant to a goal and apply them:
 
 ```!
-PYTHONSAFEPATH=1 python3 -m hyperstruck.ide.hook prompt --readonly --emit text --goal "$ARGUMENTS"
+PYTHONSAFEPATH=1 python3 -m hyperstruck.ide.hook prompt --readonly \
+  --resolve-purpose agent_loop --emit text --goal "$ARGUMENTS"
 ```
 
 - If `$ARGUMENTS` is empty, pass a one-line summary of the goal you want recall for.
@@ -50,6 +51,14 @@ PYTHONSAFEPATH=1 python3 -m hyperstruck.ide.hook prompt --readonly --emit text -
   `resolve ok: 0 learning(s)` from a failure or a timeout.
 - `--readonly` means it only reads: it resolves and prints, without touching the
   current turn's automatic capture/reinforce, so it never disrupts the live loop.
+- `--resolve-purpose agent_loop` identifies this as an agent integration. A
+  non-empty result is eligible for the same successful-resolve reporting value
+  as automatic recall. The CLI default is also `agent_loop`, so already-installed
+  `--readonly` skill commands that omit the flag keep contributing. Human-facing
+  inspection tools must pass `explicit_recall`.
+- This credits the successful-resolve research component only. The read-only
+  skill does not invent `learning_applied` events; an integration that owns the
+  full execution loop must observe/reinforce normally for application value.
 - It is fail-open: any error prints nothing and you simply proceed without recall.
 
 The agent the loop reads from and writes to is the configured boundary agent

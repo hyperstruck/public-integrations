@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import asyncio
+import json
 
 import httpx
 import pytest
@@ -20,6 +21,7 @@ from hyperstruck.client import (
     HostedLearningClient,
     MAX_LOGGED_VALIDATION_ERRORS,
     MAX_VALIDATION_CAUSE_CHARS,
+    ResolvePurpose,
 )
 from hyperstruck.env import RESOLVE_TIMEOUT_ENV
 from hyperstruck.identity import AgentIdentity
@@ -106,6 +108,7 @@ def test_resolve_deadline_resolution(
         monkeypatch.delenv(RESOLVE_TIMEOUT_ENV, raising=False)
     else:
         monkeypatch.setenv(RESOLVE_TIMEOUT_ENV, env_value)
+
     def _ok(_request: httpx.Request) -> httpx.Response:
         return httpx.Response(200, json={})
 
@@ -149,6 +152,34 @@ async def test_resolve_returns_bound_context() -> None:
     assert ctx.offered_learning_ids == ("a", "b")
     assert seen["path"] == "/resolve"
     assert seen["auth"] == "Bearer k"
+    await client.aclose()
+
+@pytest.mark.parametrize(
+    ("resolve_purpose", "expected_wire_value"),
+    [
+        (ResolvePurpose.AGENT_LOOP, None),
+        (ResolvePurpose.EXPLICIT_RECALL, ResolvePurpose.EXPLICIT_RECALL.value),
+    ],
+)
+async def test_resolve_purpose_changes_the_wire_payload(
+    resolve_purpose: ResolvePurpose, expected_wire_value: str | None
+) -> None:
+    bodies = []
+
+    def handler(request: httpx.Request) -> httpx.Response:
+        bodies.append(json.loads(request.content))
+        return httpx.Response(200, json={})
+
+    client = _client(handler)
+    await client.resolve(
+        identity=IDENTITY,
+        run_id="r1",
+        goal="g",
+        resolve_purpose=resolve_purpose,
+    )
+
+    assert bodies[0].get("resolve_purpose") == expected_wire_value
+    assert ("resolve_purpose" in bodies[0]) is (expected_wire_value is not None)
     await client.aclose()
 
 

@@ -46,7 +46,11 @@ from hyperstruck._wire import (
     REASON_UNEVIDENCED_OUTCOME,
     EvidenceItem,
 )
-from hyperstruck.client import DEFAULT_RECALL_TIMEOUT, HostedLearningClient
+from hyperstruck.client import (
+    DEFAULT_RECALL_TIMEOUT,
+    HostedLearningClient,
+    ResolvePurpose,
+)
 from hyperstruck.env import RESOLVE_TIMEOUT_ENV, env_float
 from hyperstruck.identity import AgentIdentity
 from hyperstruck.ide import outcome, receipt, state
@@ -115,9 +119,10 @@ def cmd_prompt(payload: dict[str, Any], args: argparse.Namespace) -> None:
     goal = clip_goal(scrub_secrets(raw_goal.strip()))
     agent_name = configured_agent_name()
 
-    # Read-only recall (the hyper-learning skill): resolve and print for this goal,
-    # without touching any turn state, so an explicit recall never disturbs the
-    # automatic loop. A throwaway run id keeps the offer un-reinforced.
+    # Read-only recall resolves and prints without touching turn state. Reporting
+    # intent is independent: omitted --resolve-purpose stays agent_loop so
+    # already-installed skill commands keep contributing. Human inspection must
+    # pass explicit_recall.
     if args.readonly:
         if agent_name:
             text, _ = _resolve(
@@ -125,6 +130,7 @@ def cmd_prompt(payload: dict[str, Any], args: argparse.Namespace) -> None:
                 _new_run_id(agent_name, session_id),
                 goal,
                 _source(args),
+                resolve_purpose=args.resolve_purpose,
             )
             _emit_injection(text, args)
         else:
@@ -1025,7 +1031,12 @@ def _recall_timeout() -> float:
 
 
 def _resolve(
-    agent_name: str, run_id: str, goal: str, source_framework: str
+    agent_name: str,
+    run_id: str,
+    goal: str,
+    source_framework: str,
+    *,
+    resolve_purpose: ResolvePurpose = ResolvePurpose.AGENT_LOOP,
 ) -> tuple[str | None, tuple[str, ...]]:
     """Resolve the goal's learnings. Returns (injected_text, offered_ids); fails open."""
     if not goal:
@@ -1033,7 +1044,13 @@ def _resolve(
         return None, ()
     try:
         text, offered = asyncio.run(
-            _aresolve(agent_name, run_id, goal, source_framework=source_framework)
+            _aresolve(
+                agent_name,
+                run_id,
+                goal,
+                source_framework=source_framework,
+                resolve_purpose=resolve_purpose,
+            )
         )
         _debug(f"resolve ok: {len(offered)} learning(s) for agent {agent_name}")
         return text, offered
@@ -1056,6 +1073,7 @@ async def _aresolve(
     *,
     source_framework: str = SOURCE_CLAUDE_CODE,
     resolve_timeout: float | None = None,
+    resolve_purpose: ResolvePurpose = ResolvePurpose.AGENT_LOOP,
 ) -> tuple[str | None, tuple[str, ...]]:
     client = HostedLearningClient(
         resolve_timeout=(
@@ -1069,6 +1087,7 @@ async def _aresolve(
             run_id=run_id,
             goal=goal,
             source_framework=source_framework,
+            resolve_purpose=resolve_purpose,
         )
         return context.injected_text, tuple(context.offered_learning_ids)
     finally:
@@ -1532,6 +1551,15 @@ def _parse_args(argv: list[str]) -> argparse.Namespace:
     parser.add_argument("--emit", choices=["json", "text"], default="json")
     parser.add_argument("--inject", action="store_true")
     parser.add_argument("--readonly", action="store_true")
+    # Omitted purpose stays agent_loop. Already-installed --readonly skill
+    # commands (and inject-only auto-installs that never pass a flag) must keep
+    # contributing; human inspection has to pass explicit_recall.
+    parser.add_argument(
+        "--resolve-purpose",
+        type=ResolvePurpose,
+        choices=tuple(ResolvePurpose),
+        default=ResolvePurpose.AGENT_LOOP,
+    )
     return parser.parse_args(argv)
 
 

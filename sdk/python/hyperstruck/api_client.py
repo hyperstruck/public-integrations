@@ -13,6 +13,7 @@ from __future__ import absolute_import
 import datetime
 import json
 import mimetypes
+from enum import Enum
 from multiprocessing.pool import ThreadPool
 import os
 import re
@@ -261,6 +262,8 @@ class ApiClient(object):
 
         if klass in self.PRIMITIVE_TYPES:
             return self.__deserialize_primitive(data, klass)
+        elif isinstance(klass, type) and issubclass(klass, Enum):
+            return klass(data)
         elif klass == object:
             return self.__deserialize_object(data)
         elif klass == datetime.date:

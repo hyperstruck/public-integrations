@@ -16,6 +16,35 @@ are listed so you understand what is happening.
 | observe | `POST /observe` | deferred to next turn start | Extract new learnings from the finished episode (server-side producer + critic). |
 | reinforce | `POST /reinforce` | deferred to next turn start | Credit/penalise the learnings that were offered at resolve. |
 
+### Resolve purpose
+
+Every resolve has an explicit purpose:
+
+| `resolve_purpose` | Meaning |
+| --- | --- |
+| `agent_loop` | Resolve for an executing agent or agent-owned integration, including the hyper-learning skill. A successful, non-empty logical resolve is eligible for one reporting value event. |
+| `explicit_recall` | Caller-requested recall for inspection or guidance. It is excluded from reporting value attribution. |
+
+`explicit_recall` still performs the normal resolve behavior, including retrieval
+and offer-log/idempotency side effects. It suppresses only the
+`learning_resolve_succeeded` value event. Do not describe or wrap the entire
+resolve API as read-only; use `resolve_purpose` to state intent.
+
+The skill passes `--readonly --resolve-purpose agent_loop`: `--readonly` keeps
+the one-off call out of the editor's automatic capture/reinforce state, while
+`resolve_purpose` classifies the value attribution. Omitting the flag is still
+`agent_loop`, so already-installed `--readonly` commands keep contributing.
+Integrations that perform human-only inspection must pass `explicit_recall`.
+
+A non-empty skill call therefore contributes one successful-resolve research
+unit. It does not emit `learning_applied`: integrations that own an execution
+outcome must complete the normal observe/reinforce loop for application value.
+
+A logical resolve is identified by tenant, agent, run, and
+`resolve_idempotency_key`. Retrying the same key heals event delivery without
+creating another value count. Use a new key only for a genuinely new recall
+within the run.
+
 The write side is deferred one turn so the user's next prompt supplies ground
 truth for the prior turn's outcome. All of this is handled by
 `python -m hyperstruck.ide.hook`; the recall command in SKILL.md is the only piece

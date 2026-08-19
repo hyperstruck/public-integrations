@@ -16,7 +16,7 @@
   "scripts": {
     "build": "tsc --outDir dist/",
     "test": "npm run test:boundary-types",
-    "test:boundary-types": "tsc --noEmit --target es5 --module commonjs --lib es6,dom --skipLibCheck custom.d.ts boundary_wire_contract.spec.ts",
+    "test:boundary-types": "node boundary_test_runner.cjs",
     "prepublishOnly": "npm run build && npm test"
   },
   "dependencies": {

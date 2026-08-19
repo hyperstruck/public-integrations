@@ -1,3 +1,6 @@
+import { strict as assert } from "node:assert";
+import { describe, test } from "node:test";
+
 import {
   DeclineReason,
   DeclineRequest,
@@ -6,22 +9,25 @@ import {
   LearningBoundaryApiFetchParamCreator,
   ObserveRequest,
   ReinforceRequest,
+  ResolvePurpose,
   ResolveRequest,
 } from "./api";
 
-declare function describe(name: string, fn: () => void): void;
-declare function test(name: string, fn: () => void): void;
-declare function expect(actual: unknown): {
-  toBe(expected: unknown): void;
-  toBeUndefined(): void;
-};
-
 const fetchParams = LearningBoundaryApiFetchParamCreator();
+
+const invalidPurposeRequest: ResolveRequest = {
+  agent_name: "support-agent",
+  run_id: "support-agent:invalid-purpose",
+  goal: "Reject an open string purpose.",
+  // @ts-expect-error ResolvePurpose must remain a closed generated enum.
+  resolve_purpose: "human_inspection",
+};
+void invalidPurposeRequest;
 
 function jsonBody(fetchArgs: {
   options: { body?: unknown };
 }): Record<string, unknown> {
-  expect(typeof fetchArgs.options.body).toBe("string");
+  assert.equal(typeof fetchArgs.options.body, "string");
   return JSON.parse(fetchArgs.options.body as string) as Record<
     string,
     unknown
@@ -34,12 +40,14 @@ describe("LearningBoundaryApi wire contract", () => {
       agent_name: "support-agent",
       run_id: "support-agent:run-1",
       goal: "Use prior learnings.",
+      resolve_purpose: ResolvePurpose.ExplicitRecall,
     };
     const body = jsonBody(fetchParams.resolveEndpointResolvePost(request));
 
-    expect(body.agent_name).toBe("support-agent");
-    expect(body.agent_id).toBeUndefined();
-    expect(body.agentName).toBeUndefined();
+    assert.equal(body.agent_name, "support-agent");
+    assert.equal(body.resolve_purpose, ResolvePurpose.ExplicitRecall);
+    assert.equal(body.agent_id, undefined);
+    assert.equal(body.agentName, undefined);
   });
 
   test("already-snake_case boundary inputs remain snake_case on the wire", () => {
@@ -90,10 +98,10 @@ describe("LearningBoundaryApi wire contract", () => {
     ];
 
     for (const body of bodies) {
-      expect(body.agent_name).toBe("support-agent");
-      expect(Object.keys(body).some((key) => /[A-Z]/.test(key))).toBe(false);
-      expect(body.agentName).toBeUndefined();
-      expect(body.agent_id).toBeUndefined();
+      assert.equal(body.agent_name, "support-agent");
+      assert.equal(Object.keys(body).some((key) => /[A-Z]/.test(key)), false);
+      assert.equal(body.agentName, undefined);
+      assert.equal(body.agent_id, undefined);
     }
   });
 });

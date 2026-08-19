@@ -43,6 +43,22 @@ _REAL_SPAWN_RESOLVE = hook._spawn_resolve
 _BOUNDARY_RECEIPT_CEILING = 200_000
 
 
+from pathlib import Path
+from hyperstruck.redaction import REDACTION_MARKER
+
+"""End-to-end turn lifecycle: capture, deferral, structural-rework resolution."""
+# Captured before the autouse fixture patches it, so the resolve breadcrumb tests
+# can exercise the real _resolve rather than the fixture's readonly stub.
+_REAL_RESOLVE = hook._resolve
+_REAL_SPAWN_RESOLVE = hook._spawn_resolve
+# The boundary's own CONTEXT_RECEIPT_MAX_CHARS, restated because this is a separate
+# distribution that cannot import the server. The real ordering between the two is
+# enforced against the actual server constant by the platform's
+# api/boundary_exposure_receipt_guard_test.py; this copy only lets the clip test state
+# what the clip is FOR.
+_BOUNDARY_RECEIPT_CEILING = 200_000
+
+
 @pytest.fixture(autouse=True)
 def _env(tmp_path, monkeypatch):
     monkeypatch.setenv("HYPER_HOME", str(tmp_path))
@@ -52,7 +68,10 @@ def _env(tmp_path, monkeypatch):
     monkeypatch.setattr(
         hook,
         "_resolve",
-        lambda agent_id, run_id, goal, source_framework: ("INJECTED", ("L1",)),
+        lambda agent_id, run_id, goal, source_framework, **_kwargs: (
+            "INJECTED",
+            ("L1",),
+        ),
     )
 
     def resolve_now(session_id: str) -> None:
@@ -1238,7 +1257,7 @@ def _seeded_active(session_id: str) -> None:
     )
 
 
-@pytest.mark.parametrize("caller", ["detached", "explicit"])
+@pytest.mark.parametrize("caller", ["detached", "explicit", "skill"])
 @pytest.mark.parametrize(
     ("env_value", "expected"),
     [
@@ -1258,12 +1277,14 @@ def test_every_hook_recall_reaches_the_client_with_the_recall_budget(
     client is the only way left to reintroduce the 2s default.
     """
     seen = []
+    seen_purposes = []
 
     class _RecordingClient:
         def __init__(self, **kwargs):
             seen.append(kwargs["resolve_timeout"])
 
-        async def resolve(self, **_kwargs):
+        async def resolve(self, **kwargs):
+            seen_purposes.append(kwargs["resolve_purpose"])
             return SimpleNamespace(injected_text="TEXT", offered_learning_ids=())
 
         async def aclose(self):
@@ -1280,11 +1301,97 @@ def test_every_hook_recall_reaches_the_client_with_the_recall_budget(
         _seeded_active("s1")
         hook.cmd_resolve("s1")
     else:
-        hook._resolve("agent-x", "run-1", "do x", hook.SOURCE_CLAUDE_CODE)
+        purpose_args = (
+            ["--resolve-purpose", hook.ResolvePurpose.AGENT_LOOP.value]
+            if caller == "skill"
+            else []
+        )
+        hook.cmd_prompt(
+            {"conversation_id": "s1", "cwd": "/repo"},
+            hook._parse_args(
+                [
+                    "prompt",
+                    "--readonly",
+                    *purpose_args,
+                    "--emit",
+                    "text",
+                    "--goal",
+                    "do x",
+                ]
+            ),
+        )
 
     assert seen == [expected]
+    assert seen_purposes == [hook.ResolvePurpose.AGENT_LOOP]
 
+def test_readonly_without_purpose_stays_agent_loop(_env, monkeypatch) -> None:
+    """Already-installed --readonly skill commands never passed a purpose."""
+    seen_purposes: list[object] = []
 
+    class _RecordingClient:
+        def __init__(self, **_kwargs):
+            return None
+
+        async def resolve(self, **kwargs):
+            seen_purposes.append(kwargs["resolve_purpose"])
+            return SimpleNamespace(injected_text="TEXT", offered_learning_ids=())
+
+        async def aclose(self):
+            return None
+
+    monkeypatch.setattr(hook, "HostedLearningClient", _RecordingClient)
+    monkeypatch.setattr(hook, "_resolve", _REAL_RESOLVE)
+    hook.cmd_prompt(
+        {"conversation_id": "s1", "cwd": "/repo"},
+        hook._parse_args(
+            ["prompt", "--readonly", "--emit", "text", "--goal", "do x"]
+        ),
+    )
+
+    assert seen_purposes == [hook.ResolvePurpose.AGENT_LOOP]
+
+def test_readonly_explicit_recall_is_opt_in(_env, monkeypatch) -> None:
+    seen_purposes: list[object] = []
+
+    class _RecordingClient:
+        def __init__(self, **_kwargs):
+            return None
+
+        async def resolve(self, **kwargs):
+            seen_purposes.append(kwargs["resolve_purpose"])
+            return SimpleNamespace(injected_text="TEXT", offered_learning_ids=())
+
+        async def aclose(self):
+            return None
+
+    monkeypatch.setattr(hook, "HostedLearningClient", _RecordingClient)
+    monkeypatch.setattr(hook, "_resolve", _REAL_RESOLVE)
+    hook.cmd_prompt(
+        {"conversation_id": "s1", "cwd": "/repo"},
+        hook._parse_args(
+            [
+                "prompt",
+                "--readonly",
+                "--resolve-purpose",
+                hook.ResolvePurpose.EXPLICIT_RECALL.value,
+                "--emit",
+                "text",
+                "--goal",
+                "do x",
+            ]
+        ),
+    )
+
+    assert seen_purposes == [hook.ResolvePurpose.EXPLICIT_RECALL]
+
+def test_packaged_skill_attributes_agent_owned_readonly_recall() -> None:
+    skill_path = (
+        Path(hook.__file__).parent / "skills" / "hyper-learning" / "SKILL.md"
+    )
+    skill = skill_path.read_text()
+
+    assert "prompt --readonly" in skill
+    assert "--resolve-purpose agent_loop" in skill
 def test_explicit_recall_says_so_on_stderr_when_it_times_out(
     _env, capsys, monkeypatch
 ) -> None:
@@ -1538,7 +1645,7 @@ def test_readonly_recall_sends_its_host_to_resolve(_env, monkeypatch) -> None:
     monkeypatch.setattr(
         hook,
         "_resolve",
-        lambda agent_id, run_id, goal, source_framework: (
+        lambda agent_id, run_id, goal, source_framework, **_kwargs: (
             seen.append(source_framework),
             ("INJECTED", ("L1",)),
         )[1],

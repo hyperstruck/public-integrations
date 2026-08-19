@@ -25,6 +25,7 @@ import asyncio
 import logging
 import re
 from collections.abc import Sequence
+from enum import StrEnum
 from typing import Any, Protocol, runtime_checkable
 
 import httpx
@@ -65,6 +66,14 @@ DEFAULT_RESOLVE_TIMEOUT = 2.0
 # inline budget above cannot land one. Any recall that is prefetched or explicit,
 # and so is not what the caller is waiting on, gets this instead.
 DEFAULT_RECALL_TIMEOUT = 20.0
+
+
+class ResolvePurpose(StrEnum):
+    """Why a resolve is being performed."""
+
+    AGENT_LOOP = "agent_loop"
+    EXPLICIT_RECALL = "explicit_recall"
+
 
 HTTP_UNPROCESSABLE_ENTITY = 422
 # A rejection can name one field per step of a 500-step episode, so both the
@@ -168,6 +177,7 @@ class LearningClient(Protocol):
         model_context_window: int | None = None,
         source_framework: str = "",
         resolve_idempotency_key: str | None = None,
+        resolve_purpose: ResolvePurpose = ResolvePurpose.AGENT_LOOP,
     ) -> ResolvedContext:
         """Return the learnings bound to a goal. Deadline-bounded; may raise.
 
@@ -317,6 +327,7 @@ class HostedLearningClient:
         model_context_window: int | None = None,
         source_framework: str = "",
         resolve_idempotency_key: str | None = None,
+        resolve_purpose: ResolvePurpose = ResolvePurpose.AGENT_LOOP,
     ) -> ResolvedContext:
         body: dict[str, Any] = {
             "agent_name": identity.agent_name,
@@ -332,6 +343,10 @@ class HostedLearningClient:
         }
         if resolve_idempotency_key is not None:
             body["resolve_idempotency_key"] = resolve_idempotency_key
+        # Preserve compatibility with older servers by relying on the server's
+        # agent_loop default; only the non-default explicit recall needs a key.
+        if resolve_purpose != ResolvePurpose.AGENT_LOOP:
+            body["resolve_purpose"] = ResolvePurpose(resolve_purpose).value
         response = await asyncio.wait_for(
             self._http.post(self._url("/resolve"), json=body, headers=self._headers),
             timeout=self._resolve_timeout,

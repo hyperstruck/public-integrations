@@ -306,6 +306,22 @@ def test_rerun_migrates_managed_legacy_learning_agent_uuid(_dirs, monkeypatch) -
     assert "HYPER_LEARNING_AGENT_ID" not in env
 
 
+def test_reinstall_refreshes_stale_readonly_skill_purpose(_dirs) -> None:
+    """A copied skill without --resolve-purpose must not stay that way after upgrade."""
+    claude, _, _ = _dirs
+    skill_path = claude / "skills" / "hyper-learning" / "SKILL.md"
+    skill_path.parent.mkdir(parents=True)
+    skill_path.write_text(
+        "python3 -m hyperstruck.ide.hook prompt --readonly --emit text --goal \"$ARGUMENTS\"\n"
+    )
+
+    install.install(validate=False)
+
+    refreshed = skill_path.read_text()
+    assert "--readonly" in refreshed
+    assert "--resolve-purpose agent_loop" in refreshed
+
+
 def test_ensure_durable_venv_creates_and_syncs(tmp_path, monkeypatch) -> None:
     home = tmp_path / "home"
     venv_dir = home / "venv"

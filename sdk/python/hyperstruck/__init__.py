@@ -183,6 +183,7 @@ from hyperstruck.models.reporting_defaults_put_request import ReportingDefaultsP
 from hyperstruck.models.reporting_defaults_response import ReportingDefaultsResponse
 from hyperstruck.models.reporting_query_request import ReportingQueryRequest
 from hyperstruck.models.reporting_query_response import ReportingQueryResponse
+from hyperstruck.models.resolve_purpose import ResolvePurpose
 from hyperstruck.models.resolve_request import ResolveRequest
 from hyperstruck.models.resolve_response import ResolveResponse
 from hyperstruck.models.resolve_split_request import ResolveSplitRequest

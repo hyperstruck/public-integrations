@@ -5631,6 +5631,16 @@ export interface ReportingQueryResponse {
      */
     window: UsageTimeWindow;
 }
+
+/**
+ * Why a learning resolve is being performed.
+ * @export
+ * @enum {string}
+ */
+export enum ResolvePurpose {
+    AgentLoop = <any> 'agent_loop',
+    ExplicitRecall = <any> 'explicit_recall'
+}
 /**
  * Ask for the learnings bound to a goal at run start.
  * @export
@@ -5679,6 +5689,12 @@ export interface ResolveRequest {
      * @memberof ResolveRequest
      */
     resolve_idempotency_key?: any;
+    /**
+     * Why this recall is being made. `agent_loop` attributes a non-empty response to reporting; `explicit_recall` is a user-requested lookup and does not contribute to automated-loop value.
+     * @type {any}
+     * @memberof ResolveRequest
+     */
+    resolve_purpose?: ResolvePurpose;
     /**
      * Retrieval depth. `fast` prioritises response time; `full` may return richer contextual relationships at higher latency.
      * @type {any}
