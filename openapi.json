@@ -3001,10 +3001,16 @@
             "type": "string"
           },
           "is_delivered": {
-            "default": false,
-            "description": "Whether the recall was actually delivered to the model this turn. A turn can receive the injection and still decline, so this decides whether the resolve is billed or released: the caller is charged for recall it received, never for recall it never saw.",
-            "title": "Is Delivered",
-            "type": "boolean"
+            "anyOf": [
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Whether the recall was actually delivered to the model this turn. A turn can receive the injection and still decline, so this decides whether the resolve is billed or released: the caller is charged for recall it received, never for recall it never saw. Omitted means the host did not report either way, which is recorded as unknown rather than as a definite non-delivery: the credit alert separates a decline that lost credit from one that never had any to lose, and a default of false would silently file every omitting client under the second.",
+            "title": "Is Delivered"
           },
           "org_id": {
             "anyOf": [
