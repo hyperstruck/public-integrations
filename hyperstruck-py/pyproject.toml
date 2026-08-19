@@ -29,7 +29,7 @@ Documentation = "https://docs.hyperstruck.com"
 [tool.hatch.build.targets.wheel]
 packages = ["src/hyperstruck"]
 # Tests live alongside the modules they cover; keep them out of the published wheel.
-# The bundled hyper-* skills (SKILL.md + reference.md under ide/skills/) are
+# The bundled hyper-* skills (SKILL.md and any reference.md under ide/skills/) are
 # included automatically as package data, so the installer can copy them out of
 # the installed package via importlib.resources.
 exclude = ["*_test.py"]

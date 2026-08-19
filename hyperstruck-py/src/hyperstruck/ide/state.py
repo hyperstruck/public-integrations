@@ -49,6 +49,7 @@ class ActiveTurn:
     # Offered learnings are merged only when a tool hook successfully injects
     # their recall, then carried to pending so deferred reinforce can credit them.
     offered_learning_ids: tuple[str, ...] = field(default_factory=tuple)
+    offered_claim_ids: tuple[str, ...] = field(default_factory=tuple)
     is_injected: bool = False
     # Where the editor keeps its own record of what it accepted. Stored at turn start
     # because the backstop sweep finalises an abandoned turn from another session, with
@@ -72,6 +73,7 @@ class FinishedTurn:
     source_framework: str
     ended_at: float
     offered_learning_ids: tuple[str, ...] = field(default_factory=tuple)
+    offered_claim_ids: tuple[str, ...] = field(default_factory=tuple)
     # Carried from the active turn so a declined turn can still report whether the
     # recall reached the model: a turn can be shown its learnings and then do too
     # little to be worth learning from, and only the host knows which happened.
@@ -120,6 +122,7 @@ def read_active(session_id: str) -> ActiveTurn | None:
             source_framework=data.get("source_framework", ""),
             started_at=float(data.get("started_at", 0.0)),
             offered_learning_ids=tuple(data.get("offered_learning_ids") or ()),
+            offered_claim_ids=tuple(data.get("offered_claim_ids") or ()),
             is_injected=bool(data.get("is_injected", False)),
             transcript_path=data.get("transcript_path", ""),
         )
@@ -382,6 +385,7 @@ def _pending_from_dict(
             source_framework=data.get("source_framework", ""),
             ended_at=float(data.get("ended_at", 0.0)),
             offered_learning_ids=tuple(data.get("offered_learning_ids") or ()),
+            offered_claim_ids=tuple(data.get("offered_claim_ids") or ()),
             # Every field written must be read back. is_injected was already missing here,
             # so a pending turn reloaded from disk always reported False and the decline
             # payload's is_delivered was permanently wrong.

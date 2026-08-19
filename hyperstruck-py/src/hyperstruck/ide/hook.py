@@ -42,9 +42,11 @@ from typing import Any
 
 from hyperstruck._wire import (
     REASON_BELOW_MATERIAL_THRESHOLD,
+    REASON_EMPTY_OFFER,
     REASON_NO_TOOL_CALLS,
     REASON_UNEVIDENCED_OUTCOME,
     EvidenceItem,
+    ResolvedContext,
 )
 from hyperstruck.client import (
     DEFAULT_RECALL_TIMEOUT,
@@ -119,20 +121,28 @@ def cmd_prompt(payload: dict[str, Any], args: argparse.Namespace) -> None:
     goal = clip_goal(scrub_secrets(raw_goal.strip()))
     agent_name = configured_agent_name()
 
-    # Read-only recall resolves and prints without touching turn state. Reporting
-    # intent is independent: omitted --resolve-purpose stays agent_loop so
-    # already-installed skill commands keep contributing. Human inspection must
-    # pass explicit_recall.
+    # Read-only recall (the hyper-learning skill): resolve and print for this goal,
+    # without touching any turn state, so an explicit recall never disturbs the
+    # automatic loop. A throwaway run id is declined immediately so it cannot
+    # sit unclosed beside the live hook run. Omitted --resolve-purpose stays
+    # agent_loop so already-installed skill commands keep contributing; human
+    # inspection must pass explicit_recall.
     if args.readonly:
         if agent_name:
-            text, _ = _resolve(
+            run_id = _new_run_id(agent_name, session_id)
+            source = _source(args)
+            context = _resolve(
                 agent_name,
-                _new_run_id(agent_name, session_id),
+                run_id,
                 goal,
-                _source(args),
+                source,
                 resolve_purpose=args.resolve_purpose,
             )
-            _emit_injection(text, args)
+            _emit_injection(
+                _combined_injection(context.injected_text, context.injected_facts_text),
+                args,
+            )
+            _close_readonly_run(agent_name, run_id, context, source)
         else:
             _debug("prompt(readonly): no agent configured")
         return
@@ -254,7 +264,7 @@ def cmd_resolve(session_id: str) -> None:
         if not active.goal:
             _debug("resolve skipped: empty goal")
             return
-        text, offered = asyncio.run(
+        context = asyncio.run(
             _aresolve(
                 active.agent_name,
                 active.run_id,
@@ -262,7 +272,7 @@ def cmd_resolve(session_id: str) -> None:
                 source_framework=active.source_framework or SOURCE_CLAUDE_CODE,
             )
         )
-        if not text:
+        if not _combined_injection(context.injected_text, context.injected_facts_text):
             # An empty stash can never validate for injection; publishing it
             # would only leave dead weight for the tool hooks to skip.
             _debug("resolve dropped: no learnings to inject")
@@ -275,11 +285,16 @@ def cmd_resolve(session_id: str) -> None:
             session_id,
             {
                 "run_id": active.run_id,
-                "injected_text": text,
-                "offered_learning_ids": list(offered),
+                "injected_text": context.injected_text,
+                "injected_facts_text": context.injected_facts_text,
+                "offered_learning_ids": list(context.offered_learning_ids),
+                "offered_claim_ids": list(context.offered_claim_ids),
             },
         )
-        _debug(f"resolve ok: {len(offered)} learning(s) for agent {active.agent_name}")
+        _debug(
+            f"resolve ok: {len(context.offered_learning_ids)} learning(s), "
+            f"{len(context.offered_claim_ids)} claim(s) for agent {active.agent_name}"
+        )
     except Exception as exc:  # noqa: BLE001 - detached recall always fails open
         _debug(f"resolve failed ({type(exc).__name__}): {exc}")
 
@@ -559,7 +574,11 @@ def _distill_run_id(provided: Any) -> str:
     original = provided.strip() if isinstance(provided, str) else ""
     if not original:
         return f"{DISTILL_RUN_ID_PREFIX}{MINTED_RUN_ID_TOKEN}{uuid.uuid4().hex[:MINTED_RUN_ID_CHARS]}"
-    return original if original.startswith(DISTILL_RUN_ID_PREFIX) else f"{DISTILL_RUN_ID_PREFIX}{original}"
+    return (
+        original
+        if original.startswith(DISTILL_RUN_ID_PREFIX)
+        else f"{DISTILL_RUN_ID_PREFIX}{original}"
+    )
 
 
 def _distill_success(value: Any) -> bool:
@@ -760,6 +779,7 @@ def _finalise(
             source_framework=current.source_framework,
             ended_at=time.time(),
             offered_learning_ids=current.offered_learning_ids,
+            offered_claim_ids=current.offered_claim_ids,
             is_injected=current.is_injected,
             context_receipt=context_receipt or "",
         ),
@@ -834,11 +854,10 @@ def _stage_and_flush(
     # An observed turn that offered nothing still closes its loop server-side, so
     # reinforce it too; skipping empty offers is what left those runs half-open. A
     # trivial turn (no material steps, no offer) still short-circuits below.
-    is_worth_learning_from = should_observe(steps) or bool(pending.offered_learning_ids)
+    offered = bool(pending.offered_learning_ids) or bool(pending.offered_claim_ids)
+    is_worth_learning_from = should_observe(steps) or offered
     do_observe = turn_outcome.is_evidenced and should_observe(steps)
-    do_reinforce = do_observe or (
-        turn_outcome.is_evidenced and bool(pending.offered_learning_ids)
-    )
+    do_reinforce = do_observe or (turn_outcome.is_evidenced and offered)
     if not (do_observe or do_reinforce):
         # Not worth learning from, but the run it opened is still open server-side,
         # and going quiet made a deliberate skip look identical to a broken host.
@@ -880,9 +899,7 @@ def _staged_run_id(payload: dict[str, Any]) -> str:
     return ""
 
 
-def _decline_reason(
-    steps: list[dict[str, Any]], is_worth_learning_from: bool
-) -> str:
+def _decline_reason(steps: list[dict[str, Any]], is_worth_learning_from: bool) -> str:
     """Why this turn was declined, from the gate that actually decided it.
 
     Derived rather than invented, so the reported cause and the gate can never
@@ -1027,7 +1044,13 @@ def _recall_timeout() -> float:
     Floored, because a zero or negative override reproduces the original defect:
     every recall times out and fails open as though the corpus were empty.
     """
-    return max(MIN_RECALL_TIMEOUT, env_float(RESOLVE_TIMEOUT_ENV, DEFAULT_RECALL_TIMEOUT))
+    return max(
+        MIN_RECALL_TIMEOUT, env_float(RESOLVE_TIMEOUT_ENV, DEFAULT_RECALL_TIMEOUT)
+    )
+
+
+def _empty_context() -> ResolvedContext:
+    return ResolvedContext()
 
 
 def _resolve(
@@ -1037,13 +1060,13 @@ def _resolve(
     source_framework: str,
     *,
     resolve_purpose: ResolvePurpose = ResolvePurpose.AGENT_LOOP,
-) -> tuple[str | None, tuple[str, ...]]:
-    """Resolve the goal's learnings. Returns (injected_text, offered_ids); fails open."""
+) -> ResolvedContext:
+    """Resolve the goal's learnings and claims. Fails open to an empty context."""
     if not goal:
         _debug("resolve skipped: empty goal")
-        return None, ()
+        return _empty_context()
     try:
-        text, offered = asyncio.run(
+        context = asyncio.run(
             _aresolve(
                 agent_name,
                 run_id,
@@ -1052,18 +1075,21 @@ def _resolve(
                 resolve_purpose=resolve_purpose,
             )
         )
-        _debug(f"resolve ok: {len(offered)} learning(s) for agent {agent_name}")
-        return text, offered
+        _debug(
+            f"resolve ok: {len(context.offered_learning_ids)} learning(s), "
+            f"{len(context.offered_claim_ids)} claim(s) for agent {agent_name}"
+        )
+        return context
     except TimeoutError:
         print(
             f"[hyperstruck] recall timed out after {_recall_timeout():g}s; "
             "proceeding without learnings",
             file=sys.stderr,
         )
-        return None, ()
+        return _empty_context()
     except Exception as exc:  # noqa: BLE001 - explicit recall always fails open
         _debug(f"resolve failed ({type(exc).__name__}): {exc}")
-        return None, ()
+        return _empty_context()
 
 
 async def _aresolve(
@@ -1074,7 +1100,7 @@ async def _aresolve(
     source_framework: str = SOURCE_CLAUDE_CODE,
     resolve_timeout: float | None = None,
     resolve_purpose: ResolvePurpose = ResolvePurpose.AGENT_LOOP,
-) -> tuple[str | None, tuple[str, ...]]:
+) -> ResolvedContext:
     client = HostedLearningClient(
         resolve_timeout=(
             _recall_timeout() if resolve_timeout is None else resolve_timeout
@@ -1082,16 +1108,52 @@ async def _aresolve(
         client_host=source_framework,
     )
     try:
-        context = await client.resolve(
+        return await client.resolve(
             identity=AgentIdentity(agent_name=agent_name),
             run_id=run_id,
             goal=goal,
             source_framework=source_framework,
             resolve_purpose=resolve_purpose,
         )
-        return context.injected_text, tuple(context.offered_learning_ids)
     finally:
         await client.aclose()
+
+
+def _readonly_decline_payload(
+    run_id: str, context: ResolvedContext, source_framework: str
+) -> dict[str, Any]:
+    offered = bool(context.offered_learning_ids) or bool(context.offered_claim_ids)
+    return {
+        "run_id": run_id,
+        "reason": (REASON_BELOW_MATERIAL_THRESHOLD if offered else REASON_EMPTY_OFFER),
+        "is_delivered": bool(
+            _combined_injection(context.injected_text, context.injected_facts_text)
+        ),
+        "source_framework": source_framework,
+    }
+
+
+def _close_readonly_run(
+    agent_name: str, run_id: str, context: ResolvedContext, source_framework: str
+) -> None:
+    """Decline a skill-driven throwaway recall so it cannot sit unclosed."""
+    try:
+        asyncio.run(
+            _deliver_decline(
+                agent_name,
+                _readonly_decline_payload(run_id, context, source_framework),
+            )
+        )
+    except Exception as exc:  # noqa: BLE001 - readonly close always fails open
+        _debug(f"readonly decline failed ({type(exc).__name__}): {exc}")
+
+
+def _combined_injection(advice: str | None, facts: str | None) -> str | None:
+    """Place the advice and fact blocks adjacently when the host wants no choice."""
+    parts = [block for block in (advice, facts) if block]
+    if not parts:
+        return None
+    return "\n\n".join(parts)
 
 
 async def _deliver_decline(
@@ -1172,9 +1234,7 @@ async def _deliver(payload: dict[str, Any]) -> tuple[FlushOutcome, str | None]:
     )
     try:
         client = HostedLearningClient(
-            client_host=str(
-                episode_data.get("source_framework") or SOURCE_CLAUDE_CODE
-            )
+            client_host=str(episode_data.get("source_framework") or SOURCE_CLAUDE_CODE)
         )
     except ValueError:
         return FlushOutcome.UNRECOVERABLE, "no API key configured"
@@ -1443,7 +1503,9 @@ def _inject_pending(session_id: str, source: str) -> None:
     """Emit detached recall exactly once, claiming it only after it validates."""
     try:
         recall = state.peek_recall(session_id)
-        if recall is None or not recall.get("injected_text"):
+        if recall is None or not _combined_injection(
+            recall.get("injected_text"), recall.get("injected_facts_text")
+        ):
             return
         active = state.read_active(session_id)
         if (
@@ -1458,7 +1520,9 @@ def _inject_pending(session_id: str, source: str) -> None:
         # Only Claude Code records what its editor accepted, so only there can a marker
         # ever be redeemed for evidence. Stamping Cursor's block would spend the
         # customer's context on an identifier nothing can read back.
-        block = str(claimed.get("injected_text") or "")
+        block = _combined_injection(
+            claimed.get("injected_text"), claimed.get("injected_facts_text")
+        )
         if not block:
             # The peek above and this claim are separate reads. Stamping an empty block
             # makes it truthy, so the marker alone would be emitted: context spent on an
@@ -1469,10 +1533,17 @@ def _inject_pending(session_id: str, source: str) -> None:
         if not _emit_tool_context(block, source):
             return
         offered = tuple(str(item) for item in claimed.get("offered_learning_ids") or ())
+        claims = tuple(str(item) for item in claimed.get("offered_claim_ids") or ())
         merged = tuple(dict.fromkeys((*active.offered_learning_ids, *offered)))
+        merged_claims = tuple(dict.fromkeys((*active.offered_claim_ids, *claims)))
         state.write_active(
             session_id,
-            replace(active, is_injected=True, offered_learning_ids=merged),
+            replace(
+                active,
+                is_injected=True,
+                offered_learning_ids=merged,
+                offered_claim_ids=merged_claims,
+            ),
             reset_steps=False,
         )
     except Exception as exc:  # noqa: BLE001 - context injection always fails open
@@ -1590,7 +1661,9 @@ def main(argv: list[str] | None = None) -> int:
             cmd_stop(payload, args)
         elif args.command == "distill":
             cmd_distill(payload, args)
-    except BaseException:  # noqa: BLE001 - the loop must never break the editor, even on cancellation/interrupt
+    except (
+        BaseException
+    ):  # noqa: BLE001 - the loop must never break the editor, even on cancellation/interrupt
         return 0
     return 0
 

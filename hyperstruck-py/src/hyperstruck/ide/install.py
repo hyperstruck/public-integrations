@@ -462,7 +462,15 @@ def _copy_skills(target_dir: Path, report: Report) -> None:
     for skill in sorted(source.iterdir()):
         if not skill.is_dir():
             continue
-        shutil.copytree(skill, target_dir / skill.name, dirs_exist_ok=True)
+        target = target_dir / skill.name
+        # Replace, don't merge: a merge-copy leaves files a newer bundle removed
+        # (e.g. a retired reference.md) serving stale contract docs after upgrade.
+        # is_dir() follows a directory symlink, but rmtree refuses to delete one.
+        if target.is_symlink() or target.is_file():
+            target.unlink()
+        elif target.is_dir():
+            shutil.rmtree(target)
+        shutil.copytree(skill, target)
     report.did(f"Installed skills into {target_dir}")
 
 
@@ -632,7 +640,9 @@ def _list_agents(key: str, base_url: str | None) -> list[dict[str, Any]]:
         )
         response.raise_for_status()
         data = response.json()
-    except Exception:  # noqa: BLE001 - listing is best-effort; warn paths handle empties
+    except (
+        Exception
+    ):  # noqa: BLE001 - listing is best-effort; warn paths handle empties
         return []
     items = data.get("items") if isinstance(data, dict) else data
     return [a for a in (items or []) if isinstance(a, dict)]

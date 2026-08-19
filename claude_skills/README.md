@@ -10,7 +10,7 @@ These skills use the **`hyper-` prefix** on folder names and `name:` frontmatter
 | `hyper-learning` | **Search, store, retrieve, and reinforce learnings** so knowledge accumulates and future reasoning improves. |
 | `hyper-plans` | **Search similar plans and review candidate learnings** for reuse and investigation. |
 
-Each skill directory contains `SKILL.md` (main instructions) and `reference.md` (API shapes and error codes).
+Each skill directory contains `SKILL.md` (main instructions). `hyper-plans` and `hyper-reasoning` also ship a `reference.md` with API shapes and error codes; `hyper-learning` instead resolves contract questions against the published [`openapi.json`](https://github.com/hyperstruck/public-integrations/blob/main/openapi.json) so it never goes stale.
 
 ## Installation options
 

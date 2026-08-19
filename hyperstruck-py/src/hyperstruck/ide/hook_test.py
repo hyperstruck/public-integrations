@@ -7,7 +7,7 @@ import asyncio
 import contextlib
 import json
 from dataclasses import replace
-from types import SimpleNamespace
+from pathlib import Path
 from typing import Any
 
 import pytest
@@ -43,22 +43,6 @@ _REAL_SPAWN_RESOLVE = hook._spawn_resolve
 _BOUNDARY_RECEIPT_CEILING = 200_000
 
 
-from pathlib import Path
-from hyperstruck.redaction import REDACTION_MARKER
-
-"""End-to-end turn lifecycle: capture, deferral, structural-rework resolution."""
-# Captured before the autouse fixture patches it, so the resolve breadcrumb tests
-# can exercise the real _resolve rather than the fixture's readonly stub.
-_REAL_RESOLVE = hook._resolve
-_REAL_SPAWN_RESOLVE = hook._spawn_resolve
-# The boundary's own CONTEXT_RECEIPT_MAX_CHARS, restated because this is a separate
-# distribution that cannot import the server. The real ordering between the two is
-# enforced against the actual server constant by the platform's
-# api/boundary_exposure_receipt_guard_test.py; this copy only lets the clip test state
-# what the clip is FOR.
-_BOUNDARY_RECEIPT_CEILING = 200_000
-
-
 @pytest.fixture(autouse=True)
 def _env(tmp_path, monkeypatch):
     monkeypatch.setenv("HYPER_HOME", str(tmp_path))
@@ -68,11 +52,11 @@ def _env(tmp_path, monkeypatch):
     monkeypatch.setattr(
         hook,
         "_resolve",
-        lambda agent_id, run_id, goal, source_framework, **_kwargs: (
-            "INJECTED",
-            ("L1",),
+        lambda agent_id, run_id, goal, source_framework, **_kwargs: hook.ResolvedContext(
+            injected_text="INJECTED", offered_learning_ids=("L1",)
         ),
     )
+    monkeypatch.setattr(hook, "_close_readonly_run", lambda *_args, **_kwargs: None)
 
     def resolve_now(session_id: str) -> None:
         active = state.read_active(session_id)
@@ -301,8 +285,7 @@ def test_each_turn_is_delivered_once_on_its_own_evidence(_env) -> None:
     second = _last_staged(staged)
     assert second["episode"]["outcome"]["is_success"] is False
     assert (
-        second["episode"]["run_id"]
-        != state.read_flush(staged[0])["episode"]["run_id"]
+        second["episode"]["run_id"] != state.read_flush(staged[0])["episode"]["run_id"]
     )
 
 
@@ -617,9 +600,7 @@ def test_the_sweep_declines_an_orphan_from_a_session_that_never_stopped(
         )
     orphan = state.read_active("s-dead")
     assert orphan is not None
-    state.write_active(
-        "s-dead", replace(orphan, started_at=0.0), reset_steps=False
-    )
+    state.write_active("s-dead", replace(orphan, started_at=0.0), reset_steps=False)
 
     hook._sweep_stale(exclude="other-session")
 
@@ -1182,7 +1163,7 @@ def test_resolver_drops_recall_when_turn_ended_or_changed(
                     started_at=2.0,
                 ),
             )
-        return "TEXT", ("L1",)
+        return hook.ResolvedContext(injected_text="TEXT", offered_learning_ids=("L1",))
 
     monkeypatch.setattr(hook, "_aresolve", resolve_then_change)
     hook.cmd_resolve("s1")
@@ -1202,14 +1183,21 @@ def test_resolver_writes_matching_recall(_env, monkeypatch) -> None:
     )
 
     async def resolved(*_args, **_kwargs):
-        return "TEXT", ("L1", "L2")
+        return hook.ResolvedContext(
+            injected_text="TEXT",
+            injected_facts_text="FACT",
+            offered_learning_ids=("L1", "L2"),
+            offered_claim_ids=("C1",),
+        )
 
     monkeypatch.setattr(hook, "_aresolve", resolved)
     hook.cmd_resolve("s1")
     assert state.claim_recall("s1") == {
         "run_id": "run-1",
         "injected_text": "TEXT",
+        "injected_facts_text": "FACT",
         "offered_learning_ids": ["L1", "L2"],
+        "offered_claim_ids": ["C1"],
     }
 
 
@@ -1226,7 +1214,7 @@ def test_resolver_skips_publish_when_no_learnings(_env, monkeypatch) -> None:
     )
 
     async def resolved(*_args, **_kwargs):
-        return None, ()
+        return hook.ResolvedContext()
 
     monkeypatch.setattr(hook, "_aresolve", resolved)
     hook.cmd_resolve("s1")
@@ -1285,7 +1273,7 @@ def test_every_hook_recall_reaches_the_client_with_the_recall_budget(
 
         async def resolve(self, **kwargs):
             seen_purposes.append(kwargs["resolve_purpose"])
-            return SimpleNamespace(injected_text="TEXT", offered_learning_ids=())
+            return hook.ResolvedContext(injected_text="TEXT")
 
         async def aclose(self):
             return None
@@ -1324,6 +1312,7 @@ def test_every_hook_recall_reaches_the_client_with_the_recall_budget(
     assert seen == [expected]
     assert seen_purposes == [hook.ResolvePurpose.AGENT_LOOP]
 
+
 def test_readonly_without_purpose_stays_agent_loop(_env, monkeypatch) -> None:
     """Already-installed --readonly skill commands never passed a purpose."""
     seen_purposes: list[object] = []
@@ -1334,7 +1323,7 @@ def test_readonly_without_purpose_stays_agent_loop(_env, monkeypatch) -> None:
 
         async def resolve(self, **kwargs):
             seen_purposes.append(kwargs["resolve_purpose"])
-            return SimpleNamespace(injected_text="TEXT", offered_learning_ids=())
+            return hook.ResolvedContext(injected_text="TEXT")
 
         async def aclose(self):
             return None
@@ -1350,6 +1339,7 @@ def test_readonly_without_purpose_stays_agent_loop(_env, monkeypatch) -> None:
 
     assert seen_purposes == [hook.ResolvePurpose.AGENT_LOOP]
 
+
 def test_readonly_explicit_recall_is_opt_in(_env, monkeypatch) -> None:
     seen_purposes: list[object] = []
 
@@ -1359,7 +1349,7 @@ def test_readonly_explicit_recall_is_opt_in(_env, monkeypatch) -> None:
 
         async def resolve(self, **kwargs):
             seen_purposes.append(kwargs["resolve_purpose"])
-            return SimpleNamespace(injected_text="TEXT", offered_learning_ids=())
+            return hook.ResolvedContext(injected_text="TEXT")
 
         async def aclose(self):
             return None
@@ -1384,6 +1374,7 @@ def test_readonly_explicit_recall_is_opt_in(_env, monkeypatch) -> None:
 
     assert seen_purposes == [hook.ResolvePurpose.EXPLICIT_RECALL]
 
+
 def test_packaged_skill_attributes_agent_owned_readonly_recall() -> None:
     skill_path = (
         Path(hook.__file__).parent / "skills" / "hyper-learning" / "SKILL.md"
@@ -1392,6 +1383,8 @@ def test_packaged_skill_attributes_agent_owned_readonly_recall() -> None:
 
     assert "prompt --readonly" in skill
     assert "--resolve-purpose agent_loop" in skill
+
+
 def test_explicit_recall_says_so_on_stderr_when_it_times_out(
     _env, capsys, monkeypatch
 ) -> None:
@@ -1404,7 +1397,10 @@ def test_explicit_recall_says_so_on_stderr_when_it_times_out(
     monkeypatch.setattr(hook, "_resolve", _REAL_RESOLVE)
     monkeypatch.setattr(hook, "_aresolve", timed_out)
 
-    assert hook._resolve("agent-x", "run-1", "do x", hook.SOURCE_CLAUDE_CODE) == (None, ())
+    assert (
+        hook._resolve("agent-x", "run-1", "do x", hook.SOURCE_CLAUDE_CODE)
+        == hook.ResolvedContext()
+    )
     assert "recall timed out" in capsys.readouterr().err
 
 
@@ -1593,11 +1589,104 @@ def test_readonly_recall_does_not_touch_state(_env, capsys) -> None:
     assert state.read_active("c1") is None  # no turn state written
 
 
+def test_readonly_recall_prints_facts_and_closes_the_throwaway_run(
+    _env, capsys, monkeypatch
+) -> None:
+    closed: list[tuple[str, str, hook.ResolvedContext, str]] = []
+    monkeypatch.setattr(
+        hook,
+        "_resolve",
+        lambda agent_id, run_id, goal, source_framework, **_kwargs: hook.ResolvedContext(
+            injected_text="RULE",
+            injected_facts_text="FACT",
+            offered_learning_ids=("L1",),
+            offered_claim_ids=("C1",),
+        ),
+    )
+    monkeypatch.setattr(
+        hook,
+        "_close_readonly_run",
+        lambda agent, run_id, context, source: closed.append(
+            (agent, run_id, context, source)
+        ),
+    )
+    hook.cmd_prompt(
+        {"conversation_id": "c1", "cwd": "/repo"},
+        hook._parse_args(
+            [
+                "prompt",
+                "--source",
+                "cursor",
+                "--readonly",
+                "--emit",
+                "text",
+                "--goal",
+                "do x",
+            ]
+        ),
+    )
+    assert capsys.readouterr().out == "RULE\n\nFACT"
+    assert state.read_active("c1") is None
+    assert len(closed) == 1
+    agent, run_id, context, source = closed[0]
+    assert agent == "agent-x"
+    assert run_id
+    assert context.offered_claim_ids == ("C1",)
+    assert source == "cursor"
+
+
+def test_close_readonly_run_declines_an_offered_recall() -> None:
+    assert hook._readonly_decline_payload(
+        "run-1",
+        hook.ResolvedContext(
+            injected_text="RULE",
+            offered_learning_ids=("L1",),
+            offered_claim_ids=("C1",),
+        ),
+        "cursor",
+    ) == {
+        "run_id": "run-1",
+        "reason": hook.REASON_BELOW_MATERIAL_THRESHOLD,
+        "is_delivered": True,
+        "source_framework": "cursor",
+    }
+
+
+def test_tool_injection_carries_claim_ids(_env, capsys) -> None:
+    hook.cmd_prompt(
+        {"session_id": "s1", "prompt": "do x", "cwd": "/repo"},
+        hook._parse_args(["prompt"]),
+    )
+    active = state.read_active("s1")
+    assert active is not None
+    state.write_recall(
+        "s1",
+        {
+            "run_id": active.run_id,
+            "injected_text": "RULE",
+            "injected_facts_text": "FACT",
+            "offered_learning_ids": ["L1"],
+            "offered_claim_ids": ["C1"],
+        },
+    )
+    hook.cmd_tool(
+        {"session_id": "s1", "cwd": "/repo"},
+        hook._parse_args(["tool", "--kind", "command", "--name", "pytest"]),
+    )
+    out = capsys.readouterr().out
+    assert "RULE" in out
+    assert "FACT" in out
+    injected = state.read_active("s1")
+    assert injected is not None
+    assert injected.offered_learning_ids == ("L1",)
+    assert injected.offered_claim_ids == ("C1",)
+
+
 # -- debug breadcrumbs -------------------------------------------------------
 
 
 async def _aresolve_ok(agent_id, run_id, goal, **_kwargs):
-    return "TEXT", ("L1", "L2")
+    return hook.ResolvedContext(injected_text="TEXT", offered_learning_ids=("L1", "L2"))
 
 
 async def _aresolve_boom(agent_id, run_id, goal, **_kwargs):
@@ -1647,13 +1736,24 @@ def test_readonly_recall_sends_its_host_to_resolve(_env, monkeypatch) -> None:
         "_resolve",
         lambda agent_id, run_id, goal, source_framework, **_kwargs: (
             seen.append(source_framework),
-            ("INJECTED", ("L1",)),
+            hook.ResolvedContext(
+                injected_text="INJECTED", offered_learning_ids=("L1",)
+            ),
         )[1],
     )
     hook.cmd_prompt(
         {"conversation_id": "c1", "cwd": "/repo"},
         hook._parse_args(
-            ["prompt", "--source", "cursor", "--readonly", "--emit", "text", "--goal", "do x"]
+            [
+                "prompt",
+                "--source",
+                "cursor",
+                "--readonly",
+                "--emit",
+                "text",
+                "--goal",
+                "do x",
+            ]
         ),
     )
     assert seen == ["cursor"]
@@ -1665,7 +1765,7 @@ def test_detached_recall_sends_the_turns_host_to_resolve(monkeypatch) -> None:
 
     async def _capture(agent_name, run_id, goal, *, source_framework, **_kwargs):
         seen.append(source_framework)
-        return None, ()
+        return hook.ResolvedContext()
 
     monkeypatch.setattr(hook, "_aresolve", _capture)
     monkeypatch.setattr(
@@ -1687,8 +1787,9 @@ def test_resolve_ok_breadcrumb_counts_learnings(capsys, monkeypatch) -> None:
     monkeypatch.setenv("HYPER_HOOK_DEBUG", "1")
     monkeypatch.setattr(hook, "_resolve", _REAL_RESOLVE)
     monkeypatch.setattr(hook, "_aresolve", _aresolve_ok)
-    text, offered = hook._resolve("agent-x", "run-1", "do x", hook.SOURCE_CLAUDE_CODE)
-    assert (text, offered) == ("TEXT", ("L1", "L2"))
+    context = hook._resolve("agent-x", "run-1", "do x", hook.SOURCE_CLAUDE_CODE)
+    assert context.injected_text == "TEXT"
+    assert context.offered_learning_ids == ("L1", "L2")
     assert "resolve ok: 2 learning(s)" in capsys.readouterr().err
 
 
@@ -1696,7 +1797,10 @@ def test_resolve_failure_breadcrumb_and_fails_open(capsys, monkeypatch) -> None:
     monkeypatch.setenv("HYPER_HOOK_DEBUG", "1")
     monkeypatch.setattr(hook, "_resolve", _REAL_RESOLVE)
     monkeypatch.setattr(hook, "_aresolve", _aresolve_boom)
-    assert hook._resolve("agent-x", "run-1", "do x", hook.SOURCE_CLAUDE_CODE) == (None, ())
+    assert (
+        hook._resolve("agent-x", "run-1", "do x", hook.SOURCE_CLAUDE_CODE)
+        == hook.ResolvedContext()
+    )
     assert "resolve failed (RuntimeError): boom" in capsys.readouterr().err
 
 
@@ -1791,7 +1895,9 @@ def test_distill_forwards_scrubbed_corpus_to_client(_env, capsys, monkeypatch) -
     )
     assert secret not in joined  # secret-scrubbed before it leaves the machine
     assert [item.id for item in captured["evidence"]] == ["before", "after"]
-    assert captured["evidence"][0].source_ref == "https://example.com/design-doc-2026-07"
+    assert (
+        captured["evidence"][0].source_ref == "https://example.com/design-doc-2026-07"
+    )
     out = capsys.readouterr().out
     assert "Distill delivered for agent 'agent-x'" in out
 
@@ -1862,7 +1968,9 @@ def test_a_run_id_is_never_rewritten() -> None:
     # descriptive id to one literal, so an idempotent distil silently discarded
     # all but the first. An identifier must survive verbatim or be refused.
     descriptive = "learning-gate-observability-2026-08-02"
-    assert hook._scrub_distill_string(descriptive) != descriptive, "fixture must actually trip the scrubber"
+    assert (
+        hook._scrub_distill_string(descriptive) != descriptive
+    ), "fixture must actually trip the scrubber"
 
     assert hook._distill_run_id(descriptive) == f"distill:{descriptive}"
 
@@ -1905,20 +2013,33 @@ def test_every_known_credential_shape_is_refused(credential: str) -> None:
 def test_a_long_descriptive_run_id_is_accepted_though_the_scrubber_would_flatten_it(
     descriptive: str,
 ) -> None:
-    assert hook._scrub_distill_string(descriptive) != descriptive, "fixture must actually trip the scrubber"
+    assert (
+        hook._scrub_distill_string(descriptive) != descriptive
+    ), "fixture must actually trip the scrubber"
 
     assert hook._distill_run_id_rejection(descriptive) is None
     assert hook._distill_run_id(descriptive) == f"distill:{descriptive}"
 
 
 def test_ordinary_run_ids_are_accepted() -> None:
-    for clean in ("ci-lint-bandit-gate-2026-08-02", "meeting-8220", "distill:already-prefixed", None, "  "):
+    for clean in (
+        "ci-lint-bandit-gate-2026-08-02",
+        "meeting-8220",
+        "distill:already-prefixed",
+        None,
+        "  ",
+    ):
         assert hook._distill_run_id_rejection(clean) is None
 
 
 def test_clean_run_id_keeps_its_prefix_exactly_once() -> None:
-    assert hook._distill_run_id("ci-lint-bandit-gate-2026-08-02") == "distill:ci-lint-bandit-gate-2026-08-02"
-    assert hook._distill_run_id("distill:already-prefixed") == "distill:already-prefixed"
+    assert (
+        hook._distill_run_id("ci-lint-bandit-gate-2026-08-02")
+        == "distill:ci-lint-bandit-gate-2026-08-02"
+    )
+    assert (
+        hook._distill_run_id("distill:already-prefixed") == "distill:already-prefixed"
+    )
 
 
 def _run_distill_with_run_id(
@@ -1929,15 +2050,27 @@ def _run_distill_with_run_id(
     monkeypatch.setattr(hook, "_adistill", lambda **kw: dispatched.append(kw["run_id"]))
 
     emitted: list[dict[str, Any]] = []
-    monkeypatch.setattr(hook, "_emit_distill_result", lambda result, args: emitted.append(result))
+    monkeypatch.setattr(
+        hook, "_emit_distill_result", lambda result, args: emitted.append(result)
+    )
 
     hook.cmd_distill(
         {
             "goal": "teach the agent a house rule",
             "run_id": run_id,
             "evidence": [
-                {"id": "a", "role": "contrast", "status": "failed", "content": "the rejected approach"},
-                {"id": "b", "role": "support", "status": "completed", "content": "the accepted approach"},
+                {
+                    "id": "a",
+                    "role": "contrast",
+                    "status": "failed",
+                    "content": "the rejected approach",
+                },
+                {
+                    "id": "b",
+                    "role": "support",
+                    "status": "completed",
+                    "content": "the accepted approach",
+                },
             ],
         },
         argparse.Namespace(emit="json", source="claude-code", goal=None),
@@ -1945,10 +2078,14 @@ def _run_distill_with_run_id(
     return dispatched, emitted
 
 
-def test_a_refused_run_id_never_reaches_the_wire(monkeypatch: pytest.MonkeyPatch) -> None:
+def test_a_refused_run_id_never_reaches_the_wire(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
     # The unit tests above exercise a pure function; the original defect was that a
     # bad id reached the server. This asserts the refusal actually stops dispatch.
-    dispatched, emitted = _run_distill_with_run_id(monkeypatch, "run-sk-AbCdEf0123456789AbCdEf")
+    dispatched, emitted = _run_distill_with_run_id(
+        monkeypatch, "run-sk-AbCdEf0123456789AbCdEf"
+    )
 
     assert dispatched == [], "a refused run id must never be dispatched"
     assert emitted and emitted[0]["status"] == "skipped"
@@ -1965,7 +2102,9 @@ def test_the_refusal_reason_survives_onto_the_emitted_result(
     reason = emitted[0]["reason"]
     assert "refused rather than rewritten" in reason
     assert "omit run_id" in reason, "the reason must carry the escape hatch"
-    assert "sk-AbCdEf0123456789AbCdEf" not in reason, "the reason must not echo the secret"
+    assert (
+        "sk-AbCdEf0123456789AbCdEf" not in reason
+    ), "the reason must not echo the secret"
 
 
 def test_the_refusal_reveals_at_most_the_shape_head() -> None:
@@ -1981,13 +2120,15 @@ def test_the_refusal_reveals_at_most_the_shape_head() -> None:
     assert secret[: CREDENTIAL_HEAD_CHARS + 1] not in reason
 
 
-def test_a_descriptive_run_id_reaches_the_wire_verbatim(monkeypatch: pytest.MonkeyPatch) -> None:
+def test_a_descriptive_run_id_reaches_the_wire_verbatim(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
     # The complement, and the regression that matters: refusing this is what made
     # a correlatable id unusable, so dispatch must happen and carry it unaltered.
     descriptive = "superloop-supplier-code-of-conduct-review-2026-08-04"
-    assert hook._scrub_distill_string(descriptive) != descriptive, (
-        "fixture must actually trip the scrubber, or this proves nothing"
-    )
+    assert (
+        hook._scrub_distill_string(descriptive) != descriptive
+    ), "fixture must actually trip the scrubber, or this proves nothing"
 
     dispatched, emitted = _run_distill_with_run_id(monkeypatch, descriptive)
 
@@ -2003,9 +2144,9 @@ def test_distinct_evidence_ids_stay_distinct() -> None:
         "baseline-approach-before-the-fix-2026",
         "the-accepted-approach-after-fix-2026",
     )
-    assert hook._scrub_distill_string(first) == hook._scrub_distill_string(second), (
-        "fixture must actually collide under the scrubber"
-    )
+    assert hook._scrub_distill_string(first) == hook._scrub_distill_string(
+        second
+    ), "fixture must actually collide under the scrubber"
 
     evidence, _ = hook._evidence_from_spec(
         [
@@ -2035,7 +2176,14 @@ def test_evidence_label_and_content_are_still_scrubbed() -> None:
     # span still reads as what it was and scrubbing stays correct.
     secret = "ghp_ABCDEFGHIJKLMNOPQRSTUVWXYZ012345"
     evidence, _ = hook._evidence_from_spec(
-        [{"id": "a", "content": f"we used {secret}", "label": secret, "status": "completed"}]
+        [
+            {
+                "id": "a",
+                "content": f"we used {secret}",
+                "label": secret,
+                "status": "completed",
+            }
+        ]
     )
 
     assert secret not in evidence[0].content
@@ -2050,20 +2198,32 @@ def test_a_credential_in_an_evidence_identifier_refuses_the_whole_corpus(
     dispatched: list[str] = []
     monkeypatch.setattr(hook, "_adistill", lambda **kw: dispatched.append(kw["run_id"]))
     emitted: list[dict[str, Any]] = []
-    monkeypatch.setattr(hook, "_emit_distill_result", lambda result, args: emitted.append(result))
+    monkeypatch.setattr(
+        hook, "_emit_distill_result", lambda result, args: emitted.append(result)
+    )
 
-    entry: dict[str, Any] = {"id": "a", "role": "contrast", "status": "failed", "content": "x"}
+    entry: dict[str, Any] = {
+        "id": "a",
+        "role": "contrast",
+        "status": "failed",
+        "content": "x",
+    }
     entry[field] = "run-ghp_ABCDEFGHIJKLMNOPQRSTUVWXYZ012345"
     hook.cmd_distill(
         {
             "goal": "teach the agent a house rule",
             "run_id": "an-ordinary-descriptive-run-id-2026",
-            "evidence": [entry, {"id": "b", "role": "support", "status": "completed", "content": "y"}],
+            "evidence": [
+                entry,
+                {"id": "b", "role": "support", "status": "completed", "content": "y"},
+            ],
         },
         argparse.Namespace(emit="json", source="claude-code", goal=None),
     )
 
-    assert dispatched == [], "a corpus with a credential in an identifier must not dispatch"
+    assert (
+        dispatched == []
+    ), "a corpus with a credential in an identifier must not dispatch"
     assert emitted[0]["status"] == "skipped"
     assert field in emitted[0]["reason"]
     assert "ghp_ABCDEFGHIJKLMNOPQRSTUVWXYZ012345" not in emitted[0]["reason"]
@@ -2079,17 +2239,29 @@ def test_an_unusable_evidence_entry_is_reported_not_swallowed(
     dispatched: list[str] = []
     monkeypatch.setattr(hook, "_adistill", lambda **kw: dispatched.append(kw["run_id"]))
     emitted: list[dict[str, Any]] = []
-    monkeypatch.setattr(hook, "_emit_distill_result", lambda result, args: emitted.append(result))
+    monkeypatch.setattr(
+        hook, "_emit_distill_result", lambda result, args: emitted.append(result)
+    )
 
     hook.cmd_distill(
         {
             "goal": "teach the agent a house rule",
             "run_id": "an-ordinary-descriptive-run-id-2026",
             "evidence": [
-                {"id": "a", "content": "real one", "status": "failed", "role": "contrast"},
+                {
+                    "id": "a",
+                    "content": "real one",
+                    "status": "failed",
+                    "role": "contrast",
+                },
                 {"id": "b", "content": "", "status": "completed"},
                 "not-a-dict",
-                {"id": "d", "content": "real two", "status": "completed", "role": "support"},
+                {
+                    "id": "d",
+                    "content": "real two",
+                    "status": "completed",
+                    "role": "support",
+                },
             ],
         },
         argparse.Namespace(emit="json", source="claude-code", goal=None),
@@ -2110,7 +2282,9 @@ def test_an_unknown_status_is_reported_rather_than_coerced(
     monkeypatch.setattr(hook, "configured_agent_name", lambda: "dev-copilot")
     monkeypatch.setattr(hook, "_adistill", lambda **kw: None)
     emitted: list[dict[str, Any]] = []
-    monkeypatch.setattr(hook, "_emit_distill_result", lambda result, args: emitted.append(result))
+    monkeypatch.setattr(
+        hook, "_emit_distill_result", lambda result, args: emitted.append(result)
+    )
 
     hook.cmd_distill(
         {
@@ -2561,7 +2735,9 @@ def test_a_swept_turn_reads_the_transcript_it_recorded_at_its_start(
     session credits nothing however faithfully its editor recorded the block.
     """
     staged = _env
-    path = _transcript(tmp_path, _accepted_line("agent-x:oldsess:r1", "- the swept rule"))
+    path = _transcript(
+        tmp_path, _accepted_line("agent-x:oldsess:r1", "- the swept rule")
+    )
     state.write_active(
         "oldsess",
         state.ActiveTurn(

@@ -305,7 +305,6 @@ def test_rerun_migrates_managed_legacy_learning_agent_uuid(_dirs, monkeypatch) -
     assert f"HYPER_AGENT_ID={_AGENT_UUID}" in env
     assert "HYPER_LEARNING_AGENT_ID" not in env
 
-
 def test_reinstall_refreshes_stale_readonly_skill_purpose(_dirs) -> None:
     """A copied skill without --resolve-purpose must not stay that way after upgrade."""
     claude, _, _ = _dirs
@@ -320,6 +319,27 @@ def test_reinstall_refreshes_stale_readonly_skill_purpose(_dirs) -> None:
     refreshed = skill_path.read_text()
     assert "--readonly" in refreshed
     assert "--resolve-purpose agent_loop" in refreshed
+
+
+def test_copy_skills_replaces_a_directory_symlink(tmp_path, monkeypatch) -> None:
+    source = tmp_path / "bundled"
+    skill = source / "hyper-learning"
+    skill.mkdir(parents=True)
+    (skill / "SKILL.md").write_text("new")
+    target_dir = tmp_path / "skills"
+    linked = tmp_path / "linked-skill"
+    linked.mkdir()
+    (linked / "reference.md").write_text("stale")
+    dest = target_dir / "hyper-learning"
+    dest.parent.mkdir()
+    dest.symlink_to(linked, target_is_directory=True)
+    monkeypatch.setattr(install, "_skills_resource_dir", lambda: source)
+    install._copy_skills(target_dir, install.Report())
+    assert dest.is_dir()
+    assert not dest.is_symlink()
+    assert (dest / "SKILL.md").read_text() == "new"
+    assert not (dest / "reference.md").exists()
+    assert (linked / "reference.md").read_text() == "stale"
 
 
 def test_ensure_durable_venv_creates_and_syncs(tmp_path, monkeypatch) -> None:

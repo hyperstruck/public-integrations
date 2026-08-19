@@ -104,7 +104,7 @@ cp -r claude_skills/hyper-plans .cursor/skills/
 Each skill includes:
 
 - **`SKILL.md`** — what the assistant reads on each invocation (including frontmatter where supported).
-- **`reference.md`** — detailed request and response shapes when something more than the summary is needed.
+- **`reference.md`** (`hyper-plans`, `hyper-reasoning`) — detailed request and response shapes when something more than the summary is needed. `hyper-learning` instead resolves contract questions against the published [`openapi.json`](https://github.com/hyperstruck/public-integrations/blob/main/openapi.json) at the repo root, so its instructions never drift from the API.
 
 ### 2. Configure access
 

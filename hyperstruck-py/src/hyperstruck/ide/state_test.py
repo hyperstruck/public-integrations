@@ -314,6 +314,7 @@ def test_an_active_turn_round_trips_every_field() -> None:
         source_framework="claude-code",
         started_at=1.0,
         offered_learning_ids=("l1",),
+        offered_claim_ids=("c1",),
         is_injected=True,
         transcript_path="/tmp/session/transcript.jsonl",
     )
@@ -343,6 +344,7 @@ def test_the_drain_reads_back_every_field_a_legacy_pending_file_carries() -> Non
         source_framework="claude-code",
         ended_at=1.0,
         offered_learning_ids=("l1",),
+        offered_claim_ids=("c1",),
         is_injected=True,
         context_receipt="<!-- hyperstruck-run: r1 -->\n- the rule the editor accepted",
     )
@@ -370,6 +372,7 @@ def test_the_drain_reads_back_every_field_a_legacy_pending_file_carries() -> Non
             "source_framework": "claude-code",
             "ended_at": 1.0,
             "offered_learning_ids": ["l1"],
+            "offered_claim_ids": ["c1"],
             "is_injected": True,
             "context_receipt": (
                 "<!-- hyperstruck-run: r1 -->\n- the rule the editor accepted"
