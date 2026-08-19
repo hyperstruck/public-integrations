@@ -11,6 +11,7 @@ swappable client.
 - [Install](#install)
 - [Quick start (LangGraph)](#quick-start-langgraph)
 - [Quick start (IDE: Claude Code & Cursor)](#quick-start-ide-claude-code--cursor)
+- [Quick start (Claude CoWork)](#quick-start-claude-cowork)
 - [Quick start (MCP host)](#quick-start-mcp-host)
 - [How it works](#how-it-works)
   - [Credit follows evidence, not assertion](#credit-follows-evidence-not-assertion)
@@ -80,11 +81,27 @@ config without touching your existing entries) and installs the `hyper-*` skills
 Restart your editor afterwards. See [`hyperstruck/ide/README.md`](src/hyperstruck/ide/README.md)
 for the turn loop, the deferred outcome resolution, and the privacy model.
 
+`python -m hyperstruck.ide.install` does **not** install or wire Claude CoWork.
+
+## Quick start (Claude CoWork)
+
+CoWork is a skill-plus-curl host, not a hooked editor. Zip the portable
+[`hyper-learning`](../claude_skills/hyper-learning/) folder, upload it from
+**Customize → Skills**, enable it, and start a new session. Set
+`HYPER_SOURCE_FRAMEWORK=cowork`. Allowlist `api.hyperstruck.com` for CoWork
+network egress (Capabilities → Code execution). The skill reads `HYPER_*`
+from the attached local `.env` as well as the remote session env — an empty
+sandbox environment is not a missing key. The skill must close every
+`POST /resolve` with `POST /reinforce` or `POST /decline`.
+
+Full zip, UI, auth, and reporting steps live in the
+[repository README](../README.md#claude-cowork).
+
 ## Quick start (MCP host)
 
-The same learning loop for any MCP-capable host (Claude Desktop, Cursor, Cline),
+The same learning loop for any MCP-capable host (Claude Desktop, Cursor, Cline, CoWork),
 through Hyperstruck's hosted MCP server. There is nothing to install and nothing
-to run: point your host at the remote endpoint with your key and an agent name.
+to run: point your host at the remote endpoint with your API key.
 
 ```json
 {
@@ -92,19 +109,29 @@ to run: point your host at the remote endpoint with your key and an agent name.
     "hyperstruck": {
       "url": "https://mcp.hyperstruck.com/mcp/",
       "headers": {
-        "Authorization": "Bearer your-hyperstruck-api-key",
-        "X-Hyperstruck-Agent-Name": "support-bot"
+        "Authorization": "Bearer your-hyperstruck-api-key"
       }
     }
   }
 }
 ```
 
+`X-Hyperstruck-Agent-Name` is optional and **unset by default**. Add it only
+when you want to pin `resolve` / `complete_run` / `distill` to a specific agent
+name; otherwise hosted MCP uses the shared `default` namespace. For manual
+learning and claim tools, call `list_agents` first so you can pick the agent
+UUID this API key can access and pull the correct learnings.
+
 The hosted endpoint authenticates the bearer before MCP discovery, request
 parsing, or SSE setup. The key must be active and include at least one MCP tool
-scope: `agents:read` or `agents:write`. Admission does not grant every tool:
-`resolve` still requires `agents:read`, while `complete_run` requires
-`agents:write`.
+scope: `agents:read`, `agents:write`, or `claims:read`. Admission does not grant every tool:
+learning read tools require `agents:read`, write tools require `agents:write`,
+and claim tools require `claims:read`.
+
+For CoWork, paste the same JSON into **Advanced settings** / **MCP server
+configuration**, then start a new session. Allowlist `mcp.hyperstruck.com` for
+MCP egress. Keep `api.hyperstruck.com` allowlisted when you also use the
+`hyper-learning` skill's curl fallback.
 
 Connection failures use standard HTTP status codes:
 
@@ -119,11 +146,18 @@ Connection failures use standard HTTP status codes:
 Successful authentication and entitlement lookups may be cached for up to 60
 seconds. Rejected credentials and service failures are not cached.
 
-The host's model calls two tools: `resolve` to read the learnings bound to a task
-before it acts, and `complete_run` to report the outcome after, so the next run
-is sharper. Redaction runs at our edge before anything is persisted, with the
-names/addresses tier available on the compliance add-on. Regulated teams that need
-redaction inside their own process can run the self-host build (enterprise).
+The host's model calls `resolve` to read the learnings bound to a task before it
+acts, and `complete_run` to report the outcome after, so the next run is sharper.
+The MCP server also exposes `distill` for contrast corpora (docs, diffs,
+post-mortems) and manual tools: `list_agents`, `list_learnings`,
+`search_learnings`, `get_learning`, `store_learning`, `reinforce_learning`,
+`list_learning_claims`, `get_claim_review_context`, `get_claim_entity`, and
+`get_claim_attribute`. Use `distill` when the rule is not written yet; use
+`store_learning` when you already have the final text. Redaction runs at our
+edge before write payloads are forwarded, with the names/addresses tier
+available on the compliance add-on.
+Regulated teams that need redaction inside their own process can run the
+self-host build (enterprise).
 
 ## How it works
 

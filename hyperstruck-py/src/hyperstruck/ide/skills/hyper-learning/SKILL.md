@@ -1,14 +1,9 @@
 ---
 name: hyper-learning
 description: >-
-  Explicitly recall relevant Hyperstruck learnings and claims for a goal, so
-  prior experience informs the work, and distill durable learnings from a
-  referenced corpus (a design document, MCP result, or tool output) that the
-  automatic loop cannot see. Recall, capture, and reinforcement already run
-  automatically through the learning hooks on both Claude Code and Cursor; when
-  the hooks are not installed or not working (Claude CoWork, Codex, CI, a fresh
-  machine), this skill falls back to direct curl calls against the API. On large
-  tasks, recall per key component rather than once on the main goal.
+  Recall Hyperstruck learnings and claims for a goal; distill referenced docs or
+  tool output. Hooks run automatically in IDEs; curl fallback supports CoWork,
+  Codex, CI, and fresh hosts.
 argument-hint: "[optional goal text]"
 allowed-tools:
   - Bash(python3 *)
@@ -103,8 +98,10 @@ hooks are firing on this host. Do **not** use this path from a wired Claude
 Code or Cursor session that is merely erroring transiently: a manual resolve
 opens a second run alongside the automatic loop and distorts attribution. Read
 `HYPER_API_KEY`, `HYPER_BASE_URL`, and the agent name vars from
-`~/.hyperstruck/.env` or a repo-local `.env`; if `HYPER_API_KEY` is missing
-from both, stop and ask the user.
+`~/.hyperstruck/.env` or a repo-local `.env`. On Claude CoWork, also read
+those files from the **local folder the user attached** — do not treat an
+empty remote-session environment as a missing key. If `HYPER_API_KEY` is
+still missing, stop and ask the user.
 
 Unlike the hook's `--readonly` recall, a manual resolve **opens a run the
 automatic loop does not know about, so you must close it yourself** with the

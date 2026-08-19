@@ -79,6 +79,10 @@ place. Restart your editor afterwards. Uninstall with
 `python -m hyperstruck.ide.install --uninstall` (hooks and skills only; the
 durable venv is left in place).
 
+This installer does **not** wire Claude CoWork. CoWork never owns the live hook
+loop — zip and upload the portable skill instead (see the
+[repository README](../../../../README.md#claude-cowork)).
+
 Wired commands also keep your project directory off the interpreter's import path.
 Without that, a file in your repo named after a standard library module (a
 `types.py`, a `json.py`) shadows the real one, the interpreter cannot start, and

@@ -1,14 +1,9 @@
 ---
 name: hyper-learning
 description: >-
-  Manage Hyperstruck learnings: recall goal-scoped learnings and claims for the
-  caller's task, store reusable insights, search existing knowledge, retrieve by
-  ID, and reinforce with feedback. Prefers the installed learning hooks; falls
-  back to plain curl where they are absent so the same skill is portable across
-  hosts (IDE, Claude CoWork, Codex, CI). On large tasks, recall per key
-  component rather than once on the main goal. Use to capture or recall
-  experience during local work and to feed the platform learning layer that
-  improves reasoning over time.
+  Recall, search, store, and reinforce Hyperstruck learnings and claims. Use
+  before complex work; curl fallback supports CoWork, Codex, CI, and unwired
+  IDEs.
 argument-hint: "[search query or 'store' or 'reinforce']"
 allowed-tools:
   - Bash(curl *)
@@ -79,11 +74,20 @@ if [ -f "$HOME/.cursor/hooks.json" ] && grep -q "hyperstruck.ide.hook" "$HOME/.c
 [ -f .env ] && echo "dotenv=./.env" || { [ -f "$HOME/.hyperstruck/.env" ] && echo "dotenv=~/.hyperstruck/.env" || echo "dotenv=not found"; }
 ```
 
-If `HYPER_API_KEY_SET=no` above, the block already tried both `./.env` and `~/.hyperstruck/.env`. If still missing, **stop and ask the user** to set `HYPER_API_KEY`.
+If `HYPER_API_KEY_SET=no` above, the block already tried the **session** `./.env` and `$HOME/.hyperstruck/.env`. That is enough on Claude Code and Cursor. On **Claude CoWork** it is not: the preamble often runs in a remote sandbox whose cwd and `$HOME` are not the user's machine. An empty remote session env is **not** proof the user has no key.
+
+On CoWork, also read `HYPER_*` / `HYPERSTRUCK_*` from the **local filesystem** the user attached (the project or folder CoWork is working in):
+
+1. Open `.env` at that folder root, then parent folders, with the host file tools if the sandbox shell cannot see the file.
+2. If this session can see the user's home directory, also open `~/.hyperstruck/.env` on that **local** filesystem — do not treat the sandbox `$HOME` as the user's Mac unless they are the same path.
+3. Apply the same quote and comment stripping as the block above. **Never echo values.**
+4. Only then **stop and ask** the user for `HYPER_API_KEY`.
+
+On other hosts, if the key is still missing after the block, **stop and ask** the user to set `HYPER_API_KEY`.
 
 `HYPER_VENV` only means the hook command can run; it does **not** mean this host owns the live loop. Claude Code owns the loop only when `HYPER_CLAUDE_HOOKS=wired`, Cursor only when `HYPER_CURSOR_HOOKS=wired`. CoWork, Codex, and CI never own the loop — use curl there even if the venv exists.
 
-If the environment block above did not run at all (some hosts do not execute dynamic skill preambles), run its body manually in your shell before continuing — every call below needs `HYPER_API_KEY` and `HYPER_BASE_URL`.
+If the environment block above did not run at all (some hosts do not execute dynamic skill preambles), run its body manually in your shell before continuing — every call below needs `HYPER_API_KEY` and `HYPER_BASE_URL`. On CoWork, still check the attached local `.env` first.
 
 ---
 
@@ -429,7 +433,8 @@ Whenever this skill recalls, searches, or distills, **surface the result to the 
 
 ## Error handling
 
-- **401/403**: invalid key or lacking scopes → ask user to check `HYPER_API_KEY`.
+- **401/403**: invalid key or lacking scopes → ask user to check `HYPER_API_KEY`. On CoWork, re-read the attached local `.env` before asking; an empty remote session env is not a missing key.
+- **403 `blocked-by-allowlist` / `host_not_allowed`**: CoWork (or the org) has not allowlisted the API host for code-execution egress. Ask the user to add `api.hyperstruck.com` (or their `HYPER_BASE_URL` host) under Settings or Organization settings → **Capabilities → Code execution → Allow network egress → Additional allowed domains**, then start a **new** session.
 - **404**: agent or learning not found → verify ID.
 - **403 on `scope=org`**: requires enterprise entitlement.
 - **400/422 validation errors, or a field in this doc looks renamed**: the contract may have moved — run the self-check below before retrying.
