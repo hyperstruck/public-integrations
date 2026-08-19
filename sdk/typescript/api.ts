@@ -2513,7 +2513,7 @@ export enum DeclineReason {
  */
 export interface DeclineRequest {
     /**
-     * Human-readable agent name, unique within your tenant. This is not the hosted agent UUID used in `/agents/{agent_id}` REST paths. If no agent with this name exists yet, the platform creates one automatically on the first boundary call (a minimal learning agent scoped to your tenant). Reuse the same name on resolve, observe, reinforce, and distill to target the same learning corpus. Clients conventionally namespace an agent-loop `run_id` as `<agent_name>:...`; if yours does, avoid the name `distill`, because `distill:` is reserved for corpus distillation run ids and every agent-loop write would be refused.
+     * Human-readable agent name, unique within your tenant. This is not the hosted agent UUID used in `/agents/{agent_id}` REST paths. If no agent with this name exists yet, a write-scoped call (`agents:write`) creates a minimal learning agent in your tenant. `POST /resolve` with only `agents:read` looks up an existing name and does not insert. Reuse the same name on resolve, observe, reinforce, and distill to target the same learning corpus. Clients conventionally namespace an agent-loop `run_id` as `<agent_name>:...`; if yours does, avoid the name `distill`, because `distill:` is reserved for corpus distillation run ids and every agent-loop write would be refused.
      * @type {any}
      * @memberof DeclineRequest
      */
@@ -2588,7 +2588,7 @@ export interface DistillOutcomeModel {
  */
 export interface DistillRequest {
     /**
-     * Human-readable agent name, unique within your tenant. This is not the hosted agent UUID used in `/agents/{agent_id}` REST paths. If no agent with this name exists yet, the platform creates one automatically on the first boundary call (a minimal learning agent scoped to your tenant). Reuse the same name on resolve, observe, reinforce, and distill to target the same learning corpus. Clients conventionally namespace an agent-loop `run_id` as `<agent_name>:...`; if yours does, avoid the name `distill`, because `distill:` is reserved for corpus distillation run ids and every agent-loop write would be refused.
+     * Human-readable agent name, unique within your tenant. This is not the hosted agent UUID used in `/agents/{agent_id}` REST paths. If no agent with this name exists yet, a write-scoped call (`agents:write`) creates a minimal learning agent in your tenant. `POST /resolve` with only `agents:read` looks up an existing name and does not insert. Reuse the same name on resolve, observe, reinforce, and distill to target the same learning corpus. Clients conventionally namespace an agent-loop `run_id` as `<agent_name>:...`; if yours does, avoid the name `distill`, because `distill:` is reserved for corpus distillation run ids and every agent-loop write would be refused.
      * @type {any}
      * @memberof DistillRequest
      */
@@ -4432,7 +4432,7 @@ export interface MultiAgentPlanSearchRequest {
  */
 export interface ObserveRequest {
     /**
-     * Human-readable agent name, unique within your tenant. This is not the hosted agent UUID used in `/agents/{agent_id}` REST paths. If no agent with this name exists yet, the platform creates one automatically on the first boundary call (a minimal learning agent scoped to your tenant). Reuse the same name on resolve, observe, reinforce, and distill to target the same learning corpus. Clients conventionally namespace an agent-loop `run_id` as `<agent_name>:...`; if yours does, avoid the name `distill`, because `distill:` is reserved for corpus distillation run ids and every agent-loop write would be refused.
+     * Human-readable agent name, unique within your tenant. This is not the hosted agent UUID used in `/agents/{agent_id}` REST paths. If no agent with this name exists yet, a write-scoped call (`agents:write`) creates a minimal learning agent in your tenant. `POST /resolve` with only `agents:read` looks up an existing name and does not insert. Reuse the same name on resolve, observe, reinforce, and distill to target the same learning corpus. Clients conventionally namespace an agent-loop `run_id` as `<agent_name>:...`; if yours does, avoid the name `distill`, because `distill:` is reserved for corpus distillation run ids and every agent-loop write would be refused.
      * @type {any}
      * @memberof ObserveRequest
      */
@@ -5274,7 +5274,7 @@ export interface ReinforceLearningResponse {
  */
 export interface ReinforceRequest {
     /**
-     * Human-readable agent name, unique within your tenant. This is not the hosted agent UUID used in `/agents/{agent_id}` REST paths. If no agent with this name exists yet, the platform creates one automatically on the first boundary call (a minimal learning agent scoped to your tenant). Reuse the same name on resolve, observe, reinforce, and distill to target the same learning corpus. Clients conventionally namespace an agent-loop `run_id` as `<agent_name>:...`; if yours does, avoid the name `distill`, because `distill:` is reserved for corpus distillation run ids and every agent-loop write would be refused.
+     * Human-readable agent name, unique within your tenant. This is not the hosted agent UUID used in `/agents/{agent_id}` REST paths. If no agent with this name exists yet, a write-scoped call (`agents:write`) creates a minimal learning agent in your tenant. `POST /resolve` with only `agents:read` looks up an existing name and does not insert. Reuse the same name on resolve, observe, reinforce, and distill to target the same learning corpus. Clients conventionally namespace an agent-loop `run_id` as `<agent_name>:...`; if yours does, avoid the name `distill`, because `distill:` is reserved for corpus distillation run ids and every agent-loop write would be refused.
      * @type {any}
      * @memberof ReinforceRequest
      */
@@ -5648,7 +5648,7 @@ export enum ResolvePurpose {
  */
 export interface ResolveRequest {
     /**
-     * Human-readable agent name, unique within your tenant. This is not the hosted agent UUID used in `/agents/{agent_id}` REST paths. If no agent with this name exists yet, the platform creates one automatically on the first boundary call (a minimal learning agent scoped to your tenant). Reuse the same name on resolve, observe, reinforce, and distill to target the same learning corpus. Clients conventionally namespace an agent-loop `run_id` as `<agent_name>:...`; if yours does, avoid the name `distill`, because `distill:` is reserved for corpus distillation run ids and every agent-loop write would be refused.
+     * Human-readable agent name, unique within your tenant. This is not the hosted agent UUID used in `/agents/{agent_id}` REST paths. If no agent with this name exists yet, a write-scoped call (`agents:write`) creates a minimal learning agent in your tenant. `POST /resolve` with only `agents:read` looks up an existing name and does not insert. Reuse the same name on resolve, observe, reinforce, and distill to target the same learning corpus. Clients conventionally namespace an agent-loop `run_id` as `<agent_name>:...`; if yours does, avoid the name `distill`, because `distill:` is reserved for corpus distillation run ids and every agent-loop write would be refused.
      * @type {any}
      * @memberof ResolveRequest
      */
@@ -10516,7 +10516,7 @@ export class EntitlementsApi extends BaseAPI {
 export const LearningBoundaryApiFetchParamCreator = function (configuration?: Configuration) {
     return {
         /**
-         * Close a run the caller resolved but will not write back for, because the turn ended with nothing worth learning from. Supply ``agent_name`` (your agent's human-readable name, not the hosted UUID from `/agents/{agent_id}`). If no agent with that name exists yet, one is created automatically on first use within your tenant. Use this instead of going silent: an unclosed run is indistinguishable from a host that stopped writing back, and only the caller knows which it is. Nothing is added to the corpus. Set `is_delivered` when the recall reached the model this turn, so the resolve is billed for what was received and released otherwise. A `run_id` this agent never resolved is accepted and ignored.
+         * Close a run the caller resolved but will not write back for, because the turn ended with nothing worth learning from. Supply ``agent_name`` (your agent's human-readable name, not the hosted UUID from `/agents/{agent_id}`). If no agent with that name exists yet, one is created automatically on first use within your tenant. Creating a new name requires `agents:write`. Use this instead of going silent: an unclosed run is indistinguishable from a host that stopped writing back, and only the caller knows which it is. Nothing is added to the corpus. Set `is_delivered` when the recall reached the model this turn, so the resolve is billed for what was received and released otherwise. A `run_id` this agent never resolved is accepted and ignored.
          * @summary Close a run whose turn had nothing worth learning
          * @param {DeclineRequest} body 
          * @param {*} [options] Override http request option.
@@ -10556,7 +10556,7 @@ export const LearningBoundaryApiFetchParamCreator = function (configuration?: Co
             };
         },
         /**
-         * Distill durable learnings from post-mortems, documents, diffs, or analysis without inventing tool steps. Supply ``agent_name`` (your agent's human-readable name, not the hosted UUID from `/agents/{agent_id}`). If no agent with that name exists yet, one is created automatically on first use within your tenant. Submit at least two evidence items and a contrast signal. `run_id` is a caller-created idempotency and tracing value, must begin with `distill:`, and does not reference `GET /runs/{run_id}`. A valid request may yield no learning. Pre-redact secrets from evidence.
+         * Distill durable learnings from post-mortems, documents, diffs, or analysis without inventing tool steps. Supply ``agent_name`` (your agent's human-readable name, not the hosted UUID from `/agents/{agent_id}`). If no agent with that name exists yet, one is created automatically on first use within your tenant. Creating a new name requires `agents:write`. Submit at least two evidence items and a contrast signal. `run_id` is a caller-created idempotency and tracing value, must begin with `distill:`, and does not reference `GET /runs/{run_id}`. A valid request may yield no learning. Pre-redact secrets from evidence.
          * @summary Distill learnings from a corpus of evidence
          * @param {DistillRequest} body 
          * @param {*} [options] Override http request option.
@@ -10637,7 +10637,7 @@ export const LearningBoundaryApiFetchParamCreator = function (configuration?: Co
             };
         },
         /**
-         * Submit a completed episode for asynchronous learning extraction. Supply ``agent_name`` (your agent's human-readable name, not the hosted UUID from `/agents/{agent_id}`). If no agent with that name exists yet, one is created automatically on first use within your tenant. Direct API callers may construct the episode themselves; LangGraph is not required. Use a meaningful execution trace rather than documents or invented tool steps—use `/distill` for corpus evidence. The caller-owned episode `run_id` is an idempotency and correlation key, not a hosted run UUID.
+         * Submit a completed episode for asynchronous learning extraction. Supply ``agent_name`` (your agent's human-readable name, not the hosted UUID from `/agents/{agent_id}`). If no agent with that name exists yet, one is created automatically on first use within your tenant. Creating a new name requires `agents:write`. Direct API callers may construct the episode themselves; LangGraph is not required. Use a meaningful execution trace rather than documents or invented tool steps—use `/distill` for corpus evidence. The caller-owned episode `run_id` is an idempotency and correlation key, not a hosted run UUID.
          * @summary Observe a finished episode
          * @param {ObserveRequest} body 
          * @param {*} [options] Override http request option.
@@ -10677,7 +10677,7 @@ export const LearningBoundaryApiFetchParamCreator = function (configuration?: Co
             };
         },
         /**
-         * Submit the completed outcome used to credit or correct learnings previously offered by resolve. Supply ``agent_name`` (your agent's human-readable name, not the hosted UUID from `/agents/{agent_id}`). If no agent with that name exists yet, one is created automatically on first use within your tenant. Reuse the same caller-owned `run_id`; it is an idempotency and attribution key, not a hosted run UUID. Processing is asynchronous and the endpoint returns 202 when accepted.
+         * Submit the completed outcome used to credit or correct learnings previously offered by resolve. Supply ``agent_name`` (your agent's human-readable name, not the hosted UUID from `/agents/{agent_id}`). If no agent with that name exists yet, one is created automatically on first use within your tenant. Creating a new name requires `agents:write`. Reuse the same caller-owned `run_id`; it is an idempotency and attribution key, not a hosted run UUID. Processing is asynchronous and the endpoint returns 202 when accepted.
          * @summary Reinforce the learnings a run used
          * @param {ReinforceRequest} body 
          * @param {*} [options] Override http request option.
@@ -10717,7 +10717,7 @@ export const LearningBoundaryApiFetchParamCreator = function (configuration?: Co
             };
         },
         /**
-         * Retrieve relevant learnings before external work begins. Supply ``agent_name`` (your agent's human-readable name, not the hosted UUID from `/agents/{agent_id}`). If no agent with that name exists yet, one is created automatically on first use within your tenant. `run_id` is a caller-created correlation identifier, not a hosted run UUID. Reuse the same value with observe and reinforce so feedback can be attributed to the learnings offered here.
+         * Retrieve relevant learnings before external work begins. Supply ``agent_name`` (your agent's human-readable name, not the hosted UUID from `/agents/{agent_id}`). An existing name is looked up with `agents:read`. If the name does not exist yet, the caller must also hold `agents:write` or the request is refused with 403; a read-only key cannot mint agents. `run_id` is a caller-created correlation identifier, not a hosted run UUID. Reuse the same value with observe and reinforce so feedback can be attributed to the learnings offered here.
          * @summary Resolve the learnings bound to a goal
          * @param {ResolveRequest} body 
          * @param {*} [options] Override http request option.
@@ -10766,7 +10766,7 @@ export const LearningBoundaryApiFetchParamCreator = function (configuration?: Co
 export const LearningBoundaryApiFp = function(configuration?: Configuration) {
     return {
         /**
-         * Close a run the caller resolved but will not write back for, because the turn ended with nothing worth learning from. Supply ``agent_name`` (your agent's human-readable name, not the hosted UUID from `/agents/{agent_id}`). If no agent with that name exists yet, one is created automatically on first use within your tenant. Use this instead of going silent: an unclosed run is indistinguishable from a host that stopped writing back, and only the caller knows which it is. Nothing is added to the corpus. Set `is_delivered` when the recall reached the model this turn, so the resolve is billed for what was received and released otherwise. A `run_id` this agent never resolved is accepted and ignored.
+         * Close a run the caller resolved but will not write back for, because the turn ended with nothing worth learning from. Supply ``agent_name`` (your agent's human-readable name, not the hosted UUID from `/agents/{agent_id}`). If no agent with that name exists yet, one is created automatically on first use within your tenant. Creating a new name requires `agents:write`. Use this instead of going silent: an unclosed run is indistinguishable from a host that stopped writing back, and only the caller knows which it is. Nothing is added to the corpus. Set `is_delivered` when the recall reached the model this turn, so the resolve is billed for what was received and released otherwise. A `run_id` this agent never resolved is accepted and ignored.
          * @summary Close a run whose turn had nothing worth learning
          * @param {DeclineRequest} body 
          * @param {*} [options] Override http request option.
@@ -10785,7 +10785,7 @@ export const LearningBoundaryApiFp = function(configuration?: Configuration) {
             };
         },
         /**
-         * Distill durable learnings from post-mortems, documents, diffs, or analysis without inventing tool steps. Supply ``agent_name`` (your agent's human-readable name, not the hosted UUID from `/agents/{agent_id}`). If no agent with that name exists yet, one is created automatically on first use within your tenant. Submit at least two evidence items and a contrast signal. `run_id` is a caller-created idempotency and tracing value, must begin with `distill:`, and does not reference `GET /runs/{run_id}`. A valid request may yield no learning. Pre-redact secrets from evidence.
+         * Distill durable learnings from post-mortems, documents, diffs, or analysis without inventing tool steps. Supply ``agent_name`` (your agent's human-readable name, not the hosted UUID from `/agents/{agent_id}`). If no agent with that name exists yet, one is created automatically on first use within your tenant. Creating a new name requires `agents:write`. Submit at least two evidence items and a contrast signal. `run_id` is a caller-created idempotency and tracing value, must begin with `distill:`, and does not reference `GET /runs/{run_id}`. A valid request may yield no learning. Pre-redact secrets from evidence.
          * @summary Distill learnings from a corpus of evidence
          * @param {DistillRequest} body 
          * @param {*} [options] Override http request option.
@@ -10824,7 +10824,7 @@ export const LearningBoundaryApiFp = function(configuration?: Configuration) {
             };
         },
         /**
-         * Submit a completed episode for asynchronous learning extraction. Supply ``agent_name`` (your agent's human-readable name, not the hosted UUID from `/agents/{agent_id}`). If no agent with that name exists yet, one is created automatically on first use within your tenant. Direct API callers may construct the episode themselves; LangGraph is not required. Use a meaningful execution trace rather than documents or invented tool steps—use `/distill` for corpus evidence. The caller-owned episode `run_id` is an idempotency and correlation key, not a hosted run UUID.
+         * Submit a completed episode for asynchronous learning extraction. Supply ``agent_name`` (your agent's human-readable name, not the hosted UUID from `/agents/{agent_id}`). If no agent with that name exists yet, one is created automatically on first use within your tenant. Creating a new name requires `agents:write`. Direct API callers may construct the episode themselves; LangGraph is not required. Use a meaningful execution trace rather than documents or invented tool steps—use `/distill` for corpus evidence. The caller-owned episode `run_id` is an idempotency and correlation key, not a hosted run UUID.
          * @summary Observe a finished episode
          * @param {ObserveRequest} body 
          * @param {*} [options] Override http request option.
@@ -10843,7 +10843,7 @@ export const LearningBoundaryApiFp = function(configuration?: Configuration) {
             };
         },
         /**
-         * Submit the completed outcome used to credit or correct learnings previously offered by resolve. Supply ``agent_name`` (your agent's human-readable name, not the hosted UUID from `/agents/{agent_id}`). If no agent with that name exists yet, one is created automatically on first use within your tenant. Reuse the same caller-owned `run_id`; it is an idempotency and attribution key, not a hosted run UUID. Processing is asynchronous and the endpoint returns 202 when accepted.
+         * Submit the completed outcome used to credit or correct learnings previously offered by resolve. Supply ``agent_name`` (your agent's human-readable name, not the hosted UUID from `/agents/{agent_id}`). If no agent with that name exists yet, one is created automatically on first use within your tenant. Creating a new name requires `agents:write`. Reuse the same caller-owned `run_id`; it is an idempotency and attribution key, not a hosted run UUID. Processing is asynchronous and the endpoint returns 202 when accepted.
          * @summary Reinforce the learnings a run used
          * @param {ReinforceRequest} body 
          * @param {*} [options] Override http request option.
@@ -10862,7 +10862,7 @@ export const LearningBoundaryApiFp = function(configuration?: Configuration) {
             };
         },
         /**
-         * Retrieve relevant learnings before external work begins. Supply ``agent_name`` (your agent's human-readable name, not the hosted UUID from `/agents/{agent_id}`). If no agent with that name exists yet, one is created automatically on first use within your tenant. `run_id` is a caller-created correlation identifier, not a hosted run UUID. Reuse the same value with observe and reinforce so feedback can be attributed to the learnings offered here.
+         * Retrieve relevant learnings before external work begins. Supply ``agent_name`` (your agent's human-readable name, not the hosted UUID from `/agents/{agent_id}`). An existing name is looked up with `agents:read`. If the name does not exist yet, the caller must also hold `agents:write` or the request is refused with 403; a read-only key cannot mint agents. `run_id` is a caller-created correlation identifier, not a hosted run UUID. Reuse the same value with observe and reinforce so feedback can be attributed to the learnings offered here.
          * @summary Resolve the learnings bound to a goal
          * @param {ResolveRequest} body 
          * @param {*} [options] Override http request option.
@@ -10890,7 +10890,7 @@ export const LearningBoundaryApiFp = function(configuration?: Configuration) {
 export const LearningBoundaryApiFactory = function (configuration?: Configuration, fetch?: FetchAPI, basePath?: string) {
     return {
         /**
-         * Close a run the caller resolved but will not write back for, because the turn ended with nothing worth learning from. Supply ``agent_name`` (your agent's human-readable name, not the hosted UUID from `/agents/{agent_id}`). If no agent with that name exists yet, one is created automatically on first use within your tenant. Use this instead of going silent: an unclosed run is indistinguishable from a host that stopped writing back, and only the caller knows which it is. Nothing is added to the corpus. Set `is_delivered` when the recall reached the model this turn, so the resolve is billed for what was received and released otherwise. A `run_id` this agent never resolved is accepted and ignored.
+         * Close a run the caller resolved but will not write back for, because the turn ended with nothing worth learning from. Supply ``agent_name`` (your agent's human-readable name, not the hosted UUID from `/agents/{agent_id}`). If no agent with that name exists yet, one is created automatically on first use within your tenant. Creating a new name requires `agents:write`. Use this instead of going silent: an unclosed run is indistinguishable from a host that stopped writing back, and only the caller knows which it is. Nothing is added to the corpus. Set `is_delivered` when the recall reached the model this turn, so the resolve is billed for what was received and released otherwise. A `run_id` this agent never resolved is accepted and ignored.
          * @summary Close a run whose turn had nothing worth learning
          * @param {DeclineRequest} body 
          * @param {*} [options] Override http request option.
@@ -10900,7 +10900,7 @@ export const LearningBoundaryApiFactory = function (configuration?: Configuratio
             return LearningBoundaryApiFp(configuration).declineEndpointDeclinePost(body, options)(fetch, basePath);
         },
         /**
-         * Distill durable learnings from post-mortems, documents, diffs, or analysis without inventing tool steps. Supply ``agent_name`` (your agent's human-readable name, not the hosted UUID from `/agents/{agent_id}`). If no agent with that name exists yet, one is created automatically on first use within your tenant. Submit at least two evidence items and a contrast signal. `run_id` is a caller-created idempotency and tracing value, must begin with `distill:`, and does not reference `GET /runs/{run_id}`. A valid request may yield no learning. Pre-redact secrets from evidence.
+         * Distill durable learnings from post-mortems, documents, diffs, or analysis without inventing tool steps. Supply ``agent_name`` (your agent's human-readable name, not the hosted UUID from `/agents/{agent_id}`). If no agent with that name exists yet, one is created automatically on first use within your tenant. Creating a new name requires `agents:write`. Submit at least two evidence items and a contrast signal. `run_id` is a caller-created idempotency and tracing value, must begin with `distill:`, and does not reference `GET /runs/{run_id}`. A valid request may yield no learning. Pre-redact secrets from evidence.
          * @summary Distill learnings from a corpus of evidence
          * @param {DistillRequest} body 
          * @param {*} [options] Override http request option.
@@ -10921,7 +10921,7 @@ export const LearningBoundaryApiFactory = function (configuration?: Configuratio
             return LearningBoundaryApiFp(configuration).funnelEndpointFunnelGet(windowHours, graceMinutes, options)(fetch, basePath);
         },
         /**
-         * Submit a completed episode for asynchronous learning extraction. Supply ``agent_name`` (your agent's human-readable name, not the hosted UUID from `/agents/{agent_id}`). If no agent with that name exists yet, one is created automatically on first use within your tenant. Direct API callers may construct the episode themselves; LangGraph is not required. Use a meaningful execution trace rather than documents or invented tool steps—use `/distill` for corpus evidence. The caller-owned episode `run_id` is an idempotency and correlation key, not a hosted run UUID.
+         * Submit a completed episode for asynchronous learning extraction. Supply ``agent_name`` (your agent's human-readable name, not the hosted UUID from `/agents/{agent_id}`). If no agent with that name exists yet, one is created automatically on first use within your tenant. Creating a new name requires `agents:write`. Direct API callers may construct the episode themselves; LangGraph is not required. Use a meaningful execution trace rather than documents or invented tool steps—use `/distill` for corpus evidence. The caller-owned episode `run_id` is an idempotency and correlation key, not a hosted run UUID.
          * @summary Observe a finished episode
          * @param {ObserveRequest} body 
          * @param {*} [options] Override http request option.
@@ -10931,7 +10931,7 @@ export const LearningBoundaryApiFactory = function (configuration?: Configuratio
             return LearningBoundaryApiFp(configuration).observeEndpointObservePost(body, options)(fetch, basePath);
         },
         /**
-         * Submit the completed outcome used to credit or correct learnings previously offered by resolve. Supply ``agent_name`` (your agent's human-readable name, not the hosted UUID from `/agents/{agent_id}`). If no agent with that name exists yet, one is created automatically on first use within your tenant. Reuse the same caller-owned `run_id`; it is an idempotency and attribution key, not a hosted run UUID. Processing is asynchronous and the endpoint returns 202 when accepted.
+         * Submit the completed outcome used to credit or correct learnings previously offered by resolve. Supply ``agent_name`` (your agent's human-readable name, not the hosted UUID from `/agents/{agent_id}`). If no agent with that name exists yet, one is created automatically on first use within your tenant. Creating a new name requires `agents:write`. Reuse the same caller-owned `run_id`; it is an idempotency and attribution key, not a hosted run UUID. Processing is asynchronous and the endpoint returns 202 when accepted.
          * @summary Reinforce the learnings a run used
          * @param {ReinforceRequest} body 
          * @param {*} [options] Override http request option.
@@ -10941,7 +10941,7 @@ export const LearningBoundaryApiFactory = function (configuration?: Configuratio
             return LearningBoundaryApiFp(configuration).reinforceEndpointReinforcePost(body, options)(fetch, basePath);
         },
         /**
-         * Retrieve relevant learnings before external work begins. Supply ``agent_name`` (your agent's human-readable name, not the hosted UUID from `/agents/{agent_id}`). If no agent with that name exists yet, one is created automatically on first use within your tenant. `run_id` is a caller-created correlation identifier, not a hosted run UUID. Reuse the same value with observe and reinforce so feedback can be attributed to the learnings offered here.
+         * Retrieve relevant learnings before external work begins. Supply ``agent_name`` (your agent's human-readable name, not the hosted UUID from `/agents/{agent_id}`). An existing name is looked up with `agents:read`. If the name does not exist yet, the caller must also hold `agents:write` or the request is refused with 403; a read-only key cannot mint agents. `run_id` is a caller-created correlation identifier, not a hosted run UUID. Reuse the same value with observe and reinforce so feedback can be attributed to the learnings offered here.
          * @summary Resolve the learnings bound to a goal
          * @param {ResolveRequest} body 
          * @param {*} [options] Override http request option.
@@ -10961,7 +10961,7 @@ export const LearningBoundaryApiFactory = function (configuration?: Configuratio
  */
 export class LearningBoundaryApi extends BaseAPI {
     /**
-     * Close a run the caller resolved but will not write back for, because the turn ended with nothing worth learning from. Supply ``agent_name`` (your agent's human-readable name, not the hosted UUID from `/agents/{agent_id}`). If no agent with that name exists yet, one is created automatically on first use within your tenant. Use this instead of going silent: an unclosed run is indistinguishable from a host that stopped writing back, and only the caller knows which it is. Nothing is added to the corpus. Set `is_delivered` when the recall reached the model this turn, so the resolve is billed for what was received and released otherwise. A `run_id` this agent never resolved is accepted and ignored.
+     * Close a run the caller resolved but will not write back for, because the turn ended with nothing worth learning from. Supply ``agent_name`` (your agent's human-readable name, not the hosted UUID from `/agents/{agent_id}`). If no agent with that name exists yet, one is created automatically on first use within your tenant. Creating a new name requires `agents:write`. Use this instead of going silent: an unclosed run is indistinguishable from a host that stopped writing back, and only the caller knows which it is. Nothing is added to the corpus. Set `is_delivered` when the recall reached the model this turn, so the resolve is billed for what was received and released otherwise. A `run_id` this agent never resolved is accepted and ignored.
      * @summary Close a run whose turn had nothing worth learning
      * @param {DeclineRequest} body 
      * @param {*} [options] Override http request option.
@@ -10973,7 +10973,7 @@ export class LearningBoundaryApi extends BaseAPI {
     }
 
     /**
-     * Distill durable learnings from post-mortems, documents, diffs, or analysis without inventing tool steps. Supply ``agent_name`` (your agent's human-readable name, not the hosted UUID from `/agents/{agent_id}`). If no agent with that name exists yet, one is created automatically on first use within your tenant. Submit at least two evidence items and a contrast signal. `run_id` is a caller-created idempotency and tracing value, must begin with `distill:`, and does not reference `GET /runs/{run_id}`. A valid request may yield no learning. Pre-redact secrets from evidence.
+     * Distill durable learnings from post-mortems, documents, diffs, or analysis without inventing tool steps. Supply ``agent_name`` (your agent's human-readable name, not the hosted UUID from `/agents/{agent_id}`). If no agent with that name exists yet, one is created automatically on first use within your tenant. Creating a new name requires `agents:write`. Submit at least two evidence items and a contrast signal. `run_id` is a caller-created idempotency and tracing value, must begin with `distill:`, and does not reference `GET /runs/{run_id}`. A valid request may yield no learning. Pre-redact secrets from evidence.
      * @summary Distill learnings from a corpus of evidence
      * @param {DistillRequest} body 
      * @param {*} [options] Override http request option.
@@ -10998,7 +10998,7 @@ export class LearningBoundaryApi extends BaseAPI {
     }
 
     /**
-     * Submit a completed episode for asynchronous learning extraction. Supply ``agent_name`` (your agent's human-readable name, not the hosted UUID from `/agents/{agent_id}`). If no agent with that name exists yet, one is created automatically on first use within your tenant. Direct API callers may construct the episode themselves; LangGraph is not required. Use a meaningful execution trace rather than documents or invented tool steps—use `/distill` for corpus evidence. The caller-owned episode `run_id` is an idempotency and correlation key, not a hosted run UUID.
+     * Submit a completed episode for asynchronous learning extraction. Supply ``agent_name`` (your agent's human-readable name, not the hosted UUID from `/agents/{agent_id}`). If no agent with that name exists yet, one is created automatically on first use within your tenant. Creating a new name requires `agents:write`. Direct API callers may construct the episode themselves; LangGraph is not required. Use a meaningful execution trace rather than documents or invented tool steps—use `/distill` for corpus evidence. The caller-owned episode `run_id` is an idempotency and correlation key, not a hosted run UUID.
      * @summary Observe a finished episode
      * @param {ObserveRequest} body 
      * @param {*} [options] Override http request option.
@@ -11010,7 +11010,7 @@ export class LearningBoundaryApi extends BaseAPI {
     }
 
     /**
-     * Submit the completed outcome used to credit or correct learnings previously offered by resolve. Supply ``agent_name`` (your agent's human-readable name, not the hosted UUID from `/agents/{agent_id}`). If no agent with that name exists yet, one is created automatically on first use within your tenant. Reuse the same caller-owned `run_id`; it is an idempotency and attribution key, not a hosted run UUID. Processing is asynchronous and the endpoint returns 202 when accepted.
+     * Submit the completed outcome used to credit or correct learnings previously offered by resolve. Supply ``agent_name`` (your agent's human-readable name, not the hosted UUID from `/agents/{agent_id}`). If no agent with that name exists yet, one is created automatically on first use within your tenant. Creating a new name requires `agents:write`. Reuse the same caller-owned `run_id`; it is an idempotency and attribution key, not a hosted run UUID. Processing is asynchronous and the endpoint returns 202 when accepted.
      * @summary Reinforce the learnings a run used
      * @param {ReinforceRequest} body 
      * @param {*} [options] Override http request option.
@@ -11022,7 +11022,7 @@ export class LearningBoundaryApi extends BaseAPI {
     }
 
     /**
-     * Retrieve relevant learnings before external work begins. Supply ``agent_name`` (your agent's human-readable name, not the hosted UUID from `/agents/{agent_id}`). If no agent with that name exists yet, one is created automatically on first use within your tenant. `run_id` is a caller-created correlation identifier, not a hosted run UUID. Reuse the same value with observe and reinforce so feedback can be attributed to the learnings offered here.
+     * Retrieve relevant learnings before external work begins. Supply ``agent_name`` (your agent's human-readable name, not the hosted UUID from `/agents/{agent_id}`). An existing name is looked up with `agents:read`. If the name does not exist yet, the caller must also hold `agents:write` or the request is refused with 403; a read-only key cannot mint agents. `run_id` is a caller-created correlation identifier, not a hosted run UUID. Reuse the same value with observe and reinforce so feedback can be attributed to the learnings offered here.
      * @summary Resolve the learnings bound to a goal
      * @param {ResolveRequest} body 
      * @param {*} [options] Override http request option.

@@ -56,11 +56,12 @@ so the writes are drained before the process ends. Skip the drain and the first
 run's learning is cancelled at exit before it reaches the platform.
 
 The `agent_name` is your human-readable agent name (unique within the tenant).
-If no agent with that name exists yet, the learning boundary **creates one
-automatically** on first use and scopes the corpus to it. This is not the hosted
-agent UUID used in REST paths — use `HYPER_AGENT_ID` for those. Set the key from
-the environment (`HYPERSTRUCK_API_KEY`) and you can drop the `api_key` argument
-entirely.
+If no agent with that name exists yet, a write-scoped key (`agents:write`)
+**creates one automatically** on first use and scopes the corpus to it. A
+read-only key can resolve an existing name but cannot mint a new agent. This is
+not the hosted agent UUID used in REST paths — use `HYPER_AGENT_ID` for those.
+Set the key from the environment (`HYPERSTRUCK_API_KEY`) and you can drop the
+`api_key` argument entirely.
 
 Watch it learn through the platform's learnings and usage APIs (see the docs);
 the corpus grows as runs accrue.

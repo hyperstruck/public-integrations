@@ -2991,7 +2991,7 @@
         ],
         "properties": {
           "agent_name": {
-            "description": "Human-readable agent name, unique within your tenant. This is not the hosted agent UUID used in `/agents/{agent_id}` REST paths. If no agent with this name exists yet, the platform creates one automatically on the first boundary call (a minimal learning agent scoped to your tenant). Reuse the same name on resolve, observe, reinforce, and distill to target the same learning corpus. Clients conventionally namespace an agent-loop `run_id` as `<agent_name>:...`; if yours does, avoid the name `distill`, because `distill:` is reserved for corpus distillation run ids and every agent-loop write would be refused.",
+            "description": "Human-readable agent name, unique within your tenant. This is not the hosted agent UUID used in `/agents/{agent_id}` REST paths. If no agent with this name exists yet, a write-scoped call (`agents:write`) creates a minimal learning agent in your tenant. `POST /resolve` with only `agents:read` looks up an existing name and does not insert. Reuse the same name on resolve, observe, reinforce, and distill to target the same learning corpus. Clients conventionally namespace an agent-loop `run_id` as `<agent_name>:...`; if yours does, avoid the name `distill`, because `distill:` is reserved for corpus distillation run ids and every agent-loop write would be refused.",
             "examples": [
               "support-agent"
             ],
@@ -3124,7 +3124,7 @@
         ],
         "properties": {
           "agent_name": {
-            "description": "Human-readable agent name, unique within your tenant. This is not the hosted agent UUID used in `/agents/{agent_id}` REST paths. If no agent with this name exists yet, the platform creates one automatically on the first boundary call (a minimal learning agent scoped to your tenant). Reuse the same name on resolve, observe, reinforce, and distill to target the same learning corpus. Clients conventionally namespace an agent-loop `run_id` as `<agent_name>:...`; if yours does, avoid the name `distill`, because `distill:` is reserved for corpus distillation run ids and every agent-loop write would be refused.",
+            "description": "Human-readable agent name, unique within your tenant. This is not the hosted agent UUID used in `/agents/{agent_id}` REST paths. If no agent with this name exists yet, a write-scoped call (`agents:write`) creates a minimal learning agent in your tenant. `POST /resolve` with only `agents:read` looks up an existing name and does not insert. Reuse the same name on resolve, observe, reinforce, and distill to target the same learning corpus. Clients conventionally namespace an agent-loop `run_id` as `<agent_name>:...`; if yours does, avoid the name `distill`, because `distill:` is reserved for corpus distillation run ids and every agent-loop write would be refused.",
             "examples": [
               "support-agent"
             ],
@@ -5538,7 +5538,7 @@
         ],
         "properties": {
           "agent_name": {
-            "description": "Human-readable agent name, unique within your tenant. This is not the hosted agent UUID used in `/agents/{agent_id}` REST paths. If no agent with this name exists yet, the platform creates one automatically on the first boundary call (a minimal learning agent scoped to your tenant). Reuse the same name on resolve, observe, reinforce, and distill to target the same learning corpus. Clients conventionally namespace an agent-loop `run_id` as `<agent_name>:...`; if yours does, avoid the name `distill`, because `distill:` is reserved for corpus distillation run ids and every agent-loop write would be refused.",
+            "description": "Human-readable agent name, unique within your tenant. This is not the hosted agent UUID used in `/agents/{agent_id}` REST paths. If no agent with this name exists yet, a write-scoped call (`agents:write`) creates a minimal learning agent in your tenant. `POST /resolve` with only `agents:read` looks up an existing name and does not insert. Reuse the same name on resolve, observe, reinforce, and distill to target the same learning corpus. Clients conventionally namespace an agent-loop `run_id` as `<agent_name>:...`; if yours does, avoid the name `distill`, because `distill:` is reserved for corpus distillation run ids and every agent-loop write would be refused.",
             "examples": [
               "support-agent"
             ],
@@ -6656,7 +6656,7 @@
         ],
         "properties": {
           "agent_name": {
-            "description": "Human-readable agent name, unique within your tenant. This is not the hosted agent UUID used in `/agents/{agent_id}` REST paths. If no agent with this name exists yet, the platform creates one automatically on the first boundary call (a minimal learning agent scoped to your tenant). Reuse the same name on resolve, observe, reinforce, and distill to target the same learning corpus. Clients conventionally namespace an agent-loop `run_id` as `<agent_name>:...`; if yours does, avoid the name `distill`, because `distill:` is reserved for corpus distillation run ids and every agent-loop write would be refused.",
+            "description": "Human-readable agent name, unique within your tenant. This is not the hosted agent UUID used in `/agents/{agent_id}` REST paths. If no agent with this name exists yet, a write-scoped call (`agents:write`) creates a minimal learning agent in your tenant. `POST /resolve` with only `agents:read` looks up an existing name and does not insert. Reuse the same name on resolve, observe, reinforce, and distill to target the same learning corpus. Clients conventionally namespace an agent-loop `run_id` as `<agent_name>:...`; if yours does, avoid the name `distill`, because `distill:` is reserved for corpus distillation run ids and every agent-loop write would be refused.",
             "examples": [
               "support-agent"
             ],
@@ -7090,7 +7090,7 @@
         ],
         "properties": {
           "agent_name": {
-            "description": "Human-readable agent name, unique within your tenant. This is not the hosted agent UUID used in `/agents/{agent_id}` REST paths. If no agent with this name exists yet, the platform creates one automatically on the first boundary call (a minimal learning agent scoped to your tenant). Reuse the same name on resolve, observe, reinforce, and distill to target the same learning corpus. Clients conventionally namespace an agent-loop `run_id` as `<agent_name>:...`; if yours does, avoid the name `distill`, because `distill:` is reserved for corpus distillation run ids and every agent-loop write would be refused.",
+            "description": "Human-readable agent name, unique within your tenant. This is not the hosted agent UUID used in `/agents/{agent_id}` REST paths. If no agent with this name exists yet, a write-scoped call (`agents:write`) creates a minimal learning agent in your tenant. `POST /resolve` with only `agents:read` looks up an existing name and does not insert. Reuse the same name on resolve, observe, reinforce, and distill to target the same learning corpus. Clients conventionally namespace an agent-loop `run_id` as `<agent_name>:...`; if yours does, avoid the name `distill`, because `distill:` is reserved for corpus distillation run ids and every agent-loop write would be refused.",
             "examples": [
               "support-agent"
             ],
@@ -12148,7 +12148,7 @@
     },
     "/decline": {
       "post": {
-        "description": "Close a run the caller resolved but will not write back for, because the turn ended with nothing worth learning from. Supply ``agent_name`` (your agent's human-readable name, not the hosted UUID from `/agents/{agent_id}`). If no agent with that name exists yet, one is created automatically on first use within your tenant. Use this instead of going silent: an unclosed run is indistinguishable from a host that stopped writing back, and only the caller knows which it is. Nothing is added to the corpus. Set `is_delivered` when the recall reached the model this turn, so the resolve is billed for what was received and released otherwise. A `run_id` this agent never resolved is accepted and ignored.",
+        "description": "Close a run the caller resolved but will not write back for, because the turn ended with nothing worth learning from. Supply ``agent_name`` (your agent's human-readable name, not the hosted UUID from `/agents/{agent_id}`). If no agent with that name exists yet, one is created automatically on first use within your tenant. Creating a new name requires `agents:write`. Use this instead of going silent: an unclosed run is indistinguishable from a host that stopped writing back, and only the caller knows which it is. Nothing is added to the corpus. Set `is_delivered` when the recall reached the model this turn, so the resolve is billed for what was received and released otherwise. A `run_id` this agent never resolved is accepted and ignored.",
         "operationId": "decline_endpoint_decline_post",
         "requestBody": {
           "content": {
@@ -12195,7 +12195,7 @@
     },
     "/distill": {
       "post": {
-        "description": "Distill durable learnings from post-mortems, documents, diffs, or analysis without inventing tool steps. Supply ``agent_name`` (your agent's human-readable name, not the hosted UUID from `/agents/{agent_id}`). If no agent with that name exists yet, one is created automatically on first use within your tenant. Submit at least two evidence items and a contrast signal. `run_id` is a caller-created idempotency and tracing value, must begin with `distill:`, and does not reference `GET /runs/{run_id}`. A valid request may yield no learning. Pre-redact secrets from evidence.",
+        "description": "Distill durable learnings from post-mortems, documents, diffs, or analysis without inventing tool steps. Supply ``agent_name`` (your agent's human-readable name, not the hosted UUID from `/agents/{agent_id}`). If no agent with that name exists yet, one is created automatically on first use within your tenant. Creating a new name requires `agents:write`. Submit at least two evidence items and a contrast signal. `run_id` is a caller-created idempotency and tracing value, must begin with `distill:`, and does not reference `GET /runs/{run_id}`. A valid request may yield no learning. Pre-redact secrets from evidence.",
         "operationId": "distill_endpoint_distill_post",
         "requestBody": {
           "content": {
@@ -12369,7 +12369,7 @@
     },
     "/observe": {
       "post": {
-        "description": "Submit a completed episode for asynchronous learning extraction. Supply ``agent_name`` (your agent's human-readable name, not the hosted UUID from `/agents/{agent_id}`). If no agent with that name exists yet, one is created automatically on first use within your tenant. Direct API callers may construct the episode themselves; LangGraph is not required. Use a meaningful execution trace rather than documents or invented tool steps\u2014use `/distill` for corpus evidence. The caller-owned episode `run_id` is an idempotency and correlation key, not a hosted run UUID.",
+        "description": "Submit a completed episode for asynchronous learning extraction. Supply ``agent_name`` (your agent's human-readable name, not the hosted UUID from `/agents/{agent_id}`). If no agent with that name exists yet, one is created automatically on first use within your tenant. Creating a new name requires `agents:write`. Direct API callers may construct the episode themselves; LangGraph is not required. Use a meaningful execution trace rather than documents or invented tool steps\u2014use `/distill` for corpus evidence. The caller-owned episode `run_id` is an idempotency and correlation key, not a hosted run UUID.",
         "operationId": "observe_endpoint_observe_post",
         "requestBody": {
           "content": {
@@ -13445,7 +13445,7 @@
     },
     "/reinforce": {
       "post": {
-        "description": "Submit the completed outcome used to credit or correct learnings previously offered by resolve. Supply ``agent_name`` (your agent's human-readable name, not the hosted UUID from `/agents/{agent_id}`). If no agent with that name exists yet, one is created automatically on first use within your tenant. Reuse the same caller-owned `run_id`; it is an idempotency and attribution key, not a hosted run UUID. Processing is asynchronous and the endpoint returns 202 when accepted.",
+        "description": "Submit the completed outcome used to credit or correct learnings previously offered by resolve. Supply ``agent_name`` (your agent's human-readable name, not the hosted UUID from `/agents/{agent_id}`). If no agent with that name exists yet, one is created automatically on first use within your tenant. Creating a new name requires `agents:write`. Reuse the same caller-owned `run_id`; it is an idempotency and attribution key, not a hosted run UUID. Processing is asynchronous and the endpoint returns 202 when accepted.",
         "operationId": "reinforce_endpoint_reinforce_post",
         "requestBody": {
           "content": {
@@ -14341,7 +14341,7 @@
     },
     "/resolve": {
       "post": {
-        "description": "Retrieve relevant learnings before external work begins. Supply ``agent_name`` (your agent's human-readable name, not the hosted UUID from `/agents/{agent_id}`). If no agent with that name exists yet, one is created automatically on first use within your tenant. `run_id` is a caller-created correlation identifier, not a hosted run UUID. Reuse the same value with observe and reinforce so feedback can be attributed to the learnings offered here.",
+        "description": "Retrieve relevant learnings before external work begins. Supply ``agent_name`` (your agent's human-readable name, not the hosted UUID from `/agents/{agent_id}`). An existing name is looked up with `agents:read`. If the name does not exist yet, the caller must also hold `agents:write` or the request is refused with 403; a read-only key cannot mint agents. `run_id` is a caller-created correlation identifier, not a hosted run UUID. Reuse the same value with observe and reinforce so feedback can be attributed to the learnings offered here.",
         "operationId": "resolve_endpoint_resolve_post",
         "requestBody": {
           "content": {
