@@ -76,7 +76,9 @@ def _accepted_content(record: dict[str, Any], run_marker: str) -> tuple[str, boo
     if not isinstance(attachment, dict):
         return "", False
     record_type = attachment.get("type")
-    if record_type == _EMITTED_RECORD:
+    if record_type in (_EMITTED_RECORD, None):
+        # An attachment with no type at all says nothing about how an accepted hook
+        # context is recorded, so it is not evidence the format changed either.
         return "", False
     if record_type != _ACCEPTED_RECORD:
         debug(

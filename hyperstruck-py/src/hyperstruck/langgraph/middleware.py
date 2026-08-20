@@ -92,6 +92,23 @@ class MiddlewareStats:
         return max(0, self.runs_started - self.runs_observed - live)
 
 
+def _recall_outcome(ledger: InvokeLedger) -> str:
+    """Why the recall did not reach the model, in the boundary's own vocabulary.
+
+    Sent beside the boolean because the boolean alone is the half-answer this whole
+    field exists to remove: without it a run whose corpus was empty is indistinguishable
+    from one whose resolve failed, and both look like a client too old to say. The
+    values are the boundary's closed set; they are string literals here rather than an
+    import because this package's IDE vocabulary is not a dependency of the LangGraph
+    surface, and the set is pinned on the boundary side by its own test.
+    """
+    if ledger.is_injected:
+        return "delivered"
+    if not ledger.is_resolved:
+        return "resolve_failed"
+    return "resolve_empty" if not ledger.injected_text else "recall_unclaimed"
+
+
 class HyperstruckLearningMiddleware(AgentMiddleware):
     """LangChain ``AgentMiddleware`` running Hyperstruck's learning loop on a graph.
 
@@ -244,6 +261,7 @@ class HyperstruckLearningMiddleware(AgentMiddleware):
                 # not credit anything (see the note in awrap_model_call); it only keeps
                 # these runs out of the population the boundary reads as a lost receipt.
                 is_delivered=ledger.is_injected,
+                recall_outcome=_recall_outcome(ledger),
             )
             self.stats.runs_observed += 1
         except Exception as exc:  # noqa: BLE001 - never break the host run

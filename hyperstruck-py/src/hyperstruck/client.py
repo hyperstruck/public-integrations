@@ -74,7 +74,7 @@ DEFAULT_RECALL_TIMEOUT = 20.0
 DEFAULT_DETACHED_RECALL_TIMEOUT = 45.0
 
 
-def _reported_delivery(
+def _delivery_fields(
     is_delivered: bool | None, recall_outcome: str | None
 ) -> dict[str, Any]:
     """The delivery fields a caller actually supplied, omitting what it did not say.
@@ -428,7 +428,7 @@ class HostedLearningClient:
             "is_org_promotion_allowed": is_org_promotion_allowed,
             "context_receipt": context_receipt,
         }
-        body.update(_reported_delivery(is_delivered, recall_outcome))
+        body.update(_delivery_fields(is_delivered, recall_outcome))
         self._schedule_write("/reinforce", body)
 
     async def distill(
@@ -517,7 +517,7 @@ class HostedLearningClient:
                 "reason": reason,
                 "is_delivered": is_delivered,
                 "source_framework": source_framework,
-                **_reported_delivery(None, recall_outcome),
+                **_delivery_fields(None, recall_outcome),
             },
         )
 

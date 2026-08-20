@@ -25,6 +25,7 @@ class FakeLearningClient:
         self.reinforced: list[tuple[Episode, bool]] = []
         self.receipts: list[str | None] = []
         self.deliveries: list[bool | None] = []
+        self.recall_outcomes: list[str | None] = []
 
     async def resolve(self, *, identity, run_id, goal, available_tools=(), max_learnings=8, model_context_window=None):
         self.resolved.append(run_id)
@@ -46,6 +47,7 @@ class FakeLearningClient:
     ) -> None:
         self.receipts.append(context_receipt)
         self.deliveries.append(is_delivered)
+        self.recall_outcomes.append(recall_outcome)
         self.reinforced.append((episode, is_org_promotion_allowed))
 
 
@@ -110,6 +112,9 @@ async def test_full_loop_resolves_injects_records_and_writes() -> None:
     # run indistinguishable from a client too old to say. It still sends no receipt, so
     # it still credits nothing: the only artefact it could offer is its own claim.
     assert fake.deliveries == [True]
+    # The reason travels with it: the boolean alone cannot tell an empty corpus from a
+    # resolve that failed, and both would read as a client too old to answer.
+    assert fake.recall_outcomes == ["delivered"]
     assert fake.receipts == [None]
     assert len(fake.reinforced) == 1
     assert mw.stats.runs_observed == 1

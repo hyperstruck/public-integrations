@@ -28,8 +28,9 @@ class RecallOutcome(StrEnum):
     # RESOLVE_NO_GOAL is kept apart from RESOLVE_EMPTY because they have different
     # owners: an empty goal means the host handed the hook no prompt, which is a wiring
     # defect, while an empty answer means the corpus had nothing for a real goal, which
-    # is an ordinary cold start. RECALL_UNRECOGNISED is the honest answer when the
-    # stored verdict cannot be read back at all, rather than naming a cause nobody saw.
+    # is an ordinary cold start. RECALL_UNRECOGNISED covers both ways the stored verdict
+    # cannot be believed, a value this release cannot parse and one that contradicts the
+    # turn it is read for, rather than naming a cause nobody observed.
     RESOLVE_TIMED_OUT = "resolve_timed_out"
     RESOLVE_FAILED = "resolve_failed"
     RESOLVE_EMPTY = "resolve_empty"

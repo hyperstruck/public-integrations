@@ -4,6 +4,8 @@ from __future__ import annotations
 
 import argparse
 import asyncio
+
+import httpx
 import contextlib
 import json
 from dataclasses import replace
@@ -21,6 +23,7 @@ from hyperstruck._wire import (
 )
 from hyperstruck import client
 from hyperstruck.ide import receipt
+from hyperstruck.identity import AgentIdentity
 from hyperstruck.ide import hook, state
 from hyperstruck.ide.recall import RecallOutcome
 from hyperstruck.ide.constants import CREDENTIAL_HEAD_CHARS, PENDING_FILE
@@ -1347,23 +1350,68 @@ def test_recall_budget_clears_a_real_hosted_resolve() -> None:
     assert hook.MIN_RECALL_TIMEOUT > client.DEFAULT_RESOLVE_TIMEOUT
 
 
-def test_the_transport_cannot_cap_the_budget_the_caller_asked_for() -> None:
-    """The bug this pair of assertions exists to stop coming back.
+@pytest.mark.asyncio
+async def test_the_transport_cannot_cap_the_budget_the_caller_asked_for() -> None:
+    """The bug this exercises, rather than greps for.
 
     httpx applies its client-level timeout to the transport, so a resolve budget above
-    it is capped there and the caller's own deadline never fires. Raising the detached
-    budget past the write timeout is exactly how that happened, and the symptom is not a
-    failed resolve but a *mislabelled* one: the transport's error is not a TimeoutError.
+    it is capped there and the caller's own deadline never fires. The symptom is not a
+    failed resolve but a mislabelled one: the transport's error is not a TimeoutError,
+    so every real timeout was recorded as a fault. Driven through a transport that
+    stalls past the client timeout and answers inside the recall budget.
     """
-    source = Path(client.__file__).read_text()
-    assert 'timeout=self._resolve_timeout,' in source, (
-        "resolve must pass its own per-request timeout, or the client-level write "
-        "timeout silently caps it"
+    client_timeout = 0.2
+    stall = client_timeout * 3
+
+    async def slow(request: httpx.Request) -> httpx.Response:
+        await asyncio.sleep(stall)
+        return httpx.Response(200, json={"injected_text": "RULE"})
+
+    transport = httpx.MockTransport(slow)
+    http = httpx.AsyncClient(transport=transport, timeout=client_timeout)
+    hosted = client.HostedLearningClient(
+        api_key="hs_live_k.s",
+        base_url="http://localhost:1",
+        http_client=http,
+        resolve_timeout=stall * 4,
     )
-    assert "except httpx.TimeoutException" in source, (
-        "a transport timeout must reach the caller as TimeoutError, or every real "
-        "timeout is recorded as a fault"
+    try:
+        context = await hosted.resolve(
+            identity=AgentIdentity(agent_name="agent-x"), run_id="r", goal="g"
+        )
+    finally:
+        await hosted.aclose()
+
+    assert context.injected_text == "RULE"
+
+
+@pytest.mark.asyncio
+async def test_a_resolve_that_runs_out_of_time_reaches_the_caller_as_a_timeout() -> None:
+    """And not as a transport error, which the resolver files as a fault rather than a
+    capacity problem. Both deadlines are raced deliberately, so which one wins is an
+    implementation detail no caller should have to know about."""
+
+    async def never(request: httpx.Request) -> httpx.Response:
+        await asyncio.sleep(5)
+        return httpx.Response(200, json={})
+
+    http = httpx.AsyncClient(transport=httpx.MockTransport(never), timeout=0.05)
+    hosted = client.HostedLearningClient(
+        api_key="hs_live_k.s",
+        base_url="http://localhost:1",
+        http_client=http,
+        resolve_timeout=0.3,
     )
+    try:
+        with pytest.raises(TimeoutError):
+            await hosted.resolve(
+                identity=AgentIdentity(agent_name="agent-x"), run_id="r", goal="g"
+            )
+    finally:
+        await hosted.aclose()
+
+    assert hook._resolve_failure(TimeoutError("x")) is RecallOutcome.RESOLVE_TIMED_OUT
+    assert hook._resolve_failure(RuntimeError("x")) is RecallOutcome.RESOLVE_FAILED
 
 
 def _seeded_active(session_id: str) -> None:
