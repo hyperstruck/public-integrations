@@ -16,9 +16,11 @@ def test_the_two_families_of_failure_are_told_apart_by_whether_anything_was_show
         RecallOutcome.RESOLVE_TIMED_OUT,
         RecallOutcome.RESOLVE_FAILED,
         RecallOutcome.RESOLVE_EMPTY,
+        RecallOutcome.RESOLVE_NO_GOAL,
         RecallOutcome.RESOLVE_SUPERSEDED,
         RecallOutcome.RECALL_UNCLAIMED,
         RecallOutcome.RECALL_MISSING,
+        RecallOutcome.RECALL_UNRECOGNISED,
     }
 
     assert {o for o in RecallOutcome if not o.is_delivered} == never_delivered

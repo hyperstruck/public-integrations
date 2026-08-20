@@ -24,6 +24,7 @@ class FakeLearningClient:
         self.observed: list[Episode] = []
         self.reinforced: list[tuple[Episode, bool]] = []
         self.receipts: list[str | None] = []
+        self.deliveries: list[bool | None] = []
 
     async def resolve(self, *, identity, run_id, goal, available_tools=(), max_learnings=8, model_context_window=None):
         self.resolved.append(run_id)
@@ -34,9 +35,17 @@ class FakeLearningClient:
         self.observed.append(episode)
 
     async def reinforce(
-        self, *, identity, episode, is_org_promotion_allowed=False, context_receipt=None
+        self,
+        *,
+        identity,
+        episode,
+        is_org_promotion_allowed=False,
+        context_receipt=None,
+        is_delivered=None,
+        recall_outcome=None,
     ) -> None:
         self.receipts.append(context_receipt)
+        self.deliveries.append(is_delivered)
         self.reinforced.append((episode, is_org_promotion_allowed))
 
 
@@ -97,6 +106,11 @@ async def test_full_loop_resolves_injects_records_and_writes() -> None:
     await mw.aafter_agent(state, None)
     assert len(fake.observed) == 1
     assert fake.observed[0].steps[0].id == "c1"
+    # This host injects the block itself, so it reports delivery rather than leaving the
+    # run indistinguishable from a client too old to say. It still sends no receipt, so
+    # it still credits nothing: the only artefact it could offer is its own claim.
+    assert fake.deliveries == [True]
+    assert fake.receipts == [None]
     assert len(fake.reinforced) == 1
     assert mw.stats.runs_observed == 1
     assert LEDGERS.get(run_id) is None  # popped at end

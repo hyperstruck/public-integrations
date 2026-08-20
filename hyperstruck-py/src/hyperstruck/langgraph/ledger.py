@@ -74,6 +74,9 @@ class InvokeLedger:
     thread_id: str | None = None
 
     is_resolved: bool = False
+    # Set where the block actually reaches a model call, not where it is resolved: a run
+    # can resolve and then never call a model, and the boundary is told which happened.
+    is_injected: bool = False
     # The rendered injection block (rendered server-side), reused on every later
     # model call of the run. ``None`` means nothing to inject.
     injected_text: str | None = None

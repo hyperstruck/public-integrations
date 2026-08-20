@@ -1280,6 +1280,24 @@ def test_a_superseded_resolve_is_not_reported_as_a_failure(_env, monkeypatch) ->
     )
 
 
+def test_a_superseded_resolver_cannot_overwrite_the_live_turns_verdict(
+    _env, monkeypatch
+) -> None:
+    """The slow resolver returns last, and the turn it is no longer about is running.
+
+    Overwriting here costs the live turn its reason: its stop hook rejects the mismatched
+    run and falls back to the least informative member of the vocabulary, which is the
+    one answer this whole change exists to stop giving.
+    """
+    _seeded_active("s-race")
+    state.write_recall_status("s-race", "run-1", RecallOutcome.RECALL_UNCLAIMED)
+
+    state.write_recall_status("s-race", "run-0", RecallOutcome.RESOLVE_SUPERSEDED)
+
+    assert state.read_recall_status("s-race", "run-1") == RecallOutcome.RECALL_UNCLAIMED
+    assert state.read_recall_status("s-race", "run-0") is None
+
+
 def test_a_verdict_from_another_run_is_never_read_as_this_ones(_env) -> None:
     """The status file outlives one turn, and the wrong cause is worse than none."""
     state.write_recall_status("s-stale", "run-0", RecallOutcome.RESOLVE_TIMED_OUT)
@@ -1316,13 +1334,36 @@ MEASURED_HOSTED_RESOLVE_SECONDS = 19.1
 
 
 def test_recall_budget_clears_a_real_hosted_resolve() -> None:
-    """With headroom, because a missed deadline costs the turn its recall entirely.
+    """With headroom on the detached seat, and no more than the tail on the awaited one.
 
-    Nothing waits on this resolve, so a budget close to the measured tail buys no
-    latency and loses recall every time the boundary has a slow day.
+    Nothing waits on the hook's resolver, so a budget close to the measured tail buys no
+    latency there and loses recall every time the boundary has a slow day. The awaited
+    seat is the opposite trade: the LangGraph middleware blocks its first model call on
+    the same call, so headroom there is a stall a customer feels.
     """
-    assert hook.DEFAULT_RECALL_TIMEOUT > MEASURED_HOSTED_RESOLVE_SECONDS * 2
+    assert client.DEFAULT_DETACHED_RECALL_TIMEOUT > MEASURED_HOSTED_RESOLVE_SECONDS * 2
+    assert client.DEFAULT_RECALL_TIMEOUT > MEASURED_HOSTED_RESOLVE_SECONDS
+    assert client.DEFAULT_RECALL_TIMEOUT < MEASURED_HOSTED_RESOLVE_SECONDS * 2
     assert hook.MIN_RECALL_TIMEOUT > client.DEFAULT_RESOLVE_TIMEOUT
+
+
+def test_the_transport_cannot_cap_the_budget_the_caller_asked_for() -> None:
+    """The bug this pair of assertions exists to stop coming back.
+
+    httpx applies its client-level timeout to the transport, so a resolve budget above
+    it is capped there and the caller's own deadline never fires. Raising the detached
+    budget past the write timeout is exactly how that happened, and the symptom is not a
+    failed resolve but a *mislabelled* one: the transport's error is not a TimeoutError.
+    """
+    source = Path(client.__file__).read_text()
+    assert 'timeout=self._resolve_timeout,' in source, (
+        "resolve must pass its own per-request timeout, or the client-level write "
+        "timeout silently caps it"
+    )
+    assert "except httpx.TimeoutException" in source, (
+        "a transport timeout must reach the caller as TimeoutError, or every real "
+        "timeout is recorded as a fault"
+    )
 
 
 def _seeded_active(session_id: str) -> None:
@@ -1342,11 +1383,11 @@ def _seeded_active(session_id: str) -> None:
 @pytest.mark.parametrize(
     ("env_value", "expected"),
     [
-        (None, hook.DEFAULT_RECALL_TIMEOUT),
+        (None, hook.DEFAULT_DETACHED_RECALL_TIMEOUT),
         ("12.5", 12.5),
         ("0", hook.MIN_RECALL_TIMEOUT),
         ("-4", hook.MIN_RECALL_TIMEOUT),
-        ("nonsense", hook.DEFAULT_RECALL_TIMEOUT),
+        ("nonsense", hook.DEFAULT_DETACHED_RECALL_TIMEOUT),
     ],
 )
 def test_every_hook_recall_reaches_the_client_with_the_recall_budget(
@@ -1741,6 +1782,9 @@ def test_close_readonly_run_declines_an_offered_recall() -> None:
         "run_id": "run-1",
         "reason": hook.REASON_BELOW_MATERIAL_THRESHOLD,
         "is_delivered": True,
+        # This path prints the block itself, so it reports delivery rather than leaving
+        # the run with the clients too old to say, whose remedy is an upgrade.
+        "recall_outcome": "delivered",
         "source_framework": "cursor",
     }
 
@@ -3051,13 +3095,10 @@ def test_a_turn_that_never_injected_reads_no_transcript(_env, tmp_path) -> None:
     )
     state.write_recall_status("s1", turn.run_id, RecallOutcome.RESOLVE_TIMED_OUT)
 
-    assert hook._acceptance_record("s1", turn) == (
-        "",
-        RecallOutcome.RESOLVE_TIMED_OUT,
-    )
-    text, outcome = hook._acceptance_record("s1", replace(turn, is_injected=True))
-    assert text != ""
-    assert outcome is RecallOutcome.DELIVERED
+    assert hook._acceptance_record("s1", turn).outcome is RecallOutcome.RESOLVE_TIMED_OUT
+    delivered = hook._acceptance_record("s1", replace(turn, is_injected=True))
+    assert delivered.receipt != ""
+    assert delivered.outcome is RecallOutcome.DELIVERED
 
 
 def test_a_turn_whose_resolve_never_landed_says_so_rather_than_blaming_the_receipt(
@@ -3076,10 +3117,7 @@ def test_a_turn_whose_resolve_never_landed_says_so_rather_than_blaming_the_recei
         started_at=0.0,
     )
 
-    assert hook._acceptance_record("s-none", turn) == (
-        "",
-        RecallOutcome.RECALL_MISSING,
-    )
+    assert hook._acceptance_record("s-none", turn).outcome is RecallOutcome.RECALL_MISSING
 
 
 def test_a_stash_no_tool_event_ever_claimed_is_not_a_lost_receipt(_env) -> None:
@@ -3097,10 +3135,10 @@ def test_a_stash_no_tool_event_ever_claimed_is_not_a_lost_receipt(_env) -> None:
     )
     state.write_recall_status("s2", turn.run_id, RecallOutcome.RECALL_UNCLAIMED)
 
-    _, outcome = hook._acceptance_record("s2", turn)
+    result = hook._acceptance_record("s2", turn)
 
-    assert outcome is RecallOutcome.RECALL_UNCLAIMED
-    assert not outcome.is_delivered
+    assert result.outcome is RecallOutcome.RECALL_UNCLAIMED
+    assert not result.is_delivered
 
 
 def test_a_receipt_is_scrubbed_before_it_leaves_the_machine() -> None:

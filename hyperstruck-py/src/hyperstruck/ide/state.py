@@ -183,11 +183,29 @@ def write_recall_status(session_id: str, run_id: str, outcome: str) -> None:
     no trace at all. Written for the successful case too, because "the stash was
     published and no tool event ever claimed it" is a different answer from "no
     resolve ever landed", and the turn cannot tell them apart from an absent file.
+
+    One slot per session, and the live turn owns it. A slow resolver for turn N returns
+    after turn N+1 has started and published its own verdict; an unguarded write would
+    replace it, and N+1's stop hook would then reject the mismatched run and report the
+    least informative answer in the vocabulary. So a resolver whose run is no longer the
+    active one may take a free slot or refresh its own, and never overwrites another
+    run's. The active run always may, because a stale verdict cannot outrank the turn
+    that is still running.
     """
+    if not _may_take_status_slot(session_id, run_id):
+        return
     _write_json_atomic(
         session_dir(session_id) / RECALL_STATUS_FILE,
         {"run_id": run_id, "outcome": outcome},
     )
+
+
+def _may_take_status_slot(session_id: str, run_id: str) -> bool:
+    held = _read_json(session_dir(session_id) / RECALL_STATUS_FILE)
+    if not isinstance(held, dict) or held.get("run_id") in (None, run_id):
+        return True
+    active = read_active(session_id)
+    return active is not None and active.run_id == run_id
 
 
 def read_recall_status(session_id: str, run_id: str) -> str | None:

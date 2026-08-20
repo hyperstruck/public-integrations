@@ -61,17 +61,20 @@ def _accepted_content(record: dict[str, Any], run_marker: str) -> tuple[str, boo
     beside ours. Joining the whole list would upload a sibling hook's output to the
     hosted API for no benefit: the matcher only ever looks for our own fragments.
 
-    A record that carries the marker and does not match this shape is reported rather
-    than skipped, and the flag says so: it means the editor may have changed how it
-    records an accepted hook context, which silently ends the whole credit path. The
-    editor writes other marked records beside the accepted one (its own note that the
-    hook succeeded, for instance), so an unexpected shape only means the format changed
-    when no record of the run matched.
+    A record that IS an attachment and carries an unrecognised type is reported, and the
+    flag says so: it may mean the editor changed how it records an accepted hook context,
+    which silently ends the whole credit path. The editor writes other marked records
+    beside the accepted one (its own note that the hook succeeded, for instance), so an
+    unexpected type only means that when no record of the run matched.
+
+    A marked record that is not an attachment at all raises nothing. The line filter
+    upstream is a substring test over raw JSONL, so a model message quoting the injected
+    block back, or a tool result from reading a file that contains a marker, both land
+    here and say nothing whatever about the editor's format.
     """
     attachment = record.get("attachment")
     if not isinstance(attachment, dict):
-        debug("receipt: a marked record has no attachment object; transcript format changed?")
-        return "", True
+        return "", False
     record_type = attachment.get("type")
     if record_type == _EMITTED_RECORD:
         return "", False
@@ -95,12 +98,19 @@ def acceptance_record(
     """What the editor recorded itself accepting for this run, and why it did not.
 
     Four distinct failures used to answer the same empty string: no transcript to read,
-    an unreadable or implausible file, a marked record whose shape this client does not
-    recognise, and genuinely no record carrying this run's marker. They are not the same
-    problem. The third means the editor changed its transcript format and the whole
-    credit path has silently ended; the first is ordinary on a host that never reported.
-    Each now answers with its own name, so the difference is legible at the turn instead
-    of being inferred from a credit rate a day later.
+    an unreadable or implausible file, a marked attachment whose type this client does
+    not recognise, and genuinely no record carrying this run's marker. They are not the
+    same problem. The third is evidence the editor may have changed how it records an
+    accepted hook context, which would end the whole credit path silently; the first is
+    ordinary on a host that never reported. Each now answers with its own name, so the
+    difference is legible at the turn instead of being inferred from a credit rate a day
+    later.
+
+    ``RECORD_SHAPE_CHANGED`` detects one shape of that change and not every shape: a
+    marked line that stopped being JSON, or stopped being an object, is skipped upstream
+    and lands on ``NO_MATCHING_RECORD``. Distinguishing those from an ordinary miss would
+    mean treating any unparsable line carrying the marker as evidence, and the marker
+    travels in quoted prose and tool output too.
 
     Several records can carry one run's marker when the recall is injected on more than
     one tool event. They are joined rather than reduced to the first, because exposure is

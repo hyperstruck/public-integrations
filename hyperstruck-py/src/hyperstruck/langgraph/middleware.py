@@ -189,6 +189,7 @@ class HyperstruckLearningMiddleware(AgentMiddleware):
         if ledger.injected_text:
             injected = SystemMessage(content=ledger.injected_text)
             request = request.override(messages=[injected, *request.messages])
+            ledger.is_injected = True
             # No receipt is sent from this host, deliberately. The only artefact it could
             # return is the block it just built itself, and echoing that back matches
             # every offered fragment by construction: it asserts the very thing a receipt
@@ -238,6 +239,11 @@ class HyperstruckLearningMiddleware(AgentMiddleware):
                 identity=identity,
                 episode=episode,
                 is_org_promotion_allowed=ledger.is_fully_declared(self._tool_sensitivity),
+                # This host injects the block itself, so whether the model was shown the
+                # recall is known here rather than inferred. It is not a receipt and does
+                # not credit anything (see the note in awrap_model_call); it only keeps
+                # these runs out of the population the boundary reads as a lost receipt.
+                is_delivered=ledger.is_injected,
             )
             self.stats.runs_observed += 1
         except Exception as exc:  # noqa: BLE001 - never break the host run

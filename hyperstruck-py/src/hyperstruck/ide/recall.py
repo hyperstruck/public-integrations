@@ -15,6 +15,7 @@ day later from a credit rate.
 
 from __future__ import annotations
 
+from dataclasses import dataclass
 from enum import StrEnum
 
 
@@ -24,12 +25,19 @@ class RecallOutcome(StrEnum):
     DELIVERED = "delivered"
 
     # The recall never reached the model. Nothing was shown, so nothing is owed.
+    # RESOLVE_NO_GOAL is kept apart from RESOLVE_EMPTY because they have different
+    # owners: an empty goal means the host handed the hook no prompt, which is a wiring
+    # defect, while an empty answer means the corpus had nothing for a real goal, which
+    # is an ordinary cold start. RECALL_UNRECOGNISED is the honest answer when the
+    # stored verdict cannot be read back at all, rather than naming a cause nobody saw.
     RESOLVE_TIMED_OUT = "resolve_timed_out"
     RESOLVE_FAILED = "resolve_failed"
     RESOLVE_EMPTY = "resolve_empty"
+    RESOLVE_NO_GOAL = "resolve_no_goal"
     RESOLVE_SUPERSEDED = "resolve_superseded"
     RECALL_UNCLAIMED = "recall_unclaimed"
     RECALL_MISSING = "recall_missing"
+    RECALL_UNRECOGNISED = "recall_unrecognised"
 
     # The recall was shown, and the editor's record of it could not be read back.
     # These four are what ``receipt.acceptance_record`` used to collapse into one
@@ -55,8 +63,27 @@ _NEVER_DELIVERED = frozenset(
         RecallOutcome.RESOLVE_TIMED_OUT,
         RecallOutcome.RESOLVE_FAILED,
         RecallOutcome.RESOLVE_EMPTY,
+        RecallOutcome.RESOLVE_NO_GOAL,
         RecallOutcome.RESOLVE_SUPERSEDED,
         RecallOutcome.RECALL_UNCLAIMED,
         RecallOutcome.RECALL_MISSING,
+        RecallOutcome.RECALL_UNRECOGNISED,
     }
 )
+
+
+@dataclass(frozen=True)
+class RecallResult:
+    """A turn's receipt and the reason it has none, which are one answer.
+
+    Threaded together rather than as a bare pair, because the two are read at three call
+    sites and by position: an anonymous tuple makes ``recall[0]`` the receipt at every
+    one of them and nothing catches the day someone swaps them.
+    """
+
+    receipt: str
+    outcome: RecallOutcome
+
+    @property
+    def is_delivered(self) -> bool:
+        return self.outcome.is_delivered

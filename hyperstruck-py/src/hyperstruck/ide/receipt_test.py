@@ -226,6 +226,51 @@ def test_a_marked_record_of_an_unknown_shape_is_reported_not_swallowed(
     assert "some_new_shape" in capsys.readouterr().err
 
 
+def test_a_marked_line_that_no_longer_parses_is_a_miss_and_not_an_alarm(
+    tmp_path: Path,
+) -> None:
+    """The narrow scope of the format alarm, pinned rather than left to the docstring.
+
+    A line carrying the marker that is not JSON could be the editor changing its
+    serialisation, and it could equally be prose or tool output quoting the block. The
+    detector answers for the case it can actually distinguish, an attachment of an
+    unrecognised type, and reports the rest as an ordinary miss.
+    """
+    path = _transcript(tmp_path, f"{receipt.marker('run-1')} not json at all")
+
+    assert (
+        receipt.acceptance_record(path, "run-1")[1] is RecallOutcome.NO_MATCHING_RECORD
+    )
+
+
+def test_a_marked_line_that_is_not_an_attachment_raises_no_format_alarm(
+    tmp_path: Path,
+) -> None:
+    """The marker travels in quoted prose and tool output, not only in the editor's record.
+
+    The line filter is a substring test over raw JSONL, so a model message echoing the
+    injected block, or a Read of a file that happens to contain a marker, reaches the
+    same branch. Reading either as evidence that the editor changed its format would
+    raise the loudest alarm in the vocabulary on ordinary traffic.
+    """
+    path = _transcript(
+        tmp_path,
+        json.dumps(
+            {
+                "type": "user",
+                "message": {
+                    "role": "user",
+                    "content": f"as you can see, {receipt.marker('run-1')} was injected",
+                },
+            }
+        ),
+    )
+
+    assert (
+        receipt.acceptance_record(path, "run-1")[1] is RecallOutcome.NO_MATCHING_RECORD
+    )
+
+
 def test_the_hooks_own_echo_is_not_mistaken_for_a_changed_transcript_format(
     tmp_path: Path,
 ) -> None:
