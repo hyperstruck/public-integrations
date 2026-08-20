@@ -22,6 +22,7 @@ from hyperstruck._wire import (
 from hyperstruck import client
 from hyperstruck.ide import receipt
 from hyperstruck.ide import hook, state
+from hyperstruck.ide.recall import RecallOutcome
 from hyperstruck.ide.constants import CREDENTIAL_HEAD_CHARS, PENDING_FILE
 from hyperstruck.ide.redaction import redact_ide_episode
 from hyperstruck.ide.constants import (
@@ -1201,6 +1202,91 @@ def test_resolver_writes_matching_recall(_env, monkeypatch) -> None:
     }
 
 
+def test_the_resolver_records_why_it_published_nothing(_env, monkeypatch) -> None:
+    """A detached process that fails silently is why an unposted receipt had no cause.
+
+    Its stdout goes nowhere and its stderr is a diagnostic that is off by default, so
+    the verdict is written where the stop hook can read it back. Each way of failing
+    is named, because a hosted call that ran out of time is a capacity problem and a
+    superseded turn is not a problem at all.
+    """
+
+    async def timed_out(*_args, **_kwargs):
+        raise TimeoutError("hosted resolve did not answer")
+
+    async def broke(*_args, **_kwargs):
+        raise RuntimeError("connection reset")
+
+    async def empty(*_args, **_kwargs):
+        return hook.ResolvedContext()
+
+    for session_id, resolver, expected in (
+        ("s-timeout", timed_out, RecallOutcome.RESOLVE_TIMED_OUT),
+        ("s-broken", broke, RecallOutcome.RESOLVE_FAILED),
+        ("s-empty", empty, RecallOutcome.RESOLVE_EMPTY),
+    ):
+        _seeded_active(session_id)
+        monkeypatch.setattr(hook, "_aresolve", resolver)
+        hook.cmd_resolve(session_id)
+
+        assert state.peek_recall(session_id) is None
+        assert state.read_recall_status(session_id, "run-1") == expected
+
+
+def test_a_published_stash_no_tool_event_claimed_reads_as_unclaimed(
+    _env, monkeypatch
+) -> None:
+    """Published is not shown. The recall rides a tool event, and a turn may have none.
+
+    Until the turn ends this is simply the normal state of a stash in flight, so the
+    resolver records it on success too: an absent verdict then means the resolve had
+    not returned at all, which is a different answer.
+    """
+    _seeded_active("s-unclaimed")
+
+    async def resolved(*_args, **_kwargs):
+        return hook.ResolvedContext(injected_text="TEXT", offered_learning_ids=("L1",))
+
+    monkeypatch.setattr(hook, "_aresolve", resolved)
+    hook.cmd_resolve("s-unclaimed")
+
+    assert state.read_recall_status("s-unclaimed", "run-1") == (
+        RecallOutcome.RECALL_UNCLAIMED
+    )
+
+
+def test_a_superseded_resolve_is_not_reported_as_a_failure(_env, monkeypatch) -> None:
+    """The turn moved on before the recall was ready; nothing broke."""
+    _seeded_active("s-superseded")
+
+    async def resolve_then_change(*_args, **_kwargs):
+        state.write_active(
+            "s-superseded",
+            state.ActiveTurn(
+                run_id="run-2",
+                agent_name="agent-x",
+                goal="next",
+                source_framework="claude-code",
+                started_at=2.0,
+            ),
+        )
+        return hook.ResolvedContext(injected_text="TEXT", offered_learning_ids=("L1",))
+
+    monkeypatch.setattr(hook, "_aresolve", resolve_then_change)
+    hook.cmd_resolve("s-superseded")
+
+    assert state.read_recall_status("s-superseded", "run-1") == (
+        RecallOutcome.RESOLVE_SUPERSEDED
+    )
+
+
+def test_a_verdict_from_another_run_is_never_read_as_this_ones(_env) -> None:
+    """The status file outlives one turn, and the wrong cause is worse than none."""
+    state.write_recall_status("s-stale", "run-0", RecallOutcome.RESOLVE_TIMED_OUT)
+
+    assert state.read_recall_status("s-stale", "run-1") is None
+
+
 def test_resolver_skips_publish_when_no_learnings(_env, monkeypatch) -> None:
     state.write_active(
         "s1",
@@ -1221,14 +1307,21 @@ def test_resolver_skips_publish_when_no_learnings(_env, monkeypatch) -> None:
     assert state.peek_recall("s1") is None
 
 
-# A hosted resolve measured 13.1s against api.hyperstruck.com on 2026-08-10. The
-# budget has to clear that, which is the property that actually failed: asserting
-# only that the two hook paths agree stays green if the constant is lowered.
-MEASURED_HOSTED_RESOLVE_SECONDS = 13.1
+# The slowest of 234 production resolves against api.hyperstruck.com over 24h on
+# 2026-08-20 (p50 11.6s, p99 18.7s). The budget has to clear the tail, not the
+# median, which is the property that actually failed: the previous constant was
+# taken from a single 13.1s sample on 2026-08-10 and left the deadline sitting
+# 0.9s above the slowest real resolve.
+MEASURED_HOSTED_RESOLVE_SECONDS = 19.1
 
 
 def test_recall_budget_clears_a_real_hosted_resolve() -> None:
-    assert hook.DEFAULT_RECALL_TIMEOUT > MEASURED_HOSTED_RESOLVE_SECONDS
+    """With headroom, because a missed deadline costs the turn its recall entirely.
+
+    Nothing waits on this resolve, so a budget close to the measured tail buys no
+    latency and loses recall every time the boundary has a slow day.
+    """
+    assert hook.DEFAULT_RECALL_TIMEOUT > MEASURED_HOSTED_RESOLVE_SECONDS * 2
     assert hook.MIN_RECALL_TIMEOUT > client.DEFAULT_RESOLVE_TIMEOUT
 
 
@@ -2438,6 +2531,109 @@ def test_deliver_decline_calls_the_client_and_reports_outcome(
     assert captured["closed"] is True
 
 
+def test_reinforce_tells_the_boundary_whether_the_recall_was_ever_shown(
+    _env, monkeypatch
+) -> None:
+    """Without this the boundary has one field for two very different runs.
+
+    An absent receipt reads as a client that lost its evidence, and the run that was
+    never shown its learnings at all is recorded as the same defect. It is the larger
+    population by far, and it is the client behaving correctly.
+    """
+    import hyperstruck.client as client_module
+
+    captured: dict[str, Any] = {}
+
+    class FakeClient:
+        def __init__(self, **_kwargs):
+            self.writes_delivered = 0
+            self.writes_failed = 0
+            self.writes_terminal_failed = False
+            self.last_write_error = None
+
+        async def reinforce(self, **kwargs):
+            captured.update(kwargs)
+
+        async def drain(self, timeout=30.0):
+            self.writes_delivered = 1
+
+        async def aclose(self, drain_timeout=30.0):
+            return None
+
+    monkeypatch.setattr(client_module, "HostedLearningClient", FakeClient)
+
+    outcome, _cause = asyncio.run(
+        hook._deliver(
+            {
+                "agent_name": "agent-x",
+                "episode": {
+                    "run_id": "agent-x:s1:r",
+                    "goal": "do x",
+                    "steps": [],
+                    "outcome": {"is_success": True},
+                    "source_framework": "claude-code",
+                },
+                "do_reinforce": True,
+                "context_receipt": None,
+                "is_delivered": False,
+                "recall_outcome": RecallOutcome.RESOLVE_TIMED_OUT,
+            }
+        )
+    )
+
+    assert outcome is hook.FlushOutcome.DELIVERED
+    assert captured["is_delivered"] is False
+    assert captured["recall_outcome"] == RecallOutcome.RESOLVE_TIMED_OUT
+
+
+def test_a_finished_turn_stages_the_reason_it_has_no_receipt(_env, monkeypatch) -> None:
+    """The reason has to survive staging, or only the machine that made it can see it."""
+    staged: list[dict[str, Any]] = []
+    monkeypatch.setattr(hook, "_spawn_flush", lambda _path: None)
+    monkeypatch.setattr(
+        state, "stage_flush", lambda _s, _r, payload: staged.append(payload) or "p"
+    )
+    _seeded_active("s-stage")
+    state.write_recall_status("s-stage", "run-1", RecallOutcome.RECALL_UNCLAIMED)
+    state.append_step("s-stage", {"id": "1", "name": "Bash", "status": "completed"})
+    state.append_step("s-stage", {"id": "2", "name": "Bash", "status": "completed"})
+
+    hook.cmd_stop(
+        {"session_id": "s-stage", "cwd": "/repo", "status": "completed"},
+        hook._parse_args(["stop"]),
+    )
+
+    assert staged, "the turn staged nothing at all"
+    declined = staged[0]["decline"]
+    assert declined["is_delivered"] is False
+    assert declined["recall_outcome"] == RecallOutcome.RECALL_UNCLAIMED
+
+    staged.clear()
+    state.write_active(
+        "s-stage",
+        state.ActiveTurn(
+            run_id="run-2",
+            agent_name="agent-x",
+            goal="do x",
+            source_framework="claude-code",
+            started_at=1.0,
+            offered_learning_ids=("L1",),
+        ),
+    )
+    state.write_recall_status("s-stage", "run-2", RecallOutcome.RESOLVE_TIMED_OUT)
+    state.append_step("s-stage", {"id": "1", "name": "Bash", "status": "completed"})
+    state.append_step("s-stage", {"id": "2", "name": "Bash", "status": "completed"})
+
+    hook.cmd_stop(
+        {"session_id": "s-stage", "cwd": "/repo", "status": "completed"},
+        hook._parse_args(["stop"]),
+    )
+
+    assert staged[0]["do_reinforce"] is True
+    assert staged[0]["is_delivered"] is False
+    assert staged[0]["recall_outcome"] == RecallOutcome.RESOLVE_TIMED_OUT
+
+
 def test_deliver_decline_reports_a_terminal_rejection(_env, monkeypatch) -> None:
     """A 4xx on a decline must be terminal, so it counts toward the retry cap."""
     import hyperstruck.client as client_module
@@ -2837,7 +3033,11 @@ def test_an_oversized_receipt_is_clipped_rather_than_dropped(_env) -> None:
 
 
 def test_a_turn_that_never_injected_reads_no_transcript(_env, tmp_path) -> None:
-    """No injection means no marker, so the read is a guaranteed miss over a growing file."""
+    """No injection means no marker, so the read is a guaranteed miss over a growing file.
+
+    It also means nothing was shown, so the turn reports why the recall never reached
+    the model rather than reporting a receipt it was never owed.
+    """
     transcript = tmp_path / "t.jsonl"
     transcript.write_text(_accepted_line("agent-x:s:r", "- a rule") + "\n")
     turn = state.ActiveTurn(
@@ -2849,9 +3049,58 @@ def test_a_turn_that_never_injected_reads_no_transcript(_env, tmp_path) -> None:
         transcript_path=str(transcript),
         is_injected=False,
     )
+    state.write_recall_status("s1", turn.run_id, RecallOutcome.RESOLVE_TIMED_OUT)
 
-    assert hook._acceptance_record(turn) == ""
-    assert hook._acceptance_record(replace(turn, is_injected=True)) != ""
+    assert hook._acceptance_record("s1", turn) == (
+        "",
+        RecallOutcome.RESOLVE_TIMED_OUT,
+    )
+    text, outcome = hook._acceptance_record("s1", replace(turn, is_injected=True))
+    assert text != ""
+    assert outcome is RecallOutcome.DELIVERED
+
+
+def test_a_turn_whose_resolve_never_landed_says_so_rather_than_blaming_the_receipt(
+    _env,
+) -> None:
+    """An absent verdict is its own answer: the resolve had not finished by the stop.
+
+    Reported apart from a resolve that timed out or failed, because one is a race the
+    turn lost and the other is the hosted call not clearing the deadline it is given.
+    """
+    turn = state.ActiveTurn(
+        run_id="agent-x:s:r",
+        agent_name="agent-x",
+        goal="do x",
+        source_framework="claude-code",
+        started_at=0.0,
+    )
+
+    assert hook._acceptance_record("s-none", turn) == (
+        "",
+        RecallOutcome.RECALL_MISSING,
+    )
+
+
+def test_a_stash_no_tool_event_ever_claimed_is_not_a_lost_receipt(_env) -> None:
+    """The commonest way a turn credits nothing: it called no tool after the recall landed.
+
+    The recall rides a tool event, so a turn that ends without one is never shown its
+    learnings. Crediting nothing is correct; being logged as a client defect is not.
+    """
+    turn = state.ActiveTurn(
+        run_id="agent-x:s:r",
+        agent_name="agent-x",
+        goal="do x",
+        source_framework="claude-code",
+        started_at=0.0,
+    )
+    state.write_recall_status("s2", turn.run_id, RecallOutcome.RECALL_UNCLAIMED)
+
+    _, outcome = hook._acceptance_record("s2", turn)
+
+    assert outcome is RecallOutcome.RECALL_UNCLAIMED
+    assert not outcome.is_delivered
 
 
 def test_a_receipt_is_scrubbed_before_it_leaves_the_machine() -> None:

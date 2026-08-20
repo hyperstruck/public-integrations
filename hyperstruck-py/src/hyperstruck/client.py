@@ -62,10 +62,13 @@ DEFAULT_BASE_URL = "https://api.hyperstruck.com"
 DEFAULT_WRITE_TIMEOUT = 30.0
 # The inline budget, for a resolve awaited between a caller and its model call.
 DEFAULT_RESOLVE_TIMEOUT = 2.0
-# A hosted resolve was measured at 13.1s against api.hyperstruck.com, so the
-# inline budget above cannot land one. Any recall that is prefetched or explicit,
-# and so is not what the caller is waiting on, gets this instead.
-DEFAULT_RECALL_TIMEOUT = 20.0
+# A hosted resolve cannot land inside the inline budget above: 234 production
+# resolves over 24h on 2026-08-20 ran p50 11.6s, p99 18.7s, max 19.1s. Any recall
+# that is prefetched or explicit, and so is not what the caller is waiting on, gets
+# this instead, and it sits well clear of that tail rather than just above it: a
+# recall that misses the deadline is not a slower recall, it is no recall at all,
+# and the wait costs nothing because nobody is blocked on it.
+DEFAULT_RECALL_TIMEOUT = 45.0
 
 
 class ResolvePurpose(StrEnum):
@@ -199,6 +202,8 @@ class LearningClient(Protocol):
         episode: Episode,
         is_org_promotion_allowed: bool = False,
         context_receipt: str | None = None,
+        is_delivered: bool | None = None,
+        recall_outcome: str | None = None,
     ) -> None:
         """Credit the learnings the run used. Non-blocking."""
         ...
@@ -370,7 +375,16 @@ class HostedLearningClient:
         episode: Episode,
         is_org_promotion_allowed: bool = False,
         context_receipt: str | None = None,
+        is_delivered: bool | None = None,
+        recall_outcome: str | None = None,
     ) -> None:
+        """Credit the learnings the run used. Non-blocking.
+
+        ``is_delivered`` and ``recall_outcome`` say whether the recall reached the
+        model at all, and when it did not, why. Without them an absent receipt has
+        two readings, a run that was shown its learnings and lost the evidence, and
+        a run that was never shown them, and the boundary can only assume the first.
+        """
         body = {
             "agent_name": identity.agent_name,
             "org_id": identity.org_id,
@@ -378,6 +392,10 @@ class HostedLearningClient:
             "is_org_promotion_allowed": is_org_promotion_allowed,
             "context_receipt": context_receipt,
         }
+        if is_delivered is not None:
+            body["is_delivered"] = is_delivered
+        if recall_outcome:
+            body["recall_outcome"] = recall_outcome
         self._schedule_write("/reinforce", body)
 
     async def distill(
@@ -437,6 +455,7 @@ class HostedLearningClient:
         run_id: str,
         reason: str,
         is_delivered: bool = False,
+        recall_outcome: str | None = None,
         source_framework: str = "",
     ) -> None:
         """Close a run whose turn ended with nothing worth learning.
@@ -465,6 +484,7 @@ class HostedLearningClient:
                 "reason": reason,
                 "is_delivered": is_delivered,
                 "source_framework": source_framework,
+                **({"recall_outcome": recall_outcome} if recall_outcome else {}),
             },
         )
 

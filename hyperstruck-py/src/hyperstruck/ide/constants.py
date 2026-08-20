@@ -56,6 +56,9 @@ def ide_venv_dir() -> Path:
 ACTIVE_FILE = "active.json"
 PENDING_FILE = "pending.json"
 RECALL_FILE = "recall.json"
+# The detached resolver's own verdict on whether it published a stash, so a turn that
+# was never shown its recall can say why instead of looking like a lost receipt.
+RECALL_STATUS_FILE = "recall-status.json"
 STEPS_SUBDIR = "steps"  # under active/, one append-only file per tool call
 ACTIVE_SUBDIR = "active"
 FLUSHING_SUBDIR = "flushing"  # handed-off episodes a detached flush is delivering

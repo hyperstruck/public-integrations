@@ -247,12 +247,39 @@ report is distinguishable from one that should have and did not.
 Two things follow that are easy to get backwards:
 
 - **A turn that never injected sends no receipt at all**, rather than an empty one. It
-  stamped no marker, so there is nothing in the transcript to find.
+  stamped no marker, so there is nothing in the transcript to find. It says *why*
+  instead, which is the difference below.
 - **An oversized receipt is clipped ABOVE the boundary's own ceiling, not below it.** The
   server treats a receipt it had to clip as an incomplete account and demotes nothing. A
   client that clipped to fit under that ceiling would hand over a truncated receipt
   looking complete, and every rule past the cut would be recorded as never shown, which
   is permanent.
+
+### An absent receipt has two very different causes
+
+A run that credits nothing looks identical from the boundary whichever of these
+happened, and only one of them is a defect:
+
+```
+  resolve ──▶ stash published ──▶ tool event shows it ──▶ editor records it ──▶ receipt
+     │              │                      │                      │
+  timed out      never claimed        host refused           format changed
+  or failed     (turn called no        the payload           or no record
+                 tool after it)                              carries the marker
+     └──────────── nothing was shown ─────┘              └── shown, evidence lost ──┘
+```
+
+The left half is the client behaving correctly: nothing reached the model, so nothing
+is owed. The right half is a real loss and worth alerting on. Every turn now reports
+which one it was, so the two stop being one number.
+
+The reason is recorded where the failure happens rather than inferred later. The
+detached resolver writes its own verdict beside the turn (it timed out, it failed, it
+came back for a turn that had already moved on, it had nothing to offer, or it
+published a stash), because that process has no reachable stdout and its stderr is a
+diagnostic that is off by default. The stop hook reads that verdict back, and when the
+recall *was* shown, the receipt read names which of its four ways of finding nothing
+applied instead of collapsing them into one empty answer.
 
 ## Privacy
 
@@ -348,6 +375,9 @@ To tell these apart, set `HYPER_HOOK_DEBUG=1`. Each hook then writes one status
 breadcrumb to stderr on exit (which command fired, whether an agent was
 configured, and whether the detached resolver was spawned). The resolver itself
 also records success, failure, and stale-result breadcrumbs when run directly,
-while stdout stays clean for injection payloads. Debugging is off by default, so
+and the injection path names every reason it declined to show a stash (none
+published yet, already shown this turn, published for a superseded run, claimed
+by a parallel hook, refused by the host), while stdout stays clean for injection
+payloads. Debugging is off by default, so
 normal runs stay silent; the values `0`,
 `false`, `no`, and `off` also count as off.

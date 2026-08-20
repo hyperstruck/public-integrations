@@ -4,6 +4,7 @@ import json
 from pathlib import Path
 
 from hyperstruck.ide import receipt
+from hyperstruck.ide.recall import RecallOutcome
 
 _BLOCK = "Relevant learnings:\n- Name the tenant in every query on a shared table."
 
@@ -61,9 +62,9 @@ def test_the_record_is_found_by_its_marker_not_by_its_position(tmp_path: Path) -
         _accepted("run-3"),
     )
 
-    found = receipt.acceptance_record(path, "run-3")
+    found, outcome = receipt.acceptance_record(path, "run-3")
 
-    assert found is not None
+    assert outcome is RecallOutcome.DELIVERED
     assert "Name the tenant" in found
     assert "An earlier turn's rule" not in found
 
@@ -74,15 +75,34 @@ def test_the_hooks_own_stdout_is_not_mistaken_for_the_editors_acceptance(
     """The emitted record carries the same text; only the editor's record is evidence."""
     path = _transcript(tmp_path, _emitted("run-1"))
 
-    assert receipt.acceptance_record(path, "run-1") is None
+    assert receipt.acceptance_record(path, "run-1") == (
+        "",
+        RecallOutcome.NO_MATCHING_RECORD,
+    )
 
 
-def test_every_missing_or_broken_transcript_reports_nothing(tmp_path: Path) -> None:
-    """Silence, uniformly: an unreadable file says nothing about what the model saw."""
-    assert receipt.acceptance_record(None, "run-1") is None
-    assert receipt.acceptance_record(str(tmp_path / "absent.jsonl"), "run-1") is None
-    assert receipt.acceptance_record(_transcript(tmp_path, "{not json"), "run-1") is None
-    assert receipt.acceptance_record(_transcript(tmp_path, _accepted("other")), "r") is None
+def test_each_way_of_finding_no_receipt_answers_with_its_own_name(
+    tmp_path: Path,
+) -> None:
+    """No receipt, four causes, and only one of them is a broken editor.
+
+    Collapsing them is what made this class of defect invisible: a transcript the host
+    never wrote reads exactly like a transcript whose format this client no longer
+    understands, and the second ends the whole credit path.
+    """
+    assert receipt.acceptance_record(None, "run-1")[1] is RecallOutcome.NO_TRANSCRIPT
+    assert (
+        receipt.acceptance_record(str(tmp_path / "absent.jsonl"), "run-1")[1]
+        is RecallOutcome.NO_TRANSCRIPT
+    )
+    assert (
+        receipt.acceptance_record(_transcript(tmp_path, "{not json"), "run-1")[1]
+        is RecallOutcome.NO_MATCHING_RECORD
+    )
+    assert (
+        receipt.acceptance_record(_transcript(tmp_path, _accepted("other")), "r")[1]
+        is RecallOutcome.NO_MATCHING_RECORD
+    )
 
 
 def test_a_recall_injected_twice_reports_both_blocks(tmp_path: Path) -> None:
@@ -93,9 +113,9 @@ def test_a_recall_injected_twice_reports_both_blocks(tmp_path: Path) -> None:
         _accepted("run-1", body="- The second block's rule."),
     )
 
-    found = receipt.acceptance_record(path, "run-1")
+    found, outcome = receipt.acceptance_record(path, "run-1")
 
-    assert found is not None
+    assert outcome is RecallOutcome.DELIVERED
     assert "first block" in found and "second block" in found
 
 
@@ -124,9 +144,9 @@ def test_a_sibling_hooks_context_in_the_same_record_is_not_uploaded(
         ),
     )
 
-    found = receipt.acceptance_record(path, "run-1")
+    found, outcome = receipt.acceptance_record(path, "run-1")
 
-    assert found is not None
+    assert outcome is RecallOutcome.DELIVERED
     assert "Name the tenant" in found
     assert "svc-billing" not in found
 
@@ -152,7 +172,10 @@ def test_an_implausibly_large_transcript_is_refused_rather_than_read(
     transcript.write_text("x" * 4096)
     monkeypatch.setattr(receipt, "_MAX_TRANSCRIPT_BYTES", 1024)
 
-    assert receipt.acceptance_record(str(transcript), "agent:s:r") is None
+    assert (
+        receipt.acceptance_record(str(transcript), "agent:s:r")[1]
+        is RecallOutcome.TRANSCRIPT_UNREADABLE
+    )
 
     monkeypatch.setattr(receipt, "_MAX_TRANSCRIPT_BYTES", 1024 * 1024)
     transcript.write_text(
@@ -167,7 +190,10 @@ def test_an_implausibly_large_transcript_is_refused_rather_than_read(
         + "\n"
     )
 
-    assert receipt.acceptance_record(str(transcript), "agent:s:r") is not None
+    assert (
+        receipt.acceptance_record(str(transcript), "agent:s:r")[1]
+        is RecallOutcome.DELIVERED
+    )
 
 
 def test_a_marked_record_of_an_unknown_shape_is_reported_not_swallowed(
@@ -193,5 +219,24 @@ def test_a_marked_record_of_an_unknown_shape_is_reported_not_swallowed(
         + "\n"
     )
 
-    assert receipt.acceptance_record(str(transcript), "agent:s:r") is None
+    assert receipt.acceptance_record(str(transcript), "agent:s:r") == (
+        "",
+        RecallOutcome.RECORD_SHAPE_CHANGED,
+    )
     assert "some_new_shape" in capsys.readouterr().err
+
+
+def test_the_hooks_own_echo_is_not_mistaken_for_a_changed_transcript_format(
+    tmp_path: Path,
+) -> None:
+    """The editor records the hook's own stdout beside what it accepted, marker and all.
+
+    Reading that as an unrecognised shape would raise the format-changed alarm on every
+    turn whose recall was emitted and not taken, which is the common case this exists to
+    tell apart from a genuinely broken editor.
+    """
+    path = _transcript(tmp_path, _emitted("run-1"))
+
+    assert (
+        receipt.acceptance_record(path, "run-1")[1] is RecallOutcome.NO_MATCHING_RECORD
+    )
