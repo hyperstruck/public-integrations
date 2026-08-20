@@ -585,6 +585,37 @@ async def test_decline_posts_the_terminal_signal() -> None:
 
 
 @pytest.mark.asyncio
+async def test_reinforce_puts_the_delivery_report_on_the_wire() -> None:
+    """The fields exist to be read server-side, so what matters is that they are sent.
+
+    Omitted rather than defaulted when the caller says nothing: an older server rejects
+    an unknown field, and a newer one reads a missing one as "the client did not say",
+    which is a third answer and not a synonym for not delivered.
+    """
+    bodies: list[dict] = []
+
+    def handler(request: httpx.Request) -> httpx.Response:
+        bodies.append(json.loads(request.content))
+        return httpx.Response(202, json={"status": "accepted", "run_id": "r"})
+
+    client = _client(handler)
+    await client.reinforce(
+        identity=IDENTITY,
+        episode=_episode(),
+        is_delivered=False,
+        recall_outcome="resolve_timed_out",
+    )
+    await client.reinforce(identity=IDENTITY, episode=_episode())
+    await client.drain()
+
+    reported, silent = bodies
+    assert reported["is_delivered"] is False
+    assert reported["recall_outcome"] == "resolve_timed_out"
+    assert "is_delivered" not in silent
+    assert "recall_outcome" not in silent
+
+
+@pytest.mark.asyncio
 async def test_decline_rejects_a_reason_outside_the_closed_set() -> None:
     """The boundary rejects an unknown reason; fail in the caller rather than on the wire."""
     client = _client(lambda request: httpx.Response(202, json={}))

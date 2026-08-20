@@ -62,10 +62,33 @@ DEFAULT_BASE_URL = "https://api.hyperstruck.com"
 DEFAULT_WRITE_TIMEOUT = 30.0
 # The inline budget, for a resolve awaited between a caller and its model call.
 DEFAULT_RESOLVE_TIMEOUT = 2.0
-# A hosted resolve was measured at 13.1s against api.hyperstruck.com, so the
-# inline budget above cannot land one. Any recall that is prefetched or explicit,
-# and so is not what the caller is waiting on, gets this instead.
+# A hosted resolve cannot land inside the inline budget above: 234 production
+# resolves over 24h on 2026-08-20 ran p50 11.6s, p99 18.7s, max 19.1s. A prefetched
+# or explicit recall gets this instead.
 DEFAULT_RECALL_TIMEOUT = 20.0
+# The detached seat gets longer, and only the detached seat. Nothing waits on the IDE
+# hook's resolver, so a budget close to that measured tail buys no latency and loses the
+# recall outright on a slow minute. The LangGraph middleware's prefetch is a different
+# case wearing the same name: it is awaited at the first model call, so raising its
+# budget would put the tail straight into a customer's turn.
+DEFAULT_DETACHED_RECALL_TIMEOUT = 45.0
+
+
+def _delivery_fields(
+    is_delivered: bool | None, recall_outcome: str | None
+) -> dict[str, Any]:
+    """The delivery fields a caller actually supplied, omitting what it did not say.
+
+    Omitted rather than defaulted, because an older server rejects an unknown field and
+    a newer one reads a missing one as "the client did not say", which is a third answer
+    and not a synonym for not delivered.
+    """
+    reported: dict[str, Any] = {}
+    if is_delivered is not None:
+        reported["is_delivered"] = is_delivered
+    if recall_outcome:
+        reported["recall_outcome"] = recall_outcome
+    return reported
 
 
 class ResolvePurpose(StrEnum):
@@ -199,6 +222,8 @@ class LearningClient(Protocol):
         episode: Episode,
         is_org_promotion_allowed: bool = False,
         context_receipt: str | None = None,
+        is_delivered: bool | None = None,
+        recall_outcome: str | None = None,
     ) -> None:
         """Credit the learnings the run used. Non-blocking."""
         ...
@@ -278,8 +303,10 @@ class HostedLearningClient:
         self._max_write_retries = max(1, max_write_retries)
         self._retry_backoff = retry_backoff
         self._is_client_owned = http_client is None
-        # Writes get their own, longer deadline; resolve stays bounded by
-        # asyncio.wait_for(self._resolve_timeout) regardless of this client timeout.
+        # Writes get their own deadline. Resolve passes its own per-request timeout
+        # below rather than relying on this one: httpx applies the client timeout to
+        # the transport, so a resolve budget above it would be silently capped there
+        # and the wait_for would never fire.
         self._http = http_client or httpx.AsyncClient(
             timeout=env_float(WRITE_TIMEOUT_ENV, DEFAULT_WRITE_TIMEOUT)
         )
@@ -347,10 +374,24 @@ class HostedLearningClient:
         # agent_loop default; only the non-default explicit recall needs a key.
         if resolve_purpose != ResolvePurpose.AGENT_LOOP:
             body["resolve_purpose"] = ResolvePurpose(resolve_purpose).value
-        response = await asyncio.wait_for(
-            self._http.post(self._url("/resolve"), json=body, headers=self._headers),
-            timeout=self._resolve_timeout,
-        )
+        try:
+            response = await asyncio.wait_for(
+                self._http.post(
+                    self._url("/resolve"),
+                    json=body,
+                    headers=self._headers,
+                    timeout=self._resolve_timeout,
+                ),
+                timeout=self._resolve_timeout,
+            )
+        except httpx.TimeoutException as exc:
+            # Raised as the language's own timeout so a caller can tell "the boundary
+            # ran out of time", a capacity fact, from "the call broke", a fault. The
+            # transport's timeout and the wait_for race each other by design, and which
+            # one wins is an implementation detail no caller should have to know.
+            raise TimeoutError(
+                f"hosted resolve exceeded {self._resolve_timeout}s"
+            ) from exc
         response.raise_for_status()
         self.resolves += 1
         return ResolvedContext.from_response(response.json())
@@ -370,7 +411,16 @@ class HostedLearningClient:
         episode: Episode,
         is_org_promotion_allowed: bool = False,
         context_receipt: str | None = None,
+        is_delivered: bool | None = None,
+        recall_outcome: str | None = None,
     ) -> None:
+        """Credit the learnings the run used. Non-blocking.
+
+        ``is_delivered`` and ``recall_outcome`` say whether the recall reached the
+        model at all, and when it did not, why. Without them an absent receipt has
+        two readings, a run that was shown its learnings and lost the evidence, and
+        a run that was never shown them, and the boundary can only assume the first.
+        """
         body = {
             "agent_name": identity.agent_name,
             "org_id": identity.org_id,
@@ -378,6 +428,7 @@ class HostedLearningClient:
             "is_org_promotion_allowed": is_org_promotion_allowed,
             "context_receipt": context_receipt,
         }
+        body.update(_delivery_fields(is_delivered, recall_outcome))
         self._schedule_write("/reinforce", body)
 
     async def distill(
@@ -437,6 +488,7 @@ class HostedLearningClient:
         run_id: str,
         reason: str,
         is_delivered: bool = False,
+        recall_outcome: str | None = None,
         source_framework: str = "",
     ) -> None:
         """Close a run whose turn ended with nothing worth learning.
@@ -465,6 +517,7 @@ class HostedLearningClient:
                 "reason": reason,
                 "is_delivered": is_delivered,
                 "source_framework": source_framework,
+                **_delivery_fields(None, recall_outcome),
             },
         )
 

@@ -31,9 +31,15 @@ from pathlib import Path
 from typing import Any
 
 from hyperstruck.ide.debug import debug
+from hyperstruck.ide.recall import RecallOutcome
 
 _MARKER_PREFIX = "hyperstruck-run"
 _ACCEPTED_RECORD = "hook_additional_context"
+# The editor's own note that the hook ran, carrying the stdout this client printed. It
+# holds the same marker and is not evidence of anything: it is this client's claim
+# echoed back. Named here so it is recognised as expected rather than reported as the
+# transcript format having changed, which would fire on every turn that emitted a block.
+_EMITTED_RECORD = "hook_success"
 # A transcript grows for the life of a session and is read on the turn's own stop hook,
 # so the read is bounded by refusing an implausible file rather than by trusting it.
 _MAX_TRANSCRIPT_BYTES = 64 * 1024 * 1024
@@ -48,59 +54,83 @@ def stamp(injected_text: str, run_id: str) -> str:
     return f"{marker(run_id)}\n{injected_text}"
 
 
-def _accepted_content(record: dict[str, Any], run_marker: str) -> str:
+def _accepted_content(record: dict[str, Any], run_marker: str) -> tuple[str, bool]:
     """Only the entries of this record that carry our marker.
 
     A record's content is a list, and the editor is free to put other hooks' context
     beside ours. Joining the whole list would upload a sibling hook's output to the
     hosted API for no benefit: the matcher only ever looks for our own fragments.
 
-    A record that carries the marker and does not match this shape is reported rather
-    than skipped. It means the editor changed how it records an accepted hook context,
-    which silently ends the whole credit path: every run would report nothing and the
-    boundary would read it as a corpus with nothing worth crediting.
+    A record that IS an attachment and carries an unrecognised type is reported, and the
+    flag says so: it may mean the editor changed how it records an accepted hook context,
+    which silently ends the whole credit path. The editor writes other marked records
+    beside the accepted one (its own note that the hook succeeded, for instance), so an
+    unexpected type only means that when no record of the run matched.
+
+    A marked record that is not an attachment at all raises nothing. The line filter
+    upstream is a substring test over raw JSONL, so a model message quoting the injected
+    block back, or a tool result from reading a file that contains a marker, both land
+    here and say nothing whatever about the editor's format.
     """
     attachment = record.get("attachment")
     if not isinstance(attachment, dict):
-        debug("receipt: a marked record has no attachment object; transcript format changed?")
-        return ""
-    if attachment.get("type") != _ACCEPTED_RECORD:
+        return "", False
+    record_type = attachment.get("type")
+    if record_type in (_EMITTED_RECORD, None):
+        # An attachment with no type at all says nothing about how an accepted hook
+        # context is recorded, so it is not evidence the format changed either.
+        return "", False
+    if record_type != _ACCEPTED_RECORD:
         debug(
-            "receipt: a marked record is a "
-            f"{attachment.get('type')!r} attachment, not {_ACCEPTED_RECORD!r}"
+            f"receipt: a marked record is a {record_type!r} attachment, "
+            f"not {_ACCEPTED_RECORD!r}"
         )
-        return ""
+        return "", True
     content = attachment.get("content")
     entries = content if isinstance(content, list) else [content]
-    return "\n".join(
-        str(item) for item in entries if item and run_marker in str(item)
+    return (
+        "\n".join(str(item) for item in entries if item and run_marker in str(item)),
+        False,
     )
 
 
-def acceptance_record(transcript_path: str | None, run_id: str) -> str | None:
-    """What the editor recorded itself accepting for this run, if anything.
+def acceptance_record(
+    transcript_path: str | None, run_id: str
+) -> tuple[str, RecallOutcome]:
+    """What the editor recorded itself accepting for this run, and why it did not.
 
-    Every failure answers ``None``: no transcript, an unreadable or implausible file, a
-    line that does not parse, or no record carrying this run's marker. That is the same
-    answer as a host that never reported, which is the honest one, because in all of
-    these cases nothing observed what the model was shown.
+    Four distinct failures used to answer the same empty string: no transcript to read,
+    an unreadable or implausible file, a marked attachment whose type this client does
+    not recognise, and genuinely no record carrying this run's marker. They are not the
+    same problem. The third is evidence the editor may have changed how it records an
+    accepted hook context, which would end the whole credit path silently; the first is
+    ordinary on a host that never reported. Each now answers with its own name, so the
+    difference is legible at the turn instead of being inferred from a credit rate a day
+    later.
+
+    ``RECORD_SHAPE_CHANGED`` detects one shape of that change and not every shape: a
+    marked line that stopped being JSON, or stopped being an object, is skipped upstream
+    and lands on ``NO_MATCHING_RECORD``. Distinguishing those from an ordinary miss would
+    mean treating any unparsable line carrying the marker as evidence, and the marker
+    travels in quoted prose and tool output too.
 
     Several records can carry one run's marker when the recall is injected on more than
     one tool event. They are joined rather than reduced to the first, because exposure is
     a disjunction over a learning's offers and a rule shown in the second block is shown.
     """
     if not transcript_path or not run_id:
-        return None
+        return "", RecallOutcome.NO_TRANSCRIPT
     run_marker = marker(run_id)
+    is_shape_unrecognised = False
     try:
         path = Path(transcript_path)
         if not path.is_file():
             debug(f"receipt: no transcript at {transcript_path}")
-            return None
+            return "", RecallOutcome.NO_TRANSCRIPT
         size = path.stat().st_size
         if size > _MAX_TRANSCRIPT_BYTES:
             debug(f"receipt: transcript too large to read ({size} bytes)")
-            return None
+            return "", RecallOutcome.TRANSCRIPT_UNREADABLE
         # Streamed, not materialised: the file is read on the turn's own stop hook and
         # can be tens of megabytes, and only the handful of lines carrying this run's
         # marker are ever of interest. utf-8 explicitly, because decoding with the
@@ -117,14 +147,17 @@ def acceptance_record(transcript_path: str | None, run_id: str) -> str | None:
                     continue
                 if not isinstance(record, dict):
                     continue
-                content = _accepted_content(record, run_marker)
+                content, is_unrecognised = _accepted_content(record, run_marker)
+                is_shape_unrecognised = is_shape_unrecognised or is_unrecognised
                 if content:
                     accepted.append(content)
     except (OSError, ValueError) as exc:
         debug(f"receipt: transcript unreadable ({type(exc).__name__}): {exc}")
-        return None
+        return "", RecallOutcome.TRANSCRIPT_UNREADABLE
 
-    if not accepted:
-        debug(f"receipt: no acceptance record for run {run_id}")
-        return None
-    return "\n".join(accepted)
+    if accepted:
+        return "\n".join(accepted), RecallOutcome.DELIVERED
+    debug(f"receipt: no acceptance record for run {run_id}")
+    if is_shape_unrecognised:
+        return "", RecallOutcome.RECORD_SHAPE_CHANGED
+    return "", RecallOutcome.NO_MATCHING_RECORD

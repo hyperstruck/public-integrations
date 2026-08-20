@@ -24,6 +24,8 @@ class FakeLearningClient:
         self.observed: list[Episode] = []
         self.reinforced: list[tuple[Episode, bool]] = []
         self.receipts: list[str | None] = []
+        self.deliveries: list[bool | None] = []
+        self.recall_outcomes: list[str | None] = []
 
     async def resolve(self, *, identity, run_id, goal, available_tools=(), max_learnings=8, model_context_window=None):
         self.resolved.append(run_id)
@@ -34,9 +36,18 @@ class FakeLearningClient:
         self.observed.append(episode)
 
     async def reinforce(
-        self, *, identity, episode, is_org_promotion_allowed=False, context_receipt=None
+        self,
+        *,
+        identity,
+        episode,
+        is_org_promotion_allowed=False,
+        context_receipt=None,
+        is_delivered=None,
+        recall_outcome=None,
     ) -> None:
         self.receipts.append(context_receipt)
+        self.deliveries.append(is_delivered)
+        self.recall_outcomes.append(recall_outcome)
         self.reinforced.append((episode, is_org_promotion_allowed))
 
 
@@ -97,6 +108,14 @@ async def test_full_loop_resolves_injects_records_and_writes() -> None:
     await mw.aafter_agent(state, None)
     assert len(fake.observed) == 1
     assert fake.observed[0].steps[0].id == "c1"
+    # This host injects the block itself, so it reports delivery rather than leaving the
+    # run indistinguishable from a client too old to say. It still sends no receipt, so
+    # it still credits nothing: the only artefact it could offer is its own claim.
+    assert fake.deliveries == [True]
+    # The reason travels with it: the boolean alone cannot tell an empty corpus from a
+    # resolve that failed, and both would read as a client too old to answer.
+    assert fake.recall_outcomes == ["delivered"]
+    assert fake.receipts == [None]
     assert len(fake.reinforced) == 1
     assert mw.stats.runs_observed == 1
     assert LEDGERS.get(run_id) is None  # popped at end
@@ -218,3 +237,32 @@ async def test_per_invoke_identity_override(monkeypatch: pytest.MonkeyPatch) -> 
     state = {"messages": [HumanMessage("x")]}
     state.update(await mw.abefore_agent(state, None))
     assert state[RUN_ID_STATE_KEY].startswith("tenant-2-bot:")
+
+
+def test_the_seat_reports_a_failed_resolve_apart_from_an_empty_corpus() -> None:
+    """A fault and a cold start are the two this field exists to tell apart.
+
+    `is_resolved` latches on the failure path too, so classifying on it alone reported
+    every network error, 500 and timeout as "the corpus had nothing", which is the
+    ordinary case an operator would rightly ignore.
+    """
+    from hyperstruck.langgraph.ledger import InvokeLedger
+    from hyperstruck.langgraph.middleware import _recall_outcome
+
+    def ledger(**state) -> InvokeLedger:
+        made = InvokeLedger(run_id="r", goal="g", agent_id=None, org_id=None)
+        for key, value in state.items():
+            setattr(made, key, value)
+        return made
+
+    assert _recall_outcome(ledger(is_injected=True)) == "delivered"
+    assert (
+        _recall_outcome(ledger(is_resolved=True, is_resolve_failed=True))
+        == "resolve_failed"
+    )
+    assert _recall_outcome(ledger(is_resolved=True)) == "resolve_empty"
+    assert (
+        _recall_outcome(ledger(is_resolved=True, injected_text="RULE"))
+        == "recall_unclaimed"
+    )
+    assert _recall_outcome(ledger()) == "recall_missing"

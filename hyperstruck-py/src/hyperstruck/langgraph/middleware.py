@@ -92,6 +92,27 @@ class MiddlewareStats:
         return max(0, self.runs_started - self.runs_observed - live)
 
 
+def _recall_outcome(ledger: InvokeLedger) -> str:
+    """Why the recall did not reach the model, in the boundary's own vocabulary.
+
+    Sent beside the boolean because the boolean alone is the half-answer this whole
+    field exists to remove: without it a run whose corpus was empty is indistinguishable
+    from one whose resolve failed, and both look like a client too old to say. The
+    values are the boundary's closed set; they are string literals here rather than an
+    import because this package's IDE vocabulary is not a dependency of the LangGraph
+    surface, and the set is pinned on the boundary side by its own test.
+    """
+    if ledger.is_injected:
+        return "delivered"
+    if ledger.is_resolve_failed:
+        return "resolve_failed"
+    if not ledger.is_resolved:
+        # The run ended with the prefetch still in flight. Not a fault: the IDE seat
+        # calls the same state "missing" for the same reason.
+        return "recall_missing"
+    return "resolve_empty" if not ledger.injected_text else "recall_unclaimed"
+
+
 class HyperstruckLearningMiddleware(AgentMiddleware):
     """LangChain ``AgentMiddleware`` running Hyperstruck's learning loop on a graph.
 
@@ -189,6 +210,7 @@ class HyperstruckLearningMiddleware(AgentMiddleware):
         if ledger.injected_text:
             injected = SystemMessage(content=ledger.injected_text)
             request = request.override(messages=[injected, *request.messages])
+            ledger.is_injected = True
             # No receipt is sent from this host, deliberately. The only artefact it could
             # return is the block it just built itself, and echoing that back matches
             # every offered fragment by construction: it asserts the very thing a receipt
@@ -238,6 +260,12 @@ class HyperstruckLearningMiddleware(AgentMiddleware):
                 identity=identity,
                 episode=episode,
                 is_org_promotion_allowed=ledger.is_fully_declared(self._tool_sensitivity),
+                # This host injects the block itself, so whether the model was shown the
+                # recall is known here rather than inferred. It is not a receipt and does
+                # not credit anything (see the note in awrap_model_call); it only keeps
+                # these runs out of the population the boundary reads as a lost receipt.
+                is_delivered=ledger.is_injected,
+                recall_outcome=_recall_outcome(ledger),
             )
             self.stats.runs_observed += 1
         except Exception as exc:  # noqa: BLE001 - never break the host run
@@ -305,6 +333,7 @@ class HyperstruckLearningMiddleware(AgentMiddleware):
             logger.warning("HyperstruckLearningMiddleware: resolve failed for run %s: %s", ledger.run_id, exc, exc_info=True)
             self.stats.errors += 1
             ledger.is_resolved = True
+            ledger.is_resolve_failed = True
             return
         ledger.record_injection(context.injected_text, context.offered_learning_ids)
         if context.injected_text:

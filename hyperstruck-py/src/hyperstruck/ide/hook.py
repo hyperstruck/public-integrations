@@ -49,7 +49,7 @@ from hyperstruck._wire import (
     ResolvedContext,
 )
 from hyperstruck.client import (
-    DEFAULT_RECALL_TIMEOUT,
+    DEFAULT_DETACHED_RECALL_TIMEOUT,
     HostedLearningClient,
     ResolvePurpose,
 )
@@ -81,6 +81,7 @@ from hyperstruck.ide.constants import (
     hyper_home,
 )
 from hyperstruck.ide.gating import classify_tool, should_observe
+from hyperstruck.ide.recall import RecallOutcome, RecallResult
 from hyperstruck.ide.host_vocabularies import vocabulary_for
 from hyperstruck.ide.redaction import (
     clip_goal,
@@ -161,7 +162,7 @@ def cmd_prompt(payload: dict[str, Any], args: argparse.Namespace) -> None:
             orphan,
             state.read_steps(session_id),
             native_status=None,
-            context_receipt=_acceptance_record(orphan, payload),
+            recall=_acceptance_record(session_id, orphan, payload),
         )
     # 2. Sweep stale sessions (backstop delivery).
     _sweep_stale(exclude=session_id)
@@ -246,7 +247,7 @@ def cmd_stop(payload: dict[str, Any], args: argparse.Namespace) -> None:
         active,
         steps,
         native_status=native_status,
-        context_receipt=_acceptance_record(active, payload),
+        recall=_acceptance_record(session_id, active, payload),
     )
 
 
@@ -254,15 +255,24 @@ def cmd_stop(payload: dict[str, Any], args: argparse.Namespace) -> None:
 
 
 def cmd_resolve(session_id: str) -> None:
-    """Resolve one active turn into a tool-hook stash; fail open on every error."""
+    """Resolve one active turn into a tool-hook stash; fail open on every error.
+
+    Every exit records what happened against the run, because this process is
+    detached: its stdout goes nowhere, its stderr is a diagnostic that is off by
+    default, and the turn that later has no receipt to post cannot otherwise tell a
+    resolve that never returned from one whose stash no tool event ever claimed.
+    """
+    active = state.read_active(session_id)
     try:
         load_env()
-        active = state.read_active(session_id)
         if active is None:
             _debug("resolve: no active turn for session")
             return
         if not active.goal:
             _debug("resolve skipped: empty goal")
+            state.write_recall_status(
+                session_id, active.run_id, RecallOutcome.RESOLVE_NO_GOAL
+            )
             return
         context = asyncio.run(
             _aresolve(
@@ -276,10 +286,16 @@ def cmd_resolve(session_id: str) -> None:
             # An empty stash can never validate for injection; publishing it
             # would only leave dead weight for the tool hooks to skip.
             _debug("resolve dropped: no learnings to inject")
+            state.write_recall_status(
+                session_id, active.run_id, RecallOutcome.RESOLVE_EMPTY
+            )
             return
         current = state.read_active(session_id)
         if current is None or current.run_id != active.run_id:
             _debug("resolve dropped: active turn changed before recall was ready")
+            state.write_recall_status(
+                session_id, active.run_id, RecallOutcome.RESOLVE_SUPERSEDED
+            )
             return
         state.write_recall(
             session_id,
@@ -291,12 +307,36 @@ def cmd_resolve(session_id: str) -> None:
                 "offered_claim_ids": list(context.offered_claim_ids),
             },
         )
+        state.write_recall_status(
+            session_id, active.run_id, RecallOutcome.RECALL_UNCLAIMED
+        )
         _debug(
             f"resolve ok: {len(context.offered_learning_ids)} learning(s), "
             f"{len(context.offered_claim_ids)} claim(s) for agent {active.agent_name}"
         )
     except Exception as exc:  # noqa: BLE001 - detached recall always fails open
         _debug(f"resolve failed ({type(exc).__name__}): {exc}")
+        if active is not None:
+            # Inside its own guard: this is the handler that keeps the loop failing
+            # open, so a disk error here must not become the exception it was catching.
+            try:
+                state.write_recall_status(
+                    session_id, active.run_id, _resolve_failure(exc)
+                )
+            except OSError as write_error:
+                _debug(f"resolve status not recorded ({write_error})")
+
+
+def _resolve_failure(exc: BaseException) -> RecallOutcome:
+    """Whether the recall ran out of time or broke, which are different problems.
+
+    A timeout says the hosted resolve is slower than the deadline this client gives
+    it, which is a capacity question; anything else is a fault. Reported apart so a
+    run of unposted receipts can be read as one or the other without guessing.
+    """
+    if isinstance(exc, (TimeoutError, asyncio.TimeoutError)):
+        return RecallOutcome.RESOLVE_TIMED_OUT
+    return RecallOutcome.RESOLVE_FAILED
 
 
 # -- command: distill (caller-driven corpus extraction) ----------------------
@@ -755,7 +795,7 @@ def _finalise(
     current_steps: list[dict[str, Any]],
     *,
     native_status: str | None,
-    context_receipt: str | None = None,
+    recall: RecallResult,
 ) -> None:
     """Label this turn from its own evidence and deliver it now.
 
@@ -781,7 +821,8 @@ def _finalise(
             offered_learning_ids=current.offered_learning_ids,
             offered_claim_ids=current.offered_claim_ids,
             is_injected=current.is_injected,
-            context_receipt=context_receipt or "",
+            context_receipt=recall.receipt,
+            recall_outcome=str(recall.outcome),
         ),
         turn_outcome,
     )
@@ -799,17 +840,49 @@ def _transcript_path(payload: dict[str, Any], turn: ActiveTurn) -> str:
     return str(payload.get("transcript_path") or turn.transcript_path or "")
 
 
-def _acceptance_record(turn: ActiveTurn, payload: dict[str, Any] | None = None) -> str:
-    """This turn's receipt, or nothing when there is provably none to find.
+def _acceptance_record(
+    session_id: str, turn: ActiveTurn, payload: dict[str, Any] | None = None
+) -> RecallResult:
+    """This turn's receipt, and when there is none, which of the reasons applies.
 
     A turn that never injected stamped no marker, so the transcript cannot hold an
     acceptance record for it and the read is a guaranteed miss over a file that grows
-    with the session. Skipping it also keeps a turn that offered nothing from posting an
-    empty receipt, which the boundary would otherwise have to warn about.
+    with the session. It is also not a lost receipt: nothing was shown, so nothing is
+    owed, and the reason comes from the detached resolve's own verdict rather than from
+    the absence of evidence it left behind.
     """
     if not turn.is_injected:
-        return ""
-    return receipt.acceptance_record(_transcript_path(payload or {}, turn), turn.run_id)
+        return RecallResult("", _undelivered_reason(session_id, turn))
+    found, outcome = receipt.acceptance_record(
+        _transcript_path(payload or {}, turn), turn.run_id
+    )
+    return RecallResult(found, outcome)
+
+
+def _undelivered_reason(session_id: str, turn: ActiveTurn) -> RecallOutcome:
+    """Why the model was never shown this turn's recall.
+
+    The resolver records its verdict where the stop hook can read it, so a stash that
+    was published and never claimed (the turn called no tool after it landed) reads
+    differently from a resolve that timed out, failed, or came back for a turn that had
+    already been superseded. An absent verdict means the resolve had not finished by the
+    time the turn ended, which is its own answer rather than a fault.
+    """
+    recorded = state.read_recall_status(session_id, turn.run_id)
+    if not recorded:
+        return RecallOutcome.RECALL_MISSING
+    try:
+        outcome = RecallOutcome(recorded)
+    except ValueError:
+        _debug(f"recall status {recorded!r} is not a known outcome")
+        return RecallOutcome.RECALL_UNRECOGNISED
+    if outcome.is_delivered:
+        # The turn never injected, so a delivered-family verdict contradicts the state
+        # it is being read for. Reporting it would put the run in the bucket the editor
+        # hook is told to fix, on a claim this client can see is wrong.
+        _debug(f"recall status {recorded!r} contradicts a turn that never injected")
+        return RecallOutcome.RECALL_UNRECOGNISED
+    return outcome
 
 
 def _clipped_receipt(receipt_text: str) -> str | None:
@@ -867,7 +940,8 @@ def _stage_and_flush(
             "decline": {
                 "run_id": pending.run_id,
                 "reason": _decline_reason(steps, is_worth_learning_from),
-                "is_delivered": pending.is_injected,
+                "is_delivered": _reported_delivery(pending),
+                "recall_outcome": pending.recall_outcome,
                 "source_framework": pending.source_framework,
             },
         }
@@ -880,9 +954,44 @@ def _stage_and_flush(
         "do_observe": do_observe,
         "do_reinforce": do_reinforce,
         "context_receipt": _clipped_receipt(pending.context_receipt),
+        "is_delivered": _reported_delivery(pending),
+        "recall_outcome": pending.recall_outcome,
     }
     path = state.stage_flush(session_id, pending.run_id, staged)
     _spawn_flush(path)
+
+
+def _wire_recall_outcome(value: Any) -> str | None:
+    """The stored reason, only when the boundary's closed set will accept it.
+
+    The value comes off a local file this process did not write, and the server field is
+    a closed enum behind ``extra="forbid"``, so a truncated or hand-edited state file
+    would cost the whole episode a terminal 422 rather than one absent diagnostic field.
+    """
+    if not value:
+        return None
+    try:
+        return str(RecallOutcome(str(value)))
+    except ValueError:
+        _debug(f"dropping unrecognised recall outcome {value!r} from the write")
+        return None
+
+
+def _reported_delivery(pending: FinishedTurn) -> bool:
+    """Whether to tell the boundary the model was shown this turn's recall.
+
+    Read off the recorded outcome where there is one, so the boolean and the reason
+    beside it cannot disagree on the wire. They describe one event, and a row holding
+    ``delivered`` next to ``recall_unclaimed`` would be filed by the boolean into the
+    bucket whose remedy the reason says cannot apply. ``is_injected`` remains the answer
+    for a turn recorded before the outcome existed.
+    """
+    if not pending.recall_outcome:
+        return pending.is_injected
+    try:
+        return RecallOutcome(pending.recall_outcome).is_delivered
+    except ValueError:
+        return pending.is_injected
 
 
 def _staged_run_id(payload: dict[str, Any]) -> str:
@@ -977,7 +1086,7 @@ def _sweep_stale(*, exclude: str) -> None:
                 orphan,
                 state.read_steps(session_id),
                 native_status=None,
-                context_receipt=_acceptance_record(orphan),
+                recall=_acceptance_record(session_id, orphan),
             )
         elif orphan is None:
             state.clear_recall(session_id)
@@ -1041,11 +1150,14 @@ def _max_flush_attempts() -> int:
 def _recall_timeout() -> float:
     """Seconds a hook recall waits.
 
-    Floored, because a zero or negative override reproduces the original defect:
-    every recall times out and fails open as though the corpus were empty.
+    The detached budget, because no hook event is waiting on this: the prompt hook has
+    already returned and the resolver publishes to disk for a later tool event to find.
+    Floored, because a zero or negative override reproduces the original defect: every
+    recall times out and fails open as though the corpus were empty.
     """
     return max(
-        MIN_RECALL_TIMEOUT, env_float(RESOLVE_TIMEOUT_ENV, DEFAULT_RECALL_TIMEOUT)
+        MIN_RECALL_TIMEOUT,
+        env_float(RESOLVE_TIMEOUT_ENV, DEFAULT_DETACHED_RECALL_TIMEOUT),
     )
 
 
@@ -1123,11 +1235,18 @@ def _readonly_decline_payload(
     run_id: str, context: ResolvedContext, source_framework: str
 ) -> dict[str, Any]:
     offered = bool(context.offered_learning_ids) or bool(context.offered_claim_ids)
+    is_delivered = bool(
+        _combined_injection(context.injected_text, context.injected_facts_text)
+    )
     return {
         "run_id": run_id,
         "reason": (REASON_BELOW_MATERIAL_THRESHOLD if offered else REASON_EMPTY_OFFER),
-        "is_delivered": bool(
-            _combined_injection(context.injected_text, context.injected_facts_text)
+        "is_delivered": is_delivered,
+        # This path prints the block itself, so delivery is known here rather than
+        # inferred. Saying nothing would file it with the clients too old to answer,
+        # whose remedy line is an upgrade that would never populate the field.
+        "recall_outcome": str(
+            RecallOutcome.DELIVERED if is_delivered else RecallOutcome.RESOLVE_EMPTY
         ),
         "source_framework": source_framework,
     }
@@ -1179,6 +1298,7 @@ async def _deliver_decline(
             run_id=run_id,
             reason=reason,
             is_delivered=bool(decline.get("is_delivered")),
+            recall_outcome=_wire_recall_outcome(decline.get("recall_outcome")),
             source_framework=decline.get("source_framework", SOURCE_CLAUDE_CODE),
         )
         await client.drain()
@@ -1249,6 +1369,8 @@ async def _deliver(payload: dict[str, Any]) -> tuple[FlushOutcome, str | None]:
                 episode=episode,
                 is_org_promotion_allowed=False,
                 context_receipt=payload.get("context_receipt"),
+                is_delivered=payload.get("is_delivered"),
+                recall_outcome=_wire_recall_outcome(payload.get("recall_outcome")),
             )
             await client.drain()
         # The client retries internally then drops with a counter rather than
@@ -1503,20 +1625,31 @@ def _inject_pending(session_id: str, source: str) -> None:
     """Emit detached recall exactly once, claiming it only after it validates."""
     try:
         recall = state.peek_recall(session_id)
-        if recall is None or not _combined_injection(
+        if recall is None:
+            _debug("inject skipped: no recall stash published yet")
+            return
+        if not _combined_injection(
             recall.get("injected_text"), recall.get("injected_facts_text")
         ):
+            _debug("inject skipped: stash carries nothing to show")
             return
         active = state.read_active(session_id)
-        if (
-            active is None
-            or active.is_injected
-            or recall.get("run_id") != active.run_id
-        ):
+        if active is None:
+            _debug("inject skipped: no active turn to inject into")
+            return
+        if active.is_injected:
+            _debug("inject skipped: this turn already showed its recall")
+            return
+        if recall.get("run_id") != active.run_id:
+            _debug(
+                f"inject skipped: stash is for run {recall.get('run_id')!r}, "
+                f"turn is {active.run_id!r}"
+            )
             return
         claimed = state.claim_recall(session_id)
         if claimed is None:
-            return  # a parallel hook won the claim
+            _debug("inject skipped: a parallel hook won the claim")
+            return
         # Only Claude Code records what its editor accepted, so only there can a marker
         # ever be redeemed for evidence. Stamping Cursor's block would spend the
         # customer's context on an identifier nothing can read back.
@@ -1527,10 +1660,12 @@ def _inject_pending(session_id: str, source: str) -> None:
             # The peek above and this claim are separate reads. Stamping an empty block
             # makes it truthy, so the marker alone would be emitted: context spent on an
             # identifier with nothing behind it, and the turn marked injected.
+            _debug("inject skipped: claimed stash was empty")
             return
         if source == SOURCE_CLAUDE_CODE:
             block = receipt.stamp(block, active.run_id)
         if not _emit_tool_context(block, source):
+            _debug("inject skipped: host refused the context payload")
             return
         offered = tuple(str(item) for item in claimed.get("offered_learning_ids") or ())
         claims = tuple(str(item) for item in claimed.get("offered_claim_ids") or ())
@@ -1546,6 +1681,7 @@ def _inject_pending(session_id: str, source: str) -> None:
             ),
             reset_steps=False,
         )
+        _debug(f"inject ok: {len(merged)} learning(s) shown for run {active.run_id}")
     except Exception as exc:  # noqa: BLE001 - context injection always fails open
         _debug(f"inject failed ({type(exc).__name__}): {exc}")
 

@@ -31,6 +31,7 @@ from hyperstruck.ide.constants import (
     FLUSHING_SUBDIR,
     PENDING_FILE,
     RECALL_FILE,
+    RECALL_STATUS_FILE,
     STEPS_SUBDIR,
     dropped_flush_log,
     sessions_dir,
@@ -81,6 +82,9 @@ class FinishedTurn:
     # What the editor recorded itself accepting for this turn, its own artefact rather
     # than this client's claim. Empty when the host produced none, which credits nothing.
     context_receipt: str = ""
+    # Why that receipt is empty, from RecallOutcome. Carried to the boundary so an
+    # undelivered recall stops being reported as a lost receipt.
+    recall_outcome: str = ""
 
 
 def session_dir(session_id: str) -> Path:
@@ -171,10 +175,53 @@ def claim_recall(session_id: str) -> dict[str, Any] | None:
         _remove(claimed)
 
 
+def write_recall_status(session_id: str, run_id: str, outcome: str) -> None:
+    """Record what the detached resolve did, for the stop hook to read back.
+
+    The resolve runs in its own process whose only other channel is a stderr nobody
+    reads, so a resolve that timed out, failed or arrived for a superseded turn left
+    no trace at all. Written for the successful case too, because "the stash was
+    published and no tool event ever claimed it" is a different answer from "no
+    resolve ever landed", and the turn cannot tell them apart from an absent file.
+
+    One slot per session, and the live turn owns it. A slow resolver for turn N returns
+    after turn N+1 has started and published its own verdict; an unguarded write would
+    replace it, and N+1's stop hook would then reject the mismatched run and report the
+    least informative answer in the vocabulary. So a resolver whose run is no longer the
+    active one may take a free slot or refresh its own, and never overwrites another
+    run's. The active run always may, because a stale verdict cannot outrank the turn
+    that is still running.
+    """
+    if not _may_take_status_slot(session_id, run_id):
+        return
+    _write_json_atomic(
+        session_dir(session_id) / RECALL_STATUS_FILE,
+        {"run_id": run_id, "outcome": outcome},
+    )
+
+
+def _may_take_status_slot(session_id: str, run_id: str) -> bool:
+    held = _read_json(session_dir(session_id) / RECALL_STATUS_FILE)
+    if not isinstance(held, dict) or held.get("run_id") in (None, run_id):
+        return True
+    active = read_active(session_id)
+    return active is not None and active.run_id == run_id
+
+
+def read_recall_status(session_id: str, run_id: str) -> str | None:
+    """This run's resolve verdict, or ``None`` when the file is absent or another run's."""
+    data = _read_json(session_dir(session_id) / RECALL_STATUS_FILE)
+    if not isinstance(data, dict) or data.get("run_id") != run_id:
+        return None
+    outcome = data.get("outcome")
+    return str(outcome) if outcome else None
+
+
 def clear_recall(session_id: str) -> None:
     """Drop published or in-flight recall state when its turn is retired."""
     sdir = session_dir(session_id)
     _remove(sdir / RECALL_FILE)
+    _remove(sdir / RECALL_STATUS_FILE)
     if not sdir.is_dir():
         return
     for path in sdir.glob(f".{RECALL_FILE}.*.processing"):
@@ -391,6 +438,7 @@ def _pending_from_dict(
             # payload's is_delivered was permanently wrong.
             is_injected=bool(data.get("is_injected", False)),
             context_receipt=data.get("context_receipt", ""),
+            recall_outcome=data.get("recall_outcome", ""),
         )
     except (KeyError, TypeError, ValueError):
         return None

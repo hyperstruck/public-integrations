@@ -4,7 +4,10 @@ from __future__ import annotations
 
 import argparse
 import asyncio
+
+import httpx
 import contextlib
+import time
 import json
 from dataclasses import replace
 from pathlib import Path
@@ -21,7 +24,9 @@ from hyperstruck._wire import (
 )
 from hyperstruck import client
 from hyperstruck.ide import receipt
+from hyperstruck.identity import AgentIdentity
 from hyperstruck.ide import hook, state
+from hyperstruck.ide.recall import RecallOutcome
 from hyperstruck.ide.constants import CREDENTIAL_HEAD_CHARS, PENDING_FILE
 from hyperstruck.ide.redaction import redact_ide_episode
 from hyperstruck.ide.constants import (
@@ -1201,6 +1206,109 @@ def test_resolver_writes_matching_recall(_env, monkeypatch) -> None:
     }
 
 
+def test_the_resolver_records_why_it_published_nothing(_env, monkeypatch) -> None:
+    """A detached process that fails silently is why an unposted receipt had no cause.
+
+    Its stdout goes nowhere and its stderr is a diagnostic that is off by default, so
+    the verdict is written where the stop hook can read it back. Each way of failing
+    is named, because a hosted call that ran out of time is a capacity problem and a
+    superseded turn is not a problem at all.
+    """
+
+    async def timed_out(*_args, **_kwargs):
+        raise TimeoutError("hosted resolve did not answer")
+
+    async def broke(*_args, **_kwargs):
+        raise RuntimeError("connection reset")
+
+    async def empty(*_args, **_kwargs):
+        return hook.ResolvedContext()
+
+    for session_id, resolver, expected in (
+        ("s-timeout", timed_out, RecallOutcome.RESOLVE_TIMED_OUT),
+        ("s-broken", broke, RecallOutcome.RESOLVE_FAILED),
+        ("s-empty", empty, RecallOutcome.RESOLVE_EMPTY),
+    ):
+        _seeded_active(session_id)
+        monkeypatch.setattr(hook, "_aresolve", resolver)
+        hook.cmd_resolve(session_id)
+
+        assert state.peek_recall(session_id) is None
+        assert state.read_recall_status(session_id, "run-1") == expected
+
+
+def test_a_published_stash_no_tool_event_claimed_reads_as_unclaimed(
+    _env, monkeypatch
+) -> None:
+    """Published is not shown. The recall rides a tool event, and a turn may have none.
+
+    Until the turn ends this is simply the normal state of a stash in flight, so the
+    resolver records it on success too: an absent verdict then means the resolve had
+    not returned at all, which is a different answer.
+    """
+    _seeded_active("s-unclaimed")
+
+    async def resolved(*_args, **_kwargs):
+        return hook.ResolvedContext(injected_text="TEXT", offered_learning_ids=("L1",))
+
+    monkeypatch.setattr(hook, "_aresolve", resolved)
+    hook.cmd_resolve("s-unclaimed")
+
+    assert state.read_recall_status("s-unclaimed", "run-1") == (
+        RecallOutcome.RECALL_UNCLAIMED
+    )
+
+
+def test_a_superseded_resolve_is_not_reported_as_a_failure(_env, monkeypatch) -> None:
+    """The turn moved on before the recall was ready; nothing broke."""
+    _seeded_active("s-superseded")
+
+    async def resolve_then_change(*_args, **_kwargs):
+        state.write_active(
+            "s-superseded",
+            state.ActiveTurn(
+                run_id="run-2",
+                agent_name="agent-x",
+                goal="next",
+                source_framework="claude-code",
+                started_at=2.0,
+            ),
+        )
+        return hook.ResolvedContext(injected_text="TEXT", offered_learning_ids=("L1",))
+
+    monkeypatch.setattr(hook, "_aresolve", resolve_then_change)
+    hook.cmd_resolve("s-superseded")
+
+    assert state.read_recall_status("s-superseded", "run-1") == (
+        RecallOutcome.RESOLVE_SUPERSEDED
+    )
+
+
+def test_a_superseded_resolver_cannot_overwrite_the_live_turns_verdict(
+    _env, monkeypatch
+) -> None:
+    """The slow resolver returns last, and the turn it is no longer about is running.
+
+    Overwriting here costs the live turn its reason: its stop hook rejects the mismatched
+    run and falls back to the least informative member of the vocabulary, which is the
+    one answer this whole change exists to stop giving.
+    """
+    _seeded_active("s-race")
+    state.write_recall_status("s-race", "run-1", RecallOutcome.RECALL_UNCLAIMED)
+
+    state.write_recall_status("s-race", "run-0", RecallOutcome.RESOLVE_SUPERSEDED)
+
+    assert state.read_recall_status("s-race", "run-1") == RecallOutcome.RECALL_UNCLAIMED
+    assert state.read_recall_status("s-race", "run-0") is None
+
+
+def test_a_verdict_from_another_run_is_never_read_as_this_ones(_env) -> None:
+    """The status file outlives one turn, and the wrong cause is worse than none."""
+    state.write_recall_status("s-stale", "run-0", RecallOutcome.RESOLVE_TIMED_OUT)
+
+    assert state.read_recall_status("s-stale", "run-1") is None
+
+
 def test_resolver_skips_publish_when_no_learnings(_env, monkeypatch) -> None:
     state.write_active(
         "s1",
@@ -1221,15 +1329,130 @@ def test_resolver_skips_publish_when_no_learnings(_env, monkeypatch) -> None:
     assert state.peek_recall("s1") is None
 
 
-# A hosted resolve measured 13.1s against api.hyperstruck.com on 2026-08-10. The
-# budget has to clear that, which is the property that actually failed: asserting
-# only that the two hook paths agree stays green if the constant is lowered.
-MEASURED_HOSTED_RESOLVE_SECONDS = 13.1
+# The slowest of 234 production resolves against api.hyperstruck.com over 24h on
+# 2026-08-20 (p50 11.6s, p99 18.7s). The budget has to clear the tail, not the
+# median, which is the property that actually failed: the previous constant was
+# taken from a single 13.1s sample on 2026-08-10 and left the deadline sitting
+# 0.9s above the slowest real resolve.
+MEASURED_HOSTED_RESOLVE_SECONDS = 19.1
 
 
 def test_recall_budget_clears_a_real_hosted_resolve() -> None:
-    assert hook.DEFAULT_RECALL_TIMEOUT > MEASURED_HOSTED_RESOLVE_SECONDS
+    """With headroom on the detached seat, and no more than the tail on the awaited one.
+
+    Nothing waits on the hook's resolver, so a budget close to the measured tail buys no
+    latency there and loses recall every time the boundary has a slow day. The awaited
+    seat is the opposite trade: the LangGraph middleware blocks its first model call on
+    the same call, so headroom there is a stall a customer feels.
+    """
+    assert client.DEFAULT_DETACHED_RECALL_TIMEOUT > MEASURED_HOSTED_RESOLVE_SECONDS * 2
+    assert client.DEFAULT_RECALL_TIMEOUT > MEASURED_HOSTED_RESOLVE_SECONDS
+    assert client.DEFAULT_RECALL_TIMEOUT < MEASURED_HOSTED_RESOLVE_SECONDS * 2
     assert hook.MIN_RECALL_TIMEOUT > client.DEFAULT_RESOLVE_TIMEOUT
+
+
+@contextlib.contextmanager
+def _stalling_server():
+    """A socket that accepts and never answers, so a real timeout has to fire.
+
+    httpx.MockTransport enforces no timeout at all, neither the client-level one nor the
+    per-request extension, so a test built on it cannot observe the transport capping
+    anything: both earlier attempts at this guard passed with the fix reverted.
+    """
+    import socket
+    import threading
+
+    listener = socket.socket()
+    listener.bind(("127.0.0.1", 0))
+    listener.listen(8)
+    held = []
+    stop = threading.Event()
+
+    def accept_and_hold():
+        listener.settimeout(0.2)
+        while not stop.is_set():
+            try:
+                held.append(listener.accept()[0])
+            except OSError:
+                continue
+
+    thread = threading.Thread(target=accept_and_hold, daemon=True)
+    thread.start()
+    try:
+        yield f"http://127.0.0.1:{listener.getsockname()[1]}"
+    finally:
+        stop.set()
+        thread.join(timeout=2)
+        for connection in held:
+            connection.close()
+        listener.close()
+
+
+@pytest.mark.asyncio
+async def test_the_transport_cannot_cap_the_budget_the_caller_asked_for() -> None:
+    """The recall budget must outlive the client's own timeout, not be capped by it.
+
+    httpx applies its client-level timeout to the transport, so a resolve budget above
+    it is capped there and the caller's own deadline never fires. The symptom is not a
+    failed resolve but a mislabelled one: the transport's error is not a TimeoutError,
+    so every real timeout was recorded as a fault instead of a capacity problem.
+    """
+    with _stalling_server() as base_url:
+        hosted = client.HostedLearningClient(
+            api_key="hs_live_k.s",
+            base_url=base_url,
+            http_client=httpx.AsyncClient(timeout=0.2),
+            resolve_timeout=1.5,
+        )
+        started = time.monotonic()
+        try:
+            with pytest.raises(TimeoutError):
+                await hosted.resolve(
+                    identity=AgentIdentity(agent_name="agent-x"), run_id="r", goal="g"
+                )
+        finally:
+            await hosted.aclose()
+
+    waited = time.monotonic() - started
+    assert waited > 0.5, (
+        f"gave up after {waited:.2f}s, so the 0.2s client timeout capped the 1.5s "
+        "recall budget instead of the budget governing"
+    )
+
+
+@pytest.mark.asyncio
+async def test_a_transport_timeout_reaches_the_caller_as_a_timeout() -> None:
+    """And not as an httpx error, which the resolver files as a fault, not capacity.
+
+    Both deadlines race by design, and which one wins is an implementation detail no
+    caller should have to know. Driven at the seam rather than by trying to win that
+    race: httpx's timeout is not a TimeoutError, and before this conversion existed the
+    resolver recorded every real timeout as `resolve_failed`.
+    """
+
+    class _TimingOutClient:
+        async def post(self, *_args, **_kwargs):
+            raise httpx.ReadTimeout("the boundary never answered")
+
+        async def aclose(self) -> None:
+            return None
+
+    assert not issubclass(httpx.ReadTimeout, TimeoutError), (
+        "httpx's timeout became a TimeoutError, so this conversion is now redundant "
+        "rather than load-bearing"
+    )
+    hosted = client.HostedLearningClient(
+        api_key="hs_live_k.s",
+        base_url="http://localhost:1",
+        http_client=_TimingOutClient(),
+        resolve_timeout=5.0,
+    )
+    with pytest.raises(TimeoutError) as raised:
+        await hosted.resolve(
+            identity=AgentIdentity(agent_name="agent-x"), run_id="r", goal="g"
+        )
+
+    assert hook._resolve_failure(raised.value) is RecallOutcome.RESOLVE_TIMED_OUT
 
 
 def _seeded_active(session_id: str) -> None:
@@ -1249,11 +1472,11 @@ def _seeded_active(session_id: str) -> None:
 @pytest.mark.parametrize(
     ("env_value", "expected"),
     [
-        (None, hook.DEFAULT_RECALL_TIMEOUT),
+        (None, hook.DEFAULT_DETACHED_RECALL_TIMEOUT),
         ("12.5", 12.5),
         ("0", hook.MIN_RECALL_TIMEOUT),
         ("-4", hook.MIN_RECALL_TIMEOUT),
-        ("nonsense", hook.DEFAULT_RECALL_TIMEOUT),
+        ("nonsense", hook.DEFAULT_DETACHED_RECALL_TIMEOUT),
     ],
 )
 def test_every_hook_recall_reaches_the_client_with_the_recall_budget(
@@ -1648,6 +1871,9 @@ def test_close_readonly_run_declines_an_offered_recall() -> None:
         "run_id": "run-1",
         "reason": hook.REASON_BELOW_MATERIAL_THRESHOLD,
         "is_delivered": True,
+        # This path prints the block itself, so it reports delivery rather than leaving
+        # the run with the clients too old to say, whose remedy is an upgrade.
+        "recall_outcome": "delivered",
         "source_framework": "cursor",
     }
 
@@ -2438,6 +2664,109 @@ def test_deliver_decline_calls_the_client_and_reports_outcome(
     assert captured["closed"] is True
 
 
+def test_reinforce_tells_the_boundary_whether_the_recall_was_ever_shown(
+    _env, monkeypatch
+) -> None:
+    """Without this the boundary has one field for two very different runs.
+
+    An absent receipt reads as a client that lost its evidence, and the run that was
+    never shown its learnings at all is recorded as the same defect. It is the larger
+    population by far, and it is the client behaving correctly.
+    """
+    import hyperstruck.client as client_module
+
+    captured: dict[str, Any] = {}
+
+    class FakeClient:
+        def __init__(self, **_kwargs):
+            self.writes_delivered = 0
+            self.writes_failed = 0
+            self.writes_terminal_failed = False
+            self.last_write_error = None
+
+        async def reinforce(self, **kwargs):
+            captured.update(kwargs)
+
+        async def drain(self, timeout=30.0):
+            self.writes_delivered = 1
+
+        async def aclose(self, drain_timeout=30.0):
+            return None
+
+    monkeypatch.setattr(client_module, "HostedLearningClient", FakeClient)
+
+    outcome, _cause = asyncio.run(
+        hook._deliver(
+            {
+                "agent_name": "agent-x",
+                "episode": {
+                    "run_id": "agent-x:s1:r",
+                    "goal": "do x",
+                    "steps": [],
+                    "outcome": {"is_success": True},
+                    "source_framework": "claude-code",
+                },
+                "do_reinforce": True,
+                "context_receipt": None,
+                "is_delivered": False,
+                "recall_outcome": RecallOutcome.RESOLVE_TIMED_OUT,
+            }
+        )
+    )
+
+    assert outcome is hook.FlushOutcome.DELIVERED
+    assert captured["is_delivered"] is False
+    assert captured["recall_outcome"] == RecallOutcome.RESOLVE_TIMED_OUT
+
+
+def test_a_finished_turn_stages_the_reason_it_has_no_receipt(_env, monkeypatch) -> None:
+    """The reason has to survive staging, or only the machine that made it can see it."""
+    staged: list[dict[str, Any]] = []
+    monkeypatch.setattr(hook, "_spawn_flush", lambda _path: None)
+    monkeypatch.setattr(
+        state, "stage_flush", lambda _s, _r, payload: staged.append(payload) or "p"
+    )
+    _seeded_active("s-stage")
+    state.write_recall_status("s-stage", "run-1", RecallOutcome.RECALL_UNCLAIMED)
+    state.append_step("s-stage", {"id": "1", "name": "Bash", "status": "completed"})
+    state.append_step("s-stage", {"id": "2", "name": "Bash", "status": "completed"})
+
+    hook.cmd_stop(
+        {"session_id": "s-stage", "cwd": "/repo", "status": "completed"},
+        hook._parse_args(["stop"]),
+    )
+
+    assert staged, "the turn staged nothing at all"
+    declined = staged[0]["decline"]
+    assert declined["is_delivered"] is False
+    assert declined["recall_outcome"] == RecallOutcome.RECALL_UNCLAIMED
+
+    staged.clear()
+    state.write_active(
+        "s-stage",
+        state.ActiveTurn(
+            run_id="run-2",
+            agent_name="agent-x",
+            goal="do x",
+            source_framework="claude-code",
+            started_at=1.0,
+            offered_learning_ids=("L1",),
+        ),
+    )
+    state.write_recall_status("s-stage", "run-2", RecallOutcome.RESOLVE_TIMED_OUT)
+    state.append_step("s-stage", {"id": "1", "name": "Bash", "status": "completed"})
+    state.append_step("s-stage", {"id": "2", "name": "Bash", "status": "completed"})
+
+    hook.cmd_stop(
+        {"session_id": "s-stage", "cwd": "/repo", "status": "completed"},
+        hook._parse_args(["stop"]),
+    )
+
+    assert staged[0]["do_reinforce"] is True
+    assert staged[0]["is_delivered"] is False
+    assert staged[0]["recall_outcome"] == RecallOutcome.RESOLVE_TIMED_OUT
+
+
 def test_deliver_decline_reports_a_terminal_rejection(_env, monkeypatch) -> None:
     """A 4xx on a decline must be terminal, so it counts toward the retry cap."""
     import hyperstruck.client as client_module
@@ -2837,7 +3166,11 @@ def test_an_oversized_receipt_is_clipped_rather_than_dropped(_env) -> None:
 
 
 def test_a_turn_that_never_injected_reads_no_transcript(_env, tmp_path) -> None:
-    """No injection means no marker, so the read is a guaranteed miss over a growing file."""
+    """No injection means no marker, so the read is a guaranteed miss over a growing file.
+
+    It also means nothing was shown, so the turn reports why the recall never reached
+    the model rather than reporting a receipt it was never owed.
+    """
     transcript = tmp_path / "t.jsonl"
     transcript.write_text(_accepted_line("agent-x:s:r", "- a rule") + "\n")
     turn = state.ActiveTurn(
@@ -2849,9 +3182,52 @@ def test_a_turn_that_never_injected_reads_no_transcript(_env, tmp_path) -> None:
         transcript_path=str(transcript),
         is_injected=False,
     )
+    state.write_recall_status("s1", turn.run_id, RecallOutcome.RESOLVE_TIMED_OUT)
 
-    assert hook._acceptance_record(turn) == ""
-    assert hook._acceptance_record(replace(turn, is_injected=True)) != ""
+    assert hook._acceptance_record("s1", turn).outcome is RecallOutcome.RESOLVE_TIMED_OUT
+    delivered = hook._acceptance_record("s1", replace(turn, is_injected=True))
+    assert delivered.receipt != ""
+    assert delivered.outcome is RecallOutcome.DELIVERED
+
+
+def test_a_turn_whose_resolve_never_landed_says_so_rather_than_blaming_the_receipt(
+    _env,
+) -> None:
+    """An absent verdict is its own answer: the resolve had not finished by the stop.
+
+    Reported apart from a resolve that timed out or failed, because one is a race the
+    turn lost and the other is the hosted call not clearing the deadline it is given.
+    """
+    turn = state.ActiveTurn(
+        run_id="agent-x:s:r",
+        agent_name="agent-x",
+        goal="do x",
+        source_framework="claude-code",
+        started_at=0.0,
+    )
+
+    assert hook._acceptance_record("s-none", turn).outcome is RecallOutcome.RECALL_MISSING
+
+
+def test_a_stash_no_tool_event_ever_claimed_is_not_a_lost_receipt(_env) -> None:
+    """The commonest way a turn credits nothing: it called no tool after the recall landed.
+
+    The recall rides a tool event, so a turn that ends without one is never shown its
+    learnings. Crediting nothing is correct; being logged as a client defect is not.
+    """
+    turn = state.ActiveTurn(
+        run_id="agent-x:s:r",
+        agent_name="agent-x",
+        goal="do x",
+        source_framework="claude-code",
+        started_at=0.0,
+    )
+    state.write_recall_status("s2", turn.run_id, RecallOutcome.RECALL_UNCLAIMED)
+
+    result = hook._acceptance_record("s2", turn)
+
+    assert result.outcome is RecallOutcome.RECALL_UNCLAIMED
+    assert not result.is_delivered
 
 
 def test_a_receipt_is_scrubbed_before_it_leaves_the_machine() -> None:

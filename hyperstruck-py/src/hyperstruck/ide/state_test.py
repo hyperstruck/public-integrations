@@ -10,6 +10,7 @@ import pytest
 
 from hyperstruck.ide import state
 from hyperstruck.ide.constants import PENDING_FILE
+from hyperstruck.ide.recall import RecallOutcome
 from hyperstruck.ide.state import ActiveTurn, FinishedTurn
 
 
@@ -347,6 +348,7 @@ def test_the_drain_reads_back_every_field_a_legacy_pending_file_carries() -> Non
         offered_claim_ids=("c1",),
         is_injected=True,
         context_receipt="<!-- hyperstruck-run: r1 -->\n- the rule the editor accepted",
+        recall_outcome=RecallOutcome.DELIVERED,
     )
 
     _assert_every_field_differs_from_its_default(
@@ -377,6 +379,7 @@ def test_the_drain_reads_back_every_field_a_legacy_pending_file_carries() -> Non
             "context_receipt": (
                 "<!-- hyperstruck-run: r1 -->\n- the rule the editor accepted"
             ),
+            "recall_outcome": "delivered",
         },
     )
 
