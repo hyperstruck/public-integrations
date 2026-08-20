@@ -237,3 +237,32 @@ async def test_per_invoke_identity_override(monkeypatch: pytest.MonkeyPatch) -> 
     state = {"messages": [HumanMessage("x")]}
     state.update(await mw.abefore_agent(state, None))
     assert state[RUN_ID_STATE_KEY].startswith("tenant-2-bot:")
+
+
+def test_the_seat_reports_a_failed_resolve_apart_from_an_empty_corpus() -> None:
+    """A fault and a cold start are the two this field exists to tell apart.
+
+    `is_resolved` latches on the failure path too, so classifying on it alone reported
+    every network error, 500 and timeout as "the corpus had nothing", which is the
+    ordinary case an operator would rightly ignore.
+    """
+    from hyperstruck.langgraph.ledger import InvokeLedger
+    from hyperstruck.langgraph.middleware import _recall_outcome
+
+    def ledger(**state) -> InvokeLedger:
+        made = InvokeLedger(run_id="r", goal="g", agent_id=None, org_id=None)
+        for key, value in state.items():
+            setattr(made, key, value)
+        return made
+
+    assert _recall_outcome(ledger(is_injected=True)) == "delivered"
+    assert (
+        _recall_outcome(ledger(is_resolved=True, is_resolve_failed=True))
+        == "resolve_failed"
+    )
+    assert _recall_outcome(ledger(is_resolved=True)) == "resolve_empty"
+    assert (
+        _recall_outcome(ledger(is_resolved=True, injected_text="RULE"))
+        == "recall_unclaimed"
+    )
+    assert _recall_outcome(ledger()) == "recall_missing"

@@ -226,6 +226,25 @@ def test_a_marked_record_of_an_unknown_shape_is_reported_not_swallowed(
     assert "some_new_shape" in capsys.readouterr().err
 
 
+def test_an_attachment_with_no_type_raises_no_format_alarm(tmp_path: Path) -> None:
+    """It says nothing about how an accepted hook context is recorded.
+
+    The alarm means the editor changed its format and the whole credit path has ended
+    silently, so it must fire on evidence of that and not on any marked record whose
+    shape is merely unfamiliar.
+    """
+    path = _transcript(
+        tmp_path,
+        json.dumps(
+            {"attachment": {"content": [f"{receipt.marker('run-1')}\n- a rule"]}}
+        ),
+    )
+
+    assert (
+        receipt.acceptance_record(path, "run-1")[1] is RecallOutcome.NO_MATCHING_RECORD
+    )
+
+
 def test_a_marked_line_that_no_longer_parses_is_a_miss_and_not_an_alarm(
     tmp_path: Path,
 ) -> None:

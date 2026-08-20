@@ -104,8 +104,12 @@ def _recall_outcome(ledger: InvokeLedger) -> str:
     """
     if ledger.is_injected:
         return "delivered"
-    if not ledger.is_resolved:
+    if ledger.is_resolve_failed:
         return "resolve_failed"
+    if not ledger.is_resolved:
+        # The run ended with the prefetch still in flight. Not a fault: the IDE seat
+        # calls the same state "missing" for the same reason.
+        return "recall_missing"
     return "resolve_empty" if not ledger.injected_text else "recall_unclaimed"
 
 
@@ -329,6 +333,7 @@ class HyperstruckLearningMiddleware(AgentMiddleware):
             logger.warning("HyperstruckLearningMiddleware: resolve failed for run %s: %s", ledger.run_id, exc, exc_info=True)
             self.stats.errors += 1
             ledger.is_resolved = True
+            ledger.is_resolve_failed = True
             return
         ledger.record_injection(context.injected_text, context.offered_learning_ids)
         if context.injected_text:

@@ -74,6 +74,10 @@ class InvokeLedger:
     thread_id: str | None = None
 
     is_resolved: bool = False
+    # Set when resolve raised. `is_resolved` latches either way so a failure does not
+    # re-trigger retrieval, which makes it useless for telling a fault from a cold
+    # corpus, and those are the two the boundary is being told apart.
+    is_resolve_failed: bool = False
     # Set where the block actually reaches a model call, not where it is resolved: a run
     # can resolve and then never call a model, and the boundary is told which happened.
     is_injected: bool = False
