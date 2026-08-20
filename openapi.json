@@ -3029,6 +3029,17 @@
             "$ref": "#/components/schemas/DeclineReason",
             "description": "Why the turn had nothing worth learning from."
           },
+          "recall_outcome": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/RecallOutcome"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Why the recall did not reach the model, when it did not, from the same closed set reinforce uses. A declined turn that was never shown its learnings is a different run from one that was shown them and did too little to be worth learning from. Sending this without `is_delivered` is enough: the flag is derived from it. Sending both with different meanings is refused."
+          },
           "run_id": {
             "description": "The caller-owned `run_id` supplied to resolve; it must not start with `distill:`, which is reserved for distillation jobs.",
             "maxLength": 200,
@@ -6568,6 +6579,26 @@
         "title": "ReasoningTier",
         "type": "string"
       },
+      "RecallOutcome": {
+        "description": "What became of a run's recall, as the client that owns the loop observed it.\n\nA run that credits nothing has one signature at this boundary, an absent receipt,\nand two causes that license opposite responses. Either the recall never reached the\nmodel, in which case there is nothing to vouch for and the client is correct, or it\nwas shown and the record of it could not be read back, which is a wiring defect. The\nreceipt alone cannot tell them apart, so the client says which.\n\nA closed set, like ``DeclineReason``: an unrecognised value is rejected rather than\nstored, so the column stays queryable and cannot accrue junk cardinality. It is the\nsame set the client declares in ``hyperstruck/ide/recall.py``, and a member the\nclient can send and this one cannot costs that run its whole episode rather than\nmerely its diagnostic, because the request model forbids an unknown value. A new\nmember lands here first.",
+        "enum": [
+          "delivered",
+          "resolve_timed_out",
+          "resolve_failed",
+          "resolve_empty",
+          "resolve_no_goal",
+          "resolve_superseded",
+          "recall_unclaimed",
+          "recall_missing",
+          "recall_unrecognised",
+          "no_transcript",
+          "transcript_unreadable",
+          "record_shape_changed",
+          "no_matching_record"
+        ],
+        "title": "RecallOutcome",
+        "type": "string"
+      },
       "ReinforceLearningRequest": {
         "description": "Request body for reinforcing a learning.",
         "properties": {
@@ -6688,6 +6719,18 @@
             "$ref": "#/components/schemas/EpisodeModel",
             "description": "Completed episode using the same caller-owned `run_id` supplied to resolve."
           },
+          "is_delivered": {
+            "anyOf": [
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Whether the recall reached the model on this turn. Omit it and an absent `context_receipt` has two readings, a run that was shown its learnings and lost the evidence and a run that was never shown them at all, and only the first is a defect. NULL means the client did not say.",
+            "title": "Is Delivered"
+          },
           "is_org_promotion_allowed": {
             "default": false,
             "description": "Whether eligible learnings may be considered for organisation sharing.",
@@ -6706,6 +6749,17 @@
             ],
             "description": "Optional caller-owned organisation reference.",
             "title": "Org Id"
+          },
+          "recall_outcome": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/RecallOutcome"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Why the recall did not produce a receipt, from a closed set. Distinguishes a resolve that timed out or failed, a stash no tool event ever showed, and a transcript whose format the client no longer recognises, which is the one that silently ends the whole credit path. Sending this without `is_delivered` is enough: the flag is derived from it. Sending both with different meanings is refused."
           }
         },
         "required": [
