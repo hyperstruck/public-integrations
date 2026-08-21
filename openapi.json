@@ -1,6 +1,49 @@
 {
   "components": {
     "schemas": {
+      "APIKeyAuthConfig": {
+        "description": "API key authentication.",
+        "properties": {
+          "auth_type": {
+            "const": "api_key",
+            "default": "api_key",
+            "title": "Auth Type",
+            "type": "string"
+          },
+          "header": {
+            "default": "X-API-Key",
+            "description": "Header name to use for the API key",
+            "title": "Header",
+            "type": "string"
+          },
+          "key": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "API key value",
+            "title": "Key"
+          },
+          "key_env": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Environment variable containing the API key",
+            "title": "Key Env"
+          }
+        },
+        "title": "APIKeyAuthConfig",
+        "type": "object"
+      },
       "AbstainedQueueItem": {
         "description": "A claim stored without a structural attribute key, awaiting adoption.",
         "properties": {
@@ -1627,6 +1670,43 @@
           "attribute_key"
         ],
         "title": "AttributeRef",
+        "type": "object"
+      },
+      "BearerAuthConfig": {
+        "description": "Bearer token authentication.",
+        "properties": {
+          "auth_type": {
+            "const": "bearer",
+            "default": "bearer",
+            "title": "Auth Type",
+            "type": "string"
+          },
+          "token": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Bearer token value",
+            "title": "Token"
+          },
+          "token_env": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Environment variable containing the bearer token",
+            "title": "Token Env"
+          }
+        },
+        "title": "BearerAuthConfig",
         "type": "object"
       },
       "BillingSummaryResponse": {
@@ -5128,21 +5208,6 @@
         "title": "LoopClosureFunnelResponse",
         "type": "object"
       },
-      "MCPAuthConfig": {
-        "description": "Base authentication configuration for MCP servers.",
-        "properties": {
-          "auth_type": {
-            "description": "Authentication type identifier",
-            "title": "Auth Type",
-            "type": "string"
-          }
-        },
-        "required": [
-          "auth_type"
-        ],
-        "title": "MCPAuthConfig",
-        "type": "object"
-      },
       "MCPConnectionConfig": {
         "description": "Connection resilience settings for an MCP server.\n\nControls reconnection behaviour and exponential backoff. When not\nspecified on a server config, defaults are used automatically.",
         "properties": {
@@ -5199,13 +5264,28 @@
           "auth": {
             "anyOf": [
               {
-                "$ref": "#/components/schemas/MCPAuthConfig"
+                "discriminator": {
+                  "mapping": {
+                    "api_key": "#/components/schemas/APIKeyAuthConfig",
+                    "bearer": "#/components/schemas/BearerAuthConfig"
+                  },
+                  "propertyName": "auth_type"
+                },
+                "oneOf": [
+                  {
+                    "$ref": "#/components/schemas/BearerAuthConfig"
+                  },
+                  {
+                    "$ref": "#/components/schemas/APIKeyAuthConfig"
+                  }
+                ]
               },
               {
                 "type": "null"
               }
             ],
-            "description": "Authentication configuration"
+            "description": "Authentication configuration. Discriminated on 'auth_type' so a credential posted as a dict resolves to the concrete model that carries it. Annotating the base here silently discarded every field the base does not declare, which meant a caller supplying their own token got a 200 and a config that could never authenticate.",
+            "title": "Auth"
           },
           "auth_token_env": {
             "anyOf": [
