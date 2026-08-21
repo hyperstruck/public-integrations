@@ -9489,7 +9489,7 @@
     },
     "/agents/{agent_id}": {
       "delete": {
-        "description": "Permanently delete a hosted agent. Use only when the agent and its configuration are no longer needed; the operation cannot be undone.",
+        "description": "Permanently delete a hosted agent and purge its learning corpus after the row commits. Use only when the agent and its configuration are no longer needed; the operation cannot be undone.",
         "operationId": "delete_agent_endpoint_agents__agent_id__delete",
         "parameters": [
           {
@@ -10863,7 +10863,7 @@
     },
     "/agents/{agent_id}/learnings": {
       "delete": {
-        "description": "Delete every learning memory scoped to the agent. This is a destructive operation and does not affect other memory categories.",
+        "description": "Delete every learning memory scoped to the agent. Requires the agents:write scope and can_write on the agent. This is a destructive operation and does not affect other memory categories or the org-shared learning library.",
         "operationId": "delete_agent_learnings_endpoint_agents__agent_id__learnings_delete",
         "parameters": [
           {
