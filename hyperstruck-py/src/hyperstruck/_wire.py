@@ -119,6 +119,11 @@ class EvidenceItem:
     role: Literal["support", "contrast", "neutral"] = "neutral"
     status: Literal["completed", "failed"] = "completed"
     source_ref: str | None = None
+    # What this item is about, and where it came from. ``subject`` names the field carrying the
+    # entity, so two spellings of one company do not become two entities; ``provenance`` carries
+    # ``source_class``, ``source_id`` (the system the item came from, not the item's own
+    # reference) and an optional RFC 3339 ``source_time`` for when its facts became true.
+    declared_sensitivity: dict[str, Any] | None = None
 
 
 @dataclass(frozen=True)

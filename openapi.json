@@ -3615,6 +3615,31 @@
             "title": "Content",
             "type": "string"
           },
+          "declared_sensitivity": {
+            "anyOf": [
+              {
+                "additionalProperties": {
+                  "anyOf": [
+                    {
+                      "additionalProperties": {
+                        "type": "string"
+                      },
+                      "type": "object"
+                    },
+                    {
+                      "type": "string"
+                    }
+                  ]
+                },
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Optional caller-declared metadata for this item, in the same vocabulary as a step's. `subject` names the entity the item is about, and the `provenance` record says where the item came from: `source_class`, `source_id`, and optionally `author` and an RFC 3339 `source_time` for when the facts in it became true.",
+            "title": "Declared Sensitivity"
+          },
           "id": {
             "description": "Stable within the run.",
             "maxLength": 200,
@@ -7908,6 +7933,16 @@
         "title": "RunSource",
         "type": "object"
       },
+      "RunState": {
+        "description": "How far a boundary job has got, derived from the claim and done markers.",
+        "enum": [
+          "queued",
+          "running",
+          "finished"
+        ],
+        "title": "RunState",
+        "type": "string"
+      },
       "RunStatus": {
         "description": "Lifecycle states returned for hosted runs.",
         "enum": [
@@ -7919,6 +7954,76 @@
         ],
         "title": "RunStatus",
         "type": "string"
+      },
+      "RunStatusResponse": {
+        "description": "What one job produced, per shelf, for a caller polling its own run id.",
+        "properties": {
+          "claim_count": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Claims written. Null until the job finishes, which is not zero.",
+            "title": "Claim Count"
+          },
+          "finished_at": {
+            "anyOf": [
+              {
+                "format": "date-time",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Finished At"
+          },
+          "learning_count": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Learnings stored. Null until the job finishes, which is not zero.",
+            "title": "Learning Count"
+          },
+          "run_id": {
+            "title": "Run Id",
+            "type": "string"
+          },
+          "run_kind": {
+            "title": "Run Kind",
+            "type": "string"
+          },
+          "state": {
+            "$ref": "#/components/schemas/RunState"
+          },
+          "zero_reason": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/ZeroYieldReason"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Why a count came back zero. Set only when one did."
+          }
+        },
+        "required": [
+          "run_id",
+          "run_kind",
+          "state"
+        ],
+        "title": "RunStatusResponse",
+        "type": "object"
       },
       "RunType": {
         "description": "Whether a hosted run starts a goal or resumes prior work.",
@@ -8542,10 +8647,17 @@
             "anyOf": [
               {
                 "additionalProperties": {
-                  "additionalProperties": {
-                    "type": "string"
-                  },
-                  "type": "object"
+                  "anyOf": [
+                    {
+                      "additionalProperties": {
+                        "type": "string"
+                      },
+                      "type": "object"
+                    },
+                    {
+                      "type": "string"
+                    }
+                  ]
                 },
                 "type": "object"
               },
@@ -8553,7 +8665,7 @@
                 "type": "null"
               }
             ],
-            "description": "Optional caller-declared sensitivity metadata for step fields.",
+            "description": "Optional caller-declared metadata for this step. Sections whose value is a mapping carry per-field declarations (`args`, `result`, `result_attributes`, `result_integrity`, and the `provenance` record). Sections whose value is a string carry a single declaration, of which `subject` is the one the runtime reads: the argument key naming the entity this step's result is about.",
             "title": "Declared Sensitivity"
           },
           "error": {
@@ -9171,6 +9283,19 @@
         ],
         "title": "ValidationError",
         "type": "object"
+      },
+      "ZeroYieldReason": {
+        "description": "Why a finished job produced nothing on a shelf.\n\nA closed set rather than free text, because the whole point of reporting a zero is that a\nclient can branch on it: retry with more evidence, correct a declaration, or accept that the\ncorpus held nothing new. A value outside this set is a defect, never a passthrough.\n\n``WEAK_CONTRAST`` is the one that used to be a 400. Contrast is what the *learning* extractor\ncompares against, so a corpus that declares none can still be full of facts; refusing it at the\ndoor refused the claim shelf along with the rule shelf. It is now advice attached to the\nresult, which is the same guidance arriving after the job rather than instead of it.",
+        "enum": [
+          "weak_contrast",
+          "dedup_absorbed",
+          "no_entity_resolvable",
+          "gate_rejected",
+          "nothing_extracted",
+          "failed"
+        ],
+        "title": "ZeroYieldReason",
+        "type": "string"
       }
     },
     "securitySchemes": {
@@ -12395,6 +12520,59 @@
           }
         ],
         "summary": "Per-host loop-closure funnel",
+        "tags": [
+          "learning_boundary"
+        ]
+      }
+    },
+    "/learning-runs/{run_id}/status": {
+      "get": {
+        "description": "Report a submitted run's state and, once it has finished, what it wrote to each shelf: learnings, claims, and the reason a count came back zero. A count is null while the run is unfinished, which is not the same as zero. An unknown run id, and a run another tenant owns, both answer 404.",
+        "operationId": "run_status_endpoint_learning_runs__run_id__status_get",
+        "parameters": [
+          {
+            "description": "The run identifier you submitted the job under, exactly as sent. Scoped to your own tenant.",
+            "in": "path",
+            "name": "run_id",
+            "required": true,
+            "schema": {
+              "description": "The run identifier you submitted the job under, exactly as sent. Scoped to your own tenant.",
+              "examples": [
+                "corpus:pricing-2026-08"
+              ],
+              "title": "Run Id",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RunStatusResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "security": [
+          {
+            "BearerApiKey": []
+          }
+        ],
+        "summary": "What one run produced, per shelf",
         "tags": [
           "learning_boundary"
         ]
