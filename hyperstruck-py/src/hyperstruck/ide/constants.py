@@ -53,6 +53,11 @@ def ide_venv_dir() -> Path:
 
 
 # Per-session subpaths, relative to ``sessions_dir() / <session_id>``.
+# The rendezvous key a turn's hooks share when the host names no session of its own.
+# Prefixed so a derived key stays distinguishable from a host-supplied id on sight.
+DERIVED_KEY_PREFIX = "derived-"
+DERIVED_KEY_DIGEST_CHARS = 12
+
 ACTIVE_FILE = "active.json"
 PENDING_FILE = "pending.json"
 RECALL_FILE = "recall.json"

@@ -3244,3 +3244,114 @@ def test_a_receipt_is_scrubbed_before_it_leaves_the_machine() -> None:
     assert scrubbed is not None
     assert "sk-abcdefghijklmnop0123456789" not in scrubbed
     assert scrubbed.startswith(marker)
+
+
+# -- resolve_session_id: the three hooks of one turn must agree ---------------
+
+
+def _resolve_sid(payload: dict, cwd: str = "/repo") -> str:
+    return hook.resolve_session_id(payload, cwd, _args("prompt"))
+
+
+SESSION_UUID = "f7e285a4-ca69-46bc-bdac-3f88b46698d6"
+
+
+def test_explicit_session_id_wins_over_every_fallback() -> None:
+    payload = {"session_id": "abc-123", "transcript_path": f"/t/{SESSION_UUID}.jsonl"}
+    assert _resolve_sid(payload) == "abc-123"
+
+
+def test_uuid_transcript_stem_is_recovered_as_the_session_id() -> None:
+    """The editor names the transcript for the session, so the stem is the real id."""
+    assert _resolve_sid({"transcript_path": f"/p/{SESSION_UUID}.jsonl"}) == SESSION_UUID
+
+
+@pytest.mark.parametrize(
+    "stem",
+    [
+        SESSION_UUID,
+        f"{{{SESSION_UUID}}}",
+        f"urn:uuid:{SESSION_UUID}",
+        SESSION_UUID.replace("-", ""),
+        f"-{SESSION_UUID}",
+    ],
+)
+def test_every_spelling_uuid_accepts_is_returned_canonical(stem: str) -> None:
+    """uuid.UUID accepts far more than the canonical spelling; the key must not.
+
+    A leading hyphen is the one that bites: the key is passed as a command-line
+    argument to the detached resolve, where argparse would read it as an option and
+    exit, losing the recall for that session with no diagnostic.
+    """
+    assert _resolve_sid({"transcript_path": f"/p/{stem}.jsonl"}) == SESSION_UUID
+
+
+def test_one_turns_hooks_agree_when_the_session_leader_changes(monkeypatch) -> None:
+    """The regression: hooks spawned into separate sessions must still rendezvous."""
+    payload = {"transcript_path": f"/p/{SESSION_UUID}.jsonl"}
+    monkeypatch.setattr(hook.os, "getsid", lambda _pid: 47163)
+    first = _resolve_sid(payload)
+    monkeypatch.setattr(hook.os, "getsid", lambda _pid: 55144)
+    assert _resolve_sid(payload) == first
+
+
+def test_a_turn_closes_though_every_hook_saw_a_different_session(_env, monkeypatch) -> None:
+    """The rendezvous itself, not just the key: the turn must reach a staged flush."""
+    staged = _env
+    payload = {"cwd": "/repo", "transcript_path": f"/p/{SESSION_UUID}.jsonl"}
+    sids = iter([101, 202, 303, 404, 505])
+    monkeypatch.setattr(hook.os, "getsid", lambda _pid: next(sids))
+    hook.cmd_prompt({**payload, "prompt": "Tidy the parser"}, _args("prompt"))
+    hook.cmd_tool(
+        {**payload, "tool_name": "Bash", "tool_input": {"command": "pytest -q"}},
+        _args("tool"),
+    )
+    hook.cmd_stop(dict(payload), _args("stop"))
+    assert staged, "the stop hook never found the turn the prompt hook opened"
+
+
+def test_non_uuid_transcript_is_scoped_by_repo_as_well_as_path() -> None:
+    """A relative or shared transcript name must not alias two projects onto one key."""
+    payload = {"transcript_path": "transcript.jsonl"}
+    in_a = _resolve_sid(payload, cwd="/repoA")
+    in_b = _resolve_sid(payload, cwd="/repoB")
+    assert in_a != in_b
+    assert in_a.startswith("derived-")
+    assert in_a == _resolve_sid(payload, cwd="/repoA")
+
+
+def test_non_uuid_transcript_still_gives_one_key_per_session(monkeypatch) -> None:
+    payload = {"transcript_path": "/p/cursor-chat.log"}
+    monkeypatch.setattr(hook.os, "getsid", lambda _pid: 100)
+    first = _resolve_sid(payload)
+    monkeypatch.setattr(hook.os, "getsid", lambda _pid: 200)
+    assert _resolve_sid(payload) == first
+    assert first != _resolve_sid({"transcript_path": "/p/other-chat.log"})
+
+
+@pytest.mark.parametrize("value", [12345, ["/p/a.jsonl"], {"a": 1}, "", "   ", None, True])
+def test_a_transcript_path_that_is_not_a_path_is_ignored(value, monkeypatch) -> None:
+    """Anything not a non-blank string falls through, rather than keying on its repr."""
+    monkeypatch.setattr(hook.os, "getsid", lambda _pid: 4242)
+    assert _resolve_sid({"transcript_path": value}) == _resolve_sid({})
+
+
+def test_without_a_transcript_the_previous_fallback_is_unchanged(monkeypatch) -> None:
+    monkeypatch.setattr(hook.os, "getsid", lambda _pid: 4242)
+    derived = _resolve_sid({}, cwd="/repo")
+    assert derived.startswith("derived-4242-")
+    assert derived != _resolve_sid({}, cwd="/other-repo")
+
+
+def test_a_host_that_reports_the_transcript_unevenly_still_splits(monkeypatch) -> None:
+    """A known limit, pinned so it is a decision rather than a surprise.
+
+    Where a host names the transcript on one hook event and omits it on another, the
+    two derive different keys and the turn does not close. No wired host behaves this
+    way, and the fallback cannot detect it, so this documents the boundary rather than
+    asserting desirable behaviour.
+    """
+    monkeypatch.setattr(hook.os, "getsid", lambda _pid: 7)
+    with_transcript = _resolve_sid({"transcript_path": f"/p/{SESSION_UUID}.jsonl"})
+    without = _resolve_sid({})
+    assert with_transcript != without

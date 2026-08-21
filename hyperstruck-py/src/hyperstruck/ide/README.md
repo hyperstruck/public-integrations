@@ -17,6 +17,7 @@ is the thin, fail-open client that wires it into your editor.
 - [Proving the model was shown it](#proving-the-model-was-shown-it)
 - [Privacy](#privacy)
 - [Identity](#identity)
+  - [How a turn's hooks find each other](#how-a-turns-hooks-find-each-other)
 - [Fail-open by design](#fail-open-by-design)
 - [Diagnosing a quiet hook](#diagnosing-a-quiet-hook)
 
@@ -325,6 +326,30 @@ anything derived from the repo, because editors are general agent platforms, not
 just code tools. If you have one agent, install writes both `HYPER_AGENT_NAME` and
 `HYPER_AGENT_ID` (REST UUID) automatically. If you have several, pick a name with
 `--agent-name` at install; REST skills still use `HYPER_AGENT_ID` or `GET /agents`.
+
+### How a turn's hooks find each other
+
+One turn is observed by three separate hook processes: one at the prompt, one per
+tool call, and one at the stop. They share nothing but a key, and each looks up the
+turn's state under it. Agree on the key and the turn closes; disagree and the prompt
+half records a turn the stop half never finds, so the loop stays open and the run is
+counted as a failure it never was.
+
+The editor's own session id is the key wherever the host supplies one, and **both wired
+hosts supply one on every event**, so that is the path essentially all traffic takes.
+Where a host supplies none, the transcript file it is already writing names the session,
+and every hook of a turn is told the same path, so it identifies the session just as
+well. Only when there is no transcript either does the key fall back to the terminal and
+the repository, which is the weakest of the three: hooks are commonly launched into
+sessions of their own, and a turn's prompt and stop halves can then sit in different ones
+and never meet.
+
+The practical consequence is for hosts yet to be wired rather than for today's fleet: one
+that reports neither a session id nor a transcript path can still learn, but its turns
+close less reliably than one that reports either. Two limits are worth knowing. A host
+that reports the transcript on some hook events and not others splits where the weakest
+key would have agreed, and a session resumed into a *new* transcript file rotates its key,
+leaving the in-flight turn to the backstop sweep rather than the next prompt.
 
 ## Fail-open by design
 

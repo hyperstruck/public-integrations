@@ -59,6 +59,8 @@ from hyperstruck.ide import outcome, receipt, state
 from hyperstruck.ide.config import configured_agent_name, load_env
 from hyperstruck.ide.debug import debug as _debug
 from hyperstruck.ide.constants import (
+    DERIVED_KEY_DIGEST_CHARS,
+    DERIVED_KEY_PREFIX,
     CREDENTIAL_HEAD_CHARS,
     DEFAULT_FLUSH_MAX_ATTEMPTS,
     DISTILL_RUN_ID_PREFIX,
@@ -1691,23 +1693,72 @@ def resolve_session_id(
 ) -> str:
     """The editor's session id from argv or the hook payload, else a stable fallback.
 
-    The fallback (terminal session leader + repo digest) is stable across the
-    three hook processes of one turn when they share a terminal and repo, so they
-    still rendezvous when the editor omits a session id.
+    The three hook processes of one turn must derive the same id or they never find each
+    other's state and the turn is never closed. ``os.getsid(0)`` cannot carry that on its
+    own: hooks are routinely spawned into sessions of their own, so a turn's prompt and
+    stop halves can derive different ids and never meet. The editor's transcript is named
+    in every hook payload of a turn, so it is tried first.
+
+    No host the installer wires reaches past the first branch: Claude Code sends
+    ``session_id`` and Cursor sends ``conversation_id`` on every event. This is hardening
+    for a host that supplies neither, and it changes nothing for the ones that do.
     """
     explicit = args.session or _first(
         payload, ("session_id", "conversation_id", "sessionId", "threadId", "thread_id")
     )
     if explicit:
         return str(explicit)
+    from_transcript = _session_id_from_transcript(payload, cwd)
+    if from_transcript:
+        return from_transcript
     try:
         sid = os.getsid(0)
     except OSError:
         sid = 0
-    digest = hashlib.sha1(
-        cwd.encode("utf-8", "ignore"), usedforsecurity=False
-    ).hexdigest()[:12]
-    return f"derived-{sid}-{digest}"
+    key = f"{DERIVED_KEY_PREFIX}{sid}-{_short_digest(cwd)}"
+    _debug(f"session key from terminal and repo (no session id, no transcript): {key}")
+    return key
+
+
+def _session_id_from_transcript(payload: dict[str, Any], cwd: str) -> str:
+    """The session named by the editor's own transcript, or "" when it names none.
+
+    Claude Code names the transcript for the session itself, so a canonical UUID stem is
+    the real session id and is returned normalised: ``uuid.UUID`` also accepts braced,
+    ``urn:`` and oddly-hyphenated spellings, and returning one of those verbatim would put
+    a leading ``-`` in front of a value later passed as a command-line argument.
+
+    Any other stem is digested **with the cwd**, because a transcript path alone is not
+    unique: a host reporting a relative or per-workspace-constant name would otherwise
+    collapse every project on the machine onto one key, and orphan recovery would then
+    finalise another project's live turn.
+
+    TODO(ceiling): a session resumed into a *new* transcript file rotates this key, which
+    the terminal-and-repo key did not; the in-flight turn is then recovered by the 48-hour
+    sweep rather than by the next prompt. Revisit if a host that omits a session id and
+    rotates transcripts appears; today none is wired.
+    """
+    raw = payload.get("transcript_path")
+    if not isinstance(raw, str) or not raw.strip():
+        return ""
+    path = raw.strip()
+    stem = Path(path).stem
+    try:
+        canonical = str(uuid.UUID(stem))
+    except ValueError:
+        # NUL-separated so a cwd/path pair cannot be spelled two ways into one digest.
+        scoped = f"{cwd}\x00{path}"
+        key = f"{DERIVED_KEY_PREFIX}{_short_digest(scoped)}"
+        _debug(f"session key from transcript path and repo (no session id): {key}")
+        return key
+    _debug(f"session id recovered from transcript name: {canonical}")
+    return canonical
+
+
+def _short_digest(value: str) -> str:
+    return hashlib.sha1(
+        value.encode("utf-8", "ignore"), usedforsecurity=False
+    ).hexdigest()[:DERIVED_KEY_DIGEST_CHARS]
 
 
 def _source(args: argparse.Namespace) -> str:
