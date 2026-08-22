@@ -330,6 +330,24 @@ async def test_distill_includes_max_learnings_only_when_set() -> None:
     await client.aclose()
 
 
+async def test_the_client_admits_the_single_item_corpus_the_server_admits() -> None:
+    """A price list, a policy, a single contract: one item is a legitimate fact corpus.
+
+    The client refused what the server accepts, so the ergonomic surface was stricter than the API
+    it wraps and a caller hit a ValueError for a request that would have succeeded.
+    """
+    client = _client(lambda request: httpx.Response(202, json={"status": "accepted"}))
+
+    # Writes are fire-and-forget, so what is asserted is that the call-site guard does not refuse
+    # it; whether the send lands is the delivery tests' subject, not this one's.
+    await client.distill(
+        identity=IDENTITY,
+        run_id="distill:one-item",
+        goal="g",
+        evidence=(EvidenceItem(id="e1", content="Meridian Books, plan: enterprise."),),
+    )
+
+
 async def test_distill_raises_on_deterministic_client_errors() -> None:
     # Fire-and-forget delivery would swallow the server's 400, so the deterministic
     # mistakes must fail loud at the call site instead of losing the job silently.
@@ -348,12 +366,12 @@ async def test_distill_raises_on_deterministic_client_errors() -> None:
         await client.distill(
             identity=IDENTITY, run_id="pm-1", goal="g", evidence=ok_evidence
         )
-    with pytest.raises(ValueError, match="at least 2"):
+    with pytest.raises(ValueError, match="at least 1"):
         await client.distill(
             identity=IDENTITY,
             run_id="distill:pm-1",
             goal="g",
-            evidence=ok_evidence[:1],
+            evidence=(),
         )
     with pytest.raises(ValueError, match="max_learnings"):
         await client.distill(

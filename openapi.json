@@ -3727,7 +3727,7 @@
                 "type": "null"
               }
             ],
-            "description": "Optional caller-declared metadata for this item, in the same vocabulary as a step's. `subject` names the entity the item is about, and the `provenance` record says where the item came from: `source_class`, `source_id`, and optionally `author` and an RFC 3339 `source_time` for when the facts in it became true.",
+            "description": "Optional caller-declared metadata for this item, in the same vocabulary as a step's. The `provenance` record says where the item came from: `source_class`, `source_id`, and optionally `author` and an RFC 3339 `source_time` for when the facts in it became true. To say what the item is *about*, use the `subject` field above rather than this record.",
             "title": "Declared Sensitivity"
           },
           "id": {
@@ -3775,6 +3775,19 @@
             ],
             "title": "Status",
             "type": "string"
+          },
+          "subject": {
+            "anyOf": [
+              {
+                "maxLength": 200,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "The entity this item is about, e.g. an account or product name. Given, it is the name the facts are filed under, which is what stops one entity fragmenting across two spellings and never accumulating corroboration. Omitted, the entity is read from the prose.",
+            "title": "Subject"
           }
         },
         "required": [
@@ -8065,6 +8078,30 @@
             ],
             "description": "Claims written. Null until the job finishes, which is not zero.",
             "title": "Claim Count"
+          },
+          "corpus_items_lost": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Evidence items in a pass that failed, so they were never read. Non-zero means part of the corpus was not seen and resending is worthwhile; the claims from every other pass are still stored.",
+            "title": "Corpus Items Lost"
+          },
+          "corpus_items_with_claims": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Evidence items that produced at least one claim. Null until the job finishes, and 0 on a job that carried no corpus. Read beside items_lost: a corpus that held few facts and one the extraction skipped are different answers, and only one is worth resending.",
+            "title": "Corpus Items With Claims"
           },
           "finished_at": {
             "anyOf": [

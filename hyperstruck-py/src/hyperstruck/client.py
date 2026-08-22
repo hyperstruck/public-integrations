@@ -454,8 +454,8 @@ class HostedLearningClient:
                 "run_id must be namespaced with the 'distill:' prefix "
                 "(e.g. 'distill:my-postmortem-2026-07')"
             )
-        if len(evidence) < 2:
-            raise ValueError("distill requires at least 2 evidence items")
+        if not evidence:
+            raise ValueError("distill requires at least 1 evidence item")
         if max_learnings is not None and not (
             DISTILL_MIN_LEARNINGS <= max_learnings <= DISTILL_MAX_LEARNINGS
         ):

@@ -183,10 +183,13 @@ class EvidenceItem:
     role: Literal["support", "contrast", "neutral"] = "neutral"
     status: Literal["completed", "failed"] = "completed"
     source_ref: str | None = None
-    # What this item is about, and where it came from. ``subject`` names the field carrying the
-    # entity, so two spellings of one company do not become two entities; ``provenance`` carries
-    # ``source_class``, ``source_id`` (the system the item came from, not the item's own
-    # reference) and an optional RFC 3339 ``source_time`` for when its facts became true.
+    # The entity this item is about, e.g. an account or product name. Given, it is the name the
+    # facts are filed under, so two spellings of one company do not become two entities and never
+    # accumulate corroboration. Omitted, the entity is read from the prose.
+    subject: str | None = None
+    # Where the item came from: ``provenance`` carries ``source_class``, ``source_id`` (the system
+    # the item came from, not the item's own reference) and an optional RFC 3339 ``source_time``
+    # for when its facts became true. To say what the item is *about*, use ``subject`` above.
     declared_sensitivity: dict[str, Any] | None = None
 
 
