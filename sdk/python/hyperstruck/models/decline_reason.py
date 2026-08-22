@@ -28,6 +28,7 @@ class DeclineReason(object):
     BELOW_MATERIAL_THRESHOLD = "below_material_threshold"
     EMPTY_OFFER = "empty_offer"
     UNEVIDENCED_OUTCOME = "unevidenced_outcome"
+    READONLY_CLOSE = "readonly_close"
     """
     Attributes:
       swagger_types (dict): The key is attribute name

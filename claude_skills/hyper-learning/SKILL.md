@@ -253,7 +253,7 @@ print(json.dumps(body))
   -d @-
 ```
 
-`reason` is a closed set: `no_tool_calls`, `below_material_threshold`, `empty_offer`, `unevidenced_outcome`. Set `is_delivered` to whether the injected text actually reached the model this turn. Both endpoints return **202** — processing is asynchronous.
+`reason` is a closed set: `no_tool_calls`, `below_material_threshold`, `empty_offer`, `unevidenced_outcome`, `readonly_close`. Use `readonly_close` for a read-only recall that closes with no outcome to reinforce against: it earns nothing by design, and reporting it as one of the others files it as lost credit on the daily alert. Set `is_delivered` to whether the injected text actually reached the model this turn. Both endpoints return **202** — processing is asynchronous.
 
 ---
 

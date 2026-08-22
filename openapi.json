@@ -3052,7 +3052,8 @@
           "no_tool_calls",
           "below_material_threshold",
           "empty_offer",
-          "unevidenced_outcome"
+          "unevidenced_outcome",
+          "readonly_close"
         ],
         "title": "DeclineReason",
         "type": "string"

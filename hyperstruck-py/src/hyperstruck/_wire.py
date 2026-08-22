@@ -27,14 +27,26 @@ DISTILL_MAX_LEARNINGS = 50
 # exact set and rejects anything else, so the two must not drift.
 REASON_NO_TOOL_CALLS = "no_tool_calls"
 REASON_BELOW_MATERIAL_THRESHOLD = "below_material_threshold"
+# No path in this client emits this any more: the recording path provably cannot reach it
+# (see _decline_reason), and the read-only close that used to borrow it now names itself.
+# Kept because it stays valid on the wire for a host driving the loop by hand, which the
+# hyper-learning skill documents.
 REASON_EMPTY_OFFER = "empty_offer"
 REASON_UNEVIDENCED_OUTCOME = "unevidenced_outcome"
+# A read-only recall closing itself. It has no outcome to reinforce against, so it is not
+# a turn that was judged not worth learning from: there was never a judgement to make. It
+# is its own reason because the daily credit alert reported it as lost credit while it
+# borrowed REASON_BELOW_MATERIAL_THRESHOLD and REASON_EMPTY_OFFER. Only the first of those
+# is also sent by the recording path, and one shared reason was enough to make the two
+# populations indistinguishable in the one column that should have separated them.
+REASON_READONLY_CLOSE = "readonly_close"
 DECLINE_REASONS = frozenset(
     {
         REASON_NO_TOOL_CALLS,
         REASON_BELOW_MATERIAL_THRESHOLD,
         REASON_EMPTY_OFFER,
         REASON_UNEVIDENCED_OUTCOME,
+        REASON_READONLY_CLOSE,
     }
 )
 

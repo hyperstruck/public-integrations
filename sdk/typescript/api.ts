@@ -2504,7 +2504,8 @@ export enum DeclineReason {
     NoToolCalls = <any> 'no_tool_calls',
     BelowMaterialThreshold = <any> 'below_material_threshold',
     EmptyOffer = <any> 'empty_offer',
-    UnevidencedOutcome = <any> 'unevidenced_outcome'
+    UnevidencedOutcome = <any> 'unevidenced_outcome',
+    ReadonlyClose = <any> 'readonly_close'
 }
 /**
  * Close a run whose turn ended with nothing worth learning.  The terminal counterpart to observe/reinforce. A host that resolves and then finds the turn not worth learning from must say so rather than going silent: silence is indistinguishable from a host that broke, and that ambiguity is what makes a loop-closure alert uninterpretable.  Declining does not add the episode to the corpus. It records the run as closed, attributes it to a host, and settles the resolve reservation.

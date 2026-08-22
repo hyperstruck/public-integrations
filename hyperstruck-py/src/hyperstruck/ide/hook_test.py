@@ -48,6 +48,12 @@ _REAL_SPAWN_RESOLVE = hook._spawn_resolve
 _BOUNDARY_RECEIPT_CEILING = 200_000
 
 
+# Captured before the autouse fixture below stubs it out, following the
+# _REAL_ENSURE_DURABLE_VENV precedent in install_test.py. Without this, a test of the real
+# function asserts against a no-op and passes whatever the function does.
+_REAL_CLOSE_READONLY_RUN = hook._close_readonly_run
+
+
 @pytest.fixture(autouse=True)
 def _env(tmp_path, monkeypatch):
     monkeypatch.setenv("HYPER_HOME", str(tmp_path))
@@ -1858,6 +1864,62 @@ def test_readonly_recall_prints_facts_and_closes_the_throwaway_run(
     assert source == "cursor"
 
 
+def test_a_rejected_readonly_close_says_so_instead_of_failing_silently(
+    capsys, monkeypatch
+) -> None:
+    """A refused decline is a returned outcome, not an exception, so it was invisible.
+
+    This is the first client to send a reason a deployed boundary can refuse, and the
+    client mirrors on merge while the API ships on a separate manual dispatch. Silent,
+    every read-only recall in that window stays open, holds its resolve reservation to
+    the retention sweep, and counts unclosed against the loop-closure alert.
+    """
+    # HYPER_HOOK_DEBUG is deliberately NOT set: the message has to reach an operator who
+    # never went looking for it, so a test that switches the debug channel on would pass
+    # against the channel this finding was raised about.
+    monkeypatch.delenv("HYPER_HOOK_DEBUG", raising=False)
+    # Called through the module-level capture rather than hook._close_readonly_run,
+    # because the autouse _env fixture replaces that attribute with a no-op and a test
+    # that forgets it asserts against nothing. The _deliver_decline patch below IS
+    # consulted, since the function resolves that name from module globals at call time.
+    monkeypatch.setattr(
+        hook,
+        "_deliver_decline",
+        _async_returning((hook.FlushOutcome.TERMINAL, "422 unknown reason")),
+    )
+
+    _REAL_CLOSE_READONLY_RUN(
+        "agent", "run-9", hook.ResolvedContext(injected_text="RULE"), "claude-code"
+    )
+
+    printed = capsys.readouterr().err
+    assert "was not accepted" in printed
+    assert "holds its reservation" in printed
+
+
+def _async_returning(value):
+    async def _call(*_args, **_kwargs):
+        return value
+
+    return _call
+
+
+def test_a_readonly_close_reports_its_own_reason_whether_or_not_anything_was_offered() -> None:
+    """The reason must not depend on the offer, or it collides with the recording path.
+
+    Borrowing ``below_material_threshold`` and ``empty_offer`` is what put this
+    population inside the daily alert's earned-and-not-recorded line, outnumbering the
+    real losses 43 to 1, with nothing in the stored row able to separate the two.
+    """
+    empty = hook._readonly_decline_payload(
+        "run-2", hook.ResolvedContext(injected_text=""), "cursor"
+    )
+
+    assert empty["reason"] == hook.REASON_READONLY_CLOSE
+    assert empty["is_delivered"] is False
+    assert empty["recall_outcome"] == "resolve_empty"
+
+
 def test_close_readonly_run_declines_an_offered_recall() -> None:
     assert hook._readonly_decline_payload(
         "run-1",
@@ -1869,7 +1931,7 @@ def test_close_readonly_run_declines_an_offered_recall() -> None:
         "cursor",
     ) == {
         "run_id": "run-1",
-        "reason": hook.REASON_BELOW_MATERIAL_THRESHOLD,
+        "reason": hook.REASON_READONLY_CLOSE,
         "is_delivered": True,
         # This path prints the block itself, so it reports delivery rather than leaving
         # the run with the clients too old to say, whose remedy is an upgrade.

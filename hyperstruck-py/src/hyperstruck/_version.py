@@ -23,4 +23,9 @@ from __future__ import annotations
 # so this moves no production number; the version moves because the User-Agent is the only
 # way a fleet is segmented, and a wheel that reports the version below it cannot be told
 # apart from one without the change.
-__version__ = "0.5.3"
+# 0.5.4 is the first release that names a read-only recall's close as its own decline
+# reason rather than borrowing the recording path's. Nothing gates on this value, but the
+# User-Agent is the only way a fleet is segmented, so a wheel that reports the version
+# below it cannot be told apart from one that still sends the borrowed reason, which is
+# exactly what the alert's shrinking loss line has to be read against.
+__version__ = "0.5.4"

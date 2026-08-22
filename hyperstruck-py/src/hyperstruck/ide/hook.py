@@ -42,8 +42,8 @@ from typing import Any
 
 from hyperstruck._wire import (
     REASON_BELOW_MATERIAL_THRESHOLD,
-    REASON_EMPTY_OFFER,
     REASON_NO_TOOL_CALLS,
+    REASON_READONLY_CLOSE,
     REASON_UNEVIDENCED_OUTCOME,
     EvidenceItem,
     ResolvedContext,
@@ -1018,9 +1018,16 @@ def _decline_reason(steps: list[dict[str, Any]], is_worth_learning_from: bool) -
     so how often it skipped a turn, and why, was invisible.
 
     The missing outcome is reported only for a turn the step gates would have let
-    through, because that is the only case where it decided anything. A read-only
-    turn is below the material threshold whatever its evidence says, and naming the
-    outcome there would report a gate that never got to run.
+    through, because that is the only case where it decided anything. A turn that
+    wrote nothing is below the material threshold whatever its evidence says, and
+    naming the outcome there would report a gate that never got to run.
+
+    "Read-only" is deliberately avoided for that turn, though it used to appear here.
+    The word now names a different thing one screen down: ``readonly_close`` is the
+    reason a skill-driven throwaway recall closes itself with, and that run never
+    reaches this function at all. One is a turn that made no writes; the other is a
+    recall that had no turn. Reusing the word for both is how the two populations
+    became indistinguishable in the first place, one layer up.
 
     The wire contract also carries ``empty_offer`` for callers whose recall returned
     nothing to apply. This host cannot reach it: an empty offer with material steps
@@ -1236,13 +1243,16 @@ async def _aresolve(
 def _readonly_decline_payload(
     run_id: str, context: ResolvedContext, source_framework: str
 ) -> dict[str, Any]:
-    offered = bool(context.offered_learning_ids) or bool(context.offered_claim_ids)
     is_delivered = bool(
         _combined_injection(context.injected_text, context.injected_facts_text)
     )
     return {
         "run_id": run_id,
-        "reason": (REASON_BELOW_MATERIAL_THRESHOLD if offered else REASON_EMPTY_OFFER),
+        # Its own reason, not one borrowed from the recording path. Borrowing put this
+        # population inside the daily alert's "credit was earned and not recorded" line,
+        # where it outnumbered the real losses 43 to 1, and nothing in the stored row
+        # could separate the two.
+        "reason": REASON_READONLY_CLOSE,
         "is_delivered": is_delivered,
         # This path prints the block itself, so delivery is known here rather than
         # inferred. Saying nothing would file it with the clients too old to answer,
@@ -1257,9 +1267,20 @@ def _readonly_decline_payload(
 def _close_readonly_run(
     agent_name: str, run_id: str, context: ResolvedContext, source_framework: str
 ) -> None:
-    """Decline a skill-driven throwaway recall so it cannot sit unclosed."""
+    """Decline a skill-driven throwaway recall so it cannot sit unclosed.
+
+    Fails open, and says so when it does. A rejected decline is not an exception: the
+    delivery helper drains the response and returns a terminal outcome, so discarding the
+    return value made an HTTP rejection completely silent. That matters most in exactly
+    the window this version creates, because it is the first client to send a reason a
+    deployed API can refuse: the client mirrors to its public repo on merge while the API
+    ships on a separate manual dispatch, so a user can upgrade before the boundary knows
+    the reason exists. Every such run would then stay open, hold its resolve reservation
+    until the retention sweep, and count unclosed against the loop-closure alert, with
+    nothing anywhere naming the cause.
+    """
     try:
-        asyncio.run(
+        outcome, detail = asyncio.run(
             _deliver_decline(
                 agent_name,
                 _readonly_decline_payload(run_id, context, source_framework),
@@ -1267,6 +1288,21 @@ def _close_readonly_run(
         )
     except Exception as exc:  # noqa: BLE001 - readonly close always fails open
         _debug(f"readonly decline failed ({type(exc).__name__}): {exc}")
+        return
+    if outcome is not FlushOutcome.DELIVERED:
+        # stderr unconditionally, not the debug channel. HYPER_HOOK_DEBUG is unset on
+        # every machine that has not gone looking for it, so a _debug here would name
+        # the cause only for someone already debugging, which is precisely the person
+        # who does not need telling. The recall-timeout fail-open one screen up prints
+        # unconditionally for a strictly less consequential degradation than this one,
+        # where every read-only recall in the window leaks its reservation.
+        print(
+            f"[hyperstruck-hook] readonly decline for {run_id} was not accepted "
+            f"({outcome.value}): {detail or 'no detail'}. The run stays open and holds "
+            "its reservation; if this is a rejected reason, the boundary predates this "
+            "client.",
+            file=sys.stderr,
+        )
 
 
 def _combined_injection(advice: str | None, facts: str | None) -> str | None:
