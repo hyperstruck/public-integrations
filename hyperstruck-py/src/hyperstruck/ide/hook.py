@@ -81,6 +81,7 @@ from hyperstruck.ide.constants import (
     STATUS_FAILED,
     STEP_FAILURE_STATUSES,
     hyper_home,
+    STATUS_SKIPPED,
 )
 from hyperstruck.ide.gating import classify_tool, should_observe
 from hyperstruck.ide.recall import RecallOutcome, RecallResult
@@ -96,6 +97,12 @@ from hyperstruck.redaction import known_credential_match
 
 # Wire fields of a step (the rest of a stored step, e.g. ``kind``, is client-only).
 _WIRE_STEP_FIELDS = ("id", "name", "args", "status", "result", "error")
+
+# Wire fields sent only when they carry something, against the value that means
+# the producer said nothing. An API that predates a field forbids it outright and
+# a 4xx is terminal to delivery, so emitting one unconditionally does not degrade
+# against an older server: it drops those turns for good.
+_WIRE_STEP_OPTIONAL_FIELDS = {"is_refused": False}
 _DISTILL_EMBEDDED_SECRET_PATTERN = re.compile(
     r"(?<![A-Za-z0-9])("
     r"sk-[A-Za-z0-9_\-]{16,}"
@@ -1044,6 +1051,11 @@ def _build_episode(pending: FinishedTurn, is_success: bool) -> dict[str, Any]:
     # carry the outcome the producer reads. The counts stay over the full turn.
     wire_steps = [
         {field: step.get(field) for field in _WIRE_STEP_FIELDS}
+        | {
+            field: step[field]
+            for field, unset in _WIRE_STEP_OPTIONAL_FIELDS.items()
+            if field in step and step[field] != unset
+        }
         for step in pending.steps[-MAX_EPISODE_STEPS:]
     ]
     completed = sum(
@@ -1433,8 +1445,17 @@ def _wire_step(step: dict[str, Any]) -> dict[str, Any]:
         wire["name"] = "tool"
     for field in ("id", "name"):
         wire[field] = str(wire[field])[:MAX_STEP_FIELD_CHARS]
-    if wire.get("status") not in (STATUS_COMPLETED, STATUS_FAILED):
+    if wire.get("status") not in (STATUS_COMPLETED, STATUS_FAILED, STATUS_SKIPPED):
         wire["status"] = STATUS_COMPLETED
+    # A refusal is `skipped` AND `is_refused` AND no error, all three. Coercing an
+    # unrecognised status to `completed` would turn a withheld act into one the run
+    # performed, which makes the server read the whole run as having acted and
+    # collapses its restraint signal. Drop an incoherent flag rather than sending
+    # it: the server refuses the payload outright, and a 4xx is terminal here.
+    if wire.get("is_refused") and (
+        wire.get("status") != STATUS_SKIPPED or wire.get("error") is not None
+    ):
+        wire["is_refused"] = False
     if not isinstance(wire.get("args"), dict):
         wire["args"] = {}
     return wire

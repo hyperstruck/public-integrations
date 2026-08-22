@@ -188,6 +188,9 @@ MATERIAL_KINDS = frozenset({STEP_KIND_EDIT, STEP_KIND_COMMAND})
 
 # The wire status of a step or a turn (matches the server StepModel literals).
 STATUS_COMPLETED = "completed"
+# The runtime declined to carry the act out. Only a refusal when paired with
+# ``is_refused`` and no error; on its own it means the step simply did not run.
+STATUS_SKIPPED = "skipped"
 STATUS_FAILED = "failed"
 
 # Statuses a host may put on a single tool result that mean that call failed. This

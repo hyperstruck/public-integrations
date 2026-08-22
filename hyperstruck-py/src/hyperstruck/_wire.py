@@ -57,6 +57,16 @@ class ToolSpec:
 
     name: str
     description: str = ""
+    # Only the server's own categories are read: "read_only", "write",
+    # "destructive", "external", "delegation". Of those, "write", "destructive"
+    # and "external" are the side-effectful ones, and declaring at least one is
+    # what makes a run holding off from an act legible at all. A near-miss such
+    # as "read" is treated as declaring nothing.
+    category: str | None = None
+    # The tool's declared schemas, used to fingerprint its shape. Pre-redact:
+    # these are stored alongside the learning.
+    parameters: dict[str, Any] | None = None
+    returns: dict[str, Any] | None = None
 
 
 @dataclass(frozen=True)
@@ -66,9 +76,14 @@ class StepRecord:
     id: str
     name: str
     args: dict[str, Any] = field(default_factory=dict)
-    status: Literal["completed", "failed"] = "completed"
+    status: Literal["completed", "failed", "skipped"] = "completed"
     result: Any = None
     error: str | None = None
+    # The runtime decided this act must not happen. Valid only with ``status``
+    # of ``"skipped"`` and no ``error``; the three together are what the server
+    # reads as a refusal. ``"skipped"`` on its own is not one, and sending it
+    # alone makes the whole run read as having acted.
+    is_refused: bool = False
     # Per-argument sensitivity labels declared for this tool, e.g.
     # ``{"args": {"ssn": "pii"}}``. Drives client-side redaction before the wire.
     declared_sensitivity: dict[str, dict[str, str]] | None = None
@@ -82,6 +97,29 @@ class TerminalOutcome:
     total_steps: int = 0
     completed_steps: int = 0
     failed_steps: int = 0
+
+
+def _drop_defaults(payload: dict[str, Any], defaults: dict[str, Any]) -> dict[str, Any]:
+    """Strip keys still at the value that means "the caller said nothing".
+
+    Every field on this wire is added to the API model before it is added here,
+    but a client is upgraded on the customer's schedule and an API is upgraded on
+    ours, so the two orders both happen. The API forbids extra keys, and a 4xx is
+    terminal to the flush retry, so a field emitted unconditionally does not
+    degrade against an older API: it drops those episodes permanently. Omitting a
+    default-valued field costs nothing and removes that whole class of failure.
+    """
+    return {k: v for k, v in payload.items() if k not in defaults or v != defaults[k]}
+
+
+def _step_payload(step: StepRecord) -> dict[str, Any]:
+    return _drop_defaults(asdict(step), {"is_refused": False})
+
+
+def _tool_payload(tool: ToolSpec) -> dict[str, Any]:
+    return _drop_defaults(
+        asdict(tool), {"category": None, "parameters": None, "returns": None}
+    )
 
 
 @dataclass(frozen=True)
@@ -101,17 +139,31 @@ class Episode:
     # silently handed authority to whatever wrote the text.
     principal_utterance: str | None = None
     thread_id: str | None = None
+    # The tools the agent had available during this run. Left empty, the server
+    # writes an empty capability fingerprint and cannot read restraint at all,
+    # so a run that deliberately held off is indistinguishable from one that had
+    # nothing to hold off from.
+    available_tools: tuple[ToolSpec, ...] = ()
 
     def to_payload(self) -> dict[str, Any]:
         """Serialise to the JSON body the platform expects."""
         payload: dict[str, Any] = {
             "run_id": self.run_id,
             "goal": self.goal,
-            "steps": [asdict(step) for step in self.steps],
+            "steps": [_step_payload(step) for step in self.steps],
             "outcome": asdict(self.outcome),
             "source_framework": self.source_framework,
             "thread_id": self.thread_id,
         }
+        # Same rule as ``principal_utterance`` below, and for the same reason: an
+        # API that predates this field forbids it outright, so emitting it when
+        # the caller declared no roster would 422 every write for anyone who
+        # upgrades this package before the deploy lands. Sending it only when it
+        # carries something keeps an upgraded client working against an older API.
+        if self.available_tools:
+            payload["available_tools"] = [
+                _tool_payload(tool) for tool in self.available_tools
+            ]
         # Omitted entirely when unset. The API model forbids extra keys and rejects a
         # forbidden one even with a null value, so emitting it unconditionally would 422
         # every write for anyone who upgrades this package before the API deploy lands,

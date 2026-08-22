@@ -3591,6 +3591,15 @@
         "additionalProperties": false,
         "description": "A finished foreign run, the unit of the write path.",
         "properties": {
+          "available_tools": {
+            "description": "The tools the agent had available during this episode, with their declared categories and shapes. Left empty, tool-aware retrieval writes an empty fingerprint and restraint cannot be read at all.",
+            "items": {
+              "$ref": "#/components/schemas/ToolSpecModel"
+            },
+            "maxItems": 200,
+            "title": "Available Tools",
+            "type": "array"
+          },
           "goal": {
             "description": "Goal attempted by the external agent.",
             "examples": [
@@ -4464,6 +4473,11 @@
             "$ref": "#/components/schemas/LearningScope",
             "default": "agent"
           },
+          "source": {
+            "description": "How this learning was produced: `llm_extracted`, `auto_derived` or `pattern_synthesised`. This is the extraction method, not the provenance of the material: it distinguishes a synthesised pattern from an extracted rule, and it is what answers how much of a corpus synthesis actually produced. For the originating goal text, read `source_goal` on the detail endpoint.",
+            "title": "Source",
+            "type": "string"
+          },
           "summary": {
             "anyOf": [
               {
@@ -4511,6 +4525,7 @@
         "required": [
           "learning_id",
           "content",
+          "source",
           "utility",
           "reliability",
           "corroboration_count",
@@ -8772,6 +8787,12 @@
             "title": "Id",
             "type": "string"
           },
+          "is_refused": {
+            "default": false,
+            "description": "The runtime decided this act must not happen. Valid only with `status` of `skipped` and no `error`: a step that ran and failed into a skip carries an error and is a run that tried, not one that held off. This is the signal restraint learning reads, and a `skipped` step without it reports an act that was never scheduled.",
+            "title": "Is Refused",
+            "type": "boolean"
+          },
           "name": {
             "description": "Tool or action name executed by the external agent.",
             "examples": [
@@ -8788,10 +8809,11 @@
           },
           "status": {
             "default": "completed",
-            "description": "Whether this step completed or failed.",
+            "description": "Terminal status of this step. `skipped` covers every way a step did not run; on its own it does NOT mean the runtime refused the act. Pair it with `is_refused` to report a refusal.",
             "enum": [
               "completed",
-              "failed"
+              "failed",
+              "skipped"
             ],
             "title": "Status",
             "type": "string"
@@ -8862,11 +8884,32 @@
             "title": "Applicable Tools",
             "type": "array"
           },
+          "condition": {
+            "default": "",
+            "description": "The situation the rule applies in. Core stores a learning as contrast-first structured parts; sending only `content` flattens the rule to prose and the structure cannot be recovered afterwards.",
+            "maxLength": 2000,
+            "title": "Condition",
+            "type": "string"
+          },
+          "consequent": {
+            "default": "",
+            "description": "What to do when the condition holds.",
+            "maxLength": 2000,
+            "title": "Consequent",
+            "type": "string"
+          },
           "content": {
             "description": "The learning content to store.",
             "maxLength": 5000,
             "minLength": 1,
             "title": "Content",
+            "type": "string"
+          },
+          "contrast": {
+            "default": "",
+            "description": "The observed reason or outcome the rule rests on, if it states one.",
+            "maxLength": 2000,
+            "title": "Contrast",
             "type": "string"
           },
           "domain_dimensions": {
@@ -8966,6 +9009,23 @@
         "additionalProperties": false,
         "description": "A tool the agent had available, for tool-aware retrieval.",
         "properties": {
+          "category": {
+            "anyOf": [
+              {
+                "maxLength": 100,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "The tool's declared category. Restraint and admissibility both classify on this, and only the values Core knows are read: `read_only`, `write`, `destructive`, `external`, `delegation`. Of those, `write`, `destructive` and `external` are the side-effectful ones. Anything else, including a near-miss like `read`, is treated as declaring nothing, and a roster where nothing declares a side-effectful category cannot express that a run held off at all.",
+            "examples": [
+              "write",
+              "read_only"
+            ],
+            "title": "Category"
+          },
           "description": {
             "default": "",
             "description": "Short explanation of what the tool can do.",
@@ -8985,6 +9045,32 @@
             "minLength": 1,
             "title": "Name",
             "type": "string"
+          },
+          "parameters": {
+            "anyOf": [
+              {
+                "additionalProperties": true,
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "The tool's declared parameter schema, used to fingerprint its shape. Pre-redact secrets and personal data: this is stored on the learning.",
+            "title": "Parameters"
+          },
+          "returns": {
+            "anyOf": [
+              {
+                "additionalProperties": true,
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "The tool's declared return schema, used to fingerprint its shape. Pre-redact secrets and personal data: this is stored on the learning.",
+            "title": "Returns"
           }
         },
         "required": [

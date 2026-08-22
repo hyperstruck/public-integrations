@@ -32,6 +32,7 @@ import httpx
 
 from hyperstruck._version import __version__
 from hyperstruck._wire import (
+    _tool_payload,
     DECLINE_REASONS,
     DEFAULT_MAX_LEARNINGS,
     DISTILL_MAX_LEARNINGS,
@@ -362,9 +363,7 @@ class HostedLearningClient:
             "run_id": run_id,
             "goal": goal,
             "source_framework": source_framework,
-            "available_tools": [
-                {"name": t.name, "description": t.description} for t in available_tools
-            ],
+            "available_tools": [_tool_payload(t) for t in available_tools],
             "max_learnings": max_learnings,
             "model_context_window": model_context_window,
         }

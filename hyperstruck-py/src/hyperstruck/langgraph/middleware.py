@@ -254,7 +254,11 @@ class HyperstruckLearningMiddleware(AgentMiddleware):
             return None
         try:
             identity = self._invoke_identity()
-            episode = ledger.build_episode(source_framework=SOURCE_FRAMEWORK, tool_sensitivity=self._tool_sensitivity)
+            episode = ledger.build_episode(
+                source_framework=SOURCE_FRAMEWORK,
+                tool_sensitivity=self._tool_sensitivity,
+                available_tools=self._tools,
+            )
             await self._client.observe(identity=identity, episode=episode)
             await self._client.reinforce(
                 identity=identity,
@@ -401,22 +405,58 @@ def _latest_human_goal(messages: list[BaseMessage]) -> str:
 
 
 def _tool_specs(tools: Any) -> tuple[ToolSpec, ...]:
-    """Project the request's tools onto the spec shape resolve expects."""
+    """Project the request's tools onto the spec shape resolve expects.
+
+    ``category`` is read from the tool when it declares one and left ``None``
+    otherwise. It is not inferred: the server treats an unrecognised value as
+    declaring nothing, so a guess would be indistinguishable from silence while
+    looking like a declaration. Without at least one side-effectful category in
+    the roster the server cannot tell a run that deliberately held off from one
+    that had nothing to hold off from, so a host that wants that signal declares
+    categories on its tools.
+    """
     if not tools:
         return ()
     specs: list[ToolSpec] = []
     for tool in tools:
+        category = None
+        parameters = None
+        returns = None
         if isinstance(tool, str):
             name, description = tool, ""
         elif isinstance(tool, Mapping):
             name = tool.get("name")
             description = tool.get("description", "")
+            category = _optional_str(tool.get("category"))
+            parameters = _optional_mapping(tool.get("parameters"))
+            returns = _optional_mapping(tool.get("returns"))
         else:
             name = getattr(tool, "name", None)
             description = getattr(tool, "description", "") or ""
+            category = _optional_str(getattr(tool, "category", None))
+            parameters = _optional_mapping(getattr(tool, "parameters", None))
+            returns = _optional_mapping(getattr(tool, "returns", None))
         if name:
-            specs.append(ToolSpec(name=name, description=description))
+            specs.append(
+                ToolSpec(
+                    name=name,
+                    description=description,
+                    category=category,
+                    parameters=parameters,
+                    returns=returns,
+                )
+            )
     return tuple(specs)
+
+
+def _optional_str(value: Any) -> str | None:
+    """A non-empty string, or ``None`` for anything else."""
+    return value if isinstance(value, str) and value else None
+
+
+def _optional_mapping(value: Any) -> dict[str, Any] | None:
+    """A plain dict, or ``None``. The server bounds the size; this bounds the type."""
+    return dict(value) if isinstance(value, Mapping) and value else None
 
 
 def _tool_call_field(call: Any, field_name: str) -> str:

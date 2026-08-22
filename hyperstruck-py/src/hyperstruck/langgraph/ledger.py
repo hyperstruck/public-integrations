@@ -25,7 +25,7 @@ from typing import Any
 
 from langchain_core.messages import AIMessage, ToolMessage
 
-from hyperstruck._wire import Episode, StepRecord, TerminalOutcome
+from hyperstruck._wire import Episode, StepRecord, TerminalOutcome, ToolSpec
 
 logger = logging.getLogger(__name__)
 
@@ -144,6 +144,7 @@ class InvokeLedger:
         *,
         source_framework: str,
         tool_sensitivity: Mapping[str, Mapping[str, str]] | None = None,
+        available_tools: tuple[ToolSpec, ...] = (),
     ) -> Episode:
         """Project the joined trace onto an :class:`Episode`.
 
@@ -192,6 +193,11 @@ class InvokeLedger:
             outcome=terminal_outcome,
             source_framework=source_framework,
             thread_id=self.thread_id,
+            # The roster the agent had, not the tools it happened to call. The
+            # server reads restraint from what was available and declined, so a
+            # roster derived from the steps would only ever contain tools that
+            # ran, which is the one case restraint is not about.
+            available_tools=available_tools,
         )
 
     def is_fully_declared(self, tool_sensitivity: Mapping[str, Mapping[str, str]]) -> bool:
