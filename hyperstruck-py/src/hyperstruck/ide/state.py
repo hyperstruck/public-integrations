@@ -29,6 +29,7 @@ from hyperstruck.ide.constants import (
     ACTIVE_SUBDIR,
     FLUSH_ATTEMPT_SUFFIX,
     FLUSHING_SUBDIR,
+    INJECTION_POINT_FILE,
     PENDING_FILE,
     RECALL_FILE,
     RECALL_STATUS_FILE,
@@ -56,6 +57,17 @@ class ActiveTurn:
     # because the backstop sweep finalises an abandoned turn from another session, with
     # no payload of its own to read it from; without it those turns credit nothing.
     transcript_path: str = ""
+    # The project this turn is working in, which is what the warm stash is keyed on. The
+    # detached resolver publishes that stash and is handed only a session id, so the cwd
+    # has to travel on the turn rather than being read from the resolver's own process.
+    cwd: str = ""
+    # Whether this turn showed the project's warm stash at prompt time. Carried so the
+    # turn can report an exposure that is real and deliberately uncreditable, which is
+    # otherwise indistinguishable from having been shown nothing at all.
+    is_stash_emitted: bool = False
+    # A digest of the warm stash this turn opened with, so its own recall can decline to
+    # show an identical block a second time.
+    stash_block_digest: str = ""
 
 
 @dataclass(frozen=True)
@@ -88,7 +100,7 @@ class FinishedTurn:
 
 
 def session_dir(session_id: str) -> Path:
-    return sessions_dir() / _safe_name(session_id)
+    return sessions_dir() / safe_name(session_id)
 
 
 # -- active turn -------------------------------------------------------------
@@ -111,11 +123,11 @@ def write_active(
         _reset_dir(steps_dir)
     else:
         ensure_private_dir(steps_dir)
-    _write_json_atomic(sdir / ACTIVE_FILE, asdict(turn))
+    write_json_atomic(sdir / ACTIVE_FILE, asdict(turn))
 
 
 def read_active(session_id: str) -> ActiveTurn | None:
-    data = _read_json(session_dir(session_id) / ACTIVE_FILE)
+    data = read_json(session_dir(session_id) / ACTIVE_FILE)
     if not data:
         return None
     try:
@@ -129,6 +141,9 @@ def read_active(session_id: str) -> ActiveTurn | None:
             offered_claim_ids=tuple(data.get("offered_claim_ids") or ()),
             is_injected=bool(data.get("is_injected", False)),
             transcript_path=data.get("transcript_path", ""),
+            cwd=data.get("cwd", ""),
+            is_stash_emitted=bool(data.get("is_stash_emitted", False)),
+            stash_block_digest=data.get("stash_block_digest", ""),
         )
     except (KeyError, TypeError, ValueError):
         return None
@@ -145,12 +160,12 @@ def clear_active(session_id: str) -> None:
 
 def write_recall(session_id: str, recall: dict[str, Any]) -> None:
     """Atomically publish one detached resolve result for the active turn."""
-    _write_json_atomic(session_dir(session_id) / RECALL_FILE, recall)
+    write_json_atomic(session_dir(session_id) / RECALL_FILE, recall)
 
 
 def peek_recall(session_id: str) -> dict[str, Any] | None:
     """Read the recall stash without consuming it, for pre-claim validation."""
-    data = _read_json(session_dir(session_id) / RECALL_FILE)
+    data = read_json(session_dir(session_id) / RECALL_FILE)
     return data if isinstance(data, dict) else None
 
 
@@ -169,7 +184,7 @@ def claim_recall(session_id: str) -> dict[str, Any] | None:
     except OSError:
         return None
     try:
-        data = _read_json(claimed)
+        data = read_json(claimed)
         return data if isinstance(data, dict) else None
     finally:
         _remove(claimed)
@@ -194,14 +209,14 @@ def write_recall_status(session_id: str, run_id: str, outcome: str) -> None:
     """
     if not _may_take_status_slot(session_id, run_id):
         return
-    _write_json_atomic(
+    write_json_atomic(
         session_dir(session_id) / RECALL_STATUS_FILE,
         {"run_id": run_id, "outcome": outcome},
     )
 
 
 def _may_take_status_slot(session_id: str, run_id: str) -> bool:
-    held = _read_json(session_dir(session_id) / RECALL_STATUS_FILE)
+    held = read_json(session_dir(session_id) / RECALL_STATUS_FILE)
     if not isinstance(held, dict) or held.get("run_id") in (None, run_id):
         return True
     active = read_active(session_id)
@@ -210,7 +225,7 @@ def _may_take_status_slot(session_id: str, run_id: str) -> bool:
 
 def read_recall_status(session_id: str, run_id: str) -> str | None:
     """This run's resolve verdict, or ``None`` when the file is absent or another run's."""
-    data = _read_json(session_dir(session_id) / RECALL_STATUS_FILE)
+    data = read_json(session_dir(session_id) / RECALL_STATUS_FILE)
     if not isinstance(data, dict) or data.get("run_id") != run_id:
         return None
     outcome = data.get("outcome")
@@ -224,8 +239,51 @@ def clear_recall(session_id: str) -> None:
     _remove(sdir / RECALL_STATUS_FILE)
     if not sdir.is_dir():
         return
+    for path in sdir.glob(f"{INJECTION_POINT_FILE}-*"):
+        _remove(path)
     for path in sdir.glob(f".{RECALL_FILE}.*.processing"):
         _remove(path)
+
+
+def _injection_point_path(session_id: str, run_id: str) -> Path:
+    """One marker per run, so a turn can never inherit the previous turn's answer.
+
+    Every other cross-process artefact here carries its ``run_id`` and is checked against
+    the turn reading it. The marker held none, and ``write_active(reset_steps=False)`` (the
+    lazy turn start in the per-tool hook) does not clear recall state, so a turn started
+    that way after an unparsable ``active.json`` inherited the previous turn's marker and
+    reported ``RECALL_UNCLAIMED`` -- the actionable half -- for a turn that never had
+    anywhere to show anything. Naming the file after the run closes that by construction
+    rather than by remembering to clear it, and creating a file stays atomic either way.
+    """
+    return session_dir(session_id) / f"{INJECTION_POINT_FILE}-{safe_name(run_id)}"
+
+
+def mark_injection_point(session_id: str, run_id: str) -> bool:
+    """Record that the host fired the hook that can show this turn's recall.
+
+    A marker file rather than a field on the active turn. Tool hooks run as parallel
+    processes with no lock, so a read-modify-write of ``active.json`` from one of them can
+    clobber another's ``is_injected`` and offered ids between its read and its write, losing
+    the credit for rules that were genuinely shown. Creating a file is atomic and carries no
+    other state, so parallel hooks cannot destroy each other's work.
+
+    Returns whether the mark landed. A silent failure here is not neutral: it reads back as
+    "there was nowhere to show anything", which is the structural verdict with no remedy,
+    so an unwritable session dir would quietly relabel every real drop as nothing to fix.
+    """
+    sdir = session_dir(session_id)
+    try:
+        ensure_private_dir(sdir)
+        _injection_point_path(session_id, run_id).touch()
+    except OSError:
+        return False
+    return True
+
+
+def has_injection_point(session_id: str, run_id: str) -> bool:
+    """Whether the injecting hook ever fired for this run."""
+    return _injection_point_path(session_id, run_id).exists()
 
 
 # -- per-step append files ---------------------------------------------------
@@ -240,7 +298,7 @@ def append_step(session_id: str, step: dict[str, Any]) -> None:
     steps_dir = session_dir(session_id) / ACTIVE_SUBDIR / STEPS_SUBDIR
     ensure_private_dir(steps_dir)
     name = f"{time.time_ns():020d}-{uuid.uuid4().hex}.json"
-    _write_json_atomic(steps_dir / name, step)
+    write_json_atomic(steps_dir / name, step)
 
 
 def read_steps(session_id: str) -> list[dict[str, Any]]:
@@ -252,7 +310,7 @@ def read_steps(session_id: str) -> list[dict[str, Any]]:
     for path in sorted(steps_dir.iterdir(), key=lambda p: p.name):
         if path.suffix != ".json":
             continue
-        data = _read_json(path)
+        data = read_json(path)
         if isinstance(data, dict):
             steps.append(data)
     return steps
@@ -273,7 +331,7 @@ def read_pending(session_id: str) -> tuple[FinishedTurn, bool] | None:
     The label comes back alongside the turn rather than on it, because it is the older
     code's verdict travelling with older data, not something this release computed.
     """
-    return _pending_from_dict(_read_json(session_dir(session_id) / PENDING_FILE))
+    return _pending_from_dict(read_json(session_dir(session_id) / PENDING_FILE))
 
 
 def clear_pending(session_id: str) -> None:
@@ -301,14 +359,14 @@ def stage_flush(session_id: str, run_id: str, episode_payload: dict[str, Any]) -
     """
     flush_dir = session_dir(session_id) / FLUSHING_SUBDIR
     ensure_private_dir(flush_dir)
-    name = _safe_name(run_id) if run_id else f"unkeyed-{uuid.uuid4().hex}"
+    name = safe_name(run_id) if run_id else f"unkeyed-{uuid.uuid4().hex}"
     path = flush_dir / f"{name}.json"
-    _write_json_atomic(path, episode_payload)
+    write_json_atomic(path, episode_payload)
     return path
 
 
 def read_flush(path: str | os.PathLike[str]) -> dict[str, Any] | None:
-    return _read_json(Path(path))
+    return read_json(Path(path))
 
 
 def record_flush_attempt(path: str | os.PathLike[str]) -> int | None:
@@ -462,8 +520,14 @@ def ensure_private_dir(path: Path) -> None:
         pass
 
 
-def _write_json_atomic(path: Path, obj: Any) -> None:
-    """Write JSON via a temp file + rename so a reader never sees a partial."""
+def write_json_atomic(path: Path, obj: Any) -> None:
+    """Write JSON via a temp file + rename so a reader never sees a partial.
+
+    Public because the warm stash writes with it too. It lives outside the session dir
+    but under the same root, holding the same kind of content, so it wants the same
+    owner-only mode and the same guarantee that a concurrent reader never sees a partial
+    file. A second implementation of either would be a second thing to get wrong.
+    """
     ensure_private_dir(path.parent)
     tmp = path.parent / f".{path.name}.{uuid.uuid4().hex}.tmp"
     with tmp.open("w", encoding="utf-8") as handle:
@@ -475,7 +539,7 @@ def _write_json_atomic(path: Path, obj: Any) -> None:
     os.replace(tmp, path)
 
 
-def _read_json(path: Path) -> Any | None:
+def read_json(path: Path) -> Any | None:
     try:
         with path.open("r", encoding="utf-8") as handle:
             return json.load(handle)
@@ -513,7 +577,7 @@ def _flush_attempt_path(path: Path) -> Path:
     return path.with_name(f"{path.name}{FLUSH_ATTEMPT_SUFFIX}")
 
 
-def _safe_name(name: str) -> str:
+def safe_name(name: str) -> str:
     """A filesystem-safe single path component for a session/run id.
 
     Slashes are already mapped to ``_``; dot-segments (``.``/``..``) are mapped to

@@ -42,11 +42,13 @@ from typing import Any
 
 from hyperstruck._wire import (
     REASON_BELOW_MATERIAL_THRESHOLD,
+    REASON_NO_GOAL,
     REASON_NO_TOOL_CALLS,
     REASON_READONLY_CLOSE,
     REASON_UNEVIDENCED_OUTCOME,
     EvidenceItem,
     ResolvedContext,
+    published_decline_reasons,
 )
 from hyperstruck.client import (
     DEFAULT_DETACHED_RECALL_TIMEOUT,
@@ -54,15 +56,13 @@ from hyperstruck.client import (
     ResolvePurpose,
 )
 from hyperstruck.env import RESOLVE_TIMEOUT_ENV, env_float
-from hyperstruck.identity import AgentIdentity
-from hyperstruck.ide import outcome, receipt, state
+from hyperstruck.ide import outcome, receipt, registration, stash, state
 from hyperstruck.ide.config import configured_agent_name, load_env
-from hyperstruck.ide.debug import debug as _debug
 from hyperstruck.ide.constants import (
-    DERIVED_KEY_DIGEST_CHARS,
-    DERIVED_KEY_PREFIX,
     CREDENTIAL_HEAD_CHARS,
     DEFAULT_FLUSH_MAX_ATTEMPTS,
+    DERIVED_KEY_DIGEST_CHARS,
+    DERIVED_KEY_PREFIX,
     DISTILL_RUN_ID_PREFIX,
     EVICTION_WINDOW_SECONDS,
     FLUSH_MAX_ATTEMPTS_ENV,
@@ -79,13 +79,19 @@ from hyperstruck.ide.constants import (
     SOURCE_CURSOR,
     STATUS_COMPLETED,
     STATUS_FAILED,
+    STATUS_SKIPPED,
     STEP_FAILURE_STATUSES,
     hyper_home,
-    STATUS_SKIPPED,
 )
+from hyperstruck.ide.debug import debug as _debug
 from hyperstruck.ide.gating import classify_tool, should_observe
-from hyperstruck.ide.recall import RecallOutcome, RecallResult
-from hyperstruck.ide.host_vocabularies import vocabulary_for
+from hyperstruck.ide.host_vocabularies import (
+    failure_framing,
+    is_prompt_injectable,
+    is_string_result_a_failure,
+    vocabulary_for,
+)
+from hyperstruck.ide.recall import RecallOutcome, RecallResult, wire_value
 from hyperstruck.ide.redaction import (
     clip_goal,
     clip_result,
@@ -93,6 +99,8 @@ from hyperstruck.ide.redaction import (
     scrub_secrets,
 )
 from hyperstruck.ide.state import ActiveTurn, FinishedTurn
+from hyperstruck.ide.step_result import gate_bearing_result
+from hyperstruck.identity import AgentIdentity
 from hyperstruck.redaction import known_credential_match
 
 # Wire fields of a step (the rest of a stored step, e.g. ``kind``, is client-only).
@@ -171,7 +179,7 @@ def cmd_prompt(payload: dict[str, Any], args: argparse.Namespace) -> None:
             orphan,
             state.read_steps(session_id),
             native_status=None,
-            recall=_acceptance_record(session_id, orphan, payload),
+            payload=payload,
         )
     # 2. Sweep stale sessions (backstop delivery).
     _sweep_stale(exclude=session_id)
@@ -181,6 +189,11 @@ def cmd_prompt(payload: dict[str, Any], args: argparse.Namespace) -> None:
         return
     # 4. Begin the new turn, then resolve outside the editor's prompt hook.
     run_id = _new_run_id(agent_name, session_id)
+    # 5. Show the project's warm stash before the turn is recorded, since this turn's own
+    #    resolve cannot land before the model has already planned and chosen its first
+    #    tool. Emitting first means the turn is written once, carrying what was shown,
+    #    rather than written and then read back and rewritten one line later.
+    shown = _emit_warm_stash(agent_name, cwd, args)
     state.write_active(
         session_id,
         ActiveTurn(
@@ -190,6 +203,9 @@ def cmd_prompt(payload: dict[str, Any], args: argparse.Namespace) -> None:
             source_framework=_source(args),
             started_at=time.time(),
             transcript_path=str(payload.get("transcript_path") or ""),
+            cwd=cwd,
+            is_stash_emitted=shown is not None,
+            stash_block_digest=shown or "",
         ),
     )
     _spawn_resolve(session_id)
@@ -238,6 +254,54 @@ def cmd_tool(payload: dict[str, Any], args: argparse.Namespace) -> None:
         _inject_pending(session_id, SOURCE_CLAUDE_CODE)
 
 
+# -- command: register (out-of-band tool declaration) ------------------------
+
+
+def cmd_register(payload: dict[str, Any], args: argparse.Namespace) -> None:
+    """Record what this host's tools are, for the tool hook to read back by name.
+
+    Out of band on purpose, and never reachable from the tool hook. A tool event carries
+    a name, its inputs, its response and an id; the declarations that decide a step kind
+    without inference are not on it, and every hook event is a fresh subprocess with no
+    warm cache to fill. So the judgement happens here, once, and the hot path reads.
+
+    ``servers`` is the host's *declared* server list, which is a different claim from
+    the ones that answered. Only a registration covering every declared server licenses
+    sending a tool palette, because a partial palette is read as tools the agent does not
+    have and suppresses the very rules this exists to start earning.
+    """
+    source = _source(args)
+    tools = payload.get("tools")
+    if not isinstance(tools, list):
+        _debug("register: no tool list in the payload")
+        return
+    registration.register(
+        source,
+        [tool for tool in tools if isinstance(tool, dict)],
+        declared_servers=_string_list(payload.get("servers")),
+        registered_servers=_string_list(payload.get("registered_servers")),
+        model_context_window=payload.get("model_context_window"),
+    )
+    # Printed, not merely debugged. This command is run by hand and by an installer, and a
+    # caller that cannot tell "stored 40 tools" from "stored nothing" has no way to find out
+    # that its palette will be withheld for a reason it never saw.
+    stored = registration.live_record(source) or {}
+    complete = registration.palette(source, stored) is not None
+    print(
+        f"[hyperstruck] registered {len(stored.get('tools') or {})} tool(s) for {source}; "
+        + (
+            "palette will be sent"
+            if complete
+            else "palette withheld until every declared server is registered"
+        ),
+        file=sys.stderr,
+    )
+
+
+def _string_list(value: Any) -> list[str]:
+    return [str(item) for item in value] if isinstance(value, list) else []
+
+
 # -- command: stop (finalise provisional) ------------------------------------
 
 
@@ -256,7 +320,7 @@ def cmd_stop(payload: dict[str, Any], args: argparse.Namespace) -> None:
         active,
         steps,
         native_status=native_status,
-        recall=_acceptance_record(session_id, active, payload),
+        payload=payload,
     )
 
 
@@ -319,6 +383,19 @@ def cmd_resolve(session_id: str) -> None:
         state.write_recall_status(
             session_id, active.run_id, RecallOutcome.RECALL_UNCLAIMED
         )
+        # Published for the project's next prompt hook as well as this turn's tool
+        # hooks. The two are separate artefacts on purpose: the per-turn stash is
+        # cleared at both ends of its turn, which is exactly what a warm value has to
+        # survive.
+        # Inside its own guard. It runs after the verdict above is already written, so an
+        # OSError escaping here would be caught by the outer handler and overwrite a
+        # successful resolve with RESOLVE_FAILED: a turn that worked, reported as broken.
+        try:
+            stash.write(
+                active.agent_name, active.cwd, goal=active.goal, context=context
+            )
+        except OSError as stash_error:
+            _debug(f"warm stash not published ({stash_error})")
         _debug(
             f"resolve ok: {len(context.offered_learning_ids)} learning(s), "
             f"{len(context.offered_claim_ids)} claim(s) for agent {active.agent_name}"
@@ -804,7 +881,7 @@ def _finalise(
     current_steps: list[dict[str, Any]],
     *,
     native_status: str | None,
-    recall: RecallResult,
+    payload: dict[str, Any] | None = None,
 ) -> None:
     """Label this turn from its own evidence and deliver it now.
 
@@ -812,7 +889,12 @@ def _finalise(
     declined rather than credited, so there is nothing left for a later turn to
     retract, and a run that has no successor by construction (a headless one-shot,
     or the last turn of any session) still closes its loop at its only stop.
+
+    The receipt is read here rather than by the caller because the reason a turn has
+    none depends on whether it ever ran a tool, which is the same evidence the label
+    is drawn from. Reading it at three call sites meant carrying the steps twice.
     """
+    recall = _acceptance_record(session_id, current, payload)
     turn_outcome = outcome.provisional_outcome(
         current_steps,
         native_status,
@@ -850,7 +932,9 @@ def _transcript_path(payload: dict[str, Any], turn: ActiveTurn) -> str:
 
 
 def _acceptance_record(
-    session_id: str, turn: ActiveTurn, payload: dict[str, Any] | None = None
+    session_id: str,
+    turn: ActiveTurn,
+    payload: dict[str, Any] | None = None,
 ) -> RecallResult:
     """This turn's receipt, and when there is none, which of the reasons applies.
 
@@ -872,10 +956,22 @@ def _undelivered_reason(session_id: str, turn: ActiveTurn) -> RecallOutcome:
     """Why the model was never shown this turn's recall.
 
     The resolver records its verdict where the stop hook can read it, so a stash that
-    was published and never claimed (the turn called no tool after it landed) reads
-    differently from a resolve that timed out, failed, or came back for a turn that had
-    already been superseded. An absent verdict means the resolve had not finished by the
-    time the turn ended, which is its own answer rather than a fault.
+    was published and never claimed reads differently from a resolve that timed out,
+    failed, or came back for a turn that had already been superseded. An absent verdict
+    means the resolve had not finished by the time the turn ended, which is its own
+    answer rather than a fault.
+
+    A published stash that nothing claimed has two causes and only one of them is a
+    defect. This turn's own resolve lands after the prompt hook has already returned, so it
+    can only be shown by the host's tool hook: a turn where that hook never fired offered
+    nowhere to put it. Reported as one number those runs read as a drop rate with a fix,
+    and the structural half has none.
+
+    Read from the injection point the turn actually recorded, never from its captured step
+    count. The two diverge on exactly the host this most affects: Cursor injects from
+    ``postToolUse`` and captures from the file-edit and shell hooks, so a Cursor turn of
+    pure reads has injection points and no steps, and the proxy would call its drop
+    structural when it is the fixable kind.
     """
     recorded = state.read_recall_status(session_id, turn.run_id)
     if not recorded:
@@ -891,7 +987,28 @@ def _undelivered_reason(session_id: str, turn: ActiveTurn) -> RecallOutcome:
         # hook is told to fix, on a claim this client can see is wrong.
         _debug(f"recall status {recorded!r} contradicts a turn that never injected")
         return RecallOutcome.RECALL_UNRECOGNISED
+    if outcome is RecallOutcome.RECALL_UNCLAIMED and not state.has_injection_point(
+        session_id, turn.run_id
+    ):
+        outcome = RecallOutcome.RECALL_NO_INJECTION_POINT
+    if turn.is_stash_emitted and outcome in _SUPERSEDED_BY_A_STASH:
+        # The model was shown experience, so "nothing reached it" is no longer true of
+        # this turn. Only the two answers that report an unshown stash give way: a
+        # resolve that timed out or failed names a fault with a remedy, and reporting a
+        # warm emission over it would hide the fault behind a success.
+        return RecallOutcome.STASH_EMITTED
     return outcome
+
+
+# The one answer a warm emission supersedes. RECALL_NO_INJECTION_POINT says there was
+# nowhere to show anything, which stops being true once a stash was shown at prompt time.
+#
+# RECALL_UNCLAIMED is deliberately NOT here, though an earlier version included it. That
+# value is the *defect* half of the split EI6 exists to make: a stash the host had every
+# chance to show and did not. Since a warm emission happens on nearly every turn after the
+# first in a project, including it relabelled almost every real drop as a success, which
+# erased the actionable half one release after the split was built to expose it.
+_SUPERSEDED_BY_A_STASH = frozenset({RecallOutcome.RECALL_NO_INJECTION_POINT})
 
 
 def _clipped_receipt(receipt_text: str) -> str | None:
@@ -938,8 +1055,11 @@ def _stage_and_flush(
     # trivial turn (no material steps, no offer) still short-circuits below.
     offered = bool(pending.offered_learning_ids) or bool(pending.offered_claim_ids)
     is_worth_learning_from = should_observe(steps) or offered
-    do_observe = turn_outcome.is_evidenced and should_observe(steps)
-    do_reinforce = do_observe or (turn_outcome.is_evidenced and offered)
+    is_goalless = _is_goalless_decline(pending)
+    do_observe = not is_goalless and turn_outcome.is_evidenced and should_observe(steps)
+    do_reinforce = do_observe or (
+        not is_goalless and turn_outcome.is_evidenced and offered
+    )
     if not (do_observe or do_reinforce):
         # Not worth learning from, but the run it opened is still open server-side,
         # and going quiet made a deliberate skip look identical to a broken host.
@@ -948,7 +1068,9 @@ def _stage_and_flush(
             "agent_name": pending.agent_name,
             "decline": {
                 "run_id": pending.run_id,
-                "reason": _decline_reason(steps, is_worth_learning_from),
+                "reason": _decline_reason(
+                    steps, is_worth_learning_from, is_goalless=is_goalless
+                ),
                 "is_delivered": _reported_delivery(pending),
                 "recall_outcome": pending.recall_outcome,
                 "source_framework": pending.source_framework,
@@ -980,10 +1102,14 @@ def _wire_recall_outcome(value: Any) -> str | None:
     if not value:
         return None
     try:
-        return str(RecallOutcome(str(value)))
+        outcome = RecallOutcome(str(value))
     except ValueError:
         _debug(f"dropping unrecognised recall outcome {value!r} from the write")
         return None
+    wire = wire_value(outcome)
+    if wire != str(outcome):
+        _debug(f"recall outcome {outcome} degraded to {wire}: not published yet")
+    return wire
 
 
 def _reported_delivery(pending: FinishedTurn) -> bool:
@@ -1017,8 +1143,30 @@ def _staged_run_id(payload: dict[str, Any]) -> str:
     return ""
 
 
-def _decline_reason(steps: list[dict[str, Any]], is_worth_learning_from: bool) -> str:
+def _is_goalless_decline(pending: FinishedTurn) -> bool:
+    """Whether this turn is declined for having no goal, rather than judged on its steps.
+
+    A turn started by a tool event alone carries no prompt, so it reaches the corpus with
+    an empty goal. A rule extracted from it is transferable against nothing: the goal is
+    what a later run matches on, and an episode without one asks extraction to generalise
+    from what was done with no account of what it was for.
+
+    Gated on the reason being published, and off until it is. The boundary refuses a
+    reason it does not know, and a refused decline leaves the run open holding its
+    resolve reservation, which is strictly worse than the goalless observe this replaces.
+    Publishing the reason turns the branch on with no code change.
+    """
+    return not pending.goal and REASON_NO_GOAL in published_decline_reasons()
+
+
+def _decline_reason(
+    steps: list[dict[str, Any]], is_worth_learning_from: bool, *, is_goalless: bool
+) -> str:
     """Why this turn was declined, from the gate that actually decided it.
+
+    The goalless case is reported first because it is the only one that is not a
+    judgement about the turn's steps: a goalless turn can be entirely material and is
+    still declined, so reporting it by its step count would name a gate that never ran.
 
     Derived rather than invented, so the reported cause and the gate can never
     disagree. This is what makes the gate measurable: until now it fired silently,
@@ -1040,6 +1188,8 @@ def _decline_reason(steps: list[dict[str, Any]], is_worth_learning_from: bool) -
     nothing to apply. This host cannot reach it: an empty offer with material steps
     still observes, and one without them is already described by the step count.
     """
+    if is_goalless:
+        return REASON_NO_GOAL
     if is_worth_learning_from:
         return REASON_UNEVIDENCED_OUTCOME
     return REASON_NO_TOOL_CALLS if not steps else REASON_BELOW_MATERIAL_THRESHOLD
@@ -1107,7 +1257,6 @@ def _sweep_stale(*, exclude: str) -> None:
                 orphan,
                 state.read_steps(session_id),
                 native_status=None,
-                recall=_acceptance_record(session_id, orphan),
             )
         elif orphan is None:
             state.clear_recall(session_id)
@@ -1234,6 +1383,14 @@ async def _aresolve(
     resolve_timeout: float | None = None,
     resolve_purpose: ResolvePurpose = ResolvePurpose.AGENT_LOOP,
 ) -> ResolvedContext:
+    """Resolve against the hosted boundary, telling it what this host can actually do.
+
+    The palette and the window are asymmetric and are treated as such. A tool set the
+    server does not have is read as a tool the agent lacks, so a *partial* palette
+    silently suppresses real rules while an absent one fails open; registration therefore
+    withholds it unless it covers every declared server. The window suppresses nothing at
+    all, it only bounds how much comes back, so it goes whenever the host declared one.
+    """
     client = HostedLearningClient(
         resolve_timeout=(
             _recall_timeout() if resolve_timeout is None else resolve_timeout
@@ -1241,10 +1398,17 @@ async def _aresolve(
         client_host=source_framework,
     )
     try:
+        # One read of the registration, not one per answer: this runs on the recall path
+        # and both answers come out of the same file.
+        registered = registration.live_record(source_framework)
         return await client.resolve(
             identity=AgentIdentity(agent_name=agent_name),
             run_id=run_id,
             goal=goal,
+            available_tools=registration.palette(source_framework, registered) or (),
+            model_context_window=registration.context_window(
+                source_framework, registered
+            ),
             source_framework=source_framework,
             resolve_purpose=resolve_purpose,
         )
@@ -1472,8 +1636,10 @@ def _step_from_payload(
     Spans Claude Code (``tool_name``/``tool_input``/``tool_response``) and Cursor
     (``command``/``file_path``/``exit_code``) shapes. Only safe-to-ship inputs go
     in ``args`` (path, command); no file body, diff, or tool output is ever
-    captured. The result is always dropped (it would be source); only the tool
-    name, path/command, status, and a clipped, scrubbed error survive.
+    captured. Tool output itself is still never shipped, because a read or edit
+    result is file contents and a command's stdout can be source. What ships
+    beside the status is a failed step's exit status, which says *which* failure
+    rather than that there was one; see ``step_result``.
     """
     name = (
         args.name
@@ -1482,7 +1648,7 @@ def _step_from_payload(
         or payload.get("name")
         or "tool"
     )
-    kind = args.kind or classify_tool(name)
+    kind = args.kind or classify_tool(name, _source(args))
 
     safe_args: dict[str, Any] = {}
     path = (
@@ -1496,22 +1662,25 @@ def _step_from_payload(
     if command:
         safe_args["command"] = scrub_secrets(clip_result(command))
 
-    is_error = _is_error(payload)
-    # No tool result is ever shipped. A read or edit result is file contents or a
-    # diff, and a command's stdout can be source too (git diff, grep, cat). The
-    # only execution signal we need is pass/fail (the status); the failure detail
-    # rides in `error`, clipped and scrubbed. So `result` is always dropped.
+    is_error = _is_error(payload, _source(args))
     raw_error = payload.get("error") or payload.get("stderr")
     response = payload.get("tool_response")
+    if response is None:
+        response = payload.get("tool_result")
     if not raw_error and isinstance(response, dict):
         raw_error = response.get("stderr") or response.get("error")
+    # A string response is deliberately NOT read as error text, even on a host where it
+    # means failure. It is the tool's output, and this client cannot tell an error message
+    # from a file body by looking: shipping it verbatim would put a read's contents on the
+    # wire the first time a host returned one as a string. The shape of the failure still
+    # reaches the corpus, masked and bounded, through the gate operand.
 
     return {
         "id": payload.get("tool_call_id") or payload.get("id") or uuid.uuid4().hex,
         "name": str(name),
         "args": safe_args,
         "status": STATUS_FAILED if is_error else STATUS_COMPLETED,
-        "result": None,
+        "result": gate_bearing_result(payload, is_error=is_error, source=_source(args)),
         "error": (
             scrub_secrets(clip_result(raw_error)) if (is_error and raw_error) else None
         ),
@@ -1519,26 +1688,49 @@ def _step_from_payload(
     }
 
 
-def _is_error(payload: dict[str, Any]) -> bool:
+def _is_error(payload: dict[str, Any], source: str = SOURCE_CLAUDE_CODE) -> bool:
     """Whether a tool call failed, across Claude Code and Cursor payload shapes.
 
-    Claude Code's ``Bash`` failures surface inside ``tool_response`` (stderr /
-    interrupted / a nested exit code), not as a top-level field, so the nested
-    dict is inspected as well as the top level.
+    Claude Code delivers a *failed* call's result as a plain string and a successful one as
+    a structured object. Measured across 3,170 real transcripts that separation is exact:
+    all 2,509 failures were string-shaped and no failure was object-shaped. The 183
+    string-shaped results that were not failures were all JSON payloads from MCP tools, so
+    a string this client cannot parse as JSON is the host's own failure signal, read from
+    the shape of the response rather than from anything it says.
+
+    Without that branch every dict-reading test below misses on Claude Code and a failed
+    step is recorded ``completed``. Which is what shipped: on the machine this was measured
+    on, the live client recorded 78 steps, 11 of them failed, and not one of the 11 was a
+    real failure.
+
+    **Writing to stderr is not failing.** It used to be treated as failure, and it is
+    output, not a verdict: ``git``, ``npm``, ``uv``, ``docker`` and ``pytest`` all write
+    there while succeeding, and all 11 of those false failures were successful commands
+    whose stderr carried a benign line from the shell wrapper. An exit status is a verdict
+    and is still read; stderr is kept only as the error *text* once something else has
+    established that the step failed.
     """
     if _failed_exit(payload.get("exit_code")):
         return True
-    if payload.get("is_error") or payload.get("error") or payload.get("stderr"):
+    if payload.get("is_error") or payload.get("error"):
         return True
     if str(payload.get("status") or "").lower() in STEP_FAILURE_STATUSES:
         return True
     response = payload.get("tool_response")
+    if response is None:
+        # Undocumented and observed to differ between hosts and releases, so both names are
+        # read. Reading only one costs every failure silently, with nothing to see.
+        response = payload.get("tool_result")
+    if isinstance(response, str):
+        # A declared exit status is a verdict and outranks the shape of the response: a host
+        # that says the command exited zero has said it succeeded, whatever its result looks
+        # like. Otherwise the host's own framing decides, not merely "this is a string".
+        # An MCP server returning plain text is not reporting a failure, and treating it as
+        # one recorded successful MCP calls as failed, which corrupts the corpus directly
+        # and then feeds the recovery signal a fabricated failure to recover from.
+        return not _declared_success(payload) and _is_framed_failure(response, source)
     if isinstance(response, dict):
-        if (
-            response.get("error")
-            or response.get("stderr")
-            or response.get("interrupted")
-        ):
+        if response.get("error") or response.get("interrupted"):
             return True
         if _failed_exit(
             response.get("exit_code")
@@ -1549,6 +1741,26 @@ def _is_error(payload: dict[str, Any]) -> bool:
         if str(response.get("status") or "").lower() in STEP_FAILURE_STATUSES:
             return True
     return False
+
+
+def _declared_success(payload: dict[str, Any]) -> bool:
+    """Whether the host explicitly reported a zero exit status for this call."""
+    return payload.get("exit_code") == 0 and not isinstance(
+        payload.get("exit_code"), bool
+    )
+
+
+def _is_framed_failure(text: str, source: str) -> bool:
+    """Whether this host framed a string result as a failure, by its own declared prefix.
+
+    Measured across 3,170 Claude Code transcripts, 89.9% of real failures carry the framing
+    on their first line. The alternative tried first, "any string that is not JSON", was both
+    too wide and host-blind: it called every plain-text MCP result a failure.
+    """
+    if not is_string_result_a_failure(source):
+        return False
+    first = text.strip().splitlines()[0].strip() if text.strip() else ""
+    return any(re.match(prefix, first) for prefix in failure_framing(source))
 
 
 def _failed_exit(code: Any) -> bool:
@@ -1661,6 +1873,47 @@ def _emit_injection(injected_text: str | None, args: argparse.Namespace) -> None
     )
 
 
+def _emit_warm_stash(agent_name: str, cwd: str, args: argparse.Namespace) -> str | None:
+    """Show the project's last resolve before the model plans this turn.
+
+    Returns a digest of what was shown, so the turn can record the exposure and so the
+    turn's own recall can decline to show the same block twice.
+
+    Deliberately uncreditable, and recorded as such. It carries no run marker, so no
+    receipt can ever redeem it: ``receipt.stamp`` embeds one marker per turn and the
+    acceptance read only ever looks for the current run's, and the turn that resolved
+    these rules has already had its receipt finalised. Stamping this turn's run over
+    rules bound to another turn's goal would credit an exposure this client cannot
+    evidence, and would inflate the very delivery rate the outcome split exists to make
+    honest.
+
+    Never blocks and never raises: the prompt hook is on the editor's critical path, so
+    a stash that cannot be read is simply not shown.
+    """
+    if not is_prompt_injectable(_source(args)):
+        # Not a silent skip: this host discards anything the prompt hook prints, so emitting
+        # would spend the customer's context on nothing AND record an exposure that never
+        # happened, which is worse than the gap it was trying to close.
+        _debug(f"warm stash: {_source(args)} cannot inject from the prompt hook")
+        return None
+    try:
+        record = stash.read(agent_name, cwd)
+        if record is None:
+            _debug("warm stash: nothing fresh and intact for this project")
+            return None
+        block = _combined_injection(
+            record.get("injected_text"), record.get("injected_facts_text")
+        )
+        if not block:
+            return None
+        _emit_injection(f"{stash.provenance(record)}\n\n{block}", args)
+        _debug(f"warm stash shown, {record['age_seconds'] / 60:.0f} minute(s) old")
+        return _short_digest(block)
+    except Exception as exc:  # noqa: BLE001 - the prompt hook always fails open
+        _debug(f"warm stash not shown ({type(exc).__name__}): {exc}")
+        return None
+
+
 def _emit_tool_context(injected_text: str | None, source: str) -> bool:
     """Emit one tool-hook context payload, returning whether context was emitted."""
     if not injected_text:
@@ -1683,6 +1936,21 @@ def _emit_tool_context(injected_text: str | None, source: str) -> bool:
 def _inject_pending(session_id: str, source: str) -> None:
     """Emit detached recall exactly once, claiming it only after it validates."""
     try:
+        active = state.read_active(session_id)
+        if active is None:
+            _debug("inject skipped: no active turn to inject into")
+            return
+        # Recorded before every early return below. The point of the marker is that the host
+        # offered somewhere to put the recall, which is true the moment this hook fires,
+        # whether or not a stash had landed yet. Writing it after the peek made a turn whose
+        # resolve was merely slow report as one with nowhere to show anything, which is the
+        # exact conflation the outcome split exists to remove. The turn is read first only
+        # because the marker is named after the run it belongs to; a hook that finds no turn
+        # has none to mark.
+        if not state.mark_injection_point(session_id, active.run_id):
+            _debug(
+                "inject: injection point could not be marked; this turn will read as structural"
+            )
         recall = state.peek_recall(session_id)
         if recall is None:
             _debug("inject skipped: no recall stash published yet")
@@ -1691,10 +1959,6 @@ def _inject_pending(session_id: str, source: str) -> None:
             recall.get("injected_text"), recall.get("injected_facts_text")
         ):
             _debug("inject skipped: stash carries nothing to show")
-            return
-        active = state.read_active(session_id)
-        if active is None:
-            _debug("inject skipped: no active turn to inject into")
             return
         if active.is_injected:
             _debug("inject skipped: this turn already showed its recall")
@@ -1721,6 +1985,17 @@ def _inject_pending(session_id: str, source: str) -> None:
             # identifier with nothing behind it, and the turn marked injected.
             _debug("inject skipped: claimed stash was empty")
             return
+        if (
+            active.stash_block_digest
+            and _short_digest(block) == active.stash_block_digest
+        ):
+            # This turn already opened with exactly this block, at prompt time. Showing it
+            # again spends the customer's context on nothing and would stamp a marker on
+            # advice they have already been given.
+            _debug(
+                "inject skipped: identical to the warm stash already shown this turn"
+            )
+            return
         if source == SOURCE_CLAUDE_CODE:
             block = receipt.stamp(block, active.run_id)
         if not _emit_tool_context(block, source):
@@ -1728,12 +2003,24 @@ def _inject_pending(session_id: str, source: str) -> None:
             return
         offered = tuple(str(item) for item in claimed.get("offered_learning_ids") or ())
         claims = tuple(str(item) for item in claimed.get("offered_claim_ids") or ())
-        merged = tuple(dict.fromkeys((*active.offered_learning_ids, *offered)))
-        merged_claims = tuple(dict.fromkeys((*active.offered_claim_ids, *claims)))
+        # Re-read immediately before the write. ``claim_recall`` serialises this against the
+        # other tool hooks but not against the prompt hook, which writes a fresh turn: a
+        # user submitting the next prompt while this one is still emitting would otherwise
+        # have turn N's run id, goal and start time written back over turn N+1, which then
+        # finalises as a resurrected turn. Comparing the run id narrows that to the width of
+        # this write, and rebasing on what is there now keeps whatever landed in between.
+        current = state.read_active(session_id)
+        if current is None or current.run_id != active.run_id:
+            _debug(
+                "inject: the turn ended while its recall was being shown; not rewriting it"
+            )
+            return
+        merged = tuple(dict.fromkeys((*current.offered_learning_ids, *offered)))
+        merged_claims = tuple(dict.fromkeys((*current.offered_claim_ids, *claims)))
         state.write_active(
             session_id,
             replace(
-                active,
+                current,
                 is_injected=True,
                 offered_learning_ids=merged,
                 offered_claim_ids=merged_claims,
@@ -1851,7 +2138,16 @@ def _read_stdin() -> dict[str, Any]:
 def _parse_args(argv: list[str]) -> argparse.Namespace:
     parser = argparse.ArgumentParser(prog="hyperstruck.ide.hook", add_help=False)
     parser.add_argument(
-        "command", choices=["prompt", "tool", "stop", "resolve", "flush", "distill"]
+        "command",
+        choices=[
+            "prompt",
+            "tool",
+            "stop",
+            "resolve",
+            "flush",
+            "distill",
+            "register",
+        ],
     )
     parser.add_argument("flush_path", nargs="?", default=None)
     parser.add_argument(
@@ -1905,6 +2201,8 @@ def main(argv: list[str] | None = None) -> int:
             cmd_stop(payload, args)
         elif args.command == "distill":
             cmd_distill(payload, args)
+        elif args.command == "register":
+            cmd_register(payload, args)
     except (
         BaseException
     ):  # noqa: BLE001 - the loop must never break the editor, even on cancellation/interrupt

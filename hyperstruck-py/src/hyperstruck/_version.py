@@ -28,4 +28,23 @@ from __future__ import annotations
 # User-Agent is the only way a fleet is segmented, so a wheel that reports the version
 # below it cannot be told apart from one that still sends the borrowed reason, which is
 # exactly what the alert's shrinking loss line has to be read against.
-__version__ = "0.5.4"
+# 0.5.5 changes four things a fleet must be able to tell apart, and they land together
+# because one wheel is one shipped artefact and one version names it.
+#   * A failed tool call is recognised as one. The main host reports a failure by returning
+#     its result as a plain string rather than an object, so every structured check missed
+#     it and real failures were recorded as successes; a command that merely wrote to stderr
+#     was meanwhile recorded as a failure. Both directions at once meant the failure-recovery
+#     signal, the one turn class always observed, fired on noise and missed every genuine
+#     recovery. Every turn-outcome and failure-count series is read against this boundary.
+#   * A failed step now carries the name it failed under, under the single field the server
+#     derives a gate from. Every offered rule before this one carried no gate predicate at
+#     all, so the gate-derivation rate is read against this boundary or against nothing.
+#   * The prompt hook emits the project's previous resolve, so experience reaches the model
+#     before it plans rather than after its first tool call. It is deliberately uncreditable
+#     and reports itself as such, so a fleet below this version is the control group for
+#     whether earlier placement moves the yield at all.
+#   * A resolve from the IDE path sends a tool palette and a context window from a
+#     registration store that also replaces the tool-name matching which decided what could
+#     ever be learned from. The palette-populated ratio and the material-step rate for
+#     server-contributed tools are only interpretable per version.
+__version__ = "0.5.5"

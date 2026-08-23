@@ -318,6 +318,9 @@ def test_an_active_turn_round_trips_every_field() -> None:
         offered_claim_ids=("c1",),
         is_injected=True,
         transcript_path="/tmp/session/transcript.jsonl",
+        cwd="/repo",
+        is_stash_emitted=True,
+        stash_block_digest="abc123",
     )
     _assert_every_field_differs_from_its_default(
         turn,
@@ -388,3 +391,70 @@ def test_the_drain_reads_back_every_field_a_legacy_pending_file_carries() -> Non
     turn, is_success = drained
     assert turn == expected
     assert is_success is True
+
+
+class TestTheInjectionPointMarker:
+    """A marker file rather than a field on the active turn, and named after its run.
+
+    The field it replaced was a read-modify-write of ``active.json`` from hooks that run
+    as parallel processes with no lock, so one could clobber another's ``is_injected`` and
+    offered ids and silently lose the credit for rules that were genuinely shown.
+    """
+
+    def test_a_mark_is_visible_to_the_run_it_was_made_for(self) -> None:
+        assert state.mark_injection_point("s-mark", "run-1") is True
+        assert state.has_injection_point("s-mark", "run-1")
+
+    def test_an_unmarked_run_reads_false(self) -> None:
+        assert not state.has_injection_point("s-mark", "run-1")
+
+    def test_the_next_turn_does_not_inherit_the_previous_turns_answer(self) -> None:
+        """The lazy turn start in the per-tool hook does not clear recall state, so a
+        marker with no run id on it made turn N+1 report ``RECALL_UNCLAIMED`` -- the
+        actionable half, the one an alert asks someone to fix -- for a turn that never had
+        anywhere to show anything."""
+        state.mark_injection_point("s-mark", "run-1")
+
+        assert not state.has_injection_point("s-mark", "run-2")
+
+    def test_parallel_hooks_do_not_destroy_each_others_marks(self) -> None:
+        """Creating a file is atomic and carries no other state, which is the whole
+        argument for the marker over a field."""
+        state.mark_injection_point("s-mark", "run-1")
+        state.mark_injection_point("s-mark", "run-2")
+
+        assert state.has_injection_point("s-mark", "run-1")
+        assert state.has_injection_point("s-mark", "run-2")
+
+    def test_a_mark_does_not_disturb_the_active_turn(self) -> None:
+        turn = ActiveTurn(
+            run_id="run-1",
+            agent_name="a",
+            goal="g",
+            source_framework="x",
+            started_at=0.0,
+            offered_learning_ids=("L1",),
+            is_injected=True,
+        )
+        state.write_active("s-mark", turn)
+        state.mark_injection_point("s-mark", "run-1")
+
+        assert state.read_active("s-mark") == turn
+
+    def test_retiring_the_turn_clears_the_mark(self) -> None:
+        state.mark_injection_point("s-mark", "run-1")
+        state.clear_recall("s-mark")
+
+        assert not state.has_injection_point("s-mark", "run-1")
+
+    def test_a_mark_that_could_not_be_written_says_so(self, monkeypatch) -> None:
+        """Silence here is not neutral: an unwritten mark reads back as "there was nowhere
+        to show anything", the structural verdict with no remedy, so an unwritable session
+        dir would quietly relabel every real drop as nothing to fix."""
+
+        def refuse(_path):
+            raise OSError("read-only home")
+
+        monkeypatch.setattr(state, "ensure_private_dir", refuse)
+
+        assert state.mark_injection_point("s-mark", "run-1") is False

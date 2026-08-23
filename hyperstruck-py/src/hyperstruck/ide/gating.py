@@ -5,11 +5,18 @@ budget, so this client gate is a cost/recall optimiser: it skips the turns that
 cannot teach anything (pure reading, trivial chat) and always keeps the highest
 signal one (a turn that recovered from a failure).
 
-Classification is best-effort by tool name, refined by the editor hook that fired
-(a Cursor file-edit or shell hook already tells us the kind). An unrecognised
-tool is treated as read-only, the conservative choice: it never forces a spurious
-observe, and a genuinely material unknown tool still rides in alongside the known
-material steps of the same turn.
+Classification asks three questions in order and never guesses. The editor hook that
+fired already knows the kind for its own events (a Cursor file-edit or shell hook), and
+that wins. Otherwise the host's declaration for its own tools answers, then the stored
+verdict from registration answers for everything a server contributed. A tool none of
+them names is **material**.
+
+That default is a deliberate reversal. It used to be read-only, on the reasoning that a
+spurious observe costs more than a missed one, and it was backwards: those backstops
+above exist for over-inclusion, *nothing* backstops over-exclusion, and a registration
+gap is invisible. Under the old default every tool from every MCP server fell through to
+a kind the gate refuses, so browser automation, API calls and messaging could not enter
+the corpus at all, however much a run learned from them.
 """
 
 from __future__ import annotations
@@ -21,59 +28,22 @@ from hyperstruck.ide.constants import (
     MIN_MATERIAL_STEPS,
     STATUS_COMPLETED,
     STATUS_FAILED,
-    STEP_KIND_COMMAND,
-    STEP_KIND_EDIT,
-    STEP_KIND_OTHER,
-    STEP_KIND_READ,
+    STEP_KIND_ACT,
 )
-
-# Substrings (lowercased) that mark a tool as an edit or a command across Claude
-# Code and Cursor tool names. Read-only is the default for anything unmatched.
-_EDIT_HINTS = (
-    "edit",
-    "write",
-    "create_file",
-    "apply_patch",
-    "str_replace",
-    "notebook",
-    "patch",
-)
-_COMMAND_HINTS = (
-    "bash",
-    "shell",
-    "terminal",
-    "run_command",
-    "exec",
-    "pytest",
-    "npm",
-    "make",
-)
-_READ_HINTS = (
-    "read",
-    "grep",
-    "glob",
-    "search",
-    "list_dir",
-    "ls",
-    "fetch",
-    "view",
-    "cat",
-    "find",
-)
+from hyperstruck.ide.host_vocabularies import declared_kind
+from hyperstruck.ide.registration import registered_kind
 
 
-def classify_tool(name: str | None) -> str:
-    """Map a tool name to a step kind (edit / command / read / other)."""
-    lowered = (name or "").lower()
-    if not lowered:
-        return STEP_KIND_OTHER
-    if any(hint in lowered for hint in _EDIT_HINTS):
-        return STEP_KIND_EDIT
-    if any(hint in lowered for hint in _COMMAND_HINTS):
-        return STEP_KIND_COMMAND
-    if any(hint in lowered for hint in _READ_HINTS):
-        return STEP_KIND_READ
-    return STEP_KIND_OTHER
+def classify_tool(name: str | None, source: str = "") -> str:
+    """Map a tool name to a step kind, from a declaration or from the material default.
+
+    A lookup and nothing more. It is called once per tool call from inside the editor's
+    hook, in a fresh subprocess, so a miss must never be the trigger for work: an
+    unregistered tool takes the default rather than going and finding out.
+    """
+    if not name:
+        return STEP_KIND_ACT
+    return declared_kind(source, name) or registered_kind(source, name) or STEP_KIND_ACT
 
 
 def is_material(step: dict[str, Any]) -> bool:

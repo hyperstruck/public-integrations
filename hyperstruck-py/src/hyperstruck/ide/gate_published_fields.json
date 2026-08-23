@@ -1,0 +1,28 @@
+{
+  "contract": "gate_published_fields",
+  "version": 1,
+  "description": "Result field names a producer may populate and expect a gate predicate to derive from. A client mirrors this list rather than hardcoding names; a name that drifts from it yields no gate and no error. Free-text error fields are deliberately absent: a gate is an equality test, so a prose operand can never match twice.",
+  "fields": [
+    "error_code",
+    "error_type",
+    "status_code",
+    "status",
+    "tier",
+    "category",
+    "classification",
+    "risk_level",
+    "quality",
+    "priority",
+    "type",
+    "result",
+    "outcome",
+    "rating",
+    "grade",
+    "level",
+    "rank",
+    "score_band",
+    "data_quality"
+  ],
+  "enforced_guarantees": [],
+  "enforced_guarantees_note": "Guarantees the boundary makes about a gate operand, named so a client can withhold what is not yet safe to send. Add 'operand_support_floor_enforced' once the boundary admits an operand on how often it has been seen across the corpus rather than on its shape alone. Whether the boundary admits a gate operand on how often it has been seen across the corpus, rather than on its shape alone. Bounded cardinality is not safety and is not usefulness: an operand seen exactly once is a quasi-identifier AND a gate that can never match a second time, which is one defect with two names. Measured on 2,509 real client failures, 72.7% of distinct failure-shape operands were singletons. Shape-derived operands are therefore withheld by the client until this reads true, because the privacy floor in extraction only fires when the model asserted no classification, and roughly 95% of extractions assert one."
+}

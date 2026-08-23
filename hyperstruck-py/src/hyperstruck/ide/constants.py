@@ -58,12 +58,21 @@ def ide_venv_dir() -> Path:
 DERIVED_KEY_PREFIX = "derived-"
 DERIVED_KEY_DIGEST_CHARS = 12
 
+# The warm stash lives here, beside the sessions rather than inside one. It has to
+# outlive the turn that produced it, and every per-session path is cleared at both the
+# start and the end of a turn.
+STASH_SUBDIR = "stash"
+
 ACTIVE_FILE = "active.json"
 PENDING_FILE = "pending.json"
 RECALL_FILE = "recall.json"
 # The detached resolver's own verdict on whether it published a stash, so a turn that
 # was never shown its recall can say why instead of looking like a lost receipt.
 RECALL_STATUS_FILE = "recall-status.json"
+# Written by the hook that can show a turn's recall, the first time it fires. A file rather
+# than a field on the active turn: tool hooks are parallel processes with no lock, so a
+# read-modify-write from one can clobber another's injection record between read and write.
+INJECTION_POINT_FILE = "injection-point"
 STEPS_SUBDIR = "steps"  # under active/, one append-only file per tool call
 ACTIVE_SUBDIR = "active"
 FLUSHING_SUBDIR = "flushing"  # handed-off episodes a detached flush is delivering
@@ -124,6 +133,34 @@ def dropped_flush_log() -> Path:
     return hyper_home() / DROPPED_FLUSH_LOG
 
 
+# How long a project's warm stash stays useful. Working-set reasoning (Denning, 1968):
+# what a session needs is defined by a recency window, not a static partition. Eight
+# hours covers a session resumed after a meeting and excludes yesterday's context.
+#
+# TODO(ceiling): uncalibrated. The age rides on every emission, so the band that is
+# actually useful is measurable from real data; revisit once there is a fortnight of it.
+STASH_FRESHNESS_SECONDS = 8 * 60 * 60
+
+# Where a host's declared tool set is stored, and how long a declaration is believed.
+# Far longer than the stash's window because a tool set changes rarely, and it is
+# refreshed on install and on upgrade. A tool that has been *removed* degrades safely,
+# since unregistered already means material; a tool whose declaration *changed* is the
+# residual risk, and this is what bounds it.
+REGISTRATION_SUBDIR = "registrations"
+REGISTRATION_TTL_SECONDS = 14 * 24 * 60 * 60
+
+# The boundary caps a resolve's tool list, and an over-cap request is refused outright, so
+# the whole recall is lost rather than the surplus tools. Mirrored from the boundary's own
+# bound like the goal and episode ceilings above.
+MAX_PALETTE_TOOLS = 200
+
+# A registration is written from a local payload any shell-capable process can send, so its
+# inputs are bounded here rather than trusted. A tool name longer than this is not a tool
+# name, and a context window outside these is not a window.
+MAX_REGISTERED_TOOL_NAME_CHARS = 128
+MIN_MODEL_CONTEXT_WINDOW = 1_000
+MAX_MODEL_CONTEXT_WINDOW = 100_000_000
+
 # A floor under HYPER_RESOLVE_TIMEOUT: an override below this cannot clear a real
 # hosted resolve, so honouring it would silently turn recall off.
 MIN_RECALL_TIMEOUT = 5.0
@@ -179,10 +216,19 @@ CREDENTIAL_HEAD_CHARS = 4
 STEP_KIND_EDIT = "edit"  # changed code/files
 STEP_KIND_COMMAND = "command"  # ran a shell command or test
 STEP_KIND_READ = "read"  # read/search/lookup only
-STEP_KIND_OTHER = "other"
+# Acted on something outside this machine's files: an API call, a browser, a message.
+# Distinct from ``command`` on purpose. The execution oracle reads the trailing ``command``
+# step as the turn's verdict, so folding a declared side-effectful tool in there would let
+# an unrelated call decide whether the turn succeeded.
+#
+# It carries two situations that are worth keeping apart in the reading even though they are
+# gated the same way: a tool *declared* side-effectful, and a tool nobody classified. Both
+# are material, because nothing backstops over-exclusion; the second is also the signal that
+# a registration is missing, which is otherwise invisible.
+STEP_KIND_ACT = "act"
 
 # A material step changed something or executed something.
-MATERIAL_KINDS = frozenset({STEP_KIND_EDIT, STEP_KIND_COMMAND})
+MATERIAL_KINDS = frozenset({STEP_KIND_EDIT, STEP_KIND_COMMAND, STEP_KIND_ACT})
 
 # -- step / turn status ------------------------------------------------------
 

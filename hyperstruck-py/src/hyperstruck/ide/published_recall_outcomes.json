@@ -1,0 +1,20 @@
+{
+  "contract": "published_recall_outcomes",
+  "version": 1,
+  "description": "Recall outcome names the learning boundary accepts on a reinforce or decline. The field is a closed enum behind extra=\"forbid\", so a name absent from this list costs the run its whole episode rather than one diagnostic field. A new member lands at the boundary and is published here before a client sends it; until then the client degrades to recall_unclaimed, which is what it reported before the member existed.",
+  "outcomes": [
+    "delivered",
+    "resolve_timed_out",
+    "resolve_failed",
+    "resolve_empty",
+    "resolve_no_goal",
+    "resolve_superseded",
+    "recall_unclaimed",
+    "recall_missing",
+    "recall_unrecognised",
+    "no_transcript",
+    "transcript_unreadable",
+    "record_shape_changed",
+    "no_matching_record"
+  ]
+}

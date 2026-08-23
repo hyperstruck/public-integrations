@@ -30,9 +30,7 @@ def _cmd(status: str) -> dict:
 
 def test_execution_oracle_wins_over_every_other_signal() -> None:
     assert (
-        provisional_outcome(
-            [_edit("a.py"), _cmd("completed")], "aborted", _DECLARED
-        )
+        provisional_outcome([_edit("a.py"), _cmd("completed")], "aborted", _DECLARED)
         is TurnOutcome.SUCCESS
     )
     assert (
@@ -102,9 +100,7 @@ def test_every_supported_source_declares_a_vocabulary(source: str) -> None:
 
 
 def test_the_default_vocabulary_abstains_so_a_caller_must_opt_in() -> None:
-    assert (
-        provisional_outcome([_edit("a.py")], "completed") is TurnOutcome.UNEVIDENCED
-    )
+    assert provisional_outcome([_edit("a.py")], "completed") is TurnOutcome.UNEVIDENCED
 
 
 def test_classification_is_case_and_whitespace_insensitive() -> None:
@@ -118,3 +114,69 @@ def test_failure_wins_a_status_declared_as_both() -> None:
         success=frozenset({"done"}), failure=frozenset({"done"})
     )
     assert contradictory.classify("done") is TurnOutcome.FAILURE
+
+
+class TestTheActEvidenceTierStaysHonest:
+    """The tier that lets an MCP turn be labelled at all, and the two ways it must not."""
+
+    def _acts(self, *statuses: str) -> list[dict]:
+        return [{"kind": "act", "status": s} for s in statuses]
+
+    def test_a_recovery_among_acts_is_evidence_of_success(self) -> None:
+        """Something failed and something later worked. That cannot happen by accident, and
+        without it a turn made entirely of server-contributed tools has no label at all and
+        is declined however much it did."""
+        assert (
+            provisional_outcome(self._acts("failed", "completed"))
+            is TurnOutcome.SUCCESS
+        )
+
+    def test_acts_that_merely_succeeded_evidence_nothing(self) -> None:
+        """A fact about the call, not about the work: the turn may have called the wrong
+        thing, or stopped halfway."""
+        assert (
+            provisional_outcome(self._acts("completed", "completed"))
+            is TurnOutcome.UNEVIDENCED
+        )
+
+    def test_a_recovery_that_is_not_where_the_turn_ended_is_not_credited(self) -> None:
+        """Edit fails, Edit succeeds, Edit fails, user interrupts. Reading only the first
+        fail-success pair credited that as a success, and a trailing failure is exactly as
+        indistinguishable from an interruption as a bare one."""
+        assert (
+            provisional_outcome(self._acts("failed", "completed", "failed"))
+            is TurnOutcome.UNEVIDENCED
+        )
+
+    def test_the_hosts_own_verdict_outranks_an_inferred_recovery(self) -> None:
+        """A first-party statement beats a second-party inference. Otherwise a turn the user
+        cancelled is credited because something failed and something worked before they did.
+        """
+        vocabulary = vocabulary_for(SOURCE_CLAUDE_CODE)
+
+        assert (
+            provisional_outcome(
+                self._acts("failed", "completed"), "aborted", vocabulary
+            )
+            is TurnOutcome.FAILURE
+        )
+
+    def test_an_undeclared_host_status_still_falls_through_to_the_acts(self) -> None:
+        """Abstaining is not a verdict, so it must not swallow the evidence below it."""
+        vocabulary = vocabulary_for(SOURCE_CLAUDE_CODE)
+
+        assert (
+            provisional_outcome(
+                self._acts("failed", "completed"), "timeout", vocabulary
+            )
+            is TurnOutcome.SUCCESS
+        )
+
+    def test_the_execution_oracle_still_outranks_everything(self) -> None:
+        steps = [
+            {"kind": "act", "status": "failed"},
+            {"kind": "act", "status": "completed"},
+            {"kind": "command", "status": "failed"},
+        ]
+
+        assert provisional_outcome(steps) is TurnOutcome.FAILURE

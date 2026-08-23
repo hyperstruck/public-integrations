@@ -3,9 +3,13 @@
 Two protections, in order of importance:
 
 1. **No raw file contents or diffs are shipped.** The hook never captures a file
-   body or a diff into a step; it captures the tool name, the path, the status,
-   the error, and a clipped result. The pattern, not the literal code, is what the
-   producer needs. :func:`clip_result` enforces the size ceiling at capture.
+   body or a diff into a step, and it never captures a tool's output: a read or edit
+   result *is* file contents and a command's stdout can be source. What it captures is
+   the tool name, the path or command, the status, the error, and — for a failure that
+   has one — the exit status alone, under the single field name the server derives a
+   gate from (see :mod:`hyperstruck.ide.step_result`). The pattern, not the literal
+   code, is what the producer needs. :func:`clip_result` enforces the size ceiling on
+   the strings that do ship.
 2. **Secrets are scrubbed** from whatever strings do ship (paths, commands, error
    text, clipped results, the goal). Known credential shapes are always redacted;
    long high-entropy tokens are redacted on the privacy-forward default that

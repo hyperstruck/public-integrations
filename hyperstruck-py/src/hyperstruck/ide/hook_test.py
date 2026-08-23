@@ -25,7 +25,7 @@ from hyperstruck._wire import (
 from hyperstruck import client
 from hyperstruck.ide import receipt
 from hyperstruck.identity import AgentIdentity
-from hyperstruck.ide import hook, state
+from hyperstruck.ide import hook, registration, stash, state
 from hyperstruck.ide.recall import RecallOutcome
 from hyperstruck.ide.constants import CREDENTIAL_HEAD_CHARS, PENDING_FILE
 from hyperstruck.ide.redaction import redact_ide_episode
@@ -873,13 +873,71 @@ def test_no_command_output_shipped(_env) -> None:
     assert step["status"] == "completed"
 
 
+def test_writing_to_stderr_is_not_failing(_env) -> None:
+    """Corrected against production data; it used to assert the opposite.
+
+    Treating a non-empty stderr as failure is what shipped, and it is wrong in both
+    directions. Measured on a live machine, the client recorded 78 steps of which 11 were
+    marked failed, and all 11 were successful commands whose stderr carried one benign line
+    from a shell wrapper. Not one real failure was among them. ``git``, ``npm``, ``uv``,
+    ``docker`` and ``pytest`` all write to stderr while succeeding, so stderr is output and
+    an exit status is a verdict. It is still kept as the error text once something else has
+    established that the step failed.
+    """
+    step = hook._step_from_payload(
+        {
+            "tool_name": "Bash",
+            "command": "pytest",
+            "tool_response": {"stdout": "2 passed", "stderr": "warning: deprecated"},
+        },
+        _args("tool"),
+    )
+    assert step["status"] == "completed"
+
+
+def test_a_real_claude_code_failure_is_detected_from_the_shape_of_its_result(
+    _env,
+) -> None:
+    """The defect that made the whole lane inert on its main host.
+
+    Claude Code delivers a failed call's result as a plain string and a successful one as an
+    object. Measured across 3,170 transcripts the separation is exact: all 2,509 failures
+    were string-shaped, none was object-shaped. Every dict-reading branch missed them, so a
+    real failure was recorded ``completed`` and ``recovered_from_failure``, the one turn
+    class that is always observed, could never fire on a genuine recovery.
+    """
+    step = hook._step_from_payload(
+        {
+            "tool_name": "Bash",
+            "command": "pytest -q",
+            "tool_response": "Error: Exit code 1\nModuleNotFoundError: No module named 'x'",
+        },
+        _args("tool"),
+    )
+    assert step["status"] == "failed"
+    # The message itself does NOT ship. It is the tool's output, and this client cannot tell
+    # an error message from a file body by looking, so the shape of the failure reaches the
+    # corpus masked and bounded as a gate operand instead of verbatim as prose.
+    assert step["error"] is None
+
+    # The 183 string-shaped results that were NOT failures were all JSON from MCP tools.
+    mcp = hook._step_from_payload(
+        {
+            "tool_name": "mcp__cal__list",
+            "tool_response": '{"success": true, "result": []}',
+        },
+        _args("tool"),
+    )
+    assert mcp["status"] == "completed"
+
+
 def test_nested_bash_failure_detected(_env) -> None:
     # Claude Code Bash failures live inside tool_response, not top-level.
     step = hook._step_from_payload(
         {
             "tool_name": "Bash",
             "command": "pytest",
-            "tool_response": {"stderr": "AssertionError boom", "interrupted": False},
+            "tool_response": {"error": "AssertionError boom", "interrupted": False},
         },
         _args("tool"),
     )
@@ -1561,9 +1619,7 @@ def test_readonly_without_purpose_stays_agent_loop(_env, monkeypatch) -> None:
     monkeypatch.setattr(hook, "_resolve", _REAL_RESOLVE)
     hook.cmd_prompt(
         {"conversation_id": "s1", "cwd": "/repo"},
-        hook._parse_args(
-            ["prompt", "--readonly", "--emit", "text", "--goal", "do x"]
-        ),
+        hook._parse_args(["prompt", "--readonly", "--emit", "text", "--goal", "do x"]),
     )
 
     assert seen_purposes == [hook.ResolvePurpose.AGENT_LOOP]
@@ -1605,9 +1661,7 @@ def test_readonly_explicit_recall_is_opt_in(_env, monkeypatch) -> None:
 
 
 def test_packaged_skill_attributes_agent_owned_readonly_recall() -> None:
-    skill_path = (
-        Path(hook.__file__).parent / "skills" / "hyper-learning" / "SKILL.md"
-    )
+    skill_path = Path(hook.__file__).parent / "skills" / "hyper-learning" / "SKILL.md"
     skill = skill_path.read_text()
 
     assert "prompt --readonly" in skill
@@ -1904,7 +1958,9 @@ def _async_returning(value):
     return _call
 
 
-def test_a_readonly_close_reports_its_own_reason_whether_or_not_anything_was_offered() -> None:
+def test_a_readonly_close_reports_its_own_reason_whether_or_not_anything_was_offered() -> (
+    None
+):
     """The reason must not depend on the offer, or it collides with the recording path.
 
     Borrowing ``below_material_threshold`` and ``empty_offer`` is what put this
@@ -2788,7 +2844,17 @@ def test_a_finished_turn_stages_the_reason_it_has_no_receipt(_env, monkeypatch) 
     monkeypatch.setattr(
         state, "stage_flush", lambda _s, _r, payload: staged.append(payload) or "p"
     )
-    _seeded_active("s-stage")
+    state.write_active(
+        "s-stage",
+        state.ActiveTurn(
+            run_id="run-1",
+            agent_name="agent-x",
+            goal="do x",
+            source_framework="claude-code",
+            started_at=1.0,
+        ),
+    )
+    state.mark_injection_point("s-stage", "run-1")
     state.write_recall_status("s-stage", "run-1", RecallOutcome.RECALL_UNCLAIMED)
     state.append_step("s-stage", {"id": "1", "name": "Bash", "status": "completed"})
     state.append_step("s-stage", {"id": "2", "name": "Bash", "status": "completed"})
@@ -3246,8 +3312,11 @@ def test_a_turn_that_never_injected_reads_no_transcript(_env, tmp_path) -> None:
     )
     state.write_recall_status("s1", turn.run_id, RecallOutcome.RESOLVE_TIMED_OUT)
 
-    assert hook._acceptance_record("s1", turn).outcome is RecallOutcome.RESOLVE_TIMED_OUT
-    delivered = hook._acceptance_record("s1", replace(turn, is_injected=True))
+    assert (
+        hook._acceptance_record("s1", turn, []).outcome
+        is RecallOutcome.RESOLVE_TIMED_OUT
+    )
+    delivered = hook._acceptance_record("s1", replace(turn, is_injected=True), [])
     assert delivered.receipt != ""
     assert delivered.outcome is RecallOutcome.DELIVERED
 
@@ -3268,14 +3337,22 @@ def test_a_turn_whose_resolve_never_landed_says_so_rather_than_blaming_the_recei
         started_at=0.0,
     )
 
-    assert hook._acceptance_record("s-none", turn).outcome is RecallOutcome.RECALL_MISSING
+    assert (
+        hook._acceptance_record("s-none", turn, []).outcome
+        is RecallOutcome.RECALL_MISSING
+    )
 
 
-def test_a_stash_no_tool_event_ever_claimed_is_not_a_lost_receipt(_env) -> None:
-    """The commonest way a turn credits nothing: it called no tool after the recall landed.
+def test_a_stash_nothing_claimed_says_whether_there_was_anywhere_to_put_it(
+    _env,
+) -> None:
+    """One recorded verdict, two causes, and only one of them is a defect.
 
-    The recall rides a tool event, so a turn that ends without one is never shown its
-    learnings. Crediting nothing is correct; being logged as a client defect is not.
+    This turn's own recall rides a tool event on both hosts, so a turn that called no
+    tool offered nowhere to show it: crediting nothing is correct and there is no fix.
+    A turn that did call one had every chance and did not take it, which is the drop
+    the credit-rate alert exists to catch. Reported as one number the second is hidden
+    inside the first.
     """
     turn = state.ActiveTurn(
         run_id="agent-x:s:r",
@@ -3286,10 +3363,79 @@ def test_a_stash_no_tool_event_ever_claimed_is_not_a_lost_receipt(_env) -> None:
     )
     state.write_recall_status("s2", turn.run_id, RecallOutcome.RECALL_UNCLAIMED)
 
-    result = hook._acceptance_record("s2", turn)
+    no_point = hook._acceptance_record("s2", turn)
+    state.mark_injection_point("s2", turn.run_id)
+    had_point = hook._acceptance_record("s2", turn)
 
-    assert result.outcome is RecallOutcome.RECALL_UNCLAIMED
-    assert not result.is_delivered
+    assert no_point.outcome is RecallOutcome.RECALL_NO_INJECTION_POINT
+    assert had_point.outcome is RecallOutcome.RECALL_UNCLAIMED
+    assert not no_point.is_delivered and not had_point.is_delivered
+
+
+def test_the_injection_point_is_recorded_not_inferred_from_captured_steps(_env) -> None:
+    """The two diverge on Cursor, which is the host this most affects.
+
+    Cursor injects from ``postToolUse`` and captures steps from its file-edit and shell
+    hooks, so a turn of pure reads has every chance to be shown its recall and captures
+    nothing. Inferring from the step count would call that drop structural, when it is the
+    fixable kind the credit alert exists to catch.
+    """
+    state.write_active(
+        "s-cursor",
+        state.ActiveTurn(
+            run_id="run-c",
+            agent_name="agent-x",
+            goal="read around the codebase",
+            source_framework=hook.SOURCE_CURSOR,
+            started_at=1.0,
+        ),
+    )
+    state.write_recall("s-cursor", {"run_id": "run-c", "injected_text": "ADVICE"})
+
+    hook.cmd_tool(
+        {"session_id": "s-cursor", "cwd": "/repo"},
+        hook._parse_args(["tool", "--source", "cursor", "--inject"]),
+    )
+
+    assert state.has_injection_point(
+        "s-cursor", "run-c"
+    ), "the injecting hook fired and was not recorded"
+    assert state.read_steps("s-cursor") == [], "this hook captures no step, by design"
+
+
+def test_a_turn_whose_resolve_is_merely_slow_still_had_somewhere_to_show_it(
+    _env,
+) -> None:
+    """The marker records that the host *offered* a place, not that a stash was ready.
+
+    The resolve is detached, so it routinely lands after the model has already chosen its
+    first tool. Recording the marker only once a stash was found made every one of those
+    turns report as having had nowhere to show anything, which is the structural verdict
+    with no remedy: the exact conflation the outcome split was built to remove, and it
+    hides the drops the credit alert exists to catch.
+    """
+    state.write_active(
+        "s-slow",
+        state.ActiveTurn(
+            run_id="run-slow",
+            agent_name="agent-x",
+            goal="do x",
+            source_framework=hook.SOURCE_CURSOR,
+            started_at=1.0,
+        ),
+    )
+
+    hook.cmd_tool(
+        {"session_id": "s-slow", "cwd": "/repo"},
+        hook._parse_args(["tool", "--source", "cursor", "--inject"]),
+    )
+
+    assert (
+        state.peek_recall("s-slow") is None
+    ), "no stash had landed yet, by construction"
+    assert state.has_injection_point(
+        "s-slow", "run-slow"
+    ), "the hook that shows recall fired; a stash arriving late does not unfire it"
 
 
 def test_a_receipt_is_scrubbed_before_it_leaves_the_machine() -> None:
@@ -3357,7 +3503,9 @@ def test_one_turns_hooks_agree_when_the_session_leader_changes(monkeypatch) -> N
     assert _resolve_sid(payload) == first
 
 
-def test_a_turn_closes_though_every_hook_saw_a_different_session(_env, monkeypatch) -> None:
+def test_a_turn_closes_though_every_hook_saw_a_different_session(
+    _env, monkeypatch
+) -> None:
     """The rendezvous itself, not just the key: the turn must reach a staged flush."""
     staged = _env
     payload = {"cwd": "/repo", "transcript_path": f"/p/{SESSION_UUID}.jsonl"}
@@ -3391,7 +3539,9 @@ def test_non_uuid_transcript_still_gives_one_key_per_session(monkeypatch) -> Non
     assert first != _resolve_sid({"transcript_path": "/p/other-chat.log"})
 
 
-@pytest.mark.parametrize("value", [12345, ["/p/a.jsonl"], {"a": 1}, "", "   ", None, True])
+@pytest.mark.parametrize(
+    "value", [12345, ["/p/a.jsonl"], {"a": 1}, "", "   ", None, True]
+)
 def test_a_transcript_path_that_is_not_a_path_is_ignored(value, monkeypatch) -> None:
     """Anything not a non-blank string falls through, rather than keying on its repr."""
     monkeypatch.setattr(hook.os, "getsid", lambda _pid: 4242)
@@ -3417,3 +3567,361 @@ def test_a_host_that_reports_the_transcript_unevenly_still_splits(monkeypatch) -
     with_transcript = _resolve_sid({"transcript_path": f"/p/{SESSION_UUID}.jsonl"})
     without = _resolve_sid({})
     assert with_transcript != without
+
+
+def _stage_a_goalless_turn(monkeypatch, session_id: str) -> list[dict[str, Any]]:
+    """A turn started by a tool event alone: material steps, no prompt, no goal."""
+    staged: list[dict[str, Any]] = []
+    monkeypatch.setattr(hook, "_spawn_flush", lambda _path: None)
+    monkeypatch.setattr(
+        state, "stage_flush", lambda _s, _r, payload: staged.append(payload) or "p"
+    )
+    state.write_active(
+        session_id,
+        state.ActiveTurn(
+            run_id="run-goalless",
+            agent_name="agent-x",
+            goal="",
+            source_framework="claude-code",
+            started_at=1.0,
+        ),
+    )
+    for index in ("1", "2"):
+        state.append_step(
+            session_id,
+            {"id": index, "name": "Bash", "status": "completed", "kind": "command"},
+        )
+    hook.cmd_stop(
+        {"session_id": session_id, "cwd": "/repo", "status": "completed"},
+        hook._parse_args(["stop"]),
+    )
+    return staged
+
+
+def test_a_goalless_turn_declines_instead_of_observing_an_episode_about_nothing(
+    _env, monkeypatch
+) -> None:
+    """Its steps are material and it is still declined, which no other reason covers.
+
+    A goal is what an extracted rule is transferable against, so an episode without one
+    asks the corpus to generalise from what was done with no account of what it was for.
+    Reporting it by its step count would name a gate that never ran.
+    """
+    monkeypatch.setattr(
+        hook, "published_decline_reasons", lambda: frozenset({hook.REASON_NO_GOAL})
+    )
+
+    staged = _stage_a_goalless_turn(monkeypatch, "s-goalless-on")
+
+    assert staged, "the goalless turn staged nothing at all"
+    assert "episode" not in staged[0]
+    assert staged[0]["decline"]["reason"] == hook.REASON_NO_GOAL
+
+
+def test_a_goalless_turn_is_observed_while_its_reason_is_unpublished(
+    _env, monkeypatch
+) -> None:
+    """The boundary refuses a reason it does not know, and a refused decline leaks the run.
+
+    An unclosed run holding its resolve reservation is strictly worse than the goalless
+    observe this replaces, so the branch stays off until the reason is published rather
+    than declining under a reason that means something else.
+    """
+    monkeypatch.setattr(hook, "published_decline_reasons", frozenset)
+
+    staged = _stage_a_goalless_turn(monkeypatch, "s-goalless-off")
+
+    assert staged, "the goalless turn staged nothing at all"
+    assert "decline" not in staged[0]
+    assert staged[0]["episode"]["goal"] == ""
+
+
+def test_the_prompt_hook_shows_the_projects_warm_stash_before_the_model_acts(
+    _env, monkeypatch, capsys
+) -> None:
+    """This turn's own recall lands after the prompt hook has already returned.
+
+    So the opening plan and the first tool choice are always made with nothing, which is
+    where the choices that matter are made. The previous resolve for the same project is
+    the one piece of experience that is already on disk when the prompt arrives.
+    """
+    monkeypatch.setenv("HYPERSTRUCK_API_KEY", "sk-test-key")
+    stash.write(
+        "agent-x",
+        "/repo",
+        goal="add retry to the uploader",
+        context=hook.ResolvedContext(injected_text="EARLIER ADVICE"),
+    )
+
+    hook.cmd_prompt(
+        {"session_id": "s-warm", "prompt": "now fix the parser", "cwd": "/repo"},
+        _args("prompt"),
+    )
+
+    emitted = json.loads(capsys.readouterr().out)["hookSpecificOutput"]
+    assert emitted["hookEventName"] == "UserPromptSubmit"
+    assert "EARLIER ADVICE" in emitted["additionalContext"]
+    assert "add retry to the uploader" in emitted["additionalContext"]
+    assert "not checked against" in emitted["additionalContext"]
+
+
+def test_a_warm_stash_is_shown_without_a_marker_so_it_can_never_be_credited(
+    _env, monkeypatch, capsys
+) -> None:
+    """It was bound against another turn's goal, and that turn's receipt is finalised.
+
+    Stamping this run over it would credit an exposure this client cannot evidence, and
+    would inflate the very delivery rate the outcome vocabulary exists to make honest.
+    """
+    monkeypatch.setenv("HYPERSTRUCK_API_KEY", "sk-test-key")
+    stash.write(
+        "agent-x",
+        "/repo",
+        goal="earlier",
+        context=hook.ResolvedContext(injected_text="A"),
+    )
+
+    hook.cmd_prompt(
+        {"session_id": "s-nomark", "prompt": "next", "cwd": "/repo"}, _args("prompt")
+    )
+    emitted = json.loads(capsys.readouterr().out)["hookSpecificOutput"]
+
+    assert "hyperstruck-run:" not in emitted["additionalContext"]
+    active = state.read_active("s-nomark")
+    assert active is not None and active.is_stash_emitted
+
+
+def test_a_turn_shown_only_a_warm_stash_reports_an_uncreditable_exposure(
+    _env, monkeypatch
+) -> None:
+    """Its own recall never reached the model, but experience did, so neither
+    ``recall_unclaimed`` nor ``recall_no_injection_point`` is the whole truth."""
+    monkeypatch.setenv("HYPERSTRUCK_API_KEY", "sk-test-key")
+    stash.write(
+        "agent-x",
+        "/repo",
+        goal="earlier",
+        context=hook.ResolvedContext(injected_text="A"),
+    )
+    hook.cmd_prompt(
+        {"session_id": "s-warm-out", "prompt": "next", "cwd": "/repo"}, _args("prompt")
+    )
+    state.write_recall_status(
+        "s-warm-out",
+        state.read_active("s-warm-out").run_id,
+        RecallOutcome.RECALL_UNCLAIMED,
+    )
+
+    result = hook._acceptance_record("s-warm-out", state.read_active("s-warm-out"), [])
+
+    assert result.outcome is RecallOutcome.STASH_EMITTED
+    assert not result.is_delivered
+
+
+def test_a_resolve_fault_is_never_hidden_behind_a_warm_emission(
+    _env, monkeypatch
+) -> None:
+    """A timeout names a fault with a remedy; reporting a stash over it buries that."""
+    monkeypatch.setenv("HYPERSTRUCK_API_KEY", "sk-test-key")
+    stash.write(
+        "agent-x",
+        "/repo",
+        goal="earlier",
+        context=hook.ResolvedContext(injected_text="A"),
+    )
+    hook.cmd_prompt(
+        {"session_id": "s-warm-fault", "prompt": "next", "cwd": "/repo"},
+        _args("prompt"),
+    )
+    state.write_recall_status(
+        "s-warm-fault",
+        state.read_active("s-warm-fault").run_id,
+        RecallOutcome.RESOLVE_TIMED_OUT,
+    )
+
+    result = hook._acceptance_record(
+        "s-warm-fault", state.read_active("s-warm-fault"), []
+    )
+
+    assert result.outcome is RecallOutcome.RESOLVE_TIMED_OUT
+
+
+def test_a_resolve_publishes_the_projects_warm_stash_for_the_next_turn(
+    _env, monkeypatch
+) -> None:
+    """The per-turn stash is cleared at both ends of its turn; this one has to outlive it."""
+    monkeypatch.setenv("HYPERSTRUCK_API_KEY", "sk-test-key")
+    monkeypatch.setattr(hook, "_spawn_resolve", lambda _session: None)
+    monkeypatch.setattr(
+        hook,
+        "_aresolve",
+        _async_returning(hook.ResolvedContext(injected_text="FRESH")),
+    )
+    hook.cmd_prompt(
+        {"session_id": "s-pub", "prompt": "do the thing", "cwd": "/repo"},
+        _args("prompt"),
+    )
+
+    hook.cmd_resolve("s-pub")
+
+    record = stash.read("agent-x", "/repo")
+    assert record is not None
+    assert record["injected_text"] == "FRESH"
+    assert record["goal"] == "do the thing"
+
+
+def _async_returning(value):
+    async def _call(*_args, **_kwargs):
+        return value
+
+    return _call
+
+
+def test_the_stored_reason_stays_truthful_while_the_wire_one_degrades(_env) -> None:
+    """Two different jobs, so they are two different values.
+
+    The staged file is this machine's own record and must say what actually happened. The
+    wire value has to survive a closed enum on a boundary that may not know the member yet,
+    and losing the whole episode over a diagnostic field is a far worse trade than losing
+    the precision of that one field.
+    """
+    assert (
+        hook._wire_recall_outcome(RecallOutcome.RESOLVE_TIMED_OUT)
+        == "resolve_timed_out"
+    )
+
+    degraded = hook._wire_recall_outcome(RecallOutcome.RECALL_NO_INJECTION_POINT)
+
+    assert degraded in {
+        str(RecallOutcome.RECALL_NO_INJECTION_POINT),
+        str(RecallOutcome.RECALL_UNCLAIMED),
+    }
+    assert not RecallOutcome(
+        degraded
+    ).is_delivered, "a degraded reason must never report credit the run did not earn"
+
+
+def test_the_palette_and_window_actually_reach_the_resolve_call(
+    _env, monkeypatch
+) -> None:
+    """Plumbed is not sent. Every layer of this existed already and nothing passed it, which
+    is precisely how a field reaches production empty in every real run."""
+    sent: dict[str, Any] = {}
+
+    class _Client:
+        def __init__(self, **_kwargs) -> None:
+            pass
+
+        async def resolve(self, **kwargs):
+            sent.update(kwargs)
+            return hook.ResolvedContext(injected_text="A")
+
+        async def aclose(self) -> None:
+            return None
+
+    monkeypatch.setattr(hook, "HostedLearningClient", _Client)
+    registration.register(
+        hook.SOURCE_CLAUDE_CODE,
+        [
+            {"name": "mcp__docs__search", "category": "read_only"},
+            {"name": "mcp__slack__post", "category": "write"},
+        ],
+        declared_servers=["docs", "slack"],
+        registered_servers=["docs", "slack"],
+        model_context_window=200_000,
+    )
+
+    asyncio.run(hook._aresolve("agent-x", "run-1", "do x"))
+
+    assert sent["model_context_window"] == 200_000
+    assert {tool.name for tool in sent["available_tools"]} == {
+        "mcp__docs__search",
+        "mcp__slack__post",
+    }
+    assert {tool.category for tool in sent["available_tools"]} == {
+        "read_only",
+        "write",
+    }, (
+        "a declared category must survive to the server, which reads it to tell a write "
+        "from a delegation; re-deriving it would report every tool as the same kind"
+    )
+
+
+def test_an_incomplete_registration_sends_no_palette_to_the_resolve(
+    _env, monkeypatch
+) -> None:
+    """A partial palette is read by the server as tools the agent does not have."""
+    sent: dict[str, Any] = {}
+
+    class _Client:
+        def __init__(self, **_kwargs) -> None:
+            pass
+
+        async def resolve(self, **kwargs):
+            sent.update(kwargs)
+            return hook.ResolvedContext()
+
+        async def aclose(self) -> None:
+            return None
+
+    monkeypatch.setattr(hook, "HostedLearningClient", _Client)
+    registration.register(
+        hook.SOURCE_CLAUDE_CODE,
+        [{"name": "mcp__docs__search"}],
+        declared_servers=["docs", "slack"],
+        registered_servers=["docs"],
+        model_context_window=200_000,
+    )
+
+    asyncio.run(hook._aresolve("agent-x", "run-1", "do x"))
+
+    assert sent["available_tools"] == ()
+    assert (
+        sent["model_context_window"] == 200_000
+    ), "the window suppresses nothing, so it ships whatever the palette does"
+
+
+def test_an_mcp_only_turn_can_now_reach_the_corpus_at_all(_env, monkeypatch) -> None:
+    """The reversal tested at the outcome it promises, not only at the classifier.
+
+    Before this change every server-contributed tool classified as a kind the observe gate
+    refuses, so a turn made entirely of them was never learned from however much it did.
+    """
+    staged: list[dict[str, Any]] = []
+    monkeypatch.setattr(hook, "_spawn_flush", lambda _path: None)
+    monkeypatch.setattr(
+        state, "stage_flush", lambda _s, _r, payload: staged.append(payload) or "p"
+    )
+    registration.register(
+        hook.SOURCE_CLAUDE_CODE,
+        [{"name": "mcp__browser__navigate"}, {"name": "mcp__slack__post"}],
+        declared_servers=[],
+        registered_servers=[],
+    )
+    hook.cmd_prompt(
+        {"session_id": "s-mcp", "prompt": "book the room", "cwd": "/repo"},
+        _args("prompt"),
+    )
+    for name, response in (
+        ("mcp__browser__navigate", "Error: timed out"),
+        ("mcp__slack__post", {"ok": True}),
+    ):
+        hook.cmd_tool(
+            {
+                "session_id": "s-mcp",
+                "cwd": "/repo",
+                "tool_name": name,
+                "tool_response": response,
+            },
+            _args("tool"),
+        )
+    hook.cmd_stop({"session_id": "s-mcp", "cwd": "/repo"}, _args("stop"))
+
+    assert staged, "the turn staged nothing at all"
+    assert (
+        "episode" in staged[0]
+    ), "a recovered MCP turn is the highest-signal turn there is and was being declined"
+    assert [step["name"] for step in staged[0]["episode"]["steps"]] == [
+        "mcp__browser__navigate",
+        "mcp__slack__post",
+    ]

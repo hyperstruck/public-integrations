@@ -52,7 +52,7 @@ on disk:
 
 | Moment | Claude Code | Cursor |
 |--------|-------------|--------|
-| recall (inject) | `UserPromptSubmit` spawns a detached resolve; the first `PostToolUse` injects it | `hyper-learning` starts resolve; the first `postToolUse` injects it |
+| recall (inject) | `UserPromptSubmit` shows the project's warm stash and spawns a detached resolve; the first `PostToolUse` injects that resolve | `hyper-learning` starts resolve; the first `postToolUse` injects it |
 | capture a step | the same `PostToolUse` hook | file-edit / shell hooks (capture only) |
 | turn end | `Stop` hook | `stop` hook |
 
@@ -98,8 +98,49 @@ problem it solves.
 
 Not every turn is worth learning from, so capture is gated to the informative
 ones: a turn that recovered from a failure (the highest-signal moment), or a turn
-that materially changed code or ran a command. Pure reading, searching, and chat
-are skipped. The platform critic is the final precision backstop.
+that materially changed code, ran a command, or acted on something outside this
+machine. Pure reading, searching, and chat are skipped. The platform critic is the
+final precision backstop.
+
+A turn is only *observed* if its own evidence also supports a label, and the ladder that
+decides that reads, in order, the trailing test or command result, then whether the turn's
+material acts show a recovery, then the host's own terminal status. A turn none of them
+speaks for is unevidenced, which is an answer rather than a guess: it closes the loop and
+credits nothing. Crediting it would be a fabrication, and the only reason an older design
+needed the *next* turn was to retract the fabrications it produced.
+
+Failure itself is read from what the host actually says. That sounds obvious and was the
+single largest defect here: one host reports a failed call by returning its result as a
+plain string rather than an object, so every structured check missed it and real failures
+were recorded as successes, while any command that merely wrote to stderr was recorded as a
+failure. Both directions at once meant the failure-recovery signal above fired on noise and
+missed every genuine recovery. Writing to stderr is output; an exit status is a verdict.
+
+Which of those a tool call is, is never guessed from its name. The editor hook that
+fired answers where it knows (a file-edit or shell hook already states the kind), then
+the host's declaration for its own tools, then a verdict stored out of band by
+registration, which translates a server's published MCP annotations or category rather
+than reading anything. A tool none of them names is treated as **material**, which is
+the deliberate reversal: the critic and the spend cap exist to catch over-inclusion,
+nothing catches over-exclusion, and a tool nobody classified used to fall into the one
+bucket the gate refuses — so browser automation, API calls and messaging could not enter
+the corpus at all, however much a run learned from them.
+
+One thing beyond the name does travel from a failed step: the name the failure itself
+carried, as a single token such as `ModuleNotFoundError` or `KeyError`. That is what lets a
+learned rule carry a *condition* rather than firing on every use of a tool, and until now no
+offered rule carried one at all.
+
+What keeps that token safe is **where it is read from, never what it looks like**. The
+shape it must match is also the shape of a username, a hostname and an environment
+variable name, so any rule that takes the leading token of an arbitrary line ships those,
+and two successive attempts here did: reading the last line of a result, and then reading
+the line after the host's framing. The rule is now that the host has to have said, at that
+exact spot, that the failure is named there — the line it frames as an error, or a field
+that holds nothing but the message. A stream is not such a field: `stderr` carries whatever
+a program sent to it, so one holding more than the name abstains. Everywhere else abstains
+too, which costs most of the coverage and is the point: a tool's own output cannot be told
+apart from a file's contents by looking.
 
 Because the loop captures tool *names, paths, and commands* only — never file
 bodies, diffs, or tool results (see [Privacy](#privacy)) — it deliberately does
@@ -223,9 +264,16 @@ identical to success.
 
 The evidence has to be the *editor's* artefact, never this client's. Echoing back the
 block we emitted would match every offered rule by construction and assert exactly the
-thing the evidence exists to establish. That failure is not hypothetical: Cursor's prompt
-hook cannot inject at all, so recall rides on a tool event, and a Cursor turn that calls
-no tool resolves learnings and never shows them.
+thing the evidence exists to establish. That failure is not hypothetical, and it is not one
+host's problem: a turn's own resolve lands after the prompt hook has already returned, so
+on *both* hosts it can only ride a tool event, and a turn that calls no tool resolves
+learnings and never shows them. Such a turn now says so in its own terms rather than
+reporting the same thing as a turn that had every chance to show its recall and did not.
+
+That structural gap is also why the prompt hook emits the project's *previous* resolve
+before the model plans. It is warm rather than bound: it was checked against another
+turn's goal, so it declares where it came from and how old it is, and it carries no run
+marker, which makes it uncreditable by construction rather than by promise.
 
 ```
   block emitted ──stamped with this run's id──▶ editor decides

@@ -10,7 +10,10 @@ corpus internals stay server-side.
 from __future__ import annotations
 
 from dataclasses import asdict, dataclass, field
+from pathlib import Path
 from typing import Any, Literal
+
+from hyperstruck.contracts import published_names
 
 # Default cap on learnings resolved/injected per run, shared by the client and the
 # middleware so the two defaults cannot drift.
@@ -40,6 +43,12 @@ REASON_UNEVIDENCED_OUTCOME = "unevidenced_outcome"
 # is also sent by the recording path, and one shared reason was enough to make the two
 # populations indistinguishable in the one column that should have separated them.
 REASON_READONLY_CLOSE = "readonly_close"
+# A turn the host started without ever handing this client a prompt. It is not a turn
+# that did too little, which is what every reason above reports: its steps may be
+# entirely material. What it has no account of is what it was trying to do, and a goal
+# is what an extracted rule is transferable *against*, so observing it asks the corpus
+# to generalise from an episode with nothing to generalise about.
+REASON_NO_GOAL = "no_goal"
 DECLINE_REASONS = frozenset(
     {
         REASON_NO_TOOL_CALLS,
@@ -47,8 +56,21 @@ DECLINE_REASONS = frozenset(
         REASON_EMPTY_OFFER,
         REASON_UNEVIDENCED_OUTCOME,
         REASON_READONLY_CLOSE,
+        REASON_NO_GOAL,
     }
 )
+
+_DECLINE_CONTRACT = Path(__file__).parent / "published_decline_reasons.json"
+
+
+def published_decline_reasons() -> frozenset[str]:
+    """The decline reasons the boundary accepts, as published by it.
+
+    A reason it does not know is refused outright, and a refused decline leaves the run
+    open holding its resolve reservation until the retention sweep, so a reason is only
+    ever sent once it appears here.
+    """
+    return published_names(_DECLINE_CONTRACT, "reasons")
 
 
 @dataclass(frozen=True)
