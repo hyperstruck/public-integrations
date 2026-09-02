@@ -1,0 +1,47 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "hyperstruck"
+version = "0.6.2"
+description = "Hyperstruck learning for your agents. Plug in a middleware, your agent gets sharper run over run."
+readme = "README.md"
+requires-python = ">=3.11"
+license = { text = "Apache-2.0" }
+authors = [{ name = "Hyperstruck" }]
+keywords = ["agents", "learning", "langgraph", "langchain", "mcp", "memory", "llm"]
+dependencies = [
+    "httpx>=0.27",
+]
+
+[project.optional-dependencies]
+# `pip install hyperstruck[langgraph]` adds the LangChain v1 / LangGraph host.
+langgraph = [
+    "langchain>=1.0,<2",
+    "langgraph>=1.0,<2",
+    "langchain-core>=1.0,<2",
+]
+[project.urls]
+Homepage = "https://hyperstruck.com"
+Documentation = "https://docs.hyperstruck.com"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/hyperstruck"]
+# Tests live alongside the modules they cover; keep them out of the published wheel.
+# The bundled hyper-* skills (SKILL.md and any reference.md under ide/skills/) are
+# included automatically as package data, so the installer can copy them out of
+# the installed package via importlib.resources.
+exclude = ["*_test.py"]
+
+[tool.ruff]
+line-length = 88
+
+[tool.pytest.ini_options]
+asyncio_mode = "auto"
+# Tests sit next to the source they cover (e.g. redaction_test.py beside redaction.py).
+testpaths = ["src"]
+# Resolve `import hyperstruck...` by file location so the src-layout tests import
+# the package whether or not it is installed editable.
+pythonpath = ["src"]
+consider_namespace_packages = true
