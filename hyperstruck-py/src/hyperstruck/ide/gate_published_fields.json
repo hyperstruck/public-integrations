@@ -1,0 +1,58 @@
+{
+  "contract": "gate_published_fields",
+  "version": 2,
+  "description": "Result field names a producer may populate and expect a gate predicate to derive from. A client mirrors this list rather than hardcoding names; a name that drifts from it yields no gate and no error. Free-text error fields are deliberately absent: a gate is an equality test, so a prose operand can never match twice.",
+  "fields": [
+    "error_code",
+    "error_type",
+    "status_code",
+    "status",
+    "tier",
+    "category",
+    "classification",
+    "risk_level",
+    "quality",
+    "priority",
+    "type",
+    "result",
+    "outcome",
+    "rating",
+    "grade",
+    "level",
+    "rank",
+    "score_band",
+    "data_quality"
+  ],
+  "enforced_guarantees": [
+    "operand_support_floor_enforced"
+  ],
+  "enforced_guarantees_note": "Version 2 changed what 'operand_support_floor_enforced' asserts, so a client that mirrored version 1 must re-read rather than assume. Guarantees the boundary makes about a gate operand, named so a client can withhold what is not yet safe to send. 'operand_support_floor_enforced' means an operand is frozen onto a rule only once it has been produced by at least 5 distinct runs, and a rule carrying one is classified agent-specific until the operand has been produced by at least 20 distinct tenants. Bounded cardinality is neither safety nor usefulness: an operand seen exactly once is a quasi-identifier AND a gate that can never match a second time. The two floors count distinct runs and distinct tenants rather than occurrences, and the privacy floor counts tenants rather than agents because delegation mints an agent id per delegation instance under the delegating agent's own org, so an agent-counted floor is cleared by one customer delegating to itself, because a floor with no per-unit cap is cleared by one prolific unit on its own and then certifies nothing. This is a k-anonymity floor, not a differentially private release.",
+  "operand_shape": {
+    "token_pattern": "^[A-Za-z0-9_.-]+$",
+    "phrase_pattern": "^[A-Za-z0-9_.<>*-]+(?:[ :]+[A-Za-z0-9_.<>*-]+)*:?$",
+    "word_separator_pattern": "[ :]+",
+    "word_pattern": "^(?:[A-Za-z][A-Za-z._-]*|<[A-Za-z*]{1,8}>|[0-9]+)$",
+    "max_words": 8,
+    "max_chars": 64,
+    "max_digits": 6,
+    "max_entropy_bits": 3.5,
+    "min_chars_for_entropy": 12,
+    "max_numeric_magnitude": 10000,
+    "normalisation": "strip"
+  },
+  "operand_shape_note": [
+    "Every bound the boundary applies to a string operand, mirrored so a client can build one that will be accepted rather than one that is silently refused.",
+    "A value is admitted if it matches 'token_pattern' as a single token, OR matches 'phrase_pattern' and, split on 'word_separator_pattern', has at most 'max_words' words each matching 'word_pattern'.",
+    "The token alternative is checked first and short-circuits the phrase rule, which is why a value like 'HTTP_429' or 'v1.2.3' is admissible even though it is not a valid phrase word.",
+    "On top of that: at most 'max_chars' characters, at most 'max_digits' digits anywhere in the value, and no word of 'min_chars_for_entropy' characters or more may exceed 'max_entropy_bits' of Shannon entropy.",
+    "A numeric operand is bounded by 'max_numeric_magnitude' instead.",
+    "'word_pattern' admits an identifier, a <mask>, or a bare number, and never a mix of letters and digits, that mix being the signature of an identifier the producer failed to mask.",
+    "ONE CHECK IS NOT MIRRORED AND CANNOT BE: the boundary also runs a secret scanner over the value and over its words joined with separators removed, and refuses on a hit.",
+    "A client cannot reproduce that from constants, so satisfying everything here is necessary and not sufficient, and a client should scrub before validating rather than assume admission.",
+    "TWO FURTHER RULES THE BOUNDARY APPLIES, published here because a client that omits them disagrees with it silently.",
+    "'normalisation' names what the boundary does to the value before any bound above is applied: it strips leading and trailing whitespace and refuses what is then empty, so a padded value a client refuses locally would in fact have been admitted.",
+    "And a numeric operand must be finite and integral as well as within 'max_numeric_magnitude', so 1.5 and inf are refused where 1 is admitted.",
+    "These mirror GATE_VALUE_TOKEN_RE, GATE_VALUE_PHRASE_RE, GATE_VALUE_WORD_SEPARATOR_RE, GATE_VALUE_PHRASE_WORD_RE, MAX_GATE_VALUE_WORDS, MAX_GATE_VALUE_CHARS, MAX_GATE_VALUE_DIGITS, MAX_GATE_VALUE_ENTROPY_BITS, MIN_GATE_VALUE_CHARS_FOR_ENTROPY and MAX_GATE_NUMERIC_MAGNITUDE in hyperstruck_core/reasoning/memory/learning/constants.py, and a test in the platform repository holds the two together.",
+    "Only the parity test in the platform repository reads operand_shape today. The client validates with its own constants and gains a reader in the change that first needs one; the data and its parity test land first so the reader has something pinned to build against."
+  ]
+}

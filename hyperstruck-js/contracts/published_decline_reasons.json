@@ -1,0 +1,12 @@
+{
+  "contract": "published_decline_reasons",
+  "version": 1,
+  "description": "Reasons the learning boundary accepts on a decline. The field is a closed enum behind extra=\"forbid\", so a reason absent from this list is refused and the run stays open holding its resolve reservation. A new reason lands at the boundary and is published here before a client sends it; a client whose only honest reason is unpublished does not decline at all, rather than declining under a reason that means something else.",
+  "reasons": [
+    "no_tool_calls",
+    "below_material_threshold",
+    "empty_offer",
+    "unevidenced_outcome",
+    "readonly_close"
+  ]
+}

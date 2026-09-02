@@ -1,0 +1,16 @@
+# DeterministicArmReport
+
+## Properties
+Name | Type | Description | Notes
+------------ | ------------- | ------------- | -------------
+**downgrade_reason** | **object** | Why the guarantee is &#x60;partial&#x60;, in plain words. Null when it is &#x60;exhaustive&#x60;. | [optional]
+**entities_reached** | **object** | How many entities the question&#x27;s names reached. Zero is a real answer, not a failure. |
+**guarantee** | [**ReadGuarantee**](ReadGuarantee.md) |  |
+**held_count** | **object** | Rows held back pending human review, counted and never returned. Counted rather than silently dropped so a caller can tell a held row from an absent one; not returned because content no human has released is not something a caller can be told to trust.  **Null means the count did not run**, which is a different fact from zero and is why it is nullable rather than defaulted. The count shares the deterministic arm&#x27;s statement ceiling, so when that ceiling fires there is no measurement to report, and reporting an unmeasured zero would commit the exact error this field exists to prevent: a held row reading as an absent one. &#x60;is_total_exact&#x60; says the same thing about &#x60;total&#x60;; this says it about the count, with no room for a flag to disagree. Expect null on precisely the responses where &#x60;guarantee&#x60; is &#x60;partial&#x60;. | [optional]
+**is_total_exact** | **object** | Whether &#x60;total&#x60; is a count or a floor. Check it before quoting the number. |
+**scoped_entity_ids** | **object** | The entities this answer was narrowed to: the ones the question named that documents are filed under. Empty when the answer was not narrowed. | [optional]
+**total** | **object** | How many claims this arm&#x27;s scope holds. Exact when &#x60;is_total_exact&#x60;, otherwise a lower bound: never fewer than the rows already returned, because claiming less than we handed over would be false. |
+**withheld_by_scope** | **object** | Rows this agent holds that the question&#x27;s own containers do not reach, counted and never returned. A claim is withheld when its document belongs only to OTHER containers and the claim is not itself about one you bound: one engagement&#x27;s facts arriving inside another&#x27;s answer is the leak this closes.  **Counted rather than silently dropped**, for the reason &#x60;held_count&#x60; is: a reader who cannot tell a withheld row from an absent one cannot tell \&quot;we do not hold that\&quot; from \&quot;we are not showing you that\&quot;. Zero means nothing was withheld, which includes every read that was not narrowed. **Null when the narrowing or its count did not complete**, and &#x60;downgrade_reason&#x60; says which: an unresolved scope leaves the answer unnarrowed with &#x60;total&#x60; measured, an incomplete count leaves it narrowed with &#x60;total&#x60; a lower bound.  When measured, &#x60;total&#x60; already excludes these, so &#x60;total&#x60; and the rows you can page to agree; this number says how many the narrowing removed. | [optional]
+
+[[Back to Model list]](../README.md#documentation-for-models) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to README]](../README.md)
+
