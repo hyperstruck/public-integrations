@@ -1,0 +1,60 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" role="img" aria-label="Hyperstruck">
+  <defs>
+    <linearGradient id="hs-stem" x1="0" y1="0" x2="1" y2="0.12">
+      <stop offset="0%" stop-color="#ffffff"/>
+      <stop offset="24%" stop-color="#eef3f8"/>
+      <stop offset="62%" stop-color="#b7c4d2"/>
+      <stop offset="100%" stop-color="#8894a3"/>
+    </linearGradient>
+    <linearGradient id="hs-side" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#9aa7b6"/>
+      <stop offset="55%" stop-color="#5b6572"/>
+      <stop offset="100%" stop-color="#2e353e"/>
+    </linearGradient>
+    <linearGradient id="hs-slash" x1="0%" y1="50%" x2="100%" y2="50%">
+      <stop offset="0%" stop-color="#7ae7ff"/>
+      <stop offset="18%" stop-color="#3da6ff"/>
+      <stop offset="50%" stop-color="#d0c4ff"/>
+      <stop offset="82%" stop-color="#d13dff"/>
+      <stop offset="100%" stop-color="#ff3ad4"/>
+    </linearGradient>
+    <radialGradient id="hs-cyan" cx="30%" cy="54%" r="46%">
+      <stop offset="0%" stop-color="#1a8cff" stop-opacity="0.5"/>
+      <stop offset="100%" stop-color="#1a8cff" stop-opacity="0"/>
+    </radialGradient>
+    <radialGradient id="hs-magenta" cx="72%" cy="42%" r="46%">
+      <stop offset="0%" stop-color="#c43dff" stop-opacity="0.5"/>
+      <stop offset="100%" stop-color="#c43dff" stop-opacity="0"/>
+    </radialGradient>
+    <filter id="hs-glow" x="-40%" y="-80%" width="180%" height="260%">
+      <feGaussianBlur stdDeviation="9" result="blur"/>
+      <feMerge>
+        <feMergeNode in="blur"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+    <clipPath id="hs-icon">
+      <rect width="512" height="512" rx="114"/>
+    </clipPath>
+  </defs>
+  <g clip-path="url(#hs-icon)">
+    <rect width="512" height="512" fill="#05060c"/>
+    <rect width="512" height="512" fill="url(#hs-cyan)"/>
+    <rect width="512" height="512" fill="url(#hs-magenta)"/>
+    <g fill="url(#hs-side)">
+      <polygon points="264.0,72.0 282.0,78.0 240.2,245.3 222.2,239.3"/>
+      <polygon points="209.4,290.2 227.4,296.2 190.0,446.0 172.0,440.0"/>
+      <polygon points="434.0,72.0 452.0,78.0 420.0,206.0 402.0,200.0"/>
+      <polygon points="389.3,250.9 407.3,256.9 360.0,446.0 342.0,440.0"/>
+    </g>
+    <g fill="url(#hs-stem)">
+      <polygon points="164.0,72.0 264.0,72.0 222.2,239.3 116.4,262.4"/>
+      <polygon points="103.7,313.3 209.4,290.2 172.0,440.0 72.0,440.0"/>
+      <polygon points="334.0,72.0 434.0,72.0 402.0,200.0 296.2,223.2"/>
+      <polygon points="283.5,274.0 389.3,250.9 342.0,440.0 242.0,440.0"/>
+    </g>
+    <g filter="url(#hs-glow)">
+      <polygon fill="url(#hs-slash)" points="6,310 26,318 486,210 506,196 486,202 26,298"/>
+    </g>
+  </g>
+</svg>

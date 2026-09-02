@@ -1,0 +1,236 @@
+[
+  {
+    "name": "https_remote_full",
+    "remote": "https://github.com/acme/api.git",
+    "commit": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+    "tree": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+    "path": "src/x.py",
+    "max_chars": 200,
+    "expected": "git:github.com/acme/api@aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa^{tree:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb}:src/x.py"
+  },
+  {
+    "name": "https_remote_no_dotgit",
+    "remote": "https://github.com/acme/api",
+    "commit": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+    "tree": null,
+    "path": "src/x.py",
+    "max_chars": 200,
+    "expected": "git:github.com/acme/api@aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa:src/x.py"
+  },
+  {
+    "name": "https_remote_with_credentials",
+    "remote": "https://user:token@github.com/acme/api.git",
+    "commit": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+    "tree": null,
+    "path": "x.py",
+    "max_chars": 200,
+    "expected": "git:github.com/acme/api@aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa:x.py"
+  },
+  {
+    "name": "scp_shorthand",
+    "remote": "git@github.com:acme/api.git",
+    "commit": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+    "tree": null,
+    "path": "x.py",
+    "max_chars": 200,
+    "expected": "git:github.com/acme/api@aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa:x.py"
+  },
+  {
+    "name": "ssh_scheme",
+    "remote": "ssh://git@github.com/acme/api.git",
+    "commit": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+    "tree": null,
+    "path": "x.py",
+    "max_chars": 200,
+    "expected": "git:github.com/acme/api@aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa:x.py"
+  },
+  {
+    "name": "filesystem_remote",
+    "remote": "/home/user/repo",
+    "commit": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+    "tree": null,
+    "path": "x.py",
+    "max_chars": 200,
+    "expected": null
+  },
+  {
+    "name": "relative_filesystem_remote",
+    "remote": "../repo",
+    "commit": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+    "tree": null,
+    "path": "x.py",
+    "max_chars": 200,
+    "expected": null
+  },
+  {
+    "name": "no_remote",
+    "remote": null,
+    "commit": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+    "tree": null,
+    "path": "x.py",
+    "max_chars": 200,
+    "expected": null
+  },
+  {
+    "name": "empty_remote",
+    "remote": "",
+    "commit": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+    "tree": null,
+    "path": "x.py",
+    "max_chars": 200,
+    "expected": null
+  },
+  {
+    "name": "no_commit",
+    "remote": "https://github.com/acme/api",
+    "commit": null,
+    "tree": null,
+    "path": "x.py",
+    "max_chars": 200,
+    "expected": "git:github.com/acme/api:x.py"
+  },
+  {
+    "name": "short_commit_ignored",
+    "remote": "https://github.com/acme/api",
+    "commit": "a1b2c3d",
+    "tree": null,
+    "path": "x.py",
+    "max_chars": 200,
+    "expected": "git:github.com/acme/api:x.py"
+  },
+  {
+    "name": "64_char_sha",
+    "remote": "https://github.com/acme/api",
+    "commit": "cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc",
+    "tree": null,
+    "path": "x.py",
+    "max_chars": 200,
+    "expected": "git:github.com/acme/api@cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc:x.py"
+  },
+  {
+    "name": "uppercase_sha_lowered",
+    "remote": "https://github.com/acme/api",
+    "commit": "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
+    "tree": null,
+    "path": "x.py",
+    "max_chars": 200,
+    "expected": "git:github.com/acme/api@aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa:x.py"
+  },
+  {
+    "name": "tree_without_commit_dropped",
+    "remote": "https://github.com/acme/api",
+    "commit": null,
+    "tree": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+    "path": "x.py",
+    "max_chars": 200,
+    "expected": "git:github.com/acme/api:x.py"
+  },
+  {
+    "name": "bad_tree_dropped",
+    "remote": "https://github.com/acme/api",
+    "commit": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+    "tree": "not-a-sha",
+    "path": "x.py",
+    "max_chars": 200,
+    "expected": "git:github.com/acme/api@aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa:x.py"
+  },
+  {
+    "name": "no_path",
+    "remote": "https://github.com/acme/api",
+    "commit": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+    "tree": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+    "path": null,
+    "max_chars": 200,
+    "expected": "git:github.com/acme/api@aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa^{tree:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb}"
+  },
+  {
+    "name": "leading_slash_path_refused",
+    "remote": "https://github.com/acme/api",
+    "commit": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+    "tree": null,
+    "path": "/etc/passwd",
+    "max_chars": 200,
+    "expected": "git:github.com/acme/api@aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+  },
+  {
+    "name": "dotdot_path_refused",
+    "remote": "https://github.com/acme/api",
+    "commit": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+    "tree": null,
+    "path": "../x.py",
+    "max_chars": 200,
+    "expected": "git:github.com/acme/api@aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+  },
+  {
+    "name": "empty_segment_path_refused",
+    "remote": "https://github.com/acme/api",
+    "commit": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+    "tree": null,
+    "path": "a//b.py",
+    "max_chars": 200,
+    "expected": "git:github.com/acme/api@aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+  },
+  {
+    "name": "backslash_path_refused",
+    "remote": "https://github.com/acme/api",
+    "commit": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+    "tree": null,
+    "path": "a\\b.py",
+    "max_chars": 200,
+    "expected": "git:github.com/acme/api@aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+  },
+  {
+    "name": "gitlab_subgroup",
+    "remote": "https://gitlab.com/acme/platform/api.git",
+    "commit": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+    "tree": null,
+    "path": "x.py",
+    "max_chars": 200,
+    "expected": "git:gitlab.com/acme/platform/api@aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa:x.py"
+  },
+  {
+    "name": "bitbucket_remote",
+    "remote": "https://bitbucket.org/acme/api.git",
+    "commit": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+    "tree": null,
+    "path": "x.py",
+    "max_chars": 200,
+    "expected": "git:bitbucket.org/acme/api@aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa:x.py"
+  },
+  {
+    "name": "oversized_trims_path_first",
+    "remote": "https://github.com/acme/api",
+    "commit": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+    "tree": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+    "path": "a/very/long/path/that/does/not/fit/inside/the/bound/at/all/and/keeps/going/for/a/while/longer/still.py",
+    "max_chars": 80,
+    "expected": "git:github.com/acme/api@aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+  },
+  {
+    "name": "oversized_trims_tree_next",
+    "remote": "https://github.com/acme/api",
+    "commit": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+    "tree": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+    "path": "x.py",
+    "max_chars": 50,
+    "expected": null
+  },
+  {
+    "name": "single_segment_path_rejected_as_repo",
+    "remote": "https://github.com/solo",
+    "commit": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+    "tree": null,
+    "path": "x.py",
+    "max_chars": 200,
+    "expected": null
+  },
+  {
+    "name": "host_only_no_repo",
+    "remote": "https://github.com",
+    "commit": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+    "tree": null,
+    "path": "x.py",
+    "max_chars": 200,
+    "expected": null
+  }
+]

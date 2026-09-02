@@ -1,0 +1,8 @@
+{
+  "mcpServers": {
+    "hyperstruck": {
+      "type": "http",
+      "url": "https://mcp.hyperstruck.com/mcp"
+    }
+  }
+}

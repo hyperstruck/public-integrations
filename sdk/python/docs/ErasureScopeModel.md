@@ -1,0 +1,14 @@
+# ErasureScopeModel
+
+## Properties
+Name | Type | Description | Notes
+------------ | ------------- | ------------- | -------------
+**count** | **object** |  | [optional]
+**disposition** | **object** |  |
+**reason** | **object** |  | [optional]
+**scope** | **object** |  |
+**technique** | **object** |  |
+**verified** | **object** |  | [optional]
+
+[[Back to Model list]](../README.md#documentation-for-models) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to README]](../README.md)
+
